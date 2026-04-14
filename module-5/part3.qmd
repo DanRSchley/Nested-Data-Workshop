@@ -29,8 +29,12 @@ Both papers are correct. The question is when each applies.
 
 ```{r convergence-example}
 # Simulate a within-subjects design
+# Each participant sees each condition 4 times (trials)
+# 40 participants × 3 conditions × 4 trials = 480 observations
+# Random effects needed: 40 × 3 = 120 — well below 480
 n_participants <- 40
 n_conditions   <- 3
+n_trials       <- 4
 
 participant_intercepts <- rnorm(n_participants, 50, 8)
 # Small (but nonzero) random slopes
@@ -38,7 +42,8 @@ participant_slopes     <- rnorm(n_participants, 0, 0.5)
 
 df_within <- expand_grid(
   participant = 1:n_participants,
-  condition   = 1:n_conditions
+  condition   = 1:n_conditions,
+  trial       = 1:n_trials
 ) |>
   mutate(
     condition_eff = c(-2, 0, 2)[condition],  # condition effect
