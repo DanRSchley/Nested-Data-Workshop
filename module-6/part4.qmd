@@ -106,20 +106,42 @@ df_long_miss <- df_long |>
     baseline_obs = ifelse(runif(n()) < 0.15, NA, baseline)  # 15% missing
   )
 
-# Multilevel multiple imputation
-imp <- mice(
-  df_long_miss |> select(person, wave, treatment, baseline_obs, Y_obs),
-  method    = "2l.pan",  # level-2 predictive mean matching
-  maxit     = 5,
-  m         = 5,
-  print     = FALSE
-)
+# Prepare data for multilevel imputation
+# 2l.pan requires: cluster variable coded as integer, predictor matrix
+# with -2 marking the cluster ID column
+df_mi <- df_long_miss |>
+  select(person, wave, treatment, baseline_obs, Y_obs) |>
+  mutate(person = as.integer(person))
+
+# Build predictor matrix: rows = variables to impute, cols = predictors
+# -2 = cluster ID, 1 = fixed predictor, 2 = random predictor, 0 = not used
+ini    <- mice(df_mi, maxit = 0, print = FALSE)
+pred   <- ini$predictorMatrix
+meth   <- ini$method
+
+# Only baseline_obs has missing data — use 2l.pan for it
+meth["baseline_obs"] <- "2l.pan"
+meth["Y_obs"]        <- ""       # don't impute outcome
+
+# Set person as the class variable (-2) for the imputed variable
+pred["baseline_obs", "person"] <- -2
+pred["baseline_obs", "wave"]   <-  2   # random effect of wave
+pred["baseline_obs", "treatment"] <- 1
+pred["baseline_obs", "Y_obs"]     <- 1
+
+imp <- mice(df_mi,
+            method           = meth,
+            predictorMatrix  = pred,
+            maxit            = 5,
+            m                = 5,
+            print            = FALSE)
 
 # Analyze each imputed dataset and pool results
 models_imp <- with(imp, lmer(Y_obs ~ wave * treatment + baseline_obs +
-                               (wave | person)))
+                               (1 | person)))
 pooled <- pool(models_imp)
 summary(pooled) |>
+  select(term, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
     caption = "Pooled MI estimates: multiple imputation handles missing predictors")
 ```
