@@ -1,0 +1,122 @@
+---
+title: "Multi-Site Experiments"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+set.seed(2024)
+```
+
+# Multi-Site Experiments
+
+## Generalizability is a Nesting Problem
+
+The replication crisis in psychology revealed that many findings were fragile — they held at one university, with one sample, run by one experimenter, but failed to replicate elsewhere. The problem is that **site** is a nesting variable that standard analysis ignores.
+
+A **multi-site experiment** (also called a many-labs design) runs the same study across multiple locations: different universities, countries, online platforms, or time periods. Each site contributes data. Sites are treated as a random sample from a larger population of sites.
+
+This design answers a richer question: not "does this effect occur at location X?" but "does this effect occur, on average, across the population of contexts?" And it allows you to ask: **how much does the effect size vary across sites?**
+
+## The Model
+
+Sites are random. The treatment effect may vary across sites (cross-level interaction between treatment and site).
+
+$$Y_{ijk} = \gamma_{00} + \gamma_{10} \text{Treat}_{ij} + u_{0k} + u_{1k} \text{Treat}_{ij} + \varepsilon_{ijk}$$
+
+Where:
+- $k$ = site; $j$ = participant; $i$ = observation
+- $u_{0k}$: site-level random intercept (baseline differences across sites)
+- $u_{1k}$: site-level random slope for treatment (heterogeneity in treatment effect)
+- $\gamma_{10}$: average treatment effect across sites
+
+```{r many-labs-sim}
+n_sites       <- 20
+n_per_site    <- 40  # 20 treatment, 20 control
+
+site_intercepts <- rnorm(n_sites, 50, 5)   # sites differ in baseline
+site_effects    <- rnorm(n_sites, 5, 3)    # treatment effect varies across sites
+# Average effect = 5; some sites show 8, some show 2
+
+df_ml <- expand_grid(
+  site = 1:n_sites,
+  participant = 1:n_per_site
+) |>
+  mutate(
+    treatment   = rep(c(rep(0, 20), rep(1, 20)), n_sites),
+    site_base   = site_intercepts[site],
+    site_effect = site_effects[site],
+    outcome     = site_base + site_effect * treatment + rnorm(n(), 0, 6),
+    site        = factor(site)
+  )
+```
+
+```{r fit-many-labs}
+# Random intercepts and slopes for sites
+m_ml <- lmer(outcome ~ treatment + (treatment | site), data = df_ml)
+
+broom.mixed::tidy(m_ml, effects = "fixed") |>
+  knitr::kable(digits = 3,
+    caption = "Average treatment effect across sites")
+
+broom.mixed::tidy(m_ml, effects = "ran_pars") |>
+  knitr::kable(digits = 3,
+    caption = "Variance in treatment effect across sites (how heterogeneous is the effect?)")
+```
+
+```{r forest-plot}
+# Forest plot: site-specific effect estimates
+site_estimates <- coef(m_ml)$site |>
+  as.data.frame() |>
+  rownames_to_column("site") |>
+  rename(intercept = `(Intercept)`, effect = treatment) |>
+  arrange(effect)
+
+ggplot(site_estimates, aes(x = reorder(site, effect), y = effect)) +
+  geom_hline(yintercept = fixef(m_ml)["treatment"],
+             color = "#e63946", linetype = "dashed", linewidth = 1) +
+  geom_point(size = 3, color = "#1e3a5f") +
+  coord_flip() +
+  labs(
+    title    = "Site-specific treatment effect estimates (forest plot)",
+    subtitle = "Red line = average effect; points = individual site estimates",
+    x        = "Site",
+    y        = "Treatment Effect"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+## The ICC for Treatment Effects
+
+The random slope for treatment tells you how much the effect varies across sites. The **I²** statistic (from meta-analysis) provides a related measure: what proportion of the total variation in effect size estimates is due to genuine heterogeneity vs. sampling error?
+
+```{r heterogeneity}
+# Variance of the treatment effect across sites
+var_treatment_effect <- as.data.frame(VarCorr(m_ml))$vcov[2]  # slope variance
+cat("Standard deviation of treatment effect across sites:",
+    round(sqrt(var_treatment_effect), 2), "\n")
+cat("Average effect:", round(fixef(m_ml)["treatment"], 2), "\n")
+cat("Effect ranges approximately from",
+    round(fixef(m_ml)["treatment"] - 2*sqrt(var_treatment_effect), 1),
+    "to",
+    round(fixef(m_ml)["treatment"] + 2*sqrt(var_treatment_effect), 1),
+    "across sites\n")
+```
+
+::: {.callout-warning icon=false}
+## Assumption: Sites are a Representative Sample
+
+**What it means:** The multi-site model generalizes to the population of sites from which your sites were drawn. If your 20 labs are all top-10 research universities, the results generalize to that population — not to community colleges, online platforms, or international contexts.
+
+**How to check:** Describe your site-selection process. Were sites systematically sampled? Opportunistically recruited? The inference should match the selection.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Treatment Procedure is Comparable Across Sites
+
+**What it means:** The "treatment" must be operationally equivalent across sites. If different labs implemented the procedure differently — different materials, different timing, different experimenter instructions — site-to-site variability reflects procedure differences, not true effect heterogeneity.
+
+**How to check:** Pre-specify and enforce standardized protocols. Measure implementation fidelity. Include implementation fidelity as a moderator.
+:::

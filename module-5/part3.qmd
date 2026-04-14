@@ -1,0 +1,122 @@
+---
+title: "Maximal vs. Parsimonious Random Effects"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+set.seed(77)
+```
+
+# Maximal vs. Parsimonious Random Effects
+
+## The Debate
+
+In 2013, Barr, Levy, Scheepers, & Tily published an influential paper titled "Random Effects Structure for Confirmatory Hypothesis Testing: Keep It Maximal." Their argument:
+
+> To control Type I error at the nominal level, researchers should include the *maximal* random effects structure — every random slope that is justified by the experimental design.
+
+In a within-subjects design where every participant sees every condition, you must include a random slope for condition by participants. Omitting this random slope will produce anti-conservative p-values.
+
+Two years later, Matuschek, Kliegl, Vasishth, Baayen, & Bates (2017) pushed back in a paper titled "Balancing Type I Error and Power in Linear Mixed Models." Their argument:
+
+> Maximal models frequently fail to converge or produce degenerate variance components. Over-parameterized models can actually have *worse* power than well-specified parsimonious models. Use likelihood ratio tests to decide what to include.
+
+Both papers are correct. The question is when each applies.
+
+## Why Maximal Models Can Fail
+
+```{r convergence-example}
+# Simulate a within-subjects design
+n_participants <- 40
+n_conditions   <- 3
+
+participant_intercepts <- rnorm(n_participants, 50, 8)
+# Small (but nonzero) random slopes
+participant_slopes     <- rnorm(n_participants, 0, 0.5)
+
+df_within <- expand_grid(
+  participant = 1:n_participants,
+  condition   = 1:n_conditions
+) |>
+  mutate(
+    condition_eff = c(-2, 0, 2)[condition],  # condition effect
+    p_slope       = participant_slopes[participant],
+    Y = participant_intercepts[participant] + condition_eff +
+        p_slope * condition_eff + rnorm(n(), 0, 5),
+    participant = factor(participant),
+    condition   = factor(condition)
+  )
+
+# Maximal model
+m_max <- lmer(Y ~ condition + (condition | participant),
+              data    = df_within,
+              control = lmerControl(optimizer = "bobyqa"))
+
+# Does it converge?
+library(performance)
+check_convergence(m_max)
+
+# Parsimonious model (random slope variance is tiny — can drop it)
+m_pars <- lmer(Y ~ condition + (1 | participant), data = df_within)
+```
+
+```{r compare-models}
+# Compare: do the p-values differ substantially?
+anova(m_pars, m_max)
+```
+
+## The Decision Framework
+
+The current consensus among methodologists:
+
+::: {.callout-note}
+## When to Use Maximal Random Effects
+
+1. **Within-subjects experimental manipulations:** Always include random slopes for within-subjects factors. This is the critical case. Barr et al. (2013) are correct: omitting random slopes for within-subject conditions inflates Type I error.
+
+2. **When theory or pilot data suggests heterogeneous effects:** If you have prior reason to believe the treatment effect varies substantially across participants, include the random slope.
+
+3. **Large samples:** With enough data, complex models converge and the efficiency loss from over-parameterization is small.
+:::
+
+::: {.callout-note}
+## When to Simplify (Parsimonious)
+
+1. **Convergence failures:** If the maximal model does not converge, you must simplify. Start by removing the correlation between random intercept and slope (`(1 | participant) + (0 + condition | participant)`). Then consider removing the random slope itself.
+
+2. **Degenerate variance components:** If the random slope variance is estimated at exactly zero (or very near), it is contributing nothing and can be dropped.
+
+3. **Very small variance components:** Use an LRT to test whether the random slope significantly improves fit. If not, the parsimonious model is appropriate.
+:::
+
+## A Practical Simplification Protocol
+
+```{r simplification-protocol}
+# Step 1: Try the maximal model
+m_max_2 <- tryCatch(
+  lmer(Y ~ condition + (condition | participant),
+       data = df_within, control = lmerControl(optimizer = "bobyqa")),
+  warning = function(w) { cat("Warning:", conditionMessage(w), "\n"); NULL }
+)
+
+# Step 2: If it fails/has issues, remove correlation first
+m_no_corr <- lmer(Y ~ condition + (1 | participant) + (0 + condition | participant),
+                  data = df_within)
+
+# Step 3: Test: does the random slope improve fit?
+anova(m_pars, m_no_corr)
+
+# If p > 0.05 on the LRT, the random slope does not help — use m_pars
+```
+
+::: {.callout-warning icon=false}
+## Assumption: The Random Effects Structure Matches the Design
+
+**What it means:** The random effects you include should reflect the actual nesting structure of your design. A random slope for a between-subjects factor makes no statistical sense (between-subjects factors cannot vary within a subject).
+
+**Common mistake:** Including a random slope for a between-subjects condition. This will either produce a degenerate model or absorb all variance in a nonsensical way.
+
+**How to check:** For each predictor, ask: does this variable vary *within* the grouping unit (participant, stimulus)? If yes, it can have a random slope for that unit. If no (between-subjects), it cannot.
+:::

@@ -1,0 +1,107 @@
+---
+title: "Partially Nested Designs"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+set.seed(2025)
+```
+
+# Partially Nested Designs
+
+## When Only One Condition Has Clustering
+
+Consider a psychotherapy trial. The treatment group receives group therapy: 8 clients per therapist, 15 therapists. The control group receives no treatment (waitlist) — there is no therapist and no group structure. Clients in the control condition are independent of each other.
+
+This design is **partially nested**: the treatment condition has a natural cluster structure (clients within therapists/groups), but the control condition does not.
+
+If you fit a standard two-level model treating all participants the same way, you either:
+1. Ignore clustering in the treatment group — deflating standard errors and inflating Type I error for the treatment effect
+2. Apply random effects to all participants — misspecifying the control group, which has no actual clustering
+
+The **partially nested model** (Bauer, Sterba & Hallfors, 2008) handles this correctly by allowing different variance structures in different conditions.
+
+## Simulating a Partially Nested Design
+
+```{r pn-simulation}
+n_therapists <- 15
+n_per_group  <- 8
+n_control    <- n_therapists * n_per_group  # same total N
+
+# Treatment group: therapist clustering (ICC ≈ 0.15)
+therapist_effects <- rnorm(n_therapists, 0, 3)
+
+df_treatment <- tibble(
+  condition   = "treatment",
+  therapist   = rep(1:n_therapists, each = n_per_group),
+  client      = 1:(n_therapists * n_per_group),
+  therapist_e = rep(therapist_effects, each = n_per_group),
+  outcome     = 50 + 5 + therapist_e + rnorm(n_therapists * n_per_group, 0, 6)
+)
+
+# Control group: no clustering (independent)
+df_control <- tibble(
+  condition   = "control",
+  therapist   = NA_integer_,  # no therapist
+  client      = 1:n_control + max(df_treatment$client),
+  therapist_e = 0,
+  outcome     = 50 + rnorm(n_control, 0, 6)
+)
+
+df_pn <- bind_rows(df_treatment, df_control)
+```
+
+## The Partially Nested Model in lme4
+
+The trick: create a dummy therapist variable for control participants (unique ID for each, indicating no shared clustering) and fit a model where the random effect only applies to the treatment group.
+
+```{r fit-pn}
+# Assign unique "therapist" IDs to control participants
+df_pn <- df_pn |>
+  mutate(
+    cluster_id = ifelse(condition == "treatment",
+                        paste0("T", therapist),
+                        paste0("C", client))  # each control is own "cluster"
+  )
+
+# Partially nested: cluster RE only in treatment
+# Use dummy coding and interaction for the random effect
+df_pn <- df_pn |>
+  mutate(treat_dummy = as.integer(condition == "treatment"))
+
+# Fit: allow random effect only within treatment clusters
+m_pn <- lmer(outcome ~ condition + (1 | cluster_id), data = df_pn)
+
+# Compare to naive model (ignores all clustering)
+m_naive <- lm(outcome ~ condition, data = df_pn)
+
+bind_rows(
+  broom::tidy(m_naive) |> filter(term == "conditiontreatment") |>
+    mutate(model = "Naive (no clustering)"),
+  broom.mixed::tidy(m_pn, effects = "fixed") |>
+    filter(term == "conditiontreatment") |>
+    mutate(model = "Partially nested model")
+) |>
+  select(model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Partially nested model: correct SE for clustered treatment group")
+```
+
+::: {.callout-warning icon=false}
+## Assumption: Correct Identification of Which Condition is Clustered
+
+**What it means:** You must correctly specify which condition has clustering and which does not. If clustering is misattributed (e.g., you apply cluster random effects to the control group when there is none), variance components will be estimated incorrectly.
+
+**How to check:** Draw the design. Which participants share a natural group, coach, therapist, or classroom? That condition has the nested structure.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Homogeneity of Within-Cluster Variance
+
+**What it means:** The standard partially nested model assumes the residual variance is the same in the treatment and control groups (only the random effect variance differs).
+
+**How to check:** Compare within-group variance across conditions. If the treatment group has substantially more or less residual variance than control, allow heteroskedastic residuals.
+:::

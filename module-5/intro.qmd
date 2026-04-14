@@ -1,0 +1,31 @@
+---
+title: "Overview"
+---
+
+# Module 5: Experimental Designs with Nesting {.unnumbered}
+
+## Experiments Are Not Flat
+
+A well-designed randomized experiment is often treated as the gold standard for causal inference. And it is — when properly analyzed. The problem is that most experiments are analyzed as if every observation is an independent draw from a single population. They are not.
+
+Even the simplest between-subjects experiment has nesting baked in:
+
+- **Participants** are a sample from a population of possible participants
+- **Stimuli** (vignettes, words, products, images) are a sample from a population of possible stimuli
+- **Conditions** may be nested within experimenters, sessions, labs, or time periods
+
+When stimuli are treated as fixed — as if your 20 vignettes are the only 20 that exist — the generalization to other stimuli is silent. Your p-values are too small because stimulus-level variance is being absorbed into the residual, artificially tightening standard errors.
+
+Judd, Westfall, & Kenny (2012, 2017) documented that this mistake is pervasive in social psychology and leads to systematic Type I error inflation.
+
+## What This Module Covers
+
+**Part 1: Crossed Random Effects in Experiments** — Why stimuli are random, what happens when you treat them as fixed, and how to fix it with crossed random effects models in `lme4`.
+
+**Part 2: Partially Nested Designs** — When one condition has nesting (e.g., treatment participants have therapists/coaches) and the other does not, standard MLM misspecifies the design. The Bauer et al. partially nested model handles this correctly.
+
+**Part 3: Maximal vs. Parsimonious Random Effects** — The Barr et al. (2013) vs. Matuschek et al. (2017) debate: how complex should your random effects structure be? When does complexity help and when does it hurt?
+
+**Part 4: Multi-Site Experiments** — When the same experiment runs at multiple sites (labs, countries, platforms), sites introduce clustering. The many-labs design and how to model treatment effect heterogeneity across sites.
+
+**Part 5: Power Analysis for Nested Designs** — Why standard power formulas are wrong for nested data, the role of ICC, simulation-based power analysis, and practical sample size guidance.

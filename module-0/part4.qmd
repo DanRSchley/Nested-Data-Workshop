@@ -1,0 +1,173 @@
+---
+title: "Data Structure and Format"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+set.seed(77)
+```
+
+# Data Structure and Format
+
+## The Shape of Nested Data
+
+Before fitting any model, you need your data in the right shape. Nested data analysis requires **long format**: one row per observation at the lowest level of the hierarchy, with identifier variables that track higher-level units.
+
+This sounds simple. In practice, it trips up a surprising number of researchers.
+
+## Long Format vs. Wide Format
+
+Most people who have worked with repeated measures data in SPSS or Excel have encountered data in **wide format**: one row per person, with multiple columns for each time point or condition.
+
+```{r wide-format}
+# Wide format example
+df_wide <- tibble(
+  person_id = 1:6,
+  sex       = c("F", "M", "F", "F", "M", "M"),
+  age       = c(23, 31, 27, 25, 29, 34),
+  mood_day1 = c(65, 72, 58, 70, 63, 55),
+  mood_day2 = c(68, 69, 61, 74, 60, 58),
+  mood_day3 = c(71, 67, 64, 72, 65, 62),
+  mood_day4 = c(66, 74, 59, 75, 61, 57),
+  mood_day5 = c(70, 70, 63, 78, 64, 60)
+)
+
+knitr::kable(df_wide, caption = "Wide format: 6 people × 5 days = 6 rows")
+```
+
+This format feels intuitive — it keeps all information about one person on one row. But it is not suitable for multilevel modeling. Why?
+
+Because the model needs to see the nesting explicitly. It needs to know that `mood_day1`, `mood_day2`, and `mood_day3` belong to the same person — that they are three realizations of the same level-1 unit nested inside one level-2 unit.
+
+**Long format** makes the nesting explicit:
+
+```{r long-format}
+df_long <- df_wide |>
+  pivot_longer(
+    cols      = starts_with("mood_"),
+    names_to  = "day",
+    values_to = "mood"
+  ) |>
+  mutate(
+    day = as.integer(str_remove(day, "mood_day"))
+  ) |>
+  select(person_id, sex, age, day, mood)
+
+knitr::kable(df_long, caption = "Long format: 6 people × 5 days = 30 rows")
+```
+
+Now each row is one person-day observation. The nesting is explicit: `person_id` is the level-2 unit, `day` is the level-1 index within each person.
+
+## Converting Wide to Long in R
+
+```{r pivot-longer-demo, eval=FALSE}
+# The pivot_longer() function does the conversion
+df_long <- df_wide |>
+  pivot_longer(
+    cols      = starts_with("mood_"),   # which columns to collapse
+    names_to  = "day",                  # new column for what the columns were about
+    values_to = "mood"                  # new column for the values
+  ) |>
+  mutate(
+    day = as.integer(str_remove(day, "mood_day"))  # clean up the day variable
+  )
+```
+
+## The Essential Identifier Variables
+
+Every nested dataset needs at least two types of identifier variables:
+
+1. **Level-2 identifier:** A unique code for each higher-level unit (person, firm, classroom, country). This is what tells the model which observations belong together.
+2. **Level-1 identifier or index:** A variable that distinguishes observations *within* the same level-2 unit (day number, condition, trial number).
+
+In three-level data, you need identifiers at all three levels.
+
+::: {.callout-important icon=false}
+## Checklist: Preparing Nested Data
+
+Before fitting any model, verify:
+
+- [ ] **One row per level-1 observation** (not one row per person, unless you have only cross-sectional nesting)
+- [ ] **A unique, clean level-2 ID** (numeric or factor, no missing values, consistent coding)
+- [ ] **A level-1 index within each level-2 unit** (day number, trial number, condition)
+- [ ] **Level-2 variables appear on every row for that unit** (age, sex, and other person-level variables are repeated across all a person's rows)
+- [ ] **No structural missingness** (if some observations are genuinely missing vs. structurally absent, treat them differently)
+- [ ] **Balanced or unbalanced — you know which** (lme4 handles both, but you should know what you have)
+:::
+
+## Level-1 vs. Level-2 Variables
+
+A common source of confusion: variables that describe the *person* versus variables that describe the *observation*.
+
+```{r level-check}
+df_long |>
+  head(10) |>
+  knitr::kable(caption = "Identifying level in the dataset")
+```
+
+In this dataset:
+- `person_id`, `sex`, `age` are **level-2 variables** — they describe the person and are constant across all of that person's rows
+- `day` and `mood` are **level-1 variables** — they vary across observations within a person
+
+This distinction matters enormously for model building (centering, interpretation of effects) and will come up repeatedly in Module 2.
+
+## A Note on Balanced vs. Unbalanced Data
+
+**Balanced** data means every level-2 unit has the same number of level-1 observations. All 30 people have exactly 5 days of data. All 25 classrooms have exactly 20 students.
+
+**Unbalanced** data means the number of observations varies across level-2 units. Some people completed 7 days of the diary; others dropped out after 2. Some classrooms have 15 students; others have 28.
+
+Standard ANOVA-based approaches for repeated measures struggle with unbalanced data — they were designed for balanced designs. Mixed-effects models handle unbalanced data gracefully, because they use the information available for each unit without requiring complete cases.
+
+```{r unbalanced-demo}
+# Show what unbalanced data looks like
+df_unbalanced <- df_long |>
+  # randomly drop some observations to simulate dropout
+  filter(!(person_id %in% c(1, 4) & day >= 4),
+         !(person_id == 6 & day >= 3))
+
+df_unbalanced |>
+  group_by(person_id) |>
+  summarise(n_obs = n(), days_observed = paste(day, collapse = ", ")) |>
+  knitr::kable(caption = "Unbalanced data: some people have fewer observations")
+```
+
+## Diagnosing Your Data Structure
+
+Before fitting any model, it is good practice to run a quick structure check:
+
+```{r structure-check}
+# How many observations per person?
+df_long |>
+  count(person_id, name = "n_obs") |>
+  summary()
+
+# Is the data truly in long format? Check that level-2 variables don't vary within person
+df_long |>
+  group_by(person_id) |>
+  summarise(
+    n_unique_sex = n_distinct(sex),   # should be 1
+    n_unique_age = n_distinct(age)    # should be 1
+  ) |>
+  filter(n_unique_sex > 1 | n_unique_age > 1)  # should return 0 rows
+```
+
+Zero rows returned means no person has inconsistent sex or age coding across their observations. Good.
+
+```{r structure-check2}
+# How many level-2 units?
+n_distinct(df_long$person_id)
+
+# What is the range of level-1 observations per unit?
+df_long |>
+  count(person_id) |>
+  pull(n) |>
+  range()
+```
+
+This takes two minutes and saves hours of debugging later.
+
+## Looking Ahead
+
+With the conceptual foundations in place — DGP thinking, types of nesting, ICC, and data format — we are ready to start fitting models. Module 1 builds the core toolkit: fixed effects, random intercepts, and random slopes. At each step, we will be explicit about what assumption the model is making and what happens when that assumption is wrong.

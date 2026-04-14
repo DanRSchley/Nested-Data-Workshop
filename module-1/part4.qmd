@@ -1,0 +1,94 @@
+---
+title: "Fixed vs. Random: When to Use Which"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(plm)
+set.seed(2024)
+```
+
+# Fixed vs. Random Effects: When to Use Which
+
+## The Most Frequently Asked Question
+
+If you have been following along, you have noticed that fixed effects and random effects make different assumptions, answer slightly different questions, and have different costs and benefits. The obvious question is: **which one should I use?**
+
+The honest answer is: it depends on your data and your scientific question. But it is not arbitrary. There are principled criteria for making this decision.
+
+## A Side-by-Side Comparison
+
+| Property | Fixed Effects | Random Intercepts |
+|-----------|--------------|-------------------|
+| Assumption about group effects | Arbitrary constants to be estimated | Drawn from a normal distribution |
+| Correlation with predictors | Allowed (and corrected for) | Must be approximately zero |
+| Between-unit variation | Removed entirely | Modeled and retained |
+| Unit-level predictors | Cannot estimate | Can estimate |
+| Predictions for new units | Not possible | Possible (using variance components) |
+| Efficiency | Less efficient (uses more df) | More efficient if RE assumption holds |
+| Robustness | Robust to correlated random effects | Biased if RE-predictor correlation exists |
+
+## The Decisive Criterion
+
+The most important question is whether the random effects (unit-level deviations) are **correlated with your predictors**.
+
+- **If yes:** Random effects models are biased. Use fixed effects.
+- **If no:** Random effects models are more efficient. Use them.
+
+The Hausman test formalizes this check (covered in Part 2). But you should also think about it substantively:
+
+**Example 1 — Use FE:**
+You are studying whether neighborhood green space predicts depression. People choose where to live based on many factors — income, family ties, preferences — that also affect mental health. The random effects (neighborhood-level deviations in mental health) are surely correlated with neighborhood characteristics. Use fixed effects.
+
+**Example 2 — Use RE:**
+You run a multi-site experiment where participants at 20 different universities complete a survey. The sites were chosen roughly at random, and the random effects (site-level deviations in mean response) are unlikely to correlate with your experimental manipulation. Use random effects.
+
+## A Third Option: Hybrid Models
+
+In many cases, you actually want *both*: the within-unit consistency of fixed effects *and* the ability to model between-unit effects. This is achievable using **cluster-mean centering**, covered in Module 2.
+
+The hybrid approach:
+1. Center the predictor around each unit's mean (within-unit component)
+2. Include the unit mean as a separate predictor (between-unit component)
+3. Use a random-intercept model
+
+This separates within and between effects explicitly, avoids the confound problem, and retains the ability to study unit-level variation. It is often the best default for panel and longitudinal data.
+
+## Scientific Questions Also Drive the Choice
+
+Beyond the statistical criteria, your scientific question matters:
+
+| Question | Preferred Model |
+|----------|----------------|
+| What is the causal effect of X on Y within units? | Fixed effects |
+| How does X relate to Y on average, accounting for clustering? | Random effects |
+| How much do units vary in their Y levels? | Random effects (ICC) |
+| How much do units vary in the X-Y relationship? | Random slopes |
+| Can I predict a new unit's Y from its X? | Random effects |
+| Does unit-level characteristic Z predict Y? | Random effects |
+
+## What About Bayesian Approaches?
+
+Bayesian mixed-effects models (`brms` package) extend the random-effects framework with explicit priors on variance components. They are particularly useful when:
+
+- The model is complex and frequentist estimation has convergence problems
+- You want proper uncertainty quantification for variance components (frequentist intervals for variances can be poorly behaved near zero)
+- You want to incorporate prior knowledge about reasonable effect sizes
+
+The conceptual structure is identical to the frequentist random-effects model. The assumptions are the same. The key difference is in how uncertainty is expressed and how parameters are estimated.
+
+## Summary Decision Tree
+
+```
+Is the random effect correlated with your predictors?
+├── Yes → Fixed Effects
+└── No or Unknown →
+    ├── Do you want to estimate unit-level predictor effects?
+    │   ├── Yes → Random Effects
+    └── ├── Do you care about between-unit variance (ICC)?
+        │   ├── Yes → Random Effects
+        └── └── Do you want predictions for new units?
+                ├── Yes → Random Effects
+                └── No → Either (use Hausman test to choose)
+```

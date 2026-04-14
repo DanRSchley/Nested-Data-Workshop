@@ -1,0 +1,89 @@
+---
+title: "Simpson's Paradox"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(ggplot2)
+set.seed(303)
+```
+
+# Simpson's Paradox
+
+## When the Aggregate Lies
+
+Simpson's Paradox occurs when a relationship that exists in the aggregate data *reverses* when you look within subgroups. It is not a statistical quirk — it is a direct consequence of ignoring nesting, and it is surprisingly common.
+
+```{r simpsons-setup}
+# Classic demonstration: grades and study time, but students vary by program
+# Hard program students study more AND have lower grades (because the program is harder)
+n_students  <- 200
+n_programs  <- 5
+
+program_difficulty <- c(2, 4, 6, 8, 10)   # harder programs
+program_study_avg  <- c(8, 7, 6, 5, 4)    # harder programs -> students study MORE
+
+students <- tibble(
+  student  = 1:n_students,
+  program  = rep(1:n_programs, each = n_students / n_programs),
+  study    = program_study_avg[program] + rnorm(n_students, 0, 0.8),
+  grade    = 80 - 3 * program_difficulty[program] + 2 * (study - program_study_avg[program]) +
+             rnorm(n_students, 0, 3),
+  program_label = factor(program, labels = paste("Program", 1:n_programs))
+)
+
+# Overall relationship: NEGATIVE (studying more -> lower grades??)
+m_pooled <- lm(grade ~ study, data = students)
+
+# Within-program: POSITIVE
+m_within <- lmer(grade ~ study + (1 | program_label), data = students)
+
+p1 <- ggplot(students, aes(x = study, y = grade)) +
+  geom_point(aes(color = program_label), alpha = 0.5) +
+  geom_smooth(method = "lm", color = "black", linewidth = 1.5) +
+  scale_color_brewer(palette = "Set1") +
+  labs(title = "Pooled: studying MORE predicts LOWER grades?!",
+       x = "Study hours/week", y = "Grade", color = "Program") +
+  theme_minimal(base_size = 13)
+
+p2 <- ggplot(students, aes(x = study, y = grade, color = program_label)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
+  scale_color_brewer(palette = "Set1") +
+  labs(title = "Within program: studying MORE predicts HIGHER grades",
+       x = "Study hours/week", y = "Grade", color = "Program") +
+  theme_minimal(base_size = 13)
+
+library(patchwork)
+p1 / p2
+```
+
+The pooled relationship is negative: students who study more get lower grades. That looks like studying causes harm!
+
+The truth: students in harder programs study more AND get lower grades — *because the programs are harder*. Within any given program, studying more helps. The aggregate correlation is driven entirely by the confound between program difficulty and study time.
+
+This is Simpson's Paradox, and it happens in your data.
+
+## Real-World Examples
+
+**Berkeley admissions (1973):** Across departments, women were admitted at lower rates than men. Within departments, women were admitted at the same or higher rates. The paradox arose because women applied disproportionately to competitive departments.
+
+**COVID-19 mortality:** In some early analyses, countries with more advanced healthcare appeared to have higher mortality rates. Within matched patient groups (controlling for age and severity), better healthcare reduced mortality. The aggregate correlation was driven by age confounds.
+
+**Wages across demographic groups:** Total wages can fall for every group while rising in the aggregate, if people are shifting from lower-paid to higher-paid occupations (your slides show this exact example).
+
+## The Lesson for Nested Data Analysis
+
+Simpson's Paradox is not rare. It is the default when:
+1. Groups differ in their average level of the predictor
+2. Groups differ in their average level of the outcome
+3. The predictor and outcome differ in sign between levels
+
+Every time you ignore nesting, you risk a Simpson's Paradox situation. The mixed-effects models in this workshop are partly a defense against this — they force you to separate within-group and between-group relationships explicitly.
+
+::: {.callout-important}
+## The Check
+
+Before reporting any correlation or regression coefficient from nested data, ask: **Does this relationship hold in the same direction within units as it does across units?** If not, you are reporting a Simpson's Paradox, not a real effect.
+:::

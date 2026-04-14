@@ -1,0 +1,114 @@
+---
+title: "Centering Your Variables"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+set.seed(101)
+```
+
+# Centering Your Variables
+
+## Why Centering Matters
+
+When you include a predictor in a mixed-effects model, what exactly is it measuring? The answer depends entirely on how you center it. This is not a cosmetic choice — it changes the *meaning* of your coefficients.
+
+## Grand-Mean Centering (GMC)
+
+**Grand-mean centering** subtracts the overall mean from each observation:
+$$X^{GMC}_{ij} = X_{ij} - \bar{X}_{..}$$
+
+In a GMC model, the slope reflects a mix of within-unit and between-unit variation. The intercept now reflects the expected outcome when $X$ equals its grand mean — a meaningful value for continuous predictors.
+
+GMC is appropriate when:
+- You have a single-level dataset (no nesting)
+- You are not trying to separate within- and between-person effects
+- You want the intercept to be meaningful (grand mean of X rather than X = 0)
+
+## Cluster-Mean Centering (CMC)
+
+**Cluster-mean centering** (also called person-mean centering or within-person centering) subtracts each unit's mean from their own observations:
+$$X^{CMC}_{ij} = X_{ij} - \bar{X}_{j.}$$
+
+The centered variable now captures only within-unit deviations. For a daily diary study, $X^{CMC}_{ij}$ = "how much more/less did person $j$ sleep on day $i$ compared to their own average?"
+
+The between-unit effect of X can be recovered separately by including the unit mean ($\bar{X}_{j.}$) as a level-2 predictor.
+
+```{r centering-demo}
+# Simulate: people differ in average sleep AND have within-person variation
+n_people <- 50
+n_days   <- 7
+
+# Between-person: high sleepers have high mood (confound: healthy lifestyle)
+person_sleep_avg <- rnorm(n_people, 7, 1)
+person_mood_base <- 40 + 5 * person_sleep_avg + rnorm(n_people, 0, 5)
+
+# Within-person: on high-sleep days, mood is slightly higher
+df <- expand_grid(person = 1:n_people, day = 1:n_days) |>
+  mutate(
+    sleep_raw   = person_sleep_avg[person] + rnorm(n(), 0, 1),
+    mood        = person_mood_base[person] + 2 * (sleep_raw - person_sleep_avg[person]) +
+                  rnorm(n(), 0, 4),
+    person      = factor(person)
+  )
+
+# Compute centering variables
+df <- df |>
+  group_by(person) |>
+  mutate(
+    sleep_person_mean = mean(sleep_raw),        # L2 variable (between)
+    sleep_cmc         = sleep_raw - sleep_person_mean  # within-person deviation
+  ) |>
+  ungroup() |>
+  mutate(
+    sleep_gmc = sleep_raw - mean(sleep_raw)     # grand-mean centered
+  )
+
+# Three models
+m_uncentered <- lmer(mood ~ sleep_raw + (1 | person), data = df)
+m_gmc        <- lmer(mood ~ sleep_gmc + (1 | person), data = df)
+m_cmc        <- lmer(mood ~ sleep_cmc + sleep_person_mean + (1 | person), data = df)
+
+# Compare the sleep coefficient across models
+results <- bind_rows(
+  broom.mixed::tidy(m_uncentered, effects = "fixed") |> filter(term == "sleep_raw") |> mutate(model = "Uncentered"),
+  broom.mixed::tidy(m_gmc, effects = "fixed")        |> filter(term == "sleep_gmc") |> mutate(model = "GMC"),
+  broom.mixed::tidy(m_cmc, effects = "fixed")        |> filter(term == "sleep_cmc") |> mutate(model = "CMC (within)"),
+  broom.mixed::tidy(m_cmc, effects = "fixed")        |> filter(term == "sleep_person_mean") |> mutate(model = "CMC (between)")
+) |>
+  select(model, term, estimate, std.error, p.value)
+
+knitr::kable(results, digits = 3,
+  caption = "Centering changes what the sleep coefficient means")
+```
+
+**Reading the table:**
+
+- **Uncentered / GMC:** The slope is a blend of within- and between-person effects. Its magnitude is pulled by the larger between-person correlation.
+- **CMC (within):** Close to the true within-person effect (~2). This answers "on days when you sleep more than usual, is your mood better?"
+- **CMC (between):** The between-person effect (~5). This answers "do people who generally sleep more also have higher baseline mood?" — a question contaminated by lifestyle confounds.
+
+The within-effect and the between-effect are different numbers with different interpretations. A model that conflates them gives you neither correctly.
+
+::: {.callout-tip}
+## When to Use Each
+
+- **Grand-mean centering:** When you only care about the overall relationship, not within/between decomposition, and you want a meaningful intercept.
+- **Cluster-mean centering:** Whenever you have a within-unit predictor and want to explicitly separate within-unit from between-unit effects. Default recommendation for longitudinal and panel data.
+- **Uncentered:** When X = 0 is a meaningful value AND you do not need to separate within/between effects (rare in nested data).
+:::
+
+## Assumptions That Centering Affects
+
+Centering is not just an interpretive choice — it affects which assumptions your model makes:
+
+::: {.callout-warning icon=false}
+## Assumption: No Conflation of Within and Between Effects
+
+If you include a predictor without CMC in a random-effects model, the model assumes the within-unit and between-unit relationships are equal. If they are not equal — as in the example above — this is a misspecification that biases both estimates.
+
+**How to test:** Fit both the uncentered and the CMC model. If the within-person and between-person coefficients from the CMC model differ substantially, the conflation assumption is violated.
+:::

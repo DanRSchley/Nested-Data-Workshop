@@ -1,0 +1,148 @@
+---
+title: "Crossed Random Effects"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+set.seed(2025)
+```
+
+# Crossed Random Effects
+
+## The Problem with Pure Hierarchies
+
+Pure hierarchies assume each lower-level unit belongs to exactly one higher-level unit. But in many real data structures — especially experimental designs in psychology — units belong to *multiple* grouping factors simultaneously.
+
+**The classic example:** A reaction time experiment. 40 participants each respond to 80 words. Each observation belongs to one participant AND one word. Participants are not nested within words. Words are not nested within participants. Both grouping factors are fully crossed.
+
+If you only include a random effect for participants (as most psychologists do), you are assuming that all variance due to words is captured by the residual. But words differ systematically — some words are rare and hard to process; others are frequent and easy. This word-level variance inflates your residuals and biases your standard errors.
+
+Judd, Westfall, and Kenny (2012, 2017) showed that failing to include random effects for stimuli is one of the most widespread sources of Type I error inflation in social and cognitive psychology.
+
+## The Model
+
+For crossed random effects with participants ($p$) and stimuli ($s$):
+
+$$Y_{ps} = \gamma_{00} + \beta_1 X_{ps} + u_{0p} + w_{0s} + \varepsilon_{ps}$$
+
+Where:
+- $u_{0p} \sim \mathcal{N}(0, \sigma^2_u)$: participant random intercepts
+- $w_{0s} \sim \mathcal{N}(0, \sigma^2_w)$: stimulus random intercepts
+- $\varepsilon_{ps}$: residual
+
+```{r crossed-model}
+# Simulate a lexical decision task
+n_participants <- 40
+n_words        <- 80
+
+participant_effects <- rnorm(n_participants, 0, 50)   # people differ in baseline RT
+word_effects        <- rnorm(n_words, 0, 40)           # words differ in baseline RT
+word_frequency      <- runif(n_words, 1, 10)           # word frequency predictor
+
+df_ld <- expand_grid(
+  participant = 1:n_participants,
+  word        = 1:n_words
+) |>
+  mutate(
+    participant_eff = participant_effects[participant],
+    word_eff        = word_effects[word],
+    frequency       = word_frequency[word],
+    RT              = 550 - 15 * frequency +
+                      participant_eff + word_eff +
+                      rnorm(n(), 0, 30),
+    participant     = factor(participant),
+    word            = factor(word)
+  )
+
+# Crossed random effects model
+model_crossed <- lmer(RT ~ frequency + (1 | participant) + (1 | word),
+                      data = df_ld)
+
+summary(model_crossed)
+```
+
+```{r crossed-variance}
+broom.mixed::tidy(model_crossed, effects = "ran_pars") |>
+  knitr::kable(digits = 2, caption = "Variance components: participants, words, and residual")
+```
+
+**Reading the output:** The model now decomposes variance into three sources: participant-level differences, word-level differences, and residual trial-level noise. The frequency effect is estimated after accounting for *both* sources of clustering.
+
+## Comparing: With and Without Word Random Effects
+
+```{r comparison-models}
+# Without word random effects (wrong)
+model_no_words <- lmer(RT ~ frequency + (1 | participant), data = df_ld)
+
+# With word random effects (correct)
+model_with_words <- lmer(RT ~ frequency + (1 | participant) + (1 | word), data = df_ld)
+
+# Compare standard errors for the frequency effect
+wrong_se  <- broom.mixed::tidy(model_no_words)[2, "std.error"][[1]]
+correct_se <- broom.mixed::tidy(model_with_words)[2, "std.error"][[1]]
+
+tibble(
+  Model = c("Without word RE", "With word RE"),
+  Frequency_SE = c(wrong_se, correct_se)
+) |>
+  knitr::kable(digits = 3,
+    caption = "Standard error of frequency effect: ignoring vs. modeling word-level variance")
+```
+
+When word-level variance is ignored, the standard error for frequency is smaller — the model is treating word-level variance as residual noise, which artificially deflates uncertainty. This produces anti-conservative inference: p-values are too small.
+
+## The Assumptions of Crossed Random-Effects Models
+
+::: {.callout-warning icon=false}
+## Assumption 1: Independence of Participant and Stimulus Random Effects
+
+**What it means:** The random effect for participant $p$ and the random effect for word $w$ are assumed to be independent of each other. Person 7 having an unusually fast RT is not related to whether word 42 is unusually easy.
+
+**How to check:** In a balanced fully-crossed design, this is usually reasonable. In unbalanced designs (not all participants see all stimuli), check whether missingness is systematic.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 2: Random Effects are Independent of the Predictor
+
+**What it means:** As with all random-effects models, the random intercepts for participants and words should be uncorrelated with the predictors. Word frequency should not predict which words were seen by which participants (in a balanced design, it cannot).
+
+**Why this is usually satisfied in experiments:** In a fully-crossed, counterbalanced design, every participant sees every word — so assignment is orthogonal to word characteristics. This is one reason well-designed experiments support random-effects modeling.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 3: The Same Model Applies to All Participant-Stimulus Pairs
+
+**What it means:** The frequency effect is assumed to be the same for all participants (unless a random slope for frequency by participants is included). If some participants are more sensitive to frequency than others, a random slope for frequency by participants is needed.
+
+**How to check:** As with all random-slope decisions, use likelihood ratio tests and theoretical reasoning.
+
+```{r random-slopes-crossed}
+# Can add random slopes for frequency by participants
+model_maximal <- lmer(RT ~ frequency + (frequency | participant) + (1 | word),
+                      data   = df_ld,
+                      control = lmerControl(optimizer = "bobyqa"))
+
+anova(model_with_words, model_maximal)
+```
+:::
+
+## The "Keep It Maximal" Debate
+
+Barr et al. (2013) argued that you should always include the **maximal random effects structure** — every random slope that is theoretically justified by the design. This minimizes Type I error.
+
+Bates et al. (2015) and Matuschek et al. (2017) pushed back, arguing that maximal models frequently fail to converge, and that parsimonious models (with only the random effects supported by the data) often provide better estimates.
+
+The current consensus: include random slopes for all within-unit manipulations (this is critical), but simplify the correlation structure or remove slopes not supported by the data if the model fails to converge.
+
+This debate is covered in depth in Module 5.
+
+## Recommended Reading
+
+| Topic | Citation |
+|-------|----------|
+| Subjects and items as crossed random effects | Judd, C. M., Westfall, J., & Kenny, D. A. (2012). Treating stimuli as a random factor in social psychology. *Journal of Personality and Social Psychology, 103*(1), 54–69. |
+| Keep it maximal | Barr, D. J., Levy, R., Scheepers, C., & Tily, H. J. (2013). Random effects structure for confirmatory hypothesis testing: Keep it maximal. *Journal of Memory and Language, 68*(3), 255–278. |
+| Parsimonious random effects | Matuschek, H., Kliegl, R., Vasishth, S., Baayen, H., & Bates, D. (2017). Balancing Type I error and power in linear mixed models. *Journal of Memory and Language, 94*, 305–315. |

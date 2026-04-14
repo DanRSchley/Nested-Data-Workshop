@@ -1,0 +1,100 @@
+---
+title: "Crossed Random Effects in Experiments"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+set.seed(2025)
+```
+
+# Crossed Random Effects in Experiments
+
+## The Stimuli Problem
+
+Imagine a social psychology experiment studying whether a message framed as a gain ("you will save $100") versus a loss ("you will lose $100") influences willingness to act. You write 12 gain-framed messages and 12 loss-framed messages. Each of 80 participants reads 6 messages (3 gain, 3 loss) and rates their likelihood of acting.
+
+The standard analysis: participant is the random factor, message condition is the fixed factor. This treats your 12+12 messages as if they were the *only* gain and loss messages that exist — as if your results generalize to the condition (framing), not to the population of possible messages.
+
+But your 12 gain messages are a sample from all possible gain-framing messages. Some are compelling; others are weak. If you happened to write unusually persuasive loss messages, your "framing effect" is inflated. The variance among messages is not residual noise — it is a second source of random variation that your model must account for.
+
+**Failing to include message as a random factor inflates Type I error.** Judd, Westfall & Kenny (2012) showed this using the "languages as fixed effects fallacy" as the model, but the problem extends to any stimulus set.
+
+## The Crossed Random Effects Solution
+
+Both participants and messages are random. Every participant sees multiple messages; every message is seen by multiple participants. They are **crossed** — neither is nested within the other.
+
+```{r simulate-experiment}
+n_participants <- 60
+n_messages     <- 24  # 12 gain, 12 loss
+
+participant_effects <- rnorm(n_participants, 0, 8)
+message_effects     <- rnorm(n_messages, 0, 6)
+message_condition   <- rep(c("gain", "loss"), each = 12)
+
+# Each participant sees 6 messages (3 gain, 3 loss)
+# We'll simulate a fully crossed subset for clarity
+df_exp <- expand_grid(
+  participant = 1:n_participants,
+  message     = 1:n_messages
+) |>
+  filter((message <= 12 & participant %% 2 == 1) |
+         (message > 12  & participant %% 2 == 0) |
+         sample(c(TRUE, FALSE), n(), replace = TRUE, prob = c(0.25, 0.75))) |>
+  mutate(
+    condition    = message_condition[message],
+    p_eff        = participant_effects[participant],
+    m_eff        = message_effects[message],
+    # True framing effect: loss > gain by 3 points
+    WTP          = 50 + 3 * (condition == "loss") + p_eff + m_eff + rnorm(n(), 0, 5),
+    participant  = factor(participant),
+    message      = factor(message)
+  )
+```
+
+```{r wrong-model}
+# Wrong: only participant as random effect (ignores message variance)
+m_wrong <- lmer(WTP ~ condition + (1 | participant), data = df_exp)
+
+# Correct: both participant and message as random effects
+m_correct <- lmer(WTP ~ condition + (1 | participant) + (1 | message), data = df_exp)
+
+# Compare SE for the condition effect
+bind_rows(
+  broom.mixed::tidy(m_wrong,   effects = "fixed") |> filter(term == "conditionloss") |>
+    mutate(model = "Wrong (no message RE)"),
+  broom.mixed::tidy(m_correct, effects = "fixed") |> filter(term == "conditionloss") |>
+    mutate(model = "Correct (participant + message RE)")
+) |>
+  select(model, estimate, std.error, statistic, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Ignoring message variance shrinks the SE — anti-conservative inference")
+```
+
+The model that ignores message variance has a smaller standard error — it looks more precise — but it is wrong. Message-level variance is being folded into the residual, making the estimate look more reliable than it is.
+
+## Assumptions
+
+::: {.callout-warning icon=false}
+## Assumption: Both Participants and Stimuli are Representative Samples
+
+**What it means:** The crossed random effects model generalizes over both the sampled participants *and* the sampled stimuli. If your stimuli are not representative of the population you want to generalize to (e.g., you hand-selected the most extreme examples), the generalization is invalid.
+
+**How to check:** Reflect on how your stimuli were selected. Were they sampled systematically, or chosen to maximize the effect? If the latter, your results may not replicate with a different stimulus set.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Random Effects are Independent of the Experimental Manipulation
+
+**What it means:** The random intercept for message $m$ should be unrelated to whether that message is in the gain or loss condition. This is automatically satisfied in a well-designed experiment where condition is randomly assigned to messages.
+
+**How to check:** In a fully crossed design (every participant sees every message), this is guaranteed. In partial crossing, verify that assignment was randomized.
+:::
+
+## The Westfall, Kenny & Judd (2014) Power Argument
+
+Westfall, Kenny & Judd (2014) extended this analysis to show that **power depends on both the number of participants and the number of stimuli**. Adding more participants when you have only a few stimuli can give you very little additional power — because stimulus-level variance is the binding constraint.
+
+This has direct implications for sample size planning: you should increase your stimulus set, not just your participant count.

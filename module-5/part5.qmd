@@ -1,0 +1,153 @@
+---
+title: "Power Analysis for Nested Designs"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(ggplot2)
+set.seed(42)
+```
+
+# Power Analysis for Nested Designs
+
+## Why Standard Power Formulas Are Wrong
+
+Standard power formulas (Cohen's power tables, G\*Power) assume independent observations. They compute: given my expected effect size and desired power, how many participants do I need?
+
+In nested data, this question is incomplete. You also need to know:
+- **How many clusters?** (classrooms, firms, sites, therapists)
+- **How many observations per cluster?**
+- **What is the ICC?** (how similar are observations within clusters)
+
+The ICC and cluster size together determine the **design effect** (DEFF), which shrinks your effective sample size:
+
+$$N_{effective} = \frac{N}{1 + (n_{cluster} - 1) \times \text{ICC}}$$
+
+Ignoring this leads to severely underpowered studies.
+
+## The ICC-Power Relationship
+
+```{r icc-power-curve}
+# Power as a function of ICC, for a fixed N = 300 in clusters of 15
+compute_power <- function(icc, n_total = 300, cluster_size = 15, effect = 0.3, alpha = 0.05) {
+  deff    <- 1 + (cluster_size - 1) * icc
+  n_eff   <- n_total / deff
+  # Two-sample t-test power with effective N
+  power.t.test(n = n_eff / 2, delta = effect, sd = 1, sig.level = alpha)$power
+}
+
+icc_vals <- seq(0, 0.5, by = 0.01)
+power_vals <- sapply(icc_vals, compute_power)
+
+tibble(ICC = icc_vals, Power = power_vals) |>
+  ggplot(aes(x = ICC, y = Power)) +
+  geom_line(color = "#1e3a5f", linewidth = 1.3) +
+  geom_hline(yintercept = 0.80, linetype = "dashed", color = "#e63946") +
+  annotate("text", x = 0.35, y = 0.82, label = "80% power threshold",
+           color = "#e63946", size = 3.5) +
+  labs(
+    title    = "Power declines as ICC increases (N = 300, cluster size = 15)",
+    subtitle = "Even modest ICC substantially reduces effective power",
+    x        = "ICC",
+    y        = "Statistical Power"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+At ICC = 0, you have the expected power for 300 independent observations. At ICC = 0.2, power drops below 80% — you would need more observations to compensate.
+
+## Simulation-Based Power Analysis
+
+For complex nested designs, analytic formulas do not always exist. The gold standard is **simulation-based power analysis**: generate data from the assumed DGP, fit the model, check whether the effect is significant, repeat 1000 times.
+
+```{r sim-power}
+simulate_power <- function(n_clusters, n_per_cluster, icc,
+                            true_effect = 0.3, n_sims = 500) {
+  sigma_between <- sqrt(icc)
+  sigma_within  <- sqrt(1 - icc)
+
+  p_values <- replicate(n_sims, {
+    # Simulate two groups of clusters
+    n_c <- ceiling(n_clusters / 2)
+    cluster_effects <- rnorm(n_clusters, 0, sigma_between)
+
+    df <- tibble(
+      cluster = rep(1:n_clusters, each = n_per_cluster),
+      group   = ifelse(cluster <= n_c, 0, 1)
+    ) |>
+      mutate(
+        Y = true_effect * group + cluster_effects[cluster] +
+            rnorm(n(), 0, sigma_within)
+      )
+
+    m <- lmer(Y ~ group + (1 | cluster), data = df)
+    coef(summary(m))["group", "Pr(>|t|)"]
+  })
+
+  mean(p_values < 0.05)
+}
+
+# Power across different designs
+designs <- expand_grid(
+  n_clusters      = c(10, 20, 30, 40),
+  n_per_cluster   = c(10, 20),
+  icc             = c(0.05, 0.15)
+) |>
+  mutate(
+    power = pmap_dbl(
+      list(n_clusters, n_per_cluster, icc),
+      ~simulate_power(..1, ..2, ..3, n_sims = 200)  # reduce for speed
+    ),
+    total_N = n_clusters * n_per_cluster,
+    design  = paste0("ICC=", icc, ", n/cluster=", n_per_cluster)
+  )
+
+ggplot(designs, aes(x = n_clusters, y = power, color = design, linetype = design)) +
+  geom_line(linewidth = 1.1) + geom_point(size = 2.5) +
+  geom_hline(yintercept = 0.80, linetype = "dotted", color = "gray50") +
+  scale_color_brewer(palette = "Set2") +
+  labs(
+    title    = "Power by number of clusters (simulated)",
+    subtitle = "Effect size d = 0.3; n_sims = 200 per design",
+    x        = "Number of Clusters",
+    y        = "Power",
+    color    = "Design", linetype = "Design"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+## The `simr` Package for Complex Designs
+
+For multilevel models with random slopes, crossed random effects, or other complex structures, the `simr` package provides a convenient simulation-based power analysis directly from a fitted model:
+
+```{r simr-demo, eval=FALSE}
+library(simr)
+
+# Fit a model with your expected parameters
+m_pilot <- lmer(Y ~ group + (1 | cluster),
+                data = your_pilot_data)
+
+# Change the effect size to your expected value
+fixef(m_pilot)["group"] <- 0.3
+
+# Simulate power for different sample sizes
+power_curve <- powerCurve(m_pilot,
+                           along = "cluster",   # vary number of clusters
+                           nsim  = 200)
+plot(power_curve)
+```
+
+## Key Takeaways for Power Planning
+
+::: {.callout-note}
+## Rules of Thumb
+
+1. **More clusters > more per cluster** when ICC is high. If ICC = 0.20, doubling the number of clusters gains much more power than doubling the size of each cluster.
+
+2. **The ICC threshold:** If ICC > 0.10 and cluster size > 10, standard power formulas underestimate required N by 50–100%.
+
+3. **For crossed designs (participants × stimuli):** Power depends on both the number of participants *and* the number of stimuli. Westfall, Kenny & Judd (2014) showed that many published studies are severely underpowered on the stimulus side.
+
+4. **Collect pilot ICC estimates:** Run a small pilot study and compute the ICC before committing to a full design.
+:::

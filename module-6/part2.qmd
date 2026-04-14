@@ -1,0 +1,128 @@
+---
+title: "Count Outcomes (Poisson MLM)"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(glmmTMB)
+library(broom.mixed)
+set.seed(99)
+```
+
+# Count Outcomes: Poisson and Negative Binomial MLMs
+
+## When Your Outcome is a Count
+
+Count outcomes arise frequently in psychology and social science: the number of aggressive acts in a session, the number of days absent from work, the number of times a consumer repurchases, the number of words recalled.
+
+Counts have two properties that make standard linear regression inappropriate:
+1. They are non-negative integers (you cannot have −3 absences)
+2. Their variance often increases with their mean (heteroskedasticity is built-in)
+
+The **Poisson distribution** is the natural model for counts. The **Poisson mixed model** extends it to nested data.
+
+## The Poisson Mixed Model
+
+$$\log(\mu_{ij}) = \beta_0 + \beta_1 X_{ij} + u_{0j}, \quad Y_{ij} \sim \text{Poisson}(\mu_{ij})$$
+
+The log link ensures predictions are always positive. Coefficients are interpreted as log rate ratios, or more intuitively as rate ratios after exponentiation.
+
+```{r fit-poisson}
+n_participants <- 60
+n_days         <- 14
+
+participant_effects <- rnorm(n_participants, 0, 0.5)
+
+df_count <- expand_grid(person = 1:n_participants, day = 1:n_days) |>
+  mutate(
+    treatment = rep(rbinom(n_participants, 1, 0.5), each = n_days),
+    p_eff     = rep(participant_effects, each = n_days),
+    log_mu    = 1.5 - 0.5 * treatment + p_eff,  # true rate ratio = exp(-0.5) ≈ 0.61
+    count     = rpois(n(), lambda = exp(log_mu)),
+    person    = factor(person)
+  )
+
+m_pois <- glmer(count ~ treatment + (1 | person),
+                family = poisson,
+                data   = df_count)
+
+broom.mixed::tidy(m_pois, effects = "fixed", exponentiate = TRUE) |>
+  knitr::kable(digits = 3,
+    caption = "Rate ratios: treatment reduces count outcome to 61% of control")
+```
+
+## Overdispersion: When Poisson is Not Enough
+
+The Poisson distribution has a strict constraint: **mean = variance**. Real count data almost always has variance *exceeding* the mean — **overdispersion**. Sources of overdispersion include unobserved heterogeneity, clustering, and zero-inflation.
+
+```{r check-overdispersion}
+# Check for overdispersion
+pearson_residuals <- residuals(m_pois, type = "pearson")
+dispersion_stat   <- sum(pearson_residuals^2) / df.residual(m_pois)
+cat("Dispersion statistic:", round(dispersion_stat, 3),
+    "(should be ~1 for Poisson; > 1.5 indicates overdispersion)\n")
+```
+
+When overdispersion is present, use the **negative binomial** model, which adds a free dispersion parameter:
+
+```{r negative-binomial}
+# Simulate overdispersed count data
+df_count_od <- df_count |>
+  mutate(count_od = rnbinom(n(), mu = exp(log_mu), size = 2))  # overdispersed
+
+m_nb <- glmmTMB(count_od ~ treatment + (1 | person),
+                family = nbinom2,
+                data   = df_count_od)
+
+broom.mixed::tidy(m_nb, effects = "fixed", exponentiate = TRUE) |>
+  knitr::kable(digits = 3,
+    caption = "Negative binomial rate ratios (handles overdispersion)")
+```
+
+## Zero-Inflation
+
+Some count outcomes have more zeros than any Poisson or negative binomial model can account for. This is common when zeros arise from two different processes: (1) the structural zero — a participant who never engages in the behavior regardless of conditions, and (2) the sampling zero — a participant who could engage but happened not to on this occasion.
+
+```{r zero-inflation}
+# Zero-inflated count
+df_count_zi <- df_count |>
+  mutate(
+    # Some people are "structural zeros" (never engage)
+    structural_zero = rbinom(n(), 1, 0.3),
+    count_zi = ifelse(structural_zero == 1, 0, count)
+  )
+
+cat("Proportion of zeros (standard Poisson):", mean(df_count$count == 0), "\n")
+cat("Proportion of zeros (zero-inflated):", mean(df_count_zi$count_zi == 0), "\n")
+
+m_zi <- glmmTMB(count_zi ~ treatment + (1 | person),
+                ziformula = ~1,   # intercept-only model for zero-inflation
+                family    = poisson,
+                data      = df_count_zi)
+
+broom.mixed::tidy(m_zi, effects = "fixed", component = "cond", exponentiate = TRUE) |>
+  knitr::kable(digits = 3,
+    caption = "Zero-inflated Poisson: count model conditional on non-structural-zero")
+```
+
+## Assumptions
+
+::: {.callout-warning icon=false}
+## Assumption 1: Correct Distribution Family
+
+| Distribution | When to use | Diagnosis |
+|-------------|-------------|-----------|
+| Poisson | Mean ≈ Variance; no excess zeros | Dispersion stat ≈ 1 |
+| Negative binomial | Variance > Mean (overdispersion) | Dispersion stat > 1.5 |
+| Zero-inflated Poisson | Poisson + excess zeros | More zeros than Poisson predicts |
+| Zero-inflated NB | Overdispersion + excess zeros | Both overdispersion and excess zeros |
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 2: Log Link Linearity
+
+**What it means:** The log of the expected count is a linear function of the predictors. This is usually reasonable but should be checked for continuous predictors.
+
+**How to check:** Plot smoothed log-count against the continuous predictor to look for nonlinearity.
+:::

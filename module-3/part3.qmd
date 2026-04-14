@@ -1,0 +1,170 @@
+---
+title: "Selection Effects & Attrition"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+set.seed(555)
+```
+
+# Selection Effects & Attrition
+
+## When Your Sample is Not Your Population
+
+Even with a perfect model, if your observations are not representative of the population you care about, your conclusions may be wrong. Selection effects are the family of processes by which observations non-randomly enter or leave your dataset.
+
+Selection is especially dangerous in nested and longitudinal data because the same processes that structure your data also drive who stays in it over time.
+
+---
+
+## Type 1: Representativeness / Undercover Bias
+
+Your sampling frame does not cover the full population you want to generalize to.
+
+**Secondary data example:** Online review platform data. People who leave reviews are not a random sample — they felt strongly enough to write one (typically either very satisfied or very dissatisfied). Analyses generalize to "opinionated reviewers," not "all customers."
+
+**Experimental example:** Convenience samples from university subject pools (WEIRD populations — Western, Educated, Industrialized, Rich, Democratic) may not generalize to the adults whose behavior you are studying.
+
+::: {.callout-warning icon=false}
+## Assumption: Sampling Frame Covers the Population of Interest
+
+**How to check:** Compare your sample's distributions on key variables to known population statistics. Are any groups systematically over- or under-represented?
+
+**What to do:** Acknowledge the limitation. Use stratified sampling. Apply post-stratification weights if population distributions are known.
+:::
+
+---
+
+## Type 2: Self-Selection / Non-Response Bias
+
+Participants choose whether to enter your study based on factors related to your variables of interest.
+
+The landmark example: the 1936 *Literary Digest* poll predicted Landon would defeat Roosevelt by a landslide, based on 2.4 million responses. Their sampling frame (telephone directories and car registration lists) over-represented wealthy Republicans. Roosevelt won in a historic landslide.
+
+```{r selection-sim}
+n_total    <- 1000
+health_con <- rnorm(n_total, 50, 10)  # latent health consciousness
+
+# Health-conscious people more likely to participate
+p_participate <- plogis(-2 + 0.06 * health_con)
+participated  <- rbinom(n_total, 1, p_participate)
+
+# Outcome influenced by health consciousness
+health_score <- 40 + 0.5 * health_con + rnorm(n_total, 0, 8)
+
+tibble(
+  Group    = c("Full population", "Self-selected sample"),
+  N        = c(n_total, sum(participated)),
+  Mean_health = c(mean(health_score),
+                   mean(health_score[participated == 1]))
+) |>
+  knitr::kable(digits = 2, caption = "Self-selection inflates estimated health level")
+```
+
+---
+
+## Type 3: Survivorship Bias
+
+You only observe units that survived some selection filter correlated with your outcome.
+
+**WWII aircraft:** Analysts studied bullet-hole patterns on returning planes to decide where to add armor. Abraham Wald pointed out: planes hit in the zero-hole areas never returned. Those were the critical spots to armor.
+
+**In longitudinal research:** Studying predictors of firm success using currently existing firms excludes all firms that failed. If failure is related to your predictors, estimates are systematically optimistic.
+
+::: {.callout-warning icon=false}
+## Assumption: No Survivorship Bias
+
+**How to check:** Ask whether your outcome is systematically related to the probability of appearing in your dataset. If yes, you likely have survivorship bias.
+
+**What to do:** Obtain historical data including non-survivors. Use survival analysis (Module 6, Part 3) to model time-to-exit explicitly.
+:::
+
+---
+
+## Type 4: Attrition Bias in Longitudinal Data
+
+Participants drop out of your study non-randomly over time. This is one of the most serious threats to longitudinal research — and a direct consequence of the nested DGP of time.
+
+```{r attrition-sim}
+n_people <- 200
+n_waves  <- 5
+
+baseline_dep <- rnorm(n_people, 50, 10)
+treatment    <- rbinom(n_people, 1, 0.5)
+
+df_long <- expand_grid(person = 1:n_people, wave = 1:n_waves) |>
+  mutate(
+    baseline  = baseline_dep[person],
+    treat     = treatment[person],
+    depression = baseline - 5 * treat * (wave / n_waves) + rnorm(n(), 0, 4)
+  )
+
+# People with HIGH depression are more likely to drop out
+df_long <- df_long |>
+  group_by(person) |>
+  mutate(
+    drop_risk   = plogis(-3 + 0.04 * mean(depression)),
+    dropped_out = cummax(rbinom(n(), 1, drop_risk)),
+    observed    = dropped_out == 0 | wave == 1
+  ) |>
+  ungroup()
+
+complete_cases <- df_long |>
+  group_by(person) |> filter(all(observed)) |> ungroup()
+
+tibble(
+  Sample = c("All (Wave 1)", "Completers only"),
+  N      = c(n_distinct(df_long$person[df_long$wave == 1]),
+              n_distinct(complete_cases$person)),
+  Mean_baseline_depression = c(
+    mean(baseline_dep),
+    mean(unique(complete_cases$baseline))
+  )
+) |>
+  knitr::kable(digits = 2,
+    caption = "Attrition: completers have lower baseline depression (healthier)")
+```
+
+```{r attrition-effect}
+# True treatment effect = -5
+m_completers <- lm(depression ~ treat + wave + baseline, data = complete_cases)
+m_all        <- lm(depression ~ treat + wave + baseline,
+                   data = df_long |> filter(observed))
+
+bind_rows(
+  broom::tidy(m_completers) |> filter(term == "treat") |>
+    mutate(model = "Complete cases (attrition bias)"),
+  broom::tidy(m_all) |> filter(term == "treat") |>
+    mutate(model = "All observed data")
+) |>
+  select(model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Attrition biases the treatment effect toward zero (true = -5)")
+```
+
+::: {.callout-warning icon=false}
+## Assumption: Dropout Mechanism is Ignorable
+
+**MCAR:** Dropout is unrelated to any variable. Very rare.
+
+**MAR:** Dropout depends only on observed variables. If MAR holds, mixed-effects models using all available data (not just completers) give valid estimates.
+
+**MNAR:** Dropout depends on the unobserved outcome itself. Requires sensitivity analysis or selection models (Heckman).
+
+**How to check:** Compare baseline characteristics of completers vs. dropouts. If they differ substantially, dropout is non-random.
+:::
+
+---
+
+## Type 5: Exclusion Bias
+
+The researcher removes observations non-randomly — typically based on criteria correlated with the outcome.
+
+**The key principle:** Any data deletion that is non-random creates selection bias. This includes removing "outliers" based on outcome values, excluding protocol violators after seeing results, or dropping countries/firms that seem "too different."
+
+::: {.callout-tip}
+## Pre-Registration as a Defense
+
+Pre-registering exclusion criteria before data collection prevents post-hoc rationalization of exclusions that benefit your hypothesis. It does not eliminate the statistical bias, but it prevents the researcher from inadvertently introducing it.
+:::

@@ -1,0 +1,152 @@
+---
+title: "Latent Growth Curve Models (SEM)"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lavaan)
+library(lme4)
+library(ggplot2)
+set.seed(111)
+```
+
+# Latent Growth Curve Models
+
+## Two Languages for the Same Model
+
+The growth curve model from Part 3 and the **Latent Growth Curve Model (LGC)** from structural equation modeling are mathematically equivalent. They answer the same questions using different parameterizations and different software.
+
+Understanding both languages is valuable because:
+1. Many psychology researchers encounter LGC models in SEM training (Mplus, lavaan) before they encounter MLM-based growth models
+2. The SEM framing makes certain things explicit that are implicit in MLM — particularly the role of measurement error and the ability to model multiple growth processes simultaneously
+3. Reviewing both frames deepens understanding of what the model is actually doing
+
+## The SEM Framing
+
+In the latent growth curve model, the trajectory is represented by **two latent variables**:
+- **Intercept factor (η_i):** The latent initial level for each person
+- **Slope factor (η_s):** The latent rate of change for each person
+
+Observed scores at each time point are modeled as:
+$$Y_{ti} = 1 \cdot \eta_i + \lambda_t \cdot \eta_s + \varepsilon_{ti}$$
+
+where $\lambda_t$ are **factor loadings** that encode the time metric (e.g., $\lambda_1 = 0, \lambda_2 = 1, \lambda_3 = 2$ for linear growth), and $\varepsilon_{ti}$ are measurement residuals.
+
+The intercept factor has loadings of 1.0 at all time points. The slope factor has loadings equal to the time coding.
+
+## Fitting an LGC Model in lavaan
+
+```{r lgc-simulation}
+# Simulate data
+n <- 150
+intercepts <- rnorm(n, 50, 8)
+slopes     <- rnorm(n, -2, 1.5)
+
+Y <- sapply(0:4, function(t) intercepts + slopes * t + rnorm(n, 0, 4))
+colnames(Y) <- paste0("y", 1:5)
+df_lgc <- as.data.frame(Y)
+```
+
+```{r fit-lgc}
+# Latent growth curve model in lavaan
+lgc_model <- '
+  # Intercept factor (loadings all fixed to 1)
+  intercept =~ 1*y1 + 1*y2 + 1*y3 + 1*y4 + 1*y5
+
+  # Slope factor (loadings = time coding: 0, 1, 2, 3, 4)
+  slope     =~ 0*y1 + 1*y2 + 2*y3 + 3*y4 + 4*y5
+
+  # Means of latent factors (the fixed effects)
+  intercept ~ 1
+  slope     ~ 1
+
+  # Variances of latent factors (random effects variance)
+  intercept ~~ intercept
+  slope     ~~ slope
+
+  # Covariance between intercept and slope
+  intercept ~~ slope
+
+  # Residual variances (constrained equal across time for simplicity)
+  y1 ~~ a*y1
+  y2 ~~ a*y2
+  y3 ~~ a*y3
+  y4 ~~ a*y4
+  y5 ~~ a*y5
+'
+
+m_lgc <- growth(lgc_model, data = df_lgc)
+summary(m_lgc, fit.measures = TRUE)
+```
+
+```{r lgc-interpret}
+# Extract key parameters
+parameterEstimates(m_lgc) |>
+  filter(op %in% c("~1", "~~") & lhs %in% c("intercept", "slope")) |>
+  select(lhs, op, rhs, est, se, pvalue) |>
+  knitr::kable(digits = 3,
+    caption = "LGC parameter estimates: means and variances of intercept and slope")
+```
+
+## The Equivalence with MLM
+
+```{r mlm-comparison}
+# Fit equivalent MLM
+df_long_lgc <- df_lgc |>
+  mutate(id = 1:n) |>
+  pivot_longer(-id, names_to = "wave", values_to = "Y") |>
+  mutate(time = as.integer(str_extract(wave, "[0-9]")) - 1,
+         id   = factor(id))
+
+m_mlm <- lmer(Y ~ time + (time | id), data = df_long_lgc)
+
+# Compare estimates
+tibble(
+  Parameter        = c("Mean intercept", "Mean slope", "Var(intercept)", "Var(slope)"),
+  `MLM estimate`   = c(fixef(m_mlm),
+                        as.data.frame(VarCorr(m_mlm))$vcov[1:2]),
+  `LGC estimate`   = c(
+    lavInspect(m_lgc, "mean.lv")[c("intercept", "slope")],
+    diag(lavInspect(m_lgc, "cov.lv"))[c("intercept", "slope")]
+  )
+) |>
+  knitr::kable(digits = 3, caption = "MLM and LGC give equivalent results")
+```
+
+The estimates match. The difference is in the language and the software ecosystem — not the math.
+
+## When the SEM Framing Adds Value
+
+::: {.callout-note}
+## Advantage 1: Modeling Measurement Error
+
+In the SEM framework, each observed score $Y_{ti}$ has a residual $\varepsilon_{ti}$ that can be interpreted as **measurement error** — the gap between the true latent trajectory and the imperfect observed score. This is explicit in the LGC model.
+
+In standard MLM, the residual is treated as a mix of measurement error and genuine within-person fluctuation. If your outcome is a measured construct (scale scores, ratings, test scores), the SEM framing forces you to be explicit about measurement.
+:::
+
+::: {.callout-note}
+## Advantage 2: Multiple Growth Processes
+
+With SEM, you can model two interrelated growth curves simultaneously — for instance, how anxiety and depression co-evolve over therapy. The covariance between the two intercept factors and between the two slope factors captures how initial levels and rates of change co-relate.
+
+This is difficult to do cleanly in standard MLM.
+:::
+
+## Assumptions of LGC Models
+
+::: {.callout-warning icon=false}
+## Assumption: Correctly Specified Factor Loadings
+
+**What it means:** The factor loadings for the slope factor encode the time metric. Linear loadings (0, 1, 2, 3...) assume linear growth. If growth is nonlinear, you can free some loadings to be estimated from the data — but the intercept must still be defined by fixing at least two loadings.
+
+**How to check:** Test alternative loading patterns (free vs. fixed) and compare model fit using CFI, RMSEA, and SRMR.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Multivariate Normality
+
+**What it means:** SEM estimation (default ML) assumes the observed variables are multivariate normal. Severely skewed outcomes or floor/ceiling effects can bias estimates.
+
+**How to check:** Check univariate skewness and kurtosis. Use robust ML estimators (MLR in lavaan) if normality is questionable.
+:::

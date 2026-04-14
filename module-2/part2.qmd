@@ -1,0 +1,87 @@
+---
+title: "Between-Unit vs. Within-Unit Effects"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+set.seed(202)
+```
+
+# Between-Unit vs. Within-Unit Effects
+
+## The Same Variable, Two Stories
+
+Consider studying whether a nation's GDP predicts its citizens' wellbeing. You have survey data from 60 countries over 10 years.
+
+**The between-country question:** Do richer countries have happier citizens on average?
+**The within-country question:** In years when a country's GDP grows, do its citizens report higher wellbeing?
+
+These are completely different empirical questions. The between-country question picks up all stable differences between rich and poor countries (culture, institutions, climate, history). The within-country question is closer to a causal estimate of the effect of economic growth on wellbeing, net of these stable differences.
+
+Research consistently finds that the answers are *different*: rich countries are happier than poor ones, but within a country, economic booms correlate with wellbeing only modestly (the "Easterlin Paradox").
+
+## Separating the Effects: The Mundlak Device
+
+The cleanest way to separate within- and between-unit effects is to include both in the same model:
+
+1. Cluster-mean center the predictor (captures within-unit variation)
+2. Include the cluster mean as a separate level-2 predictor (captures between-unit variation)
+
+```{r mundlak-demo}
+# Simulate country panel data
+n_countries <- 40
+n_years     <- 10
+
+# Between: rich countries ARE happier (partly for other reasons)
+country_gdp_avg  <- rnorm(n_countries, 50, 15)
+country_wellbeing_base <- 50 + 0.6 * country_gdp_avg + rnorm(n_countries, 0, 8)
+
+# Within: growth has only modest effect on wellbeing
+df_gdp <- expand_grid(country = 1:n_countries, year = 1:n_years) |>
+  mutate(
+    gdp_raw       = country_gdp_avg[country] + rnorm(n(), 0, 5),
+    wellbeing     = country_wellbeing_base[country] +
+                    0.15 * (gdp_raw - country_gdp_avg[country]) +
+                    rnorm(n(), 0, 4),
+    country       = factor(country)
+  ) |>
+  group_by(country) |>
+  mutate(
+    gdp_mean = mean(gdp_raw),
+    gdp_cmc  = gdp_raw - gdp_mean
+  ) |>
+  ungroup()
+
+# Pooled (mixes effects)
+m_pooled <- lmer(wellbeing ~ gdp_raw + (1 | country), data = df_gdp)
+
+# Mundlak: both within and between
+m_mundlak <- lmer(wellbeing ~ gdp_cmc + gdp_mean + (1 | country), data = df_gdp)
+
+bind_rows(
+  broom.mixed::tidy(m_pooled,  effects = "fixed") |> mutate(model = "Pooled"),
+  broom.mixed::tidy(m_mundlak, effects = "fixed") |> mutate(model = "Mundlak")
+) |>
+  select(model, term, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3, caption = "Within vs. between effects of GDP on wellbeing")
+```
+
+The Mundlak model reveals:
+- **Within effect (gdp_cmc ≈ 0.15):** When a country's GDP is above its own average, wellbeing is modestly higher. Small effect.
+- **Between effect (gdp_mean ≈ 0.6):** Countries with higher average GDP have substantially higher wellbeing — but this partly reflects other stable advantages of wealthy nations.
+
+The pooled model blends these two stories into one coefficient that misrepresents both.
+
+## The Assumption Test: Are Within and Between Effects Equal?
+
+The formal test for whether within and between effects are equal is simple: if the CMC model's within coefficient ($\beta_{within}$) and between coefficient ($\beta_{between}$) are statistically indistinguishable, you can use the simpler pooled model. If they differ, they must be separated.
+
+```{r wald-test}
+library(car)
+# Test: within effect = between effect?
+linearHypothesis(m_mundlak, "gdp_cmc = gdp_mean")
+```
+
+A significant test (p < 0.05) means within and between effects differ — the pooled model is misspecified.

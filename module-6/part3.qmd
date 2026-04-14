@@ -1,0 +1,146 @@
+---
+title: "Survival Analysis"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(survival)
+library(survminer)
+set.seed(2024)
+```
+
+# Survival Analysis
+
+## When Time-to-Event is the Outcome
+
+Not all outcomes are measured on a continuous scale or as a snapshot at one moment. Some outcomes are events: the moment an employee quits, the day a patient relapses, the first purchase after acquiring a new customer. The outcome of interest is **when** the event occurs — or whether it has occurred at all by the time observation ends.
+
+This is the domain of **survival analysis** (also called event history analysis or time-to-event analysis).
+
+The defining feature: **censoring**. Some participants have not experienced the event by the end of the study — they were still employed, still in remission, still active users when the observation window closed. Censored observations contribute partial information: we know the event had not occurred up to that point, but we do not know when (or whether) it eventually will.
+
+Standard regression discards this information. Survival analysis uses it.
+
+## The Hazard Function
+
+The central concept is the **hazard function** $h(t)$: the instantaneous rate at which events occur at time $t$, given that the event has not yet occurred by $t$.
+
+$$h(t) = \lim_{\Delta t \to 0} \frac{P(t \le T < t + \Delta t \mid T \ge t)}{\Delta t}$$
+
+Intuitively: if you have survived until time $t$, what is your risk of the event occurring in the next small interval?
+
+## Kaplan-Meier Curves
+
+The Kaplan-Meier estimator non-parametrically estimates the survival function $S(t) = P(T > t)$: the probability of surviving (not experiencing the event) past time $t$.
+
+```{r km-curve}
+# Simulate employee tenure data
+n <- 200
+group <- rep(c("High autonomy", "Low autonomy"), each = 100)
+
+# High-autonomy employees stay longer
+tenure_time  <- c(rexp(100, rate = 0.05),   # ~20 months average
+                   rexp(100, rate = 0.10))   # ~10 months average
+censored     <- rbinom(200, 1, 0.3)  # 30% are censored (still employed)
+tenure_obs   <- pmin(tenure_time, 24)  # cap at 24 months observation window
+status       <- ifelse(censored == 1, 0, 1)   # 0 = censored, 1 = event (quit)
+
+df_surv <- tibble(time = tenure_obs, status, group)
+
+# Kaplan-Meier
+km_fit <- survfit(Surv(time, status) ~ group, data = df_surv)
+
+ggsurvplot(
+  km_fit,
+  data        = df_surv,
+  conf.int    = TRUE,
+  pval        = TRUE,
+  risk.table  = TRUE,
+  palette     = c("#1e3a5f", "#aec6e8"),
+  legend.labs = c("High autonomy", "Low autonomy"),
+  xlab        = "Months",
+  ylab        = "Probability of staying",
+  title       = "Kaplan-Meier: employee tenure by autonomy condition"
+)
+```
+
+## The Cox Proportional Hazards Model
+
+The Cox model estimates the effect of predictors on the hazard rate without specifying the baseline hazard function — a semiparametric approach:
+
+$$h(t \mid X) = h_0(t) \cdot \exp(\beta_1 X_1 + \beta_2 X_2 + \ldots)$$
+
+Coefficients are interpreted as **hazard ratios** after exponentiation: $\exp(\beta) > 1$ means higher hazard (shorter survival); $\exp(\beta) < 1$ means lower hazard (longer survival).
+
+```{r cox-model}
+# Add predictors
+df_surv <- df_surv |>
+  mutate(
+    autonomy     = ifelse(group == "High autonomy", 1, 0),
+    age          = rnorm(200, 35, 8),
+    satisfaction = rnorm(200, 60, 10)
+  )
+
+m_cox <- coxph(Surv(time, status) ~ autonomy + age + satisfaction,
+               data = df_surv)
+
+broom::tidy(m_cox, exponentiate = TRUE) |>
+  knitr::kable(digits = 3,
+    caption = "Cox hazard ratios: autonomy reduces hazard of quitting")
+```
+
+::: {.callout-warning icon=false}
+## Assumption: Proportional Hazards
+
+**What it means:** The hazard ratio between groups is constant over time. The effect of autonomy on the hazard of quitting is the same in month 1 as in month 20.
+
+**Why it fails:** Some effects are strongest early (a drug that prevents relapse mainly in the first few weeks) and fade over time. This is a non-proportional hazard.
+
+**How to check:** Schoenfeld residuals should be uncorrelated with time. The `cox.zph()` function tests this.
+
+```{r ph-test}
+ph_test <- cox.zph(m_cox)
+print(ph_test)
+
+# If significant: stratify by the variable or include time interaction
+```
+:::
+
+## Frailty Models for Clustered Survival Data
+
+When survival times are clustered (patients within hospitals, employees within firms), standard Cox models underestimate standard errors. The **frailty model** adds a random effect (the "frailty") to the Cox model — a direct analog of the random intercept in linear MLM.
+
+```{r frailty-model}
+# Simulate clustered survival data
+n_firms    <- 20
+n_per_firm <- 10
+
+firm_effects <- rnorm(n_firms, 0, 0.5)
+
+df_cluster <- tibble(
+  firm     = rep(1:n_firms, each = n_per_firm),
+  autonomy = rbinom(n_firms * n_per_firm, 1, 0.5),
+  firm_eff = rep(firm_effects, each = n_per_firm),
+  time_raw = rexp(n_firms * n_per_firm,
+                   rate = exp(-1.5 - 0.4 * autonomy + firm_eff)),
+  status   = rbinom(n_firms * n_per_firm, 1, 0.7),
+  time     = pmin(time_raw, 24)
+)
+
+# Cox model with gamma frailty
+m_frailty <- coxph(Surv(time, status) ~ autonomy + frailty(firm),
+                   data = df_cluster)
+
+broom::tidy(m_frailty) |>
+  filter(term == "autonomy") |>
+  knitr::kable(digits = 3,
+    caption = "Frailty model: firm clustering accounted for in survival analysis")
+```
+
+::: {.callout-warning icon=false}
+## Assumption: Non-Informative Censoring
+
+**What it means:** The reason an observation is censored must be unrelated to the outcome. If sicker patients are more likely to drop out of a study (i.e., censoring is related to the hazard of relapse), standard survival estimates are biased.
+
+**How to check:** Compare characteristics of censored and non-censored participants at their censoring time. Large differences suggest informative censoring.
+:::

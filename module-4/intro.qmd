@@ -1,0 +1,31 @@
+---
+title: "Overview"
+---
+
+# Module 4: Longitudinal Data & Change {.unnumbered}
+
+## Time is the Ultimate Nesting Variable
+
+Every person, firm, country, or organism exists within a stream of time. When you measure them repeatedly, your observations are nested within that stream. Each measurement is a snapshot of an ongoing trajectory — the DGP is a time-varying process, and your data is a discrete sample from it.
+
+This creates two profound challenges for analysis:
+
+1. **Observations within a person are correlated.** Your mood at 9am is related to your mood at 10am. A firm's revenue this quarter predicts its revenue next quarter. Treating these as independent observations — as standard regression does — violates independence and inflates Type I error.
+
+2. **Change itself is the phenomenon.** In many longitudinal studies, the question is not just "what is the average level?" but "how does this change over time, and does it change differently for different people?" A model that treats all observations as exchangeable — ignoring that some come first and some come later — cannot answer this question.
+
+Module 4 builds the toolkit for modeling change over time correctly.
+
+## What This Module Covers
+
+**Part 1: From RM-ANOVA to Mixed Models** — The repeated measures ANOVA that most psychologists learned makes a specific assumption about the covariance structure of repeated observations (compound symmetry/sphericity). We show concretely what this assumption means, why it almost always fails, and how mixed-effects models relax it.
+
+**Part 2: Covariance Structures** — The covariance matrix of your repeated observations is not just a nuisance to be controlled — it is a window into the DGP. We catalog the main structures (compound symmetry, AR(1), unstructured, Toeplitz), show what each implies about how measurements relate over time, and explain how to choose among them.
+
+**Part 3: Growth Curve Models** — When the question is how outcomes change over time and whether trajectories differ across people, growth curve models are the right tool. We build from simple linear growth to random slopes, nonlinear trajectories, and predictors of growth.
+
+**Part 4: Latent Growth Curve Models in SEM** — The same growth curve model can be estimated in a structural equation modeling (SEM) framework. We show the connection, explain when the SEM approach adds value (modeling measurement error, multiple growth processes), and demonstrate the equivalence using `lavaan`.
+
+**Part 5: Autoregressive Structures** — When today's outcome predicts tomorrow's, the covariance structure is autoregressive. We explain AR(1) models, how to specify them in `nlme`, and the assumptions of stationarity.
+
+**Part 6: Cross-Lagged Panel Models** — When you want to understand the *dynamic* relationship between two variables over time — does A cause B, does B cause A, or do they mutually reinforce each other — cross-lagged panel models (and their improved version, the RI-CLPM) provide the framework.

@@ -1,0 +1,293 @@
+---
+title: "Types of Nested Structures"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(lme4)
+set.seed(123)
+```
+
+# Types of Nested Structures
+
+## A Taxonomy of Nesting
+
+Nesting takes several forms in social science data. Getting them confused leads to misspecified models and wrong answers. This section maps out the main types, shows what they look like in a dataset, and explains how the DGP perspective helps you identify which structure you have.
+
+The key distinction is between **pure hierarchies** (units nested strictly within higher-level units) and **crossed structures** (units belonging to multiple grouping factors simultaneously). Real data often combines both.
+
+---
+
+## Pure Hierarchy: One Nesting Level
+
+The simplest nested structure: lower-level units are grouped into higher-level units, and each lower-level unit belongs to exactly one group.
+
+**Example:** Students nested within classrooms.
+
+- 500 students, each in one of 25 classrooms
+- A student's test score depends partly on their own ability and partly on their classroom environment (teacher quality, class size, peer effects)
+- Observations within the same classroom are more similar to each other than to observations from different classrooms
+
+```{r hierarchy-diagram}
+# Simulate a two-level structure
+n_classes   <- 6
+n_students  <- 8  # per class
+
+class_effects <- rnorm(n_classes, 0, 5)
+
+df_school <- expand_grid(
+  classroom = 1:n_classes,
+  student   = 1:n_students
+) |>
+  mutate(
+    student_id   = row_number(),
+    class_effect = class_effects[classroom],
+    test_score   = 70 + class_effect + rnorm(n(), 0, 3),
+    classroom    = factor(classroom, labels = paste("Class", 1:n_classes))
+  )
+
+ggplot(df_school, aes(x = classroom, y = test_score, color = classroom)) +
+  geom_jitter(width = 0.15, size = 3, alpha = 0.8) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.5,
+               color = "black", linewidth = 0.8) +
+  scale_color_brewer(palette = "Set2") +
+  labs(
+    title   = "Students nested within classrooms",
+    subtitle = "Black bars = classroom means; dots = individual students",
+    x = "Classroom", y = "Test Score"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "none")
+```
+
+Notice that test scores cluster within classrooms. Students in Class 3 tend to score higher than those in Class 5, regardless of individual differences. A model that ignores classrooms treats these 48 scores as 48 independent data points. They are not — they are 6 groups of 8.
+
+**Data format:** One row per student. You need a student ID and a classroom ID.
+
+```{r hierarchy-data, echo=FALSE}
+df_school |>
+  select(classroom, student, test_score) |>
+  head(12) |>
+  knitr::kable(digits = 1, caption = "First 12 rows of a two-level dataset")
+```
+
+---
+
+## Three Levels: Nesting Within Nesting
+
+The hierarchy can extend further. Students are nested within classrooms, which are nested within schools.
+
+**Example:** Patients nested within therapists nested within clinics.
+
+Each level adds a new source of systematic variance:
+- Patients differ from each other in severity, motivation, history
+- Therapists differ in skill, approach, empathy
+- Clinics differ in resources, culture, population served
+
+```{r three-level}
+n_clinics    <- 3
+n_therapists <- 4  # per clinic
+n_patients   <- 5  # per therapist
+
+clinic_effects    <- rnorm(n_clinics, 0, 6)
+therapist_effects <- rnorm(n_clinics * n_therapists, 0, 4)
+
+df_three <- expand_grid(
+  clinic    = 1:n_clinics,
+  therapist = 1:n_therapists,
+  patient   = 1:n_patients
+) |>
+  mutate(
+    therapist_id   = (clinic - 1) * n_therapists + therapist,
+    clinic_eff     = clinic_effects[clinic],
+    therapist_eff  = therapist_effects[therapist_id],
+    outcome        = 50 + clinic_eff + therapist_eff + rnorm(n(), 0, 3),
+    clinic_label   = paste("Clinic", clinic),
+    therapist_label = paste0("T", therapist_id)
+  )
+
+ggplot(df_three, aes(x = therapist_label, y = outcome,
+                      color = clinic_label)) +
+  geom_jitter(width = 0.1, alpha = 0.7, size = 2.5) +
+  stat_summary(fun = mean, geom = "point", shape = 18,
+               size = 4, color = "black") +
+  facet_wrap(~ clinic_label, scales = "free_x") +
+  scale_color_brewer(palette = "Set1") +
+  labs(
+    title   = "Three-level structure: Patients within Therapists within Clinics",
+    x       = "Therapist",
+    y       = "Outcome",
+    color   = NULL
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none")
+```
+
+The key diagnostic question for three-level data: **how much variance lives at each level?** Later, the ICC will give us a principled answer.
+
+---
+
+## Panel Data: Cross-Sectional and Longitudinal
+
+**Panel data** combines the cross-sectional and time-series structures. You observe multiple units (people, firms, countries) at multiple time points.
+
+**Example:** Monthly spending by 50 households measured over 24 months.
+
+```{r panel-data}
+n_households <- 50
+n_months     <- 24
+
+household_baseline <- rnorm(n_households, 1000, 200)
+
+df_panel <- expand_grid(
+  household = 1:n_households,
+  month     = 1:n_months
+) |>
+  mutate(
+    baseline  = household_baseline[household],
+    spending  = baseline + 20 * (month - 12.5) / 12 + rnorm(n(), 0, 80),
+    time_trend = month
+  )
+
+# Show 6 households
+sample_hh <- sample(1:n_households, 6)
+
+ggplot(df_panel |> filter(household %in% sample_hh),
+       aes(x = month, y = spending, color = factor(household))) +
+  geom_line(alpha = 0.8) +
+  geom_point(size = 1.5, alpha = 0.6) +
+  scale_color_brewer(palette = "Dark2") +
+  labs(
+    title    = "Panel data: 6 households over 24 months",
+    subtitle = "Each line is one household's spending trajectory",
+    x        = "Month",
+    y        = "Monthly Spending ($)",
+    color    = "Household"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+Panel data has **two sources of nesting** simultaneously:
+1. Observations are nested within households (same household at different times)
+2. Observations might also be nested within time periods (all households in month 1 face the same economic conditions)
+
+This means you potentially need fixed or random effects for both dimensions — a crossed structure, not a pure hierarchy.
+
+---
+
+## Crossed Random Effects
+
+In a **crossed** structure, observations belong to multiple grouping factors that are not nested within each other.
+
+**Classic example in psychology:** Participants rate words in a lexical decision task.
+
+- 40 participants each respond to 100 words
+- Each observation belongs to one participant AND one word
+- Participants are not nested within words, and words are not nested within participants
+- Both participant differences and word differences contribute to response time
+
+```{r crossed-diagram}
+# Small illustration: 4 participants × 4 words
+crossed_df <- expand_grid(
+  participant = paste("P", 1:4),
+  word        = paste("W", 1:4)
+) |>
+  mutate(RT = 500 + rnorm(16, 0, 50))
+
+ggplot(crossed_df, aes(x = word, y = participant, fill = RT)) +
+  geom_tile(color = "white", linewidth = 2) +
+  geom_text(aes(label = round(RT)), size = 4) +
+  scale_fill_gradient(low = "#deebf7", high = "#08519c") +
+  labs(
+    title    = "Crossed structure: each participant rates each word",
+    subtitle = "Cell = response time (ms) for that participant-word combination",
+    x        = "Word",
+    y        = "Participant",
+    fill     = "RT (ms)"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+The key point: participant 1's response to word 3 is not in the same "group" as participant 2's response to word 3. Both observations share a word, but not a participant. Both share nothing else. This crossed structure requires a different model than a pure hierarchy.
+
+---
+
+## Repeated Measures and Longitudinal Data
+
+**Repeated measures** means the same unit is measured multiple times — on the same variable, under different conditions, at different time points, or both.
+
+The critical distinction:
+
+- **Repeated measures (experimental):** Each person experiences multiple conditions. The conditions are fixed (e.g., caffeine vs. placebo). The person is the random unit.
+- **Longitudinal data:** Each person is measured at multiple time points, and time is part of the model. Change over time is the phenomenon of interest.
+
+Both are cases of **observations nested within persons**. But they ask different questions. Repeated-measures experiments ask: "does the condition affect the outcome?" Longitudinal models ask: "how does the outcome change over time, and does it change differently for different people?"
+
+```{r rm-vs-long}
+# Repeated measures
+df_rm <- tibble(
+  person    = rep(1:20, each = 2),
+  condition = rep(c("Placebo", "Caffeine"), 20),
+  RT        = 450 + ifelse(condition == "Caffeine", -30, 0) +
+              rnorm(40, 0, 40)
+)
+
+p_rm <- ggplot(df_rm, aes(x = condition, y = RT,
+                            group = person, color = factor(person))) +
+  geom_line(alpha = 0.5) +
+  geom_point(size = 2, alpha = 0.7) +
+  scale_color_viridis_d() +
+  labs(title = "Repeated measures:\n2 conditions per person",
+       x = NULL, y = "Response Time (ms)") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none")
+
+# Longitudinal
+df_long <- tibble(
+  person = rep(1:10, each = 5),
+  time   = rep(1:5, 10),
+  score  = rep(rnorm(10, 50, 8), each = 5) +  # person baseline
+           rep(rnorm(10, 2, 1), each = 5) * (rep(1:5, 10) - 3) +  # person slope
+           rnorm(50, 0, 3)
+)
+
+p_long <- ggplot(df_long, aes(x = time, y = score,
+                               group = person, color = factor(person))) +
+  geom_line(alpha = 0.6) +
+  geom_point(size = 2, alpha = 0.7) +
+  scale_color_viridis_d() +
+  labs(title = "Longitudinal:\n5 time points per person",
+       x = "Time", y = "Score") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none")
+
+library(patchwork)
+p_rm + p_long
+```
+
+---
+
+## A Map of Common Data Structures
+
+| Structure | Example | Nesting | DGP implication |
+|-----------|---------|---------|-----------------|
+| Pure hierarchy | Students in classrooms | Strict: each unit in one group | Between-group variance is real |
+| Three-level | Patients in therapists in clinics | Nested levels | Variance at each level |
+| Panel | Countries over years | Cross-sectional + time | Unit effects and time effects |
+| Crossed | Participants × stimuli | Each unit in multiple groups | Two sources of random variance |
+| Repeated measures | Person × condition | Each person measured in each condition | Within-person correlation |
+| Longitudinal | Person measured over time | Observations in person | Individual trajectories |
+
+The single most common mistake is treating one of these as another. The second most common mistake is failing to ask the question at all.
+
+::: {.callout-tip}
+## Practical Exercise
+
+Look at the last dataset you analyzed. Ask:
+
+1. What is the row in this dataset?
+2. Can I draw a diagram of what contains what?
+3. Are there two dimensions of grouping (e.g., people AND stimuli) that are crossed rather than nested?
+4. What does a standard regression assume about the structure I just identified?
+:::

@@ -1,0 +1,123 @@
+---
+title: "Binary Outcomes (Logistic MLM)"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(ggeffects)
+library(broom.mixed)
+set.seed(2024)
+```
+
+# Binary Outcomes: Logistic Mixed Models
+
+## When Your Outcome is 0 or 1
+
+Suppose you are studying whether a price promotion increases purchase probability, using transaction data from 5,000 customers across 50 stores. Your outcome is binary: purchased (1) or not (0). Customers are nested within stores.
+
+A standard logistic regression ignores the store clustering. A logistic mixed model accounts for it — allowing stores to differ in their baseline purchase rates, and estimating the promotion effect while accounting for this.
+
+## The Model
+
+The logistic mixed model extends the standard logistic regression by adding a random intercept (and optionally a random slope):
+
+$$\text{logit}(P(Y_{ij} = 1)) = \beta_0 + \beta_1 X_{ij} + u_{0j}$$
+
+Where $u_{0j} \sim \mathcal{N}(0, \sigma^2_u)$ is the store-level random intercept.
+
+```{r fit-logistic-mlm}
+n_stores    <- 50
+n_customers <- 100  # per store
+
+store_effects <- rnorm(n_stores, 0, 1)  # store baseline differences
+
+df_purchase <- expand_grid(
+  store    = 1:n_stores,
+  customer = 1:n_customers
+) |>
+  mutate(
+    promotion   = rbinom(n(), 1, 0.5),
+    store_eff   = store_effects[store],
+    log_odds    = -1.5 + 0.8 * promotion + store_eff,
+    purchased   = rbinom(n(), 1, plogis(log_odds)),
+    store       = factor(store)
+  )
+
+# Logistic mixed model
+m_logit <- glmer(purchased ~ promotion + (1 | store),
+                 family  = binomial,
+                 data    = df_purchase)
+
+summary(m_logit)
+```
+
+```{r logit-fe}
+broom.mixed::tidy(m_logit, effects = "fixed", exponentiate = TRUE) |>
+  knitr::kable(digits = 3,
+    caption = "Fixed effects as odds ratios: promotion increases purchase odds")
+```
+
+The promotion coefficient (as an odds ratio) tells us: customers who receive a promotion have `exp(0.8)` ≈ 2.2 times the odds of purchasing compared to those who don't, *after accounting for store-level differences*.
+
+## The Marginal vs. Conditional Effects Problem
+
+This is the single most important subtlety in logistic MLMs, and it is often missed.
+
+**Conditional effect:** The effect of promotion *for a specific store at its mean random effect*. This is what the model directly estimates.
+
+**Marginal effect:** The effect of promotion *averaged over the distribution of store effects* — the population-average effect. This is usually what you want to report.
+
+In linear models, marginal and conditional effects are equal. In logistic models, they are not. The marginal effect is always attenuated relative to the conditional effect — the more the random effects vary, the larger the difference.
+
+```{r marginal-effects}
+# Conditional predictions
+pred_conditional <- ggpredict(m_logit, terms = "promotion",
+                               type = "re")   # conditional on random effects = 0
+
+# Marginal predictions (averaged over store distribution)
+pred_marginal <- ggpredict(m_logit, terms = "promotion",
+                            type = "fe")   # marginal (fixed effects only)
+
+bind_rows(
+  as.data.frame(pred_conditional) |> mutate(type = "Conditional (store RE = 0)"),
+  as.data.frame(pred_marginal)    |> mutate(type = "Marginal (averaged over stores)")
+) |>
+  select(type, x, predicted, conf.low, conf.high) |>
+  knitr::kable(digits = 3,
+    caption = "Conditional vs. marginal predicted purchase probability")
+```
+
+For policy and generalization purposes, the marginal effect is usually more relevant. For understanding the mechanism within a specific store, the conditional effect is more relevant.
+
+## Assumptions
+
+::: {.callout-warning icon=false}
+## Assumption 1: Correct Link Function
+
+**What it means:** The logistic model assumes the log-odds of the outcome is linear in the predictors. This is the standard assumption for binary outcomes, but it may not hold at the extremes.
+
+**How to check:** Examine whether predicted probabilities are reasonable at extreme predictor values. Consider complementary log-log (cloglog) as an alternative if your outcome is rare (P < 0.05).
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 2: Normality of Random Effects (on the Log-Odds Scale)
+
+**What it means:** The store-level random intercepts are assumed normal on the log-odds scale. If store effects are heavily skewed (e.g., a few stores have dramatically different purchase rates), this assumption may fail.
+
+**How to check:** Extract random effects with `ranef()` and examine their distribution. A Q-Q plot of the random intercepts is informative.
+
+```{r re-normality}
+re_vals <- ranef(m_logit)$store[, 1]
+qqnorm(re_vals, main = "Q-Q plot of store random effects")
+qqline(re_vals, col = "#e63946", lwd = 2)
+```
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 3: No Overdispersion
+
+**What it means:** For binary outcomes, overdispersion (more variance than the model predicts) can occur if there is residual clustering not accounted for by the random effects.
+
+**How to check:** Compute the ratio of the Pearson chi-square statistic to its degrees of freedom. Values substantially greater than 1 indicate overdispersion.
+:::

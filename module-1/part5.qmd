@@ -1,0 +1,156 @@
+---
+title: "Three-Level Structures"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+library(performance)
+set.seed(77)
+```
+
+# Three-Level Structures
+
+## When Two Levels Aren't Enough
+
+Real organizational and social data is almost always more than two levels deep. Patients are nested within therapists, who are nested within clinics. Students are nested within classrooms, which are nested within schools, which are nested within districts. Employees are nested within teams, which are nested within departments, which are nested within firms.
+
+A three-level model extends the random-effects framework by adding a third random effect — one for each of the three levels of the hierarchy.
+
+## The Model
+
+**Level 1 (observations within units within groups):**
+$$Y_{ijk} = \beta_{0jk} + \beta_1 X_{ijk} + e_{ijk}$$
+
+**Level 2 (units within groups):**
+$$\beta_{0jk} = \gamma_{00k} + u_{0jk}$$
+
+**Level 3 (groups):**
+$$\gamma_{00k} = \delta_{000} + v_{0k}$$
+
+Combined:
+$$Y_{ijk} = \delta_{000} + \beta_1 X_{ijk} + v_{0k} + u_{0jk} + e_{ijk}$$
+
+Three variance components: $\sigma^2_v$ (level-3 variance), $\sigma^2_u$ (level-2 variance), $\sigma^2_e$ (level-1 variance).
+
+```{r three-level-sim}
+# Simulate: patients within therapists within clinics
+n_clinics    <- 8
+n_therapists <- 4  # per clinic
+n_patients   <- 10 # per therapist
+
+clinic_effects    <- rnorm(n_clinics, 0, 4)     # clinic-level variance
+therapist_effects <- rnorm(n_clinics * n_therapists, 0, 3)  # therapist-level
+
+df_3l <- expand_grid(
+  clinic    = 1:n_clinics,
+  therapist = 1:n_therapists,
+  patient   = 1:n_patients
+) |>
+  mutate(
+    therapist_id    = (clinic - 1) * n_therapists + therapist,
+    sessions        = round(runif(n(), 5, 20)),
+    outcome         = 50 + 0.5 * sessions +
+                      clinic_effects[clinic] +
+                      therapist_effects[therapist_id] +
+                      rnorm(n(), 0, 5),
+    clinic          = factor(clinic, labels = paste0("C", 1:n_clinics)),
+    therapist_f     = factor(therapist_id)
+  )
+
+# Three-level model: patients in therapists in clinics
+model_3l <- lmer(outcome ~ sessions + (1 | clinic/therapist_f), data = df_3l)
+summary(model_3l)
+```
+
+```{r three-level-icc}
+# Variance components and level-specific ICCs
+vc <- as.data.frame(VarCorr(model_3l))
+vc |>
+  select(grp, vcov) |>
+  mutate(
+    total_var = sum(vcov),
+    icc       = vcov / total_var
+  ) |>
+  knitr::kable(digits = 3, caption = "Variance decomposition across levels")
+```
+
+**Reading the variance components:**
+
+- `clinic`: How much of the outcome variance is due to differences between clinics?
+- `therapist_f:clinic` (therapists within clinics): How much is due to differences between therapists *within* the same clinic?
+- `Residual`: How much is due to differences between patients *within* the same therapist?
+
+This decomposition tells us where the action is — and where intervention should be targeted.
+
+## ICC for Three-Level Data
+
+In a three-level model, there are two ICCs:
+
+**Level-3 ICC:** Proportion of variance attributable to the highest-level unit (e.g., clinic):
+$$\text{ICC}_3 = \frac{\sigma^2_v}{\sigma^2_v + \sigma^2_u + \sigma^2_e}$$
+
+**Level-2 ICC:** Proportion of variance attributable to level-2 units *and above* (e.g., therapist or above):
+$$\text{ICC}_2 = \frac{\sigma^2_v + \sigma^2_u}{\sigma^2_v + \sigma^2_u + \sigma^2_e}$$
+
+```{r three-level-icc2}
+library(performance)
+icc(model_3l)
+```
+
+## The Assumptions of Three-Level Models
+
+All assumptions from the two-level model carry over. Additionally:
+
+::: {.callout-warning icon=false}
+## Assumption: Correct Level Specification
+
+**What it means:** The model must correctly identify which units belong to which level. If therapists are incorrectly attributed to clinics (data entry errors, therapists who work at multiple clinics), the variance components will be misattributed.
+
+**How to check:** Cross-tabulate your level-2 and level-3 identifiers. Each level-2 unit should belong to exactly one level-3 unit (in a pure hierarchy).
+
+```{r level-check}
+df_3l |>
+  distinct(clinic, therapist_id) |>
+  group_by(therapist_id) |>
+  filter(n() > 1)  # should return 0 rows for a pure hierarchy
+```
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Sample Size at Each Level
+
+**What it means:** Variance components at higher levels require sufficient numbers of level-3 units to be estimated reliably. As a rough guide, you want at least 20–30 units at each level where you are estimating a random effect.
+
+**Why it matters:** With only 5 clinics, the clinic-level variance estimate is very noisy. Confidence intervals for level-3 variance components are wide with small level-3 samples.
+
+**How to check:** Count units at each level. Be cautious interpreting level-3 variance with fewer than 20 level-3 units.
+:::
+
+## Adding Level-2 and Level-3 Predictors
+
+One of the major advantages of the three-level model is the ability to include predictors at each level and examine cross-level interactions.
+
+```{r multilevel-predictors}
+# Add clinic-level predictor (e.g., clinic size)
+df_3l <- df_3l |>
+  group_by(clinic) |>
+  mutate(clinic_size = n_distinct(therapist_f) * n_patients + rnorm(1, 0, 2)) |>
+  ungroup() |>
+  group_by(clinic, therapist_f) |>
+  mutate(therapist_experience = round(runif(1, 1, 20))) |>
+  ungroup()
+
+model_3l_pred <- lmer(
+  outcome ~ sessions + therapist_experience + clinic_size +
+    (1 | clinic/therapist_f),
+  data = df_3l
+)
+
+broom.mixed::tidy(model_3l_pred, effects = "fixed") |>
+  knitr::kable(digits = 3, caption = "Three-level model with predictors at all levels")
+```
+
+The output gives you effects at three levels simultaneously: the individual patient level (sessions), the therapist level (experience), and the clinic level (size). Each effect is estimated while accounting for the nesting at all other levels.

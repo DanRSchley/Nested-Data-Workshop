@@ -1,0 +1,130 @@
+---
+title: "Difference-in-Differences"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(broom)
+set.seed(99)
+```
+
+# Difference-in-Differences
+
+## The Idea
+
+A policy rolls out: some firms must adopt a new management practice; others are unaffected. You have productivity data from before and after. Can you estimate the effect?
+
+The naive approach — compare treated and control firms after the rollout — is biased if they were already different. The **Difference-in-Differences (DiD)** approach subtracts the control group's change from the treated group's change:
+
+$$\hat{\tau}_{DiD} = \underbrace{(\bar{Y}_{T,post} - \bar{Y}_{T,pre})}_{\text{treated group change}} - \underbrace{(\bar{Y}_{C,post} - \bar{Y}_{C,pre})}_{\text{control group change}}$$
+
+The control group's change serves as the counterfactual: what would have happened to treated firms if they had not been treated?
+
+## The Core Assumption
+
+::: {.callout-warning icon=false}
+## Assumption: Parallel Trends
+
+**What it means:** In the absence of treatment, treated and control units would have followed the same trend over time. They can start at different levels — DiD handles that. But their *trajectories* must be parallel.
+
+**How to check:**
+1. **Visual inspection:** Plot pre-treatment trends for both groups. They should look parallel.
+2. **Formal pre-trend test:** Regress the outcome on `treat × time` using only pre-treatment data. Significant interaction = non-parallel trends.
+3. **Event study plot:** Estimate separate treatment effects for each period. Pre-period coefficients should be near zero.
+
+**Why it fails:** Treated and control units may have been on different trajectories before treatment — perhaps because units that selected into treatment were already changing faster. No statistical fix can rescue DiD if parallel trends are implausible given the selection process.
+:::
+
+## A Simulated Example
+
+```{r did-sim}
+n_firms <- 80
+n_waves <- 6  # waves 1-3: pre; 4-6: post
+
+firm_treat   <- c(rep(1, 40), rep(0, 40))
+firm_base    <- rnorm(n_firms, 50, 8)
+
+df_did <- expand_grid(firm = 1:n_firms, wave = 1:n_waves) |>
+  mutate(
+    treat      = firm_treat[firm],
+    post       = as.integer(wave > 3),
+    baseline   = firm_base[firm],
+    trend      = (wave - 3.5) * 1.5,
+    te         = treat * post * 10,
+    productivity = baseline + trend + te + rnorm(n(), 0, 4)
+  )
+
+# Plot parallel pre-trends
+group_means <- df_did |>
+  group_by(wave, treat) |>
+  summarise(mean_prod = mean(productivity), .groups = "drop") |>
+  mutate(group = ifelse(treat == 1, "Treated", "Control"))
+
+ggplot(group_means, aes(x = wave, y = mean_prod, color = group, linetype = group)) +
+  geom_line(linewidth = 1.3) + geom_point(size = 3) +
+  geom_vline(xintercept = 3.5, linetype = "dotted", color = "gray40") +
+  annotate("text", x = 3.65, y = max(group_means$mean_prod),
+           label = "Treatment", hjust = 0, color = "gray40", size = 3.5) +
+  scale_color_manual(values = c("#aec6e8", "#1e3a5f")) +
+  labs(title = "DiD: parallel pre-trends, divergence post-treatment",
+       x = "Wave", y = "Productivity", color = NULL, linetype = NULL) +
+  theme_minimal(base_size = 13)
+```
+
+```{r did-estimate}
+m_did <- lm(productivity ~ treat * post + baseline, data = df_did)
+tidy(m_did) |>
+  knitr::kable(digits = 3,
+    caption = "`treat:post` interaction = DiD estimate (true = 10)")
+```
+
+## Pre-Trend Test
+
+```{r pretrend-test}
+m_pre <- lm(productivity ~ treat * factor(wave) + baseline,
+            data = df_did |> filter(post == 0))
+tidy(m_pre) |>
+  filter(str_detect(term, "treat:")) |>
+  knitr::kable(digits = 3,
+    caption = "Pre-period treat × wave interactions should be near zero")
+```
+
+## Event Study Plot
+
+```{r event-study}
+m_ev  <- lm(productivity ~ treat * factor(wave) + baseline, data = df_did)
+ev_df <- tidy(m_ev, conf.int = TRUE) |>
+  filter(str_detect(term, "treat:")) |>
+  mutate(wave = as.integer(str_extract(term, "[0-9]+")),
+         pre  = wave <= 3)
+
+ggplot(ev_df, aes(x = wave, y = estimate, color = pre)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray60") +
+  geom_vline(xintercept = 3.5, linetype = "dotted", color = "gray40") +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2) +
+  geom_point(size = 3) +
+  scale_color_manual(values = c("#1e3a5f", "#aec6e8"),
+                     labels = c("Post-treatment", "Pre-treatment (should ≈ 0)")) +
+  labs(title = "Event study: pre-period near zero, post-period shows effect",
+       x = "Wave", y = "Estimated Treatment Effect", color = NULL) +
+  theme_minimal(base_size = 13)
+```
+
+## Additional Assumptions
+
+::: {.callout-warning icon=false}
+## Assumption: SUTVA — No Spillovers
+
+**What it means:** Treatment of unit A should not affect the outcomes of unit B. If treated firms compete with control firms and treatment improves treated performance at control firms' expense, the control trend is contaminated.
+
+**How to check:** Test whether control units near treated units trend differently from distant controls.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Stable Composition
+
+**What it means:** The composition of treated and control groups should not change differentially after treatment. If the policy causes the most productive employees to leave treated firms, the post-treatment group is a different population.
+
+**How to check:** Check whether observable characteristics of units change differentially post-treatment.
+:::

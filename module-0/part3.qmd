@@ -1,0 +1,257 @@
+---
+title: "Measuring Non-Independence"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(ggplot2)
+set.seed(999)
+```
+
+# Measuring Non-Independence
+
+## Why We Need a Number
+
+Nested structure is not binary — it is not just "present" or "absent." Nesting can be strong (observations within a group are nearly identical) or weak (observations within a group are barely more similar than observations from different groups). The strength of nesting determines how badly standard analysis fails.
+
+We need a number that quantifies this strength. That number is the **Intraclass Correlation Coefficient (ICC)**.
+
+## The Intraclass Correlation Coefficient
+
+The ICC answers a deceptively simple question:
+
+> **Of all the variance in my outcome, what fraction is due to group membership?**
+
+If you pick two observations at random from the same group, how correlated will they be? That correlation is the ICC.
+
+$$
+\text{ICC} = \frac{\sigma^2_{\text{between}}}{\sigma^2_{\text{between}} + \sigma^2_{\text{within}}}
+$$
+
+where $\sigma^2_{\text{between}}$ is the variance in group means, and $\sigma^2_{\text{within}}$ is the variance of individual observations around their group mean.
+
+::: {.callout-note}
+## Interpreting ICC Values
+
+- **ICC ≈ 0:** Knowing which group an observation is in tells you almost nothing. Group membership barely predicts the outcome. Nesting is present but weak.
+- **ICC ≈ 0.05–0.15:** Typical for many psychological studies. Modest clustering. Looks small but has real consequences for inference.
+- **ICC ≈ 0.20–0.40:** Strong clustering. Common in organizational data (employees within firms), educational data (students within schools), or within-person repeated measures.
+- **ICC ≈ 1.0:** All variance is between groups. Observations within a group are identical. Knowing the group tells you everything.
+:::
+
+Let's see three cases:
+
+```{r icc-illustration}
+# Generate data with three different levels of ICC
+make_grouped_data <- function(icc, n_groups = 10, n_per_group = 20) {
+  sigma_between <- sqrt(icc)
+  sigma_within  <- sqrt(1 - icc)
+
+  group_means <- rnorm(n_groups, 0, sigma_between)
+
+  expand_grid(group = 1:n_groups, obs = 1:n_per_group) |>
+    mutate(
+      y   = group_means[group] + rnorm(n(), 0, sigma_within),
+      icc_label = paste0("ICC = ", icc)
+    )
+}
+
+df_icc <- bind_rows(
+  make_grouped_data(0.02),
+  make_grouped_data(0.20),
+  make_grouped_data(0.60)
+)
+
+ggplot(df_icc, aes(x = factor(group), y = y, color = factor(group))) +
+  geom_jitter(width = 0.2, alpha = 0.5, size = 1.5) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.5,
+               color = "black", linewidth = 0.8) +
+  facet_wrap(~ icc_label, ncol = 3) +
+  scale_color_viridis_d() +
+  labs(
+    title    = "Same data, different ICCs",
+    subtitle = "Black bars = group means; dots = individual observations",
+    x        = "Group",
+    y        = "Outcome"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none")
+```
+
+When ICC = 0.02, the group means barely differ — the groups look almost interchangeable. When ICC = 0.60, the group means dominate: knowing which group you are in tells you most of what you need to know about someone's score.
+
+## How to Compute the ICC in R
+
+The ICC comes directly from a null (intercept-only) multilevel model — one with no predictors, just a random intercept for the grouping variable. The model partitions total variance into between-group and within-group components.
+
+```{r compute-icc}
+# Simulate a dataset: employees nested within firms
+n_firms     <- 30
+n_employees <- 15
+
+firm_effects <- rnorm(n_firms, 50, 6)   # between-firm variance
+
+df_firms <- expand_grid(
+  firm     = 1:n_firms,
+  employee = 1:n_employees
+) |>
+  mutate(
+    satisfaction = firm_effects[firm] + rnorm(n(), 0, 8)  # within-firm variance
+  )
+
+# Fit the null model
+null_model <- lmer(satisfaction ~ 1 + (1 | firm), data = df_firms)
+summary(null_model)
+```
+
+```{r icc-from-model}
+# Extract variance components
+vc <- as.data.frame(VarCorr(null_model))
+var_between <- vc$vcov[1]   # firm-level variance
+var_within  <- vc$vcov[2]   # residual variance
+
+icc_value <- var_between / (var_between + var_within)
+cat("ICC =", round(icc_value, 3))
+```
+
+The `performance` package provides a cleaner interface:
+
+```{r icc-performance}
+library(performance)
+icc(null_model)
+```
+
+## Why Even a Small ICC is a Big Problem
+
+This is one of the most important things to understand before you run any analysis on nested data: **even a modest ICC has large consequences for inference.**
+
+The reason is the **design effect** (sometimes called DEFF): a multiplier that tells you how much your effective sample size shrinks due to clustering.
+
+$$
+\text{DEFF} = 1 + (n_{\text{cluster}} - 1) \times \text{ICC}
+$$
+
+where $n_{\text{cluster}}$ is the number of observations per cluster.
+
+```{r deff-calculation}
+# Design effect as a function of ICC and cluster size
+deff_df <- expand_grid(
+  icc          = c(0.01, 0.05, 0.10, 0.20, 0.30),
+  cluster_size = c(5, 10, 20, 50)
+) |>
+  mutate(
+    deff           = 1 + (cluster_size - 1) * icc,
+    effective_n    = 1000 / deff,  # if nominal N = 1000
+    label          = paste0("n = ", cluster_size)
+  )
+
+ggplot(deff_df, aes(x = icc, y = deff, color = factor(cluster_size),
+                     linetype = factor(cluster_size))) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2.5) +
+  scale_color_brewer(palette = "Set2", name = "Cluster size") +
+  scale_linetype_discrete(name = "Cluster size") +
+  labs(
+    title    = "Design Effect as a function of ICC and cluster size",
+    subtitle = "DEFF = 1 means no clustering penalty; DEFF = 5 means your 1000 obs act like 200",
+    x        = "ICC",
+    y        = "Design Effect (DEFF)",
+    caption  = "DEFF = 1 + (cluster_size - 1) × ICC"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+Let's make this concrete. Suppose you have 200 students in 10 classrooms of 20 students each, and the ICC on your outcome is 0.10 — a seemingly small value often found in educational research.
+
+$$
+\text{DEFF} = 1 + (20 - 1) \times 0.10 = 1 + 1.9 = 2.9
+$$
+
+Your 200 observations act like only $200 / 2.9 \approx 69$ independent observations. You have nearly three times less statistical power than you thought. If you treat 200 clustered observations as 200 independent ones, your standard errors are too small, your p-values are too small, and your confidence intervals are too narrow.
+
+```{r type1-inflation}
+# Simulate Type I error inflation from ignoring clustering
+simulate_inflation <- function(icc, n_groups = 20, n_per_group = 10, n_sims = 2000) {
+  sigma_between <- sqrt(icc)
+  sigma_within  <- sqrt(1 - icc)
+
+  p_values <- replicate(n_sims, {
+    group_effects <- rnorm(n_groups, 0, sigma_between)
+    y <- rep(group_effects, each = n_per_group) +
+         rnorm(n_groups * n_per_group, 0, sigma_within)
+    x <- rnorm(n_groups * n_per_group)
+    t.test(y[x > 0], y[x <= 0])$p.value
+  })
+
+  mean(p_values < 0.05)
+}
+
+icc_grid <- c(0, 0.05, 0.10, 0.20, 0.30)
+type1_rates <- sapply(icc_grid, simulate_inflation)
+
+tibble(ICC = icc_grid, `False Positive Rate` = type1_rates) |>
+  knitr::kable(digits = 3,
+               caption = "Type I error rate when ignoring clustering (nominal alpha = 0.05)")
+```
+
+When ICC = 0, ignoring clustering is fine — you get the expected 5% false positive rate. But as ICC grows, so does your false positive rate. At ICC = 0.20, you are rejecting the null hypothesis incorrectly nearly twice as often as you should be.
+
+## Assumptions of the ICC
+
+The ICC is not just a number — it embodies assumptions. Checking those assumptions is part of using it correctly.
+
+::: {.callout-warning icon=false}
+## Assumption 1: Groups are exchangeable
+
+The ICC assumes that groups are drawn from a common population, and that the relationship between observations within a group reflects a common process. If your groups are wildly different in kind — not just in degree — the ICC may not characterize the nesting correctly.
+
+**How to check:** Look at group means and within-group variances. Are any groups wildly different from the rest? Could the nesting structure be non-stationary (e.g., the within-group correlation is strong in some groups, absent in others)?
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 2: The grouping variable captures the relevant nesting
+
+A single ICC assumes there is one meaningful level of nesting. If data is actually three-level (observations in therapists in clinics), a single ICC from a two-level model will be misspecified.
+
+**How to check:** Fit null models at each level and compute ICCs for each. Compare the variance components.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 3: The ICC is stable across groups
+
+A standard ICC treats within-group variance as homogeneous across groups. In reality, some groups may be much more variable than others (heteroskedasticity at level 2).
+
+**How to check:** Plot within-group standard deviations against group means. A strong relationship suggests heteroskedasticity.
+:::
+
+```{r icc-assumptions-check}
+# Check: is within-group variance stable?
+df_firms |>
+  group_by(firm) |>
+  summarise(
+    group_mean = mean(satisfaction),
+    group_sd   = sd(satisfaction),
+    n          = n()
+  ) |>
+  ggplot(aes(x = group_mean, y = group_sd)) +
+  geom_point(size = 3, color = "#1e3a5f", alpha = 0.7) +
+  geom_smooth(method = "loess", se = TRUE, color = "#e63946") +
+  labs(
+    title    = "Within-group SD vs. group mean",
+    subtitle = "A strong relationship suggests heteroskedastic nesting",
+    x        = "Group Mean (Satisfaction)",
+    y        = "Within-Group SD"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+In this simulated dataset, there is no strong relationship — within-group variance is roughly constant across firms. That is reassuring, but not always the case in real data.
+
+## The ICC as a Scientific Finding
+
+Throughout this workshop, we treat the ICC primarily as a diagnostic tool — something you check before deciding what model to use. But it is also a finding in its own right.
+
+If your outcome is job satisfaction and the ICC across firms is 0.30, that means 30% of the variance in job satisfaction is explained simply by *which firm* someone works for. That is a substantive result. It tells you that organizational-level factors — culture, management, pay structure — explain nearly a third of the variation in how people feel about their work. That is worth reporting, and worth investigating.
+
+The decomposition of variance across levels is one of the most underutilized findings in social science research.

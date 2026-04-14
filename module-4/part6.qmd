@@ -1,0 +1,167 @@
+---
+title: "Cross-Lagged Panel Models"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lavaan)
+library(ggplot2)
+set.seed(2024)
+```
+
+# Cross-Lagged Panel Models
+
+## Two Variables, Evolving Together
+
+Suppose you want to understand the relationship between anxiety and depression over time. Does anxiety precede and predict depression? Does depression feed back into anxiety? Or do they mutually reinforce each other?
+
+To answer this, you need data on both variables at multiple time points, and you need a model that can disentangle the *temporal ordering* of their relationship. The **cross-lagged panel model (CLPM)** is the standard tool for this question.
+
+## The Classic CLPM
+
+In a two-wave, two-variable CLPM with variables A (anxiety) and D (depression):
+
+$$A_{t+1} = a_{AA} \cdot A_t + a_{DA} \cdot D_t + \varepsilon_{A,t+1}$$
+$$D_{t+1} = a_{DD} \cdot D_t + a_{AD} \cdot A_t + \varepsilon_{D,t+1}$$
+
+Four parameters:
+- $a_{AA}$, $a_{DD}$: **autoregressive effects** — stability of each variable over time
+- $a_{DA}$: **cross-lagged effect** of D at time $t$ on A at time $t+1$
+- $a_{AD}$: **cross-lagged effect** of A at time $t$ on D at time $t+1$
+
+```{r clpm-setup}
+# Simulate 3-wave panel data
+n <- 200
+n_waves <- 3
+
+# True DGP: anxiety -> depression (not the reverse)
+A <- matrix(NA, n, n_waves)
+D <- matrix(NA, n, n_waves)
+
+A[, 1] <- rnorm(n, 50, 8)
+D[, 1] <- rnorm(n, 45, 7)
+
+for (t in 2:n_waves) {
+  A[, t] <- 0.6 * A[, t-1] + 0.1 * D[, t-1] + rnorm(n, 0, 5)  # small D->A effect
+  D[, t] <- 0.6 * D[, t-1] + 0.3 * A[, t-1] + rnorm(n, 0, 5)  # strong A->D effect
+}
+
+df_clpm <- as.data.frame(cbind(A, D)) |>
+  setNames(c(paste0("A", 1:3), paste0("D", 1:3)))
+```
+
+```{r fit-clpm}
+# Classic CLPM in lavaan
+clpm_model <- '
+  # Autoregressive effects
+  A2 ~ a_AA * A1
+  A3 ~ a_AA * A2
+  D2 ~ a_DD * D1
+  D3 ~ a_DD * D2
+
+  # Cross-lagged effects
+  A2 ~ a_DA * D1
+  A3 ~ a_DA * D2
+  D2 ~ a_AD * A1
+  D3 ~ a_AD * A2
+
+  # Residual covariances (within same wave)
+  A2 ~~ D2
+  A3 ~~ D3
+
+  # Variance of wave 1
+  A1 ~~ A1
+  D1 ~~ D1
+  A1 ~~ D1
+'
+
+m_clpm <- sem(clpm_model, data = df_clpm)
+parameterEstimates(m_clpm) |>
+  filter(op == "~") |>
+  select(lhs, rhs, label, est, se, pvalue) |>
+  knitr::kable(digits = 3,
+    caption = "CLPM: cross-lagged path from A→D is strong; D→A is weak")
+```
+
+Good news: the CLPM detects the true asymmetric relationship (anxiety predicts future depression, not the other way around).
+
+## The Problem with Classic CLPM
+
+The classic CLPM conflates **within-person dynamics** with **between-person differences**. Consider: people who are chronically anxious tend to also be chronically depressed (stable between-person correlation). The cross-lagged paths in the classic CLPM pick up both this stable between-person covariation *and* the genuine within-person dynamic — they cannot be separated.
+
+This means even if there is **no within-person causal relationship** between anxiety and depression (i.e., changes in anxiety within a person do not cause changes in depression), the classic CLPM can show significant "cross-lagged" effects simply because chronically anxious people are also chronically depressed.
+
+## The Random Intercept CLPM (RI-CLPM)
+
+Hamaker, Kuiper, & Grasman (2015) proposed the **Random Intercept CLPM**, which solves this by separating two sources of variation:
+
+1. **Between-person:** Stable trait levels (random intercepts) that explain why some people are chronically higher on A or D
+2. **Within-person:** Fluctuations around each person's stable level, and the cross-lagged dynamics *among those fluctuations*
+
+```{r ri-clpm}
+ri_clpm_model <- '
+  # Random intercepts (stable between-person levels)
+  RI_A =~ 1*A1 + 1*A2 + 1*A3
+  RI_D =~ 1*D1 + 1*D2 + 1*D3
+
+  # Within-person components (deviations from stable level)
+  wA1 =~ 1*A1; wA2 =~ 1*A2; wA3 =~ 1*A3
+  wD1 =~ 1*D1; wD2 =~ 1*D2; wD3 =~ 1*D3
+
+  # Constrain observed variances to 0 (all captured by RI + within)
+  A1 ~~ 0*A1; A2 ~~ 0*A2; A3 ~~ 0*A3
+  D1 ~~ 0*D1; D2 ~~ 0*D2; D3 ~~ 0*D3
+
+  # Within-person cross-lagged dynamics
+  wA2 ~ a_AA*wA1 + a_DA*wD1
+  wA3 ~ a_AA*wA2 + a_DA*wD2
+  wD2 ~ a_DD*wD1 + a_AD*wA1
+  wD3 ~ a_DD*wD2 + a_AD*wA2
+
+  # Random intercept variances and covariance
+  RI_A ~~ RI_A; RI_D ~~ RI_D; RI_A ~~ RI_D
+
+  # Within-person residual variances
+  wA1 ~~ wA1; wD1 ~~ wD1
+  wA2 ~~ wA2; wD2 ~~ wD2
+  wA3 ~~ wA3; wD3 ~~ wD3
+  wA2 ~~ wD2; wA3 ~~ wD3
+
+  # Mean structure
+  RI_A ~ 1; RI_D ~ 1
+  wA1 ~ 0; wD1 ~ 0
+'
+
+m_ri_clpm <- sem(ri_clpm_model, data = df_clpm, estimator = "ML")
+
+parameterEstimates(m_ri_clpm) |>
+  filter(op == "~", lhs %in% c("wA2","wA3","wD2","wD3")) |>
+  select(lhs, rhs, label, est, se, pvalue) |>
+  knitr::kable(digits = 3,
+    caption = "RI-CLPM: within-person cross-lagged effects (controls for stable between-person differences)")
+```
+
+## Comparing CLPM vs. RI-CLPM
+
+| Feature | Classic CLPM | RI-CLPM |
+|---------|-------------|---------|
+| Controls for stable between-person differences? | No | Yes |
+| Cross-lagged = within-person dynamics? | No (confounded) | Yes |
+| More parameters? | No | Yes (random intercepts) |
+| Better for causal within-person questions? | No | Yes |
+
+::: {.callout-warning icon=false}
+## Assumption: Stationarity of Cross-Lagged Effects
+
+**What it means:** The CLPM (and RI-CLPM) typically constrains cross-lagged effects to be equal across waves. This assumes the dynamics do not change over the study period.
+
+**How to check:** Fit an unconstrained model (different path coefficients at each wave) and compare fit to the constrained model.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: No Omitted Dynamics
+
+**What it means:** Both models assume all relevant variables are included. An omitted third variable that drives both A and D could produce spurious cross-lagged effects.
+
+**How to check:** Think carefully about what else changes over time that could explain both variables. Include plausible third variables as additional nodes.
+:::

@@ -1,0 +1,34 @@
+---
+title: "Overview"
+---
+
+# Module 2: Centering & Between/Within Effects {.unnumbered}
+
+## The Subtlest Assumption
+
+You have built a mixed-effects model, checked your residuals, verified convergence, and are ready to interpret your coefficients. There is one more question you need to answer before you do:
+
+**What does your predictor's value actually mean?**
+
+This sounds almost philosophical, but it has concrete, testable consequences. A predictor like "daily sleep hours" can mean two different things in a within-person longitudinal dataset:
+
+1. **Between-person effect:** People who tend to sleep more also tend to have higher mood (perhaps because of a third factor — stable health, lifestyle, genetics — or because sleep causally improves mood on average across people)
+2. **Within-person effect:** On days when *this specific person* sleeps more than *their own average*, their mood is higher
+
+These two effects are not the same. They can point in opposite directions. They answer different scientific questions. And the standard random-intercept model, without careful centering, conflates them.
+
+**Module 2 is about learning to see the difference — and to model it explicitly.**
+
+## What This Module Covers
+
+**Part 1: Centering Your Variables** introduces grand-mean centering (GMC) and cluster-mean centering (CMC), explains what each does to the interpretation of your coefficients, and provides a decision framework.
+
+**Part 2: Between-Unit vs. Within-Unit Effects** shows how to simultaneously estimate both effects in a single model — the "Mundlak device" — and when the between and within effects diverge.
+
+**Part 3: Simpson's Paradox** uses vivid examples to show how the relationship at the aggregate level can be completely opposite to the relationship at the individual level. This is not a statistical curiosity — it is a systematic feature of nested data that researchers frequently misinterpret.
+
+## The Core Insight
+
+Standard regression assumes your predictor has one meaning. In nested data, it has (at least) two: a within-unit meaning and a between-unit meaning. Centering is the tool that separates them.
+
+> *"What do your means mean?"* — this question, asked before every analysis, will save you from some of the most common and consequential errors in social science research.

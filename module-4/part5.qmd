@@ -1,0 +1,173 @@
+---
+title: "Autoregressive Structures"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(nlme)
+library(ggplot2)
+set.seed(42)
+```
+
+# Autoregressive Structures
+
+## The Memory of Time
+
+Some outcomes carry their history with them. Mood at 9am predicts mood at 10am. Anxiety on Monday affects anxiety on Tuesday. GDP in quarter 1 predicts GDP in quarter 2. This temporal dependency — the "memory" of the process — is not just nuisance variance. It is a feature of the DGP that your model must account for.
+
+When you ignore serial dependence and treat residuals as independent, your standard errors are biased and your inference is wrong. More importantly, you are misrepresenting the process: you are claiming the outcome at each time point arises fresh, unconnected from what came before.
+
+## What AR(1) Means
+
+In an **autoregressive order 1** (AR(1)) process, each observation is a linear function of the immediately preceding observation plus random noise:
+
+$$Y_t = \phi \cdot Y_{t-1} + \varepsilon_t, \quad \varepsilon_t \sim \mathcal{N}(0, \sigma^2_\varepsilon)$$
+
+The parameter $\phi$ is the **autoregressive coefficient** — how strongly the past predicts the present. When $\phi = 0$, observations are independent. When $\phi = 0.9$, yesterday's value strongly predicts today's.
+
+```{r ar1-example}
+# Simulate AR(1) process for one person over 30 days
+phi   <- 0.75
+sigma <- 3
+n_t   <- 30
+
+Y <- numeric(n_t)
+Y[1] <- rnorm(1, 50, 5)
+for (t in 2:n_t) Y[t] <- phi * Y[t-1] + rnorm(1, 0, sigma)
+
+p1 <- tibble(t = 1:n_t, Y = Y) |>
+  ggplot(aes(x = t, y = Y)) +
+  geom_line(color = "#1e3a5f", linewidth = 1) +
+  geom_point(size = 2, color = "#1e3a5f", alpha = 0.7) +
+  labs(title = paste0("AR(1) process: φ = ", phi),
+       subtitle = "Each value depends on the previous",
+       x = "Day", y = "Outcome") +
+  theme_minimal(base_size = 13)
+
+# ACF plot
+acf_vals <- acf(Y, plot = FALSE, lag.max = 10)
+p2 <- tibble(lag = 0:10, acf = acf_vals$acf[,1,1]) |>
+  filter(lag > 0) |>
+  ggplot(aes(x = lag, y = acf)) +
+  geom_col(fill = "#1e3a5f", alpha = 0.8) +
+  geom_hline(yintercept = 0, color = "black") +
+  geom_hline(yintercept = c(-1, 1) * 1.96 / sqrt(n_t),
+             linetype = "dashed", color = "#e63946") +
+  labs(title = "Autocorrelation function (ACF)",
+       subtitle = "Should decay exponentially for AR(1)",
+       x = "Lag", y = "ACF") +
+  theme_minimal(base_size = 13)
+
+library(patchwork)
+p1 + p2
+```
+
+## Detecting Autocorrelation in Your Residuals
+
+The first diagnostic step: after fitting a model without an AR structure, check whether the residuals show serial dependence.
+
+```{r detect-autocorr}
+n_people <- 40
+n_days   <- 20
+
+# Simulate multilevel AR(1) data
+df_ar <- expand_grid(person = 1:n_people, day = 1:n_days) |>
+  arrange(person, day) |>
+  group_by(person) |>
+  mutate(
+    baseline  = rnorm(1, 50, 6),
+    ar_resid  = {
+      r <- numeric(n_days); r[1] <- rnorm(1, 0, 3)
+      for (t in 2:n_days) r[t] <- 0.7 * r[t-1] + rnorm(1, 0, 3)
+      r
+    },
+    Y = baseline + 2 * day / n_days + ar_resid
+  ) |>
+  ungroup() |>
+  mutate(person = factor(person))
+
+# Fit naive model (ignores AR structure)
+m_naive <- lme(Y ~ day, random = ~1 | person, data = df_ar)
+
+# Check residual ACF
+residuals_df <- data.frame(
+  resid  = residuals(m_naive, type = "normalized"),
+  person = df_ar$person,
+  day    = df_ar$day
+)
+
+# Lag-1 autocorrelation per person
+lag1_by_person <- residuals_df |>
+  group_by(person) |>
+  arrange(day) |>
+  summarise(lag1 = cor(head(resid, -1), tail(resid, -1)))
+
+ggplot(lag1_by_person, aes(x = lag1)) +
+  geom_histogram(fill = "#1e3a5f", color = "white", bins = 15) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "#e63946") +
+  labs(
+    title    = "Lag-1 autocorrelation of residuals (naive model)",
+    subtitle = "Most values are positive — indicates AR structure in the residuals",
+    x        = "Lag-1 autocorrelation",
+    y        = "Count"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+Most lag-1 autocorrelations are positive — strong evidence of serial dependence that the naive model is ignoring.
+
+## Specifying AR(1) in nlme
+
+```{r fit-ar1}
+# Correct model: AR(1) residual structure
+m_ar1 <- lme(Y ~ day,
+             random      = ~1 | person,
+             correlation = corAR1(form = ~day | person),
+             data        = df_ar)
+
+# Compare AIC
+tibble(
+  Model = c("Naive (no AR)", "AR(1)"),
+  AIC   = c(AIC(m_naive), AIC(m_ar1)),
+  BIC   = c(BIC(m_naive), BIC(m_ar1))
+) |>
+  knitr::kable(digits = 1, caption = "AR(1) substantially improves model fit")
+```
+
+```{r ar1-estimate}
+# What is the estimated autocorrelation?
+intervals(m_ar1, which = "var-cov")$corStruct
+```
+
+## The Assumptions of AR(1) Models
+
+::: {.callout-warning icon=false}
+## Assumption 1: Stationarity
+
+**What it means:** The mean and variance of the process are constant over time, and the autocorrelation depends only on the lag, not the absolute time point. An AR(1) process is stationary when $|\phi| < 1$.
+
+**How to check:** Plot the mean and variance of your outcome at each time point. Systematic trends violate stationarity. Fit a detrended model (including time as a fixed effect) and check whether residuals are stationary.
+
+**What to do if violated:** Include time trends as fixed effects. Consider differencing the outcome (analyzing change scores rather than raw scores).
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 2: Only Lag-1 Dependence
+
+**What it means:** AR(1) assumes that $Y_{t-2}$ predicts $Y_t$ *only through* $Y_{t-1}$ — once you condition on yesterday, the day before yesterday adds no additional predictive power.
+
+**How to check:** Examine the partial autocorrelation function (PACF). If the PACF shows significant values at lag 2 or beyond, you need AR(2) or a higher-order model.
+
+```{r pacf-check}
+pacf_vals <- pacf(Y, plot = FALSE, lag.max = 10)
+tibble(lag = 1:10, pacf = pacf_vals$acf[,1,1]) |>
+  ggplot(aes(x = lag, y = pacf)) +
+  geom_col(fill = "#1e3a5f", alpha = 0.8) +
+  geom_hline(yintercept = 0) +
+  geom_hline(yintercept = c(-1, 1) * 1.96 / sqrt(n_t),
+             linetype = "dashed", color = "#e63946") +
+  labs(title = "Partial ACF: only lag 1 significant = AR(1) is sufficient",
+       x = "Lag", y = "Partial ACF") +
+  theme_minimal(base_size = 13)
+```
+:::

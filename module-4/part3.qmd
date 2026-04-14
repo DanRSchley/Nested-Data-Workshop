@@ -1,0 +1,147 @@
+---
+title: "Growth Curve Models"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+library(ggplot2)
+set.seed(2024)
+```
+
+# Growth Curve Models
+
+## Trajectories as the Target
+
+Standard repeated measures models ask: "Is the mean outcome different across time points?" Growth curve models ask something richer: "How does each unit's trajectory unfold over time, and what explains variation in those trajectories?"
+
+The shift in framing is fundamental. We are not trying to estimate one average change — we are trying to recover the distribution of individual change processes that generated the data. Each person has their own DGP; growth curve models estimate the parameters of that distribution.
+
+## The Unconditional Growth Model
+
+Start with no predictors. Just time and people.
+
+```{r unconditional-growth}
+n_people <- 60
+n_times  <- 6  # weeks
+
+# Each person has a random baseline (intercept) and random rate of change (slope)
+person_intercepts <- rnorm(n_people, 50, 8)
+person_slopes     <- rnorm(n_people, -2, 1.5)  # average decline of 2/week
+
+df_growth <- expand_grid(person = 1:n_people, week = 0:(n_times-1)) |>
+  mutate(
+    stress = person_intercepts[person] +
+             person_slopes[person] * week +
+             rnorm(n(), 0, 4),
+    person = factor(person)
+  )
+
+# Plot individual trajectories
+sample_people <- sample(levels(df_growth$person), 12)
+
+ggplot(df_growth |> filter(person %in% sample_people),
+       aes(x = week, y = stress, group = person, color = person)) +
+  geom_line(alpha = 0.7) + geom_point(size = 1.5, alpha = 0.6) +
+  geom_smooth(data = df_growth, aes(group = NULL, color = NULL),
+              method = "lm", color = "black", linewidth = 1.5, se = TRUE) +
+  scale_color_viridis_d() +
+  labs(title = "Growth curve: individual stress trajectories over 6 weeks",
+       subtitle = "Colored lines = 12 individuals; black line = average trajectory",
+       x = "Week", y = "Stress (0-100)") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "none")
+```
+
+```{r fit-growth}
+# Unconditional growth model
+m_growth <- lmer(stress ~ week + (week | person), data = df_growth)
+summary(m_growth)
+```
+
+```{r growth-variance}
+broom.mixed::tidy(m_growth, effects = "ran_pars") |>
+  knitr::kable(digits = 3,
+    caption = "Variance components: how much do people differ in their starting point and rate of change?")
+```
+
+**Reading the output:**
+- Fixed effect of `week` (≈ −2): the average rate of stress decline per week
+- Random intercept variance: how much people differ in their starting stress level
+- Random slope variance: how much people differ in their rate of change
+- Intercept-slope correlation: do people who start high also decline faster (or slower)?
+
+## Adding Predictors of Growth
+
+The power of growth curve models comes from asking: **what predicts the trajectory?** We can add level-2 predictors to explain why some people's intercepts and slopes differ from others.
+
+```{r growth-predictors}
+# Add a predictor: treatment condition
+df_growth <- df_growth |>
+  mutate(treatment = rep(rbinom(n_people, 1, 0.5), each = n_times))
+
+# Treatment might affect both initial level and rate of change
+m_growth_pred <- lmer(stress ~ week * treatment + (week | person),
+                      data = df_growth)
+
+broom.mixed::tidy(m_growth_pred, effects = "fixed") |>
+  knitr::kable(digits = 3,
+    caption = "Growth model with treatment: interaction = different slopes by condition")
+```
+
+The `week:treatment` interaction coefficient tells you whether the treatment group's stress declines faster or slower than the control group.
+
+## Nonlinear Growth
+
+Some processes do not change linearly. Symptoms might improve rapidly at first, then plateau. Performance curves often show diminishing returns. The growth curve framework accommodates nonlinearity.
+
+```{r nonlinear-growth}
+# Quadratic growth
+df_growth_q <- expand_grid(person = 1:n_people, week = 0:8) |>
+  mutate(
+    person_int    = rep(rnorm(n_people, 50, 8), each = 9),
+    person_lin    = rep(rnorm(n_people, -5, 2), each = 9),
+    person_quad   = rep(rnorm(n_people, 0.5, 0.3), each = 9),
+    stress        = person_int + person_lin * week + person_quad * week^2 + rnorm(n(), 0, 3),
+    person        = factor(person)
+  )
+
+# Fit with quadratic time
+m_quad <- lmer(stress ~ week + I(week^2) + (week | person), data = df_growth_q)
+
+# Plot average predicted trajectory
+df_growth_q <- df_growth_q |>
+  mutate(fitted_stress = fitted(m_quad))
+
+df_growth_q |>
+  group_by(week) |>
+  summarise(mean_obs = mean(stress), mean_fit = mean(fitted_stress)) |>
+  pivot_longer(-week) |>
+  ggplot(aes(x = week, y = value, color = name, linetype = name)) +
+  geom_line(linewidth = 1.2) + geom_point(size = 2.5) +
+  scale_color_manual(values = c("#aec6e8", "#1e3a5f"),
+                     labels = c("Fitted (quadratic)", "Observed")) +
+  scale_linetype_manual(values = c("solid", "dashed"),
+                        labels = c("Fitted (quadratic)", "Observed")) +
+  labs(title = "Quadratic growth: curve captures the deceleration",
+       x = "Week", y = "Mean Stress", color = NULL, linetype = NULL) +
+  theme_minimal(base_size = 13)
+```
+
+::: {.callout-warning icon=false}
+## Assumption: The Growth Function is Correctly Specified
+
+**What it means:** Linear growth assumes constant rate of change. Quadratic growth assumes a parabolic trajectory. If the true trajectory is neither — e.g., a logarithmic curve or piecewise linear — your model will be misspecified.
+
+**How to check:** Plot the observed means by time point. Does the pattern look linear? Is there a clear deceleration or acceleration that requires a curve? Use AIC to compare linear vs. quadratic models.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Random Slope for Time is Correctly Specified
+
+**What it means:** Allowing only a random intercept (but not slope) for time assumes everyone changes at exactly the same rate. This is almost always wrong for developmental or therapeutic outcomes.
+
+**How to check:** Compare the random-intercept-only model to the random-slope model using a likelihood ratio test. Plot individual trajectories — if they clearly fan out or diverge, a random slope is needed.
+:::

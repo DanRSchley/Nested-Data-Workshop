@@ -1,0 +1,115 @@
+---
+title: "Propensity Scores & Matching"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(MatchIt)
+library(broom)
+set.seed(321)
+```
+
+# Propensity Scores & Matching
+
+## The Observational Study Problem
+
+You want to estimate whether participating in a corporate wellness program improves employee health, using observational HR data. Employees self-selected into the program — healthier, more motivated employees are more likely to participate. A naive comparison of participants vs. non-participants will overestimate the benefit.
+
+**Propensity score methods** reduce this bias by creating a comparison group similar to the treated group on all *observed* confounders. They work by estimating the probability that each unit received treatment — the **propensity score** — then matching or weighting on that score.
+
+## The Propensity Score
+
+$$e(X) = P(\text{Treatment} = 1 \mid X)$$
+
+The probability of receiving treatment given observed covariates. Key result (Rosenbaum & Rubin, 1983): conditioning on $e(X)$ is equivalent to conditioning on all of $X$ — you do not need to match on each covariate separately.
+
+```{r propensity-setup}
+n <- 600
+age           <- rnorm(n, 40, 10)
+health_aware  <- rnorm(n, 50, 12)
+job_stress    <- rnorm(n, 45, 8)
+
+# Treatment probability driven by confounders
+p_treat   <- plogis(-4 + 0.05 * age + 0.06 * health_aware - 0.03 * job_stress)
+treatment <- rbinom(n, 1, p_treat)
+
+# True ATE = 5
+health_score <- 40 + 0.3 * age + 0.4 * health_aware - 0.2 * job_stress +
+                5 * treatment + rnorm(n, 0, 6)
+
+df_ps <- tibble(age, health_aware, job_stress, treatment, health_score)
+
+m_naive <- lm(health_score ~ treatment, data = df_ps)
+cat("Naive estimate:", round(coef(m_naive)["treatment"], 2),
+    "— true effect = 5\n")
+```
+
+## Step 1: Estimate Propensity Scores and Check Overlap
+
+```{r fit-ps}
+ps_model <- glm(treatment ~ age + health_aware + job_stress,
+                family = binomial, data = df_ps)
+df_ps <- df_ps |> mutate(ps = fitted(ps_model))
+
+ggplot(df_ps, aes(x = ps, fill = factor(treatment))) +
+  geom_histogram(alpha = 0.6, bins = 30, position = "identity") +
+  scale_fill_manual(values = c("#aec6e8", "#1e3a5f"),
+                    labels = c("Control", "Treated")) +
+  labs(title = "Overlap: propensity score distributions",
+       subtitle = "Both groups must cover the same PS range for valid comparison",
+       x = "Propensity Score", y = "Count", fill = NULL) +
+  theme_minimal(base_size = 13)
+```
+
+::: {.callout-warning icon=false}
+## Assumption 1: Overlap (Common Support)
+
+**What it means:** Every unit must have a propensity score strictly between 0 and 1. Units with PS near 0 or 1 have no valid comparison units — causal inference is not possible for them.
+
+**How to check:** Plot the PS distributions for treated and control groups. Trim units outside the common support region.
+:::
+
+## Step 2: Match and Check Balance
+
+```{r match-balance}
+m_out <- matchit(treatment ~ age + health_aware + job_stress,
+                 data = df_ps, method = "nearest", ratio = 1)
+
+# Balance summary
+summary(m_out)$sum.matched |>
+  knitr::kable(digits = 3,
+    caption = "Balance after nearest-neighbor matching (std. diff. should be near 0)")
+```
+
+::: {.callout-warning icon=false}
+## Assumption 2: No Unmeasured Confounders (Ignorability)
+
+**What it means:** Given observed covariates, treatment assignment is independent of potential outcomes. There are no unobserved variables that both predict treatment and affect the outcome.
+
+**This is the critical untestable assumption.** Propensity score methods can only control for variables you measured. Any unobserved confounder still biases the estimate.
+
+**How to scrutinize:** Conduct a sensitivity analysis (Rosenbaum bounds) asking: how large would an unmeasured confounder need to be to overturn your conclusion?
+:::
+
+## Step 3: Estimate the Treatment Effect
+
+```{r ate-estimate}
+matched_data <- match.data(m_out)
+
+m_matched <- lm(health_score ~ treatment + age + health_aware + job_stress,
+                data = matched_data, weights = weights)
+
+tidy(m_matched) |> filter(term == "treatment") |>
+  knitr::kable(digits = 3,
+    caption = "Matched estimate of ATE (true = 5)")
+```
+
+## PSM vs. IPW vs. Doubly Robust
+
+| Method | How it works | Key advantage | Key risk |
+|--------|-------------|--------------|---------|
+| PSM | Match treated to similar controls | Intuitive; easy to check balance | Discards unmatched units |
+| IPW | Weight by inverse of propensity score | Uses all units | Extreme weights for PS near 0 or 1 |
+| Doubly robust | Combines PS model + outcome model | Consistent if *either* model is correct | Slightly more complex |
+
+Doubly robust estimation provides an extra layer of protection: your estimate is consistent if *either* the propensity model or the outcome model is correctly specified — not necessarily both.

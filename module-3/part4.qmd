@@ -1,0 +1,109 @@
+---
+title: "Regression Discontinuity Design"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(rdrobust)
+library(ggplot2)
+set.seed(42)
+```
+
+# Regression Discontinuity Design
+
+## The Threshold as a Quasi-Experiment
+
+Suppose college admission is partly determined by a test score cutoff: applicants above 70 are admitted, those below are not. People just below 70 and just above 70 are otherwise very similar — nearly identical test scores, similar backgrounds, similar demographics. The only thing separating them is whether they fell above or below an arbitrary threshold.
+
+This **discontinuity in treatment assignment**, driven by a continuous **running variable**, is the foundation of Regression Discontinuity Design (RDD).
+
+The key insight: **right at the threshold, treatment is as-good-as-randomly assigned**, because small differences in the running variable near the cutoff are essentially random noise in the DGP.
+
+## The Core Assumption
+
+::: {.callout-warning icon=false}
+## Assumption: Continuity of Potential Outcomes at the Threshold
+
+**What it means:** In the absence of treatment, the expected outcome must be a continuous function of the running variable at the cutoff. The only reason outcomes should jump at the threshold is the treatment.
+
+**Why it fails:**
+- **Sorting/manipulation:** If people can manipulate their running variable to cross the threshold (retaking tests, strategic reporting), those just above and just below are not comparable.
+- **Other policies at the same cutoff:** If another treatment also kicks in at exactly the same threshold, you cannot separate the effects.
+- **Anticipation:** If people change behavior in anticipation of crossing the threshold.
+
+**How to check:** McCrary density test — a spike in the running variable just above the cutoff indicates manipulation.
+:::
+
+## A Worked Example
+
+```{r rdd-simulation}
+n <- 1000
+# Running variable: test score, centered at cutoff = 0
+test_score <- rnorm(n, 0, 1)
+admitted   <- as.integer(test_score >= 0)
+# True causal effect of admission on earnings = 8
+earnings   <- 50 + 5 * test_score + 8 * admitted + rnorm(n, 0, 5)
+
+df_rdd <- tibble(test_score, admitted, earnings)
+
+ggplot(df_rdd, aes(x = test_score, y = earnings, color = factor(admitted))) +
+  geom_point(alpha = 0.2, size = 1) +
+  geom_smooth(method = "lm", formula = y ~ poly(x, 2), se = TRUE, linewidth = 1.2) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+  scale_color_manual(values = c("#aec6e8", "#1e3a5f"),
+                     labels = c("Not admitted", "Admitted")) +
+  labs(title = "RDD: earnings vs. test score",
+       subtitle = "Jump at the dashed cutoff = causal effect of admission",
+       x = "Test Score (centered at cutoff)", y = "Earnings",
+       color = NULL) +
+  theme_minimal(base_size = 13)
+```
+
+```{r rdd-estimate}
+rdd_result <- rdrobust(y = df_rdd$earnings, x = df_rdd$test_score, c = 0)
+summary(rdd_result)
+```
+
+`rdrobust` uses local polynomial regression with an automatically selected optimal bandwidth.
+
+## The Density Test
+
+```{r density-test}
+ggplot(df_rdd, aes(x = test_score)) +
+  geom_histogram(bins = 40, fill = "#1e3a5f", color = "white", alpha = 0.8) +
+  geom_vline(xintercept = 0, color = "#e63946", linewidth = 1.2, linetype = "dashed") +
+  labs(title = "Density test: check for manipulation at the cutoff",
+       subtitle = "A spike just right of the dashed line = sorting violation",
+       x = "Test Score (centered at cutoff)", y = "Count") +
+  theme_minimal(base_size = 13)
+```
+
+## Falsification Tests
+
+Run the RDD on **pre-treatment covariates** (age, gender, family income). These cannot be caused by the treatment. A jump at the threshold in a covariate means something else is discontinuous there — a serious threat to validity.
+
+```{r falsification}
+df_rdd <- df_rdd |> mutate(age = 18 + rnorm(n, 0, 1))
+fake   <- rdrobust(y = df_rdd$age, x = df_rdd$test_score, c = 0)
+cat("Jump in age at cutoff (should be ~0):", round(fake$coef[1], 3),
+    "| p =", round(fake$pv[1], 3), "\n")
+```
+
+## Bandwidth Sensitivity
+
+The estimate should be stable as you vary the bandwidth around the default. Dramatic changes signal dependence on functional form.
+
+```{r bandwidth-sensitivity}
+bws  <- seq(0.3, 1.5, by = 0.2)
+ests <- sapply(bws, \(bw)
+  rdrobust(y = df_rdd$earnings, x = df_rdd$test_score, c = 0, h = bw)$coef[1])
+
+tibble(Bandwidth = bws, Estimate = ests) |>
+  ggplot(aes(x = Bandwidth, y = Estimate)) +
+  geom_line(color = "#1e3a5f", linewidth = 1.2) +
+  geom_point(size = 3, color = "#1e3a5f") +
+  geom_hline(yintercept = 8, linetype = "dashed", color = "#e63946") +
+  labs(title = "Bandwidth sensitivity (red = true effect)",
+       x = "Bandwidth", y = "Estimated Discontinuity") +
+  theme_minimal(base_size = 13)
+```

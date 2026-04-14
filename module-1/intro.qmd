@@ -1,0 +1,49 @@
+---
+title: "Overview"
+---
+
+# Module 1: The Mixed-Effects Framework {.unnumbered}
+
+## The Toolkit
+
+Module 0 established that your data is almost always nested and that ignoring nesting inflates Type I error, shrinks effective sample sizes, and obscures the true data-generating process. Now we build the tools to do something about it.
+
+The **mixed-effects model** is the central workhorse of nested data analysis. It is called "mixed" because it combines two types of effects:
+
+- **Fixed effects** — parameters that apply to the entire population. The average relationship between sleep and mood. The overall effect of a treatment.
+- **Random effects** — parameters that vary across units (people, firms, classrooms) and are treated as drawn from a distribution rather than estimated individually.
+
+This combination lets the model do something powerful: borrow strength across units. A student who was absent for half the year still contributes information about their classroom. A person who completed only 2 days of a diary still informs estimates of the group average. The model uses all available information, weighted by how much each unit tells us.
+
+## How This Module is Organized
+
+The module builds in steps, each adding one layer of complexity while being explicit about what assumption is being made and what assumption is being relaxed.
+
+**Part 1: Fixed Effects** introduces the fixed-effects estimator — the simplest approach to handling nesting. It is easy to understand and makes strong assumptions. We examine each assumption carefully and show when it fails.
+
+**Part 2: Random Intercepts** introduces the random-intercept mixed model: the most common multilevel model in psychology. We show how it differs from fixed effects, what it assumes, and how to check those assumptions.
+
+**Part 3: Random Slopes** adds the most important extension: allowing the relationship between a predictor and outcome to vary across units. We discuss when this matters and when it does not.
+
+**Part 4: Fixed vs. Random — When to Use Which** addresses one of the most frequently asked questions in applied multilevel analysis. The answer involves the scientific question, the data structure, and several testable assumptions.
+
+**Part 5: Three-Level Structures** extends the framework to three levels of nesting and introduces the challenge of variance decomposition across levels.
+
+**Part 6: Crossed Random Effects** covers the case where observations belong to multiple grouping factors simultaneously — the structure that arises naturally in most psychological experiments.
+
+## Core Assumptions
+
+Every model in this module makes assumptions. We will state them explicitly at each step. For now, here is the set of assumptions that span the entire module:
+
+::: {.callout-important icon=false}
+## Assumptions of the Mixed-Effects Framework
+
+1. **Linearity:** The relationship between predictors and the outcome is linear (at each level)
+2. **Normality of random effects:** The random effects are drawn from a normal distribution
+3. **Normality of residuals:** Level-1 residuals are normally distributed
+4. **Homoskedasticity:** The variance of residuals is constant across units and predictor values
+5. **Independence of residuals:** Level-1 residuals are independent *after* conditioning on the random effects
+6. **Independence of random effects from predictors:** (for random effects models) The random effects are uncorrelated with the fixed-effect predictors
+
+Not all of these apply to all models. Fixed-effects models, for instance, do not require Assumption 6. Understanding *which* assumptions apply to *which* model — and how to check each one — is the goal of this module.
+:::

@@ -1,0 +1,253 @@
+---
+title: "Fixed Effects Models"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(plm)
+library(ggplot2)
+library(broom)
+set.seed(2024)
+```
+
+# Fixed Effects Models
+
+## The Problem We Are Solving
+
+Before we can introduce fixed effects models, we need to see clearly what problem they solve.
+
+Suppose you are studying the relationship between employee autonomy (how much control people have over their work) and job satisfaction, using a survey of 500 employees across 25 firms. You run a standard regression: satisfaction ~ autonomy.
+
+```{r pooled-problem}
+# Simulate the problem
+n_firms     <- 25
+n_employees <- 20
+
+# Firm effects: high-autonomy firms ALSO have better culture -> higher satisfaction
+# This is the confound we need to handle
+firm_autonomy_mean  <- rnorm(n_firms, 50, 10)   # firms differ in average autonomy
+firm_culture_effect <- firm_autonomy_mean * 0.4 + rnorm(n_firms, 0, 5)
+# Culture boosts satisfaction, AND correlates with autonomy
+
+df_firms <- expand_grid(
+  firm     = 1:n_firms,
+  employee = 1:n_employees
+) |>
+  mutate(
+    firm_autonomy   = firm_autonomy_mean[firm],
+    firm_culture    = firm_culture_effect[firm],
+    autonomy        = firm_autonomy + rnorm(n(), 0, 5),   # individual deviations
+    satisfaction    = 30 + 0.2 * autonomy + firm_culture + rnorm(n(), 0, 8),
+    # True within-firm effect of autonomy is 0.2
+    # But between-firm, autonomy and culture are correlated
+    firm_label      = factor(firm)
+  )
+
+# Naive pooled regression
+naive_model <- lm(satisfaction ~ autonomy, data = df_firms)
+broom::tidy(naive_model) |>
+  filter(term == "autonomy") |>
+  knitr::kable(digits = 3, caption = "Pooled OLS: estimated effect of autonomy")
+```
+
+The pooled estimate says autonomy has a strong positive effect on satisfaction. But is that the true causal effect?
+
+Look at the picture:
+
+```{r pooled-vs-within}
+# Show the between-firm confound
+firm_summary <- df_firms |>
+  group_by(firm) |>
+  summarise(mean_autonomy = mean(autonomy),
+            mean_satisfaction = mean(satisfaction))
+
+p1 <- ggplot(df_firms, aes(x = autonomy, y = satisfaction)) +
+  geom_point(alpha = 0.2, color = "#1e3a5f") +
+  geom_smooth(method = "lm", color = "#e63946", linewidth = 1.5) +
+  labs(title = "Pooled regression (ignores firm)",
+       subtitle = "Slope mixes within-firm and between-firm effects",
+       x = "Autonomy", y = "Satisfaction") +
+  theme_minimal(base_size = 13)
+
+p2 <- ggplot(df_firms, aes(x = autonomy, y = satisfaction,
+                             color = firm_label, group = firm_label)) +
+  geom_point(alpha = 0.3, size = 1) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 0.7) +
+  labs(title = "Within-firm regressions",
+       subtitle = "Each line = one firm's autonomy-satisfaction relationship",
+       x = "Autonomy", y = "Satisfaction") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "none") +
+  scale_color_viridis_d()
+
+library(patchwork)
+p1 + p2
+```
+
+The pooled slope (left panel) is steep — it looks like autonomy strongly predicts satisfaction. But the within-firm slopes (right panel) are much flatter. What is happening?
+
+**Between firms:** High-autonomy firms also have better cultures, better management, higher pay. All of these push satisfaction up. So firms with high average autonomy have high average satisfaction — but for reasons that go beyond autonomy itself.
+
+**Within firms:** On average, an employee with slightly more autonomy than their colleague in the same firm has modestly higher satisfaction. This is the true causal-adjacent effect we care about.
+
+The pooled regression cannot separate these two stories. It attributes the between-firm difference (driven by culture, management, etc.) to autonomy. This is **omitted variable bias** from the firm-level confounders.
+
+## How Fixed Effects Solve This
+
+The **fixed-effects (FE) estimator** removes between-unit variation entirely. It estimates the effect of autonomy using only variation *within* firms — comparing employees to other employees *in the same firm*, not to employees in other firms.
+
+It does this by including a dummy variable for each firm (except one baseline), which absorbs all variation that is constant within firms. Everything that makes Firm 1 different from Firm 2 — culture, pay, management quality — gets "partialled out."
+
+```{r fe-model}
+# Fixed effects model using the plm package
+df_firms_pdata <- pdata.frame(df_firms, index = c("firm", "employee"))
+fe_model <- plm(satisfaction ~ autonomy,
+                data   = df_firms_pdata,
+                model  = "within",  # "within" = fixed effects
+                effect = "individual")
+
+summary(fe_model)
+```
+
+```{r fe-compare}
+# Or equivalently with lm() using firm dummies
+fe_lm <- lm(satisfaction ~ autonomy + firm_label, data = df_firms)
+broom::tidy(fe_lm) |>
+  filter(term == "autonomy") |>
+  knitr::kable(digits = 3,
+    caption = "Fixed effects estimate: within-firm effect of autonomy")
+```
+
+The FE estimate is now close to the true value of 0.2 — much smaller than the pooled estimate. The firm dummies absorbed the between-firm confound.
+
+::: {.callout-note}
+## The DGP Connection
+
+Fixed effects recover the within-unit component of the data-generating process. They answer: "within a given unit, as the predictor changes, what happens to the outcome?" This is often the more causally interpretable question — it controls for all stable, unit-level characteristics, measured or unmeasured.
+:::
+
+## The Assumptions of Fixed Effects Models
+
+Fixed effects models are not assumption-free. They trade one set of assumptions for another. Understanding what assumptions they make — and when those assumptions fail — is essential.
+
+::: {.callout-warning icon=false}
+## Assumption 1: Strict Exogeneity
+
+**What it means:** After conditioning on the fixed effects, the predictor must be uncorrelated with the error term at every time point. Past, present, *and future* shocks to the outcome must be unrelated to the current predictor.
+
+**Intuition:** If a firm's autonomy policy is changed *in response to* satisfaction declining — if managers give employees more autonomy when morale is low — then autonomy is no longer strictly exogenous. Its value today is influenced by yesterday's outcome.
+
+**How to check:** Plot the residuals against lagged values of the predictor. Look for patterns. Think carefully about the causal story: could the outcome be affecting the predictor over time?
+
+**What to do if it fails:** Consider difference-in-differences (Module 3), or use lagged predictors if the data is longitudinal.
+:::
+
+```{r exogeneity-check}
+# Add residuals back to original data for diagnostics
+df_firms <- df_firms |>
+  mutate(
+    fe_resid = residuals(fe_lm)
+  )
+
+# Check: do residuals correlate with predictor?
+ggplot(df_firms, aes(x = autonomy, y = fe_resid)) +
+  geom_point(alpha = 0.3, color = "#1e3a5f") +
+  geom_smooth(method = "loess", color = "#e63946", se = TRUE) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(
+    title    = "Residual plot: checking exogeneity",
+    subtitle = "No pattern = assumption holds; a curve = possible nonlinearity or violation",
+    x        = "Autonomy",
+    y        = "FE Residual"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+::: {.callout-warning icon=false}
+## Assumption 2: No Time-Varying Confounds
+
+**What it means:** Fixed effects only remove *time-invariant* (stable) omitted variables. If there is a confound that changes over time *and* correlates with the predictor, fixed effects will not remove it.
+
+**Example:** If firms that grant more autonomy also simultaneously adopt flexible working hours, and flexible hours independently boost satisfaction, the FE estimate is still biased. The flexible hours policy changed at the same time as autonomy — it is a time-varying confound.
+
+**How to check:** Think carefully about what else changed at the same time as your predictor. In longitudinal designs, look for co-occurrences. In cross-sectional firm data, ask whether any other firm-level policies correlate with autonomy in the cross-section *beyond* what the firm dummy captures.
+
+**What to do if it fails:** Include time-varying controls. Consider IV strategies if the confound is measurable.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 3: Sufficient Within-Unit Variation
+
+**What it means:** Fixed effects can only estimate effects using within-unit variation. If a predictor barely varies within units, the FE estimator becomes unreliable (high standard errors, sensitivity to outliers).
+
+**Example:** If you want to study the effect of *firm size* on employee satisfaction using FE, you are in trouble. Firm size does not change much within a firm over time. The FE estimator has almost no within-firm variation in size to work with.
+
+**How to check:** Compute the within-unit standard deviation of your predictor. If it is very small relative to the between-unit standard deviation, FE will struggle.
+
+```{r variation-check}
+df_firms |>
+  group_by(firm) |>
+  summarise(within_sd = sd(autonomy)) |>
+  summarise(
+    mean_within_sd  = mean(within_sd),
+    total_sd        = sd(df_firms$autonomy)
+  ) |>
+  mutate(
+    within_fraction = mean_within_sd / total_sd
+  ) |>
+  knitr::kable(digits = 3,
+    caption = "Fraction of autonomy variance that is within-firm")
+```
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 4: Fixed Effects are Correctly Specified and Stable
+
+**What it means:** The model assumes that each unit has one fixed effect that is constant across all observations for that unit. If the unit's effect changes over time (a firm's culture shifts dramatically after a merger), the single fixed effect will be a poor representation.
+
+**In panel data with both entity and time effects:** Including both entity and time fixed effects requires that entity effects do not vary over time and time effects do not vary across entities. This "two-way FE" assumption is often violated in practice and is worth checking explicitly.
+
+**How to check:** Fit separate regressions within each unit and examine whether the intercepts drift systematically over time. Plot the unit-specific estimates.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 5: Homoskedasticity and No Serial Correlation
+
+**What it means:** Within-unit errors are assumed to have constant variance and to be uncorrelated with each other across observations. In panel or longitudinal data, errors at time $t$ and time $t-1$ for the same unit are assumed to be independent.
+
+**Why this matters:** Serial correlation inflates standard errors. Heteroskedasticity biases them. Both are very common in real data.
+
+**How to check:** Examine residual plots over time for each unit. Test for serial correlation (Durbin-Watson or Breusch-Godfrey tests).
+
+**What to do if it fails:** Use cluster-robust standard errors (`sandwich` package in R), which are robust to both heteroskedasticity and serial correlation within clusters.
+
+```{r robust-se}
+library(sandwich)
+library(lmtest)
+
+# Cluster-robust standard errors for the FE model
+coeftest(fe_lm, vcov = vcovCL(fe_lm, cluster = ~firm_label))["autonomy", , drop = FALSE] |>
+  knitr::kable(digits = 3, caption = "Autonomy coefficient with cluster-robust SEs")
+```
+:::
+
+## What Fixed Effects Cannot Do
+
+Fixed effects are powerful but have important limits:
+
+1. **They cannot estimate level-2 effects.** Because they absorb all between-unit variation, you cannot estimate the effect of firm size, country GDP, or any other variable that is constant within units. This is the cost of the between-unit purge.
+
+2. **They discard between-unit information.** If the between-unit relationship is scientifically interesting — if you actually want to know whether higher-autonomy firms have more satisfied employees on average — FE throws that out.
+
+3. **They do not model heterogeneity.** The FE estimator assumes the same slope for every unit. If the autonomy-satisfaction relationship is strong in some firms and weak in others, FE gives you one pooled estimate and misses the heterogeneity.
+
+These limitations motivate the random-effects approach in the next section.
+
+## Recommended Reading
+
+| Topic | Citation |
+|-------|----------|
+| Fixed effects and panel data | Wooldridge, J. M. (2010). *Econometric Analysis of Cross Section and Panel Data* (2nd ed.). MIT Press. (Chapter 10) |
+| Two-way fixed effects | Imai, K., & Kim, I. S. (2021). On the use of two-way fixed effects regression models for causal inference with panel data. *Political Analysis, 29*(3), 405–415. |
+| Cluster-robust standard errors | Cameron, A. C., & Miller, D. L. (2015). A practitioner's guide to cluster-robust inference. *Journal of Human Resources, 50*(2), 317–372. |

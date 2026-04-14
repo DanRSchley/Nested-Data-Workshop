@@ -1,0 +1,109 @@
+---
+title: "Instrumental Variables"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(AER)
+library(broom)
+set.seed(42)
+```
+
+# Instrumental Variables
+
+## When You Cannot Randomize
+
+The gold standard for causal inference is a randomized experiment. But often you cannot randomize. An **instrument** is a variable that gives you some of the benefits of randomization without actually randomizing. It shifts X exogenously — through a channel that does not itself affect Y.
+
+## The Three Requirements
+
+::: {.callout-warning icon=false}
+## Assumption 1: Relevance
+
+**What it means:** Z must actually cause X to change. An instrument that does not predict the predictor is useless (and produces infinite standard errors).
+
+**How to check:** Regress X on Z (the "first stage"). The F-statistic on Z must be large — the standard rule of thumb is F > 10. Below 10, the instrument is "weak" and estimates become unreliable.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 2: Exclusion Restriction
+
+**What it means:** Z affects Y *only through* X — not through any other path. This is the key untestable assumption. You cannot verify it from data alone — you can only argue for it from theory and domain knowledge.
+
+**How to scrutinize:** Trace every possible path from Z to Y. Is there any path that does not go through X?
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 3: Independence (Exogeneity of the Instrument)
+
+**What it means:** Z is as-good-as-randomly assigned — it is not itself caused by the confounders that affect X and Y.
+
+**How to check:** Verify that Z is balanced across observable pre-treatment covariates.
+:::
+
+## Two-Stage Least Squares (TSLS)
+
+**Stage 1:** Regress X on Z. Extract fitted values $\hat{X}$ — the exogenous component of X.
+
+**Stage 2:** Regress Y on $\hat{X}$. This is the IV causal estimate.
+
+```{r tsls-example}
+n <- 800
+
+# Confounders: fatigue and commute stress
+fatigue        <- rnorm(n, 50, 10)
+commute_stress <- rnorm(n, 40, 8)
+
+# Instrument: daylight saving time shift (exogenous clock reset)
+DST_week <- rbinom(n, 1, 0.5)
+
+# Time of day: influenced by DST AND by fatigue/stress
+time_of_day <- 12 + 1.5 * DST_week - 0.1 * fatigue + rnorm(n, 0, 2)
+
+# Variety seeking: affected by time of day AND by confounders
+# True causal effect of time_of_day = 0.4
+variety_seeking <- 3 + 0.4 * time_of_day - 0.2 * fatigue -
+                   0.15 * commute_stress + rnorm(n, 0, 3)
+
+df_iv <- tibble(variety_seeking, time_of_day, DST_week, fatigue, commute_stress)
+
+# First stage: check instrument strength
+m_first <- lm(time_of_day ~ DST_week, data = df_iv)
+cat("First stage F-statistic:", round(summary(m_first)$fstatistic[1], 1), "\n")
+
+# Naive OLS
+m_ols <- lm(variety_seeking ~ time_of_day, data = df_iv)
+
+# IV via TSLS
+m_iv <- ivreg(variety_seeking ~ time_of_day | DST_week, data = df_iv)
+
+bind_rows(
+  tidy(m_ols) |> filter(term == "time_of_day") |> mutate(model = "OLS (biased)"),
+  tidy(m_iv)  |> filter(term == "time_of_day") |> mutate(model = "IV / TSLS")
+) |>
+  select(model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "OLS vs. IV: effect of time-of-day on variety seeking (true = 0.4)")
+```
+
+The OLS estimate is inflated by the confounders. The IV estimate recovers the true causal effect by using only the DST-driven variation in time-of-day.
+
+## The LATE Interpretation
+
+The IV estimate is not the population-average causal effect. It is the **Local Average Treatment Effect (LATE)**: the causal effect for **compliers** — units whose treatment status actually changed because of the instrument. People unaffected by DST (those who keep the same schedule regardless) are uninformative for the IV estimate.
+
+This limits generalizability. Whether the LATE is the quantity you care about depends on your research question.
+
+## Finding Good Instruments
+
+The exclusion restriction is the bottleneck. Common instrument classes in social science:
+
+| Instrument class | Example | Why valid |
+|-----------------|---------|-----------|
+| Natural experiment | Lottery assignment | Random by design |
+| Regulatory threshold | Age cutoff for program | Arbitrary threshold |
+| Geographic variation | Distance to hospital | Not chosen by individual |
+| Time-based shock | Policy change, DST | Exogenous timing |
+| Peer assignment | Random roommate assignment | Administrative randomization |
+
+The math is easy. Finding a credible instrument — one whose exclusion restriction holds and can be argued for — requires deep domain knowledge and creative thinking about your DGP.

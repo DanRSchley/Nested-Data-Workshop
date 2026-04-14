@@ -1,0 +1,129 @@
+---
+title: "Missing Data in Nested Contexts"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(mice)
+set.seed(2024)
+```
+
+# Missing Data in Nested Contexts
+
+## Why Missing Data is a Nesting Problem
+
+In a cross-sectional study, missing data is annoying but manageable: you lose some participants and hope they are not systematically different from those who stayed. In a **longitudinal or nested study**, missing data is woven into the very structure of the data — and it is almost always non-random.
+
+Consider a clinical trial tracking depression over 12 months. Patients who are getting worse are more likely to drop out — they are too depressed to fill out questionnaires, or they seek alternative treatment. The patients who complete all 12 measurements are not a random sample. They are the patients who recovered (or at least stayed stable enough to participate). Any analysis based only on completers overestimates the treatment's effectiveness.
+
+This is **attrition bias** — but now understood through the lens of missing data mechanisms.
+
+## Missing Data Mechanisms
+
+Three mechanisms, with very different implications:
+
+**MCAR (Missing Completely At Random):** The probability of a value being missing is unrelated to any observed or unobserved variable. Your survey crashed and lost data for participants whose IDs ended in 7. Truly random. Analysis of complete cases is valid, though inefficient.
+
+**MAR (Missing At Random):** The probability of missingness depends on *observed* variables, but not on the unobserved value itself. Older participants are more likely to miss the follow-up, but among older participants, the missing and observed values are similar. MAR allows valid inference with appropriate methods (mixed-effects models, multiple imputation).
+
+**MNAR (Missing Not At Random):** The probability of missingness depends on the *unobserved* value. The most depressed patients are most likely to drop out — and depression is the outcome being measured. No standard method can fully correct for MNAR; sensitivity analysis is required.
+
+## Testing for Non-Random Dropout
+
+```{r test-dropout}
+n_people <- 150
+n_waves  <- 4
+
+# Simulate longitudinal data with selective dropout
+df_long <- expand_grid(person = 1:n_people, wave = 1:n_waves) |>
+  group_by(person) |>
+  mutate(
+    baseline  = rnorm(1, 50, 10),
+    treatment = rbinom(1, 1, 0.5),
+    Y         = baseline - 3 * treatment * (wave - 1) / 3 + rnorm(n(), 0, 4),
+    # Dropout: high-depression (high Y) people are more likely to dropout in wave 3+
+    drop_prob = plogis(-3 + 0.04 * mean(Y[wave == 1])),
+    dropout   = cummax(rbinom(n(), 1, drop_prob)),
+    Y_obs     = ifelse(dropout == 1 & wave > 2, NA, Y)
+  ) |>
+  ungroup()
+
+# Test: do completers differ from dropouts at baseline?
+baseline_comparison <- df_long |>
+  filter(wave == 1) |>
+  mutate(completer = person %in% (df_long |>
+    filter(wave == n_waves, !is.na(Y_obs)) |> pull(person))) |>
+  group_by(completer) |>
+  summarise(
+    n = n(),
+    mean_baseline = mean(baseline),
+    mean_Y_wave1  = mean(Y)
+  )
+
+knitr::kable(baseline_comparison, digits = 2,
+  caption = "Completers vs. dropouts at baseline: systematic differences indicate MAR/MNAR")
+```
+
+## Mixed-Effects Models Under MAR
+
+A key advantage of mixed-effects models: under the MAR assumption, the likelihood uses all available observations — not just complete cases. A patient who provided data at waves 1, 2, and 3 (but not 4) contributes to the model estimate for waves 1–3. You do not need to discard them.
+
+This is why mixed-effects models are preferable to RM-ANOVA for longitudinal data with dropout: RM-ANOVA requires complete cases; mixed models do not.
+
+```{r mlm-vs-complete-case}
+# Complete case analysis
+df_complete <- df_long |> filter(!is.na(Y_obs)) |> group_by(person) |>
+  filter(all(1:n_waves %in% wave)) |> ungroup()
+
+# Mixed model using all available data
+m_all   <- lmer(Y_obs ~ wave * treatment + (wave | person), data = df_long)
+m_complete <- lmer(Y_obs ~ wave * treatment + (wave | person), data = df_complete)
+
+bind_rows(
+  broom.mixed::tidy(m_all,      effects = "fixed") |> filter(str_detect(term, ":")) |>
+    mutate(model = "MLM (all available data)"),
+  broom.mixed::tidy(m_complete, effects = "fixed") |> filter(str_detect(term, ":")) |>
+    mutate(model = "MLM (complete cases only)")
+) |>
+  select(model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Treatment × wave interaction: using all data reduces bias from selective dropout")
+```
+
+## Multiple Imputation for Multilevel Data
+
+When MCAR/MAR assumptions hold and you want to impute missing values before analysis (e.g., for predictors that are missing), the `mice` package supports multilevel imputation:
+
+```{r multiple-imputation}
+# Create a dataset with some missing predictor values
+df_long_miss <- df_long |>
+  mutate(
+    baseline_obs = ifelse(runif(n()) < 0.15, NA, baseline)  # 15% missing
+  )
+
+# Multilevel multiple imputation
+imp <- mice(
+  df_long_miss |> select(person, wave, treatment, baseline_obs, Y_obs),
+  method    = "2l.pan",  # level-2 predictive mean matching
+  maxit     = 5,
+  m         = 5,
+  print     = FALSE
+)
+
+# Analyze each imputed dataset and pool results
+models_imp <- with(imp, lmer(Y_obs ~ wave * treatment + baseline_obs +
+                               (wave | person)))
+pooled <- pool(models_imp)
+summary(pooled) |>
+  knitr::kable(digits = 3,
+    caption = "Pooled MI estimates: multiple imputation handles missing predictors")
+```
+
+::: {.callout-warning icon=false}
+## Assumption: MAR (for Imputation and MLM)
+
+**What it means:** The probability of a value being missing depends only on observed variables. This allows valid inference using all available data or multiple imputation.
+
+**How to check:** You cannot directly test MAR vs. MNAR. Conduct sensitivity analyses: how different would your conclusions be under a range of MNAR scenarios? The `tipping point` analysis asks how extreme the missing data would have to be to overturn your result.
+:::

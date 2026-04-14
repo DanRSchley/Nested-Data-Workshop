@@ -1,0 +1,162 @@
+---
+title: "Covariance Structures"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(nlme)
+library(lme4)
+library(ggplot2)
+set.seed(77)
+```
+
+# Covariance Structures
+
+## The Covariance Matrix is a Scientific Statement
+
+When you measure the same person at multiple time points, those measurements co-vary. How they co-vary is not a statistical nuisance — it is a substantive statement about the DGP. The choice of covariance structure encodes an assumption about how the underlying process operates over time.
+
+The covariance structure specifies two things: **variances** (how variable are observations at each time point?) and **covariances** (how correlated are observations at different time points?).
+
+## The Main Structures
+
+### 1. Compound Symmetry (CS)
+
+All variances are equal. All covariances are equal regardless of lag.
+
+$$\Sigma_{CS} = \begin{pmatrix} \sigma^2 & \sigma^2\rho & \sigma^2\rho \\ \sigma^2\rho & \sigma^2 & \sigma^2\rho \\ \sigma^2\rho & \sigma^2\rho & \sigma^2 \end{pmatrix}$$
+
+**When it makes sense:** When there is no reason to think observations closer in time are more similar than distant observations. Very rare in practice.
+
+**When it fails:** Almost always. Time 1 and Time 2 are almost always more correlated than Time 1 and Time 6.
+
+### 2. Autoregressive Order 1 — AR(1)
+
+Correlations decay exponentially with time lag. Observations one step apart correlate $\rho$; two steps apart, $\rho^2$; $k$ steps apart, $\rho^k$.
+
+$$\Sigma_{AR1} = \sigma^2\begin{pmatrix} 1 & \rho & \rho^2 \\ \rho & 1 & \rho \\ \rho^2 & \rho & 1 \end{pmatrix}$$
+
+**When it makes sense:** For many psychological, physiological, and economic time series where the past predicts the present and the influence fades over time. Very commonly appropriate.
+
+### 3. Unstructured (UN)
+
+No constraints. Every variance and covariance is estimated freely.
+
+**When it makes sense:** When you have no prior beliefs about the pattern and enough data to estimate all parameters.
+
+**When it fails:** With many time points or small samples, the unstructured model is overparameterized and produces unstable estimates.
+
+### 4. Toeplitz
+
+Like AR(1) but relaxes the constraint that correlations must follow an exponential decay — each lag has its own correlation, but the correlation only depends on the lag (not the absolute time point). A flexible middle ground.
+
+## Visualizing the Structures
+
+```{r vis-structures}
+make_cov_plot <- function(Sigma, title) {
+  n <- nrow(Sigma)
+  # Convert to correlation
+  D <- diag(1 / sqrt(diag(Sigma)))
+  Corr <- D %*% Sigma %*% D
+
+  data.frame(Corr) |>
+    setNames(paste0("T", 1:n)) |>
+    mutate(row = paste0("T", 1:n)) |>
+    pivot_longer(-row, names_to = "col", values_to = "r") |>
+    mutate(row = factor(row, levels = rev(paste0("T", 1:n))),
+           col = factor(col, levels = paste0("T", 1:n))) |>
+    ggplot(aes(x = col, y = row, fill = r)) +
+    geom_tile(color = "white", linewidth = 1) +
+    geom_text(aes(label = round(r, 2)), size = 3.5) +
+    scale_fill_gradient2(low = "#f7fbff", mid = "#4292c6", high = "#08306b",
+                         midpoint = 0.5, limits = c(-0.1, 1)) +
+    labs(title = title, x = NULL, y = NULL) +
+    theme_minimal(base_size = 11) +
+    theme(legend.position = "none")
+}
+
+n <- 5
+rho <- 0.6
+
+CS   <- matrix(rho, n, n); diag(CS) <- 1; CS <- CS * 4
+AR1  <- outer(0:(n-1), 0:(n-1), function(i, j) rho^abs(i-j)) * 4
+Toep <- outer(0:(n-1), 0:(n-1), function(i, j) {
+  c(1, 0.7, 0.5, 0.3, 0.2)[abs(i-j)+1]
+}) * 4
+UN <- matrix(c(4.0, 2.4, 1.8, 1.4, 1.0,
+               2.4, 4.2, 2.2, 1.6, 1.1,
+               1.8, 2.2, 4.5, 2.4, 1.5,
+               1.4, 1.6, 2.4, 4.8, 2.2,
+               1.0, 1.1, 1.5, 2.2, 5.0), n, n)
+
+library(patchwork)
+(make_cov_plot(CS,   "Compound Symmetry") +
+ make_cov_plot(AR1,  "AR(1)")) /
+(make_cov_plot(Toep, "Toeplitz") +
+ make_cov_plot(UN,   "Unstructured"))
+```
+
+## Specifying Covariance Structures in R
+
+`lme4` does not support custom covariance structures beyond the random effects structure. For explicit covariance modeling, use `nlme`:
+
+```{r covariance-nlme}
+# Simulate data with AR(1) structure
+n_people <- 50
+n_times  <- 5
+rho_true <- 0.7
+
+Y_ar1 <- MASS::mvrnorm(n_people, rep(50, n_times),
+                        outer(0:(n_times-1), 0:(n_times-1),
+                              function(i,j) rho_true^abs(i-j)) * 9)
+
+df_long <- as.data.frame(Y_ar1) |>
+  setNames(paste0("t", 1:n_times)) |>
+  mutate(person = 1:n_people) |>
+  pivot_longer(-person, names_to = "time", values_to = "Y") |>
+  mutate(time_num = as.integer(str_extract(time, "[0-9]")),
+         person   = factor(person))
+
+# Fit four competing models
+m_cs  <- gls(Y ~ factor(time_num), correlation = corCompSymm(form = ~1 | person), data = df_long)
+m_ar1 <- gls(Y ~ factor(time_num), correlation = corAR1(form = ~time_num | person), data = df_long)
+m_un  <- gls(Y ~ factor(time_num), correlation = corSymm(form = ~time_num | person),
+             weights = varIdent(form = ~1 | factor(time_num)), data = df_long)
+
+# Compare AIC
+tibble(
+  Model = c("Compound Symmetry", "AR(1)", "Unstructured"),
+  AIC   = c(AIC(m_cs), AIC(m_ar1), AIC(m_un)),
+  BIC   = c(BIC(m_cs), BIC(m_ar1), BIC(m_un))
+) |>
+  arrange(AIC) |>
+  knitr::kable(digits = 1,
+    caption = "Model comparison: AR(1) fits better than CS when data has AR structure")
+```
+
+## Assumptions and How to Check Each Structure
+
+::: {.callout-warning icon=false}
+## AR(1) Assumption: Stationarity
+
+**What it means:** The mean and variance of observations are constant over time, and the correlation between observations depends only on the time lag, not on the absolute time point.
+
+**How to check:** Plot the mean and variance of your outcome at each time point. If either is trending systematically, stationarity is violated. A detrended model (with time as a fixed effect) may restore stationarity of the residuals.
+:::
+
+::: {.callout-warning icon=false}
+## Unstructured Assumption: Sufficient Sample Size
+
+**What it means:** The unstructured model estimates $T(T+1)/2$ covariance parameters (for $T$ time points). With 5 time points, that is 15 parameters just for the covariance structure.
+
+**How to check:** Compare the number of observations to the number of covariance parameters. As a rough guide, you want at least 10× as many observations as parameters.
+:::
+
+## Model Selection Strategy
+
+Use AIC/BIC to compare competing covariance structures:
+
+1. Start with the AR(1) model as a reasonable default
+2. Compare to compound symmetry (more constrained) and Toeplitz (more flexible)
+3. Try unstructured if sample size allows
+4. Choose the model with the lowest AIC, subject to convergence and interpretability

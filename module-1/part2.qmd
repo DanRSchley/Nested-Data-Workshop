@@ -1,0 +1,295 @@
+---
+title: "Random Intercepts"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+library(ggplot2)
+library(performance)
+set.seed(2024)
+```
+
+# Random Intercepts
+
+## The Core Idea
+
+Fixed effects solve the confound problem by eliminating between-unit variation entirely. But this comes at a cost: you lose all information about *why* units differ. You also cannot make predictions for new units, estimate the effect of unit-level predictors, or quantify how much units vary.
+
+**Random intercepts** take a different approach. Instead of treating each unit's deviation from the average as a parameter to be estimated (as fixed effects do), the random-intercept model treats them as **draws from a distribution**. The model estimates the parameters of that distribution — specifically, its variance.
+
+This distinction has deep consequences. Fixed effects say: "Unit 7 has some specific effect. I'll absorb it." Random effects say: "Units are sampled from a population of units. I'll model that population."
+
+## The Model
+
+The random-intercept model has two levels:
+
+**Level 1 (within-unit):**
+$$Y_{ij} = \beta_{0j} + \beta_1 X_{ij} + \varepsilon_{ij}$$
+
+**Level 2 (between-unit):**
+$$\beta_{0j} = \gamma_{00} + u_{0j}$$
+
+Substituting level 2 into level 1:
+$$Y_{ij} = \underbrace{(\gamma_{00} + u_{0j})}_{\text{unit-specific intercept}} + \beta_1 X_{ij} + \varepsilon_{ij}$$
+
+Where:
+- $\gamma_{00}$ = the grand mean intercept (the "fixed" part)
+- $u_{0j}$ = the deviation of unit $j$ from the grand mean (the "random" part), assumed $u_{0j} \sim \mathcal{N}(0, \sigma^2_u)$
+- $\varepsilon_{ij}$ = level-1 residual, assumed $\varepsilon_{ij} \sim \mathcal{N}(0, \sigma^2_\varepsilon)$
+
+The model estimates three things: $\gamma_{00}$ (grand mean), $\beta_1$ (slope), $\sigma^2_u$ (between-unit variance), and $\sigma^2_\varepsilon$ (within-unit variance).
+
+## Fitting a Random-Intercept Model
+
+We return to the sleep-mood example: 30 people, each measured for 7 days. We want to know whether more sleep predicts better mood.
+
+```{r fit-random-intercept}
+# Simulate the data
+n_people <- 30
+n_days   <- 7
+
+person_intercepts <- rnorm(n_people, mean = 50, sd = 8)   # people differ in baseline mood
+
+df_sleep <- expand_grid(
+  person = 1:n_people,
+  day    = 1:n_days
+) |>
+  mutate(
+    sleep = rnorm(n(), mean = 7, sd = 1.5),
+    mood  = person_intercepts[person] + 3 * (sleep - 7) + rnorm(n(), 0, 5),
+    person = factor(person)
+  )
+
+# Null model (no predictors — just partition variance)
+model_null <- lmer(mood ~ 1 + (1 | person), data = df_sleep)
+
+# Random intercept model with predictor
+model_ri <- lmer(mood ~ sleep + (1 | person), data = df_sleep)
+
+summary(model_ri)
+```
+
+```{r ri-interpret}
+# Key output: fixed effects and variance components
+broom.mixed::tidy(model_ri, effects = "fixed") |>
+  knitr::kable(digits = 3, caption = "Fixed effects: sleep predicts mood")
+
+broom.mixed::tidy(model_ri, effects = "ran_pars") |>
+  knitr::kable(digits = 3, caption = "Random effects: how much do people differ?")
+```
+
+**Interpretation:**
+- The fixed effect of `sleep` (~3.0) tells us: on a day when someone sleeps one hour more than average, their mood increases by about 3 points. This is the average within-person effect.
+- The random effect variance (~60, i.e., SD ~8) tells us how much people's baseline moods differ from each other.
+- The residual variance (~25, SD ~5) tells us how much a person's mood varies from day to day after accounting for sleep.
+
+```{r ri-visualize}
+# Visualize random intercepts
+ranef_df <- data.frame(
+  person    = rownames(ranef(model_ri)$person),
+  intercept = ranef(model_ri)$person[, 1]
+) |>
+  arrange(intercept) |>
+  mutate(person = factor(person, levels = person))
+
+ggplot(ranef_df, aes(x = person, y = intercept)) +
+  geom_point(color = "#1e3a5f", size = 2.5) +
+  geom_errorbar(
+    aes(ymin = intercept - 1.96 * 4,  # approximate SE
+        ymax = intercept + 1.96 * 4),
+    width = 0.3, alpha = 0.5, color = "#1e3a5f"
+  ) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  labs(
+    title    = "Random intercepts: each person's deviation from the grand mean",
+    subtitle = "People above zero have higher baseline mood; below zero, lower",
+    x        = "Person",
+    y        = "Random Intercept (deviation from grand mean)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.x = element_blank())
+```
+
+## The Assumptions of Random Intercept Models
+
+::: {.callout-warning icon=false}
+## Assumption 1: Normality of Random Effects
+
+**What it means:** The random intercepts $u_{0j}$ are assumed to follow a normal distribution with mean zero and variance $\sigma^2_u$.
+
+**Why it matters:** If the true distribution of random effects is highly skewed or has heavy tails, the model will misestimate both the fixed effects and the variance components.
+
+**How to check:** Plot the estimated random effects (from `ranef()`) as a histogram or Q-Q plot. Look for obvious skewness or outliers.
+
+```{r normality-re}
+re_values <- ranef(model_ri)$person[, 1]
+
+par(mfrow = c(1, 2))
+hist(re_values, breaks = 10,
+     main = "Distribution of random intercepts",
+     xlab = "Random intercept value",
+     col  = "#deebf7", border = "white")
+qqnorm(re_values, main = "Q-Q plot of random intercepts")
+qqline(re_values, col = "#e63946", lwd = 2)
+```
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 2: Normality and Homoskedasticity of Level-1 Residuals
+
+**What it means:** The within-unit residuals $\varepsilon_{ij}$ are assumed to be normally distributed and have constant variance across all observations.
+
+**How to check:** Plot residuals against fitted values (look for funnel shapes = heteroskedasticity). Check a Q-Q plot of residuals.
+
+```{r residual-checks}
+# Extract residuals and fitted values
+df_sleep <- df_sleep |>
+  mutate(
+    fitted = fitted(model_ri),
+    resid  = residuals(model_ri)
+  )
+
+p1 <- ggplot(df_sleep, aes(x = fitted, y = resid)) +
+  geom_point(alpha = 0.3, color = "#1e3a5f") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  geom_smooth(method = "loess", color = "#e63946", se = FALSE) +
+  labs(title = "Residuals vs. Fitted",
+       subtitle = "Look for funnel shapes (heteroskedasticity) or curves (nonlinearity)",
+       x = "Fitted Values", y = "Residuals") +
+  theme_minimal(base_size = 12)
+
+p2 <- ggplot(df_sleep, aes(sample = resid)) +
+  stat_qq(color = "#1e3a5f", alpha = 0.5) +
+  stat_qq_line(color = "#e63946") +
+  labs(title = "Q-Q Plot of Residuals",
+       subtitle = "Points off the line = non-normal residuals",
+       x = "Theoretical Quantiles", y = "Sample Quantiles") +
+  theme_minimal(base_size = 12)
+
+library(patchwork)
+p1 + p2
+```
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 3: Independence of Random Effects from Predictors (The Key Difference from FE)
+
+**What it means:** The random intercepts $u_{0j}$ must be uncorrelated with the predictors in the model.
+
+**Why this is critical:** This is the assumption that fixed effects models *do not* require. If a person's baseline mood (their random intercept) is correlated with their average sleep — e.g., people who are depressed both have lower baseline mood AND sleep more — then the random-effects estimator is biased.
+
+**How to check:** This cannot be directly tested (the random effects are not directly observed), but you can use the **Hausman test** to compare FE and RE estimates. If they differ substantially, the independence assumption is likely violated.
+
+**What to do if it fails:** Use fixed effects instead, or use cluster-mean centering (see Module 2).
+
+```{r hausman-test}
+library(plm)
+
+df_panel <- df_sleep |>
+  mutate(person_id = as.integer(person))
+
+df_pdata <- pdata.frame(df_panel, index = c("person_id", "day"))
+
+fe_plm <- plm(mood ~ sleep, data = df_pdata, model = "within")
+re_plm <- plm(mood ~ sleep, data = df_pdata, model = "random")
+
+# Hausman test: H0 = RE is consistent (independence assumption holds)
+phtest(fe_plm, re_plm)
+```
+
+A non-significant Hausman test (p > 0.05) suggests the RE assumption is plausible. A significant test suggests the random effects are correlated with predictors — use FE or cluster-mean centering.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 4: Independence of Level-1 Residuals Within Units
+
+**What it means:** After conditioning on the random intercept and fixed effects, the within-unit residuals are assumed to be independent. On day 3, person 7's residual should not predict their day 4 residual.
+
+**Why it fails:** For longitudinal data, this assumption is almost never literally true. Yesterday's mood influences today's mood. Yesterday's leftover prediction error correlates with today's.
+
+**How to check:** For each unit, plot the autocorrelation function (ACF) of their residuals. If there is significant autocorrelation at lag 1, the independence assumption is violated.
+
+```{r autocorrelation-check}
+# Check autocorrelation for a few people
+acf_df <- df_sleep |>
+  group_by(person) |>
+  arrange(day) |>
+  summarise(
+    lag1_autocorr = cor(head(resid, -1), tail(resid, -1))
+  )
+
+ggplot(acf_df, aes(x = lag1_autocorr)) +
+  geom_histogram(fill = "#1e3a5f", color = "white", bins = 15) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "#e63946") +
+  labs(
+    title    = "Lag-1 autocorrelation of residuals by person",
+    subtitle = "If most values are near 0, residuals are approximately independent",
+    x        = "Lag-1 Autocorrelation",
+    y        = "Count"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+If substantial autocorrelation exists, you need to either model it explicitly (autoregressive covariance structures, covered in Module 4) or accept that your standard errors may be slightly off.
+:::
+
+## Partial Pooling: The Key Advantage
+
+The random-intercept model does something neither pooled OLS nor fixed effects can do: **partial pooling**.
+
+- **Pooled OLS** treats all units as identical (complete pooling — forces all intercepts to be the same)
+- **Fixed effects** treats each unit as completely separate (no pooling — estimates each unit independently)
+- **Random intercepts** shrinks unit estimates toward the grand mean, weighted by how much data each unit contributes (partial pooling)
+
+This matters when some units have few observations. A person who completed only 2 days of the mood diary gets less weight in estimating their personal intercept — the model borrows more from the group average for them than for someone who completed all 7 days.
+
+```{r partial-pooling}
+# Compare: unpooled unit means vs. random-intercept estimates
+unit_means <- df_sleep |>
+  group_by(person) |>
+  summarise(
+    unpooled = mean(mood),
+    n_obs    = n()
+  )
+
+re_estimates <- data.frame(
+  person = rownames(ranef(model_ri)$person),
+  random_intercept = ranef(model_ri)$person[, 1]
+) |>
+  mutate(
+    grand_mean = fixef(model_ri)["(Intercept)"],
+    pooled_re  = grand_mean + random_intercept
+  )
+
+comparison <- left_join(
+  unit_means |> mutate(person = as.character(person)),
+  re_estimates,
+  by = "person"
+)
+
+ggplot(comparison, aes(x = unpooled, y = pooled_re)) +
+  geom_point(size = 3, color = "#1e3a5f", alpha = 0.7) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
+  geom_hline(yintercept = mean(comparison$pooled_re),
+             color = "#e63946", linetype = "dotted") +
+  labs(
+    title    = "Partial pooling: unpooled means vs. random-intercept estimates",
+    subtitle = "Points on the diagonal = no shrinkage. Points pulled toward the red line = shrinkage toward grand mean.",
+    x        = "Unpooled unit mean",
+    y        = "Random-intercept estimate"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+The estimates are pulled toward the grand mean — that is shrinkage. Units with fewer observations (or more variable observations) get pulled more. This is not a flaw; it is the model being appropriately uncertain about extreme estimates from small samples.
+
+## Recommended Reading
+
+| Topic | Citation |
+|-------|----------|
+| Introduction to random effects for psychologists | Baayen, R. H., Davidson, D. J., & Bates, D. M. (2008). Mixed-effects modeling with crossed random effects for subjects and items. *Journal of Memory and Language, 59*(4), 390–412. |
+| Partial pooling and shrinkage | Gelman, A., & Hill, J. (2007). *Data Analysis Using Regression and Multilevel/Hierarchical Models.* Cambridge University Press. (Chapter 12) |
+| Hausman test | Hausman, J. A. (1978). Specification tests in econometrics. *Econometrica, 46*(6), 1251–1271. |

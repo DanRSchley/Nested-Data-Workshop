@@ -1,0 +1,120 @@
+---
+title: "Effect Sizes & Reporting"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(performance)
+library(broom.mixed)
+set.seed(2024)
+```
+
+# Effect Sizes & Reporting
+
+## Why R² is Hard in MLM
+
+In standard regression, $R^2$ has a clean interpretation: the proportion of variance in Y explained by the predictors. In multilevel models, there are multiple sources of variance (level-1 residuals, level-2 random effects) and multiple ways to define "explained variance."
+
+**Nakagawa & Schielzeth (2013)** proposed the now-standard solution: two complementary $R^2$ values for mixed models.
+
+**Marginal R² ($R^2_m$):** The proportion of total variance explained by the **fixed effects** alone. This captures the "main story" — how much variability in the outcome is accounted for by your predictors.
+
+**Conditional R² ($R^2_c$):** The proportion of total variance explained by **both fixed and random effects**. This includes the variance absorbed by the random effects structure — how much the model (including the clustering) explains in total.
+
+$$R^2_m = \frac{\sigma^2_f}{\sigma^2_f + \sigma^2_u + \sigma^2_\varepsilon}$$
+
+$$R^2_c = \frac{\sigma^2_f + \sigma^2_u}{\sigma^2_f + \sigma^2_u + \sigma^2_\varepsilon}$$
+
+where $\sigma^2_f$ = variance of fixed effect predictions, $\sigma^2_u$ = random effect variance, $\sigma^2_\varepsilon$ = residual variance.
+
+```{r r2-example}
+n_people <- 60
+n_days   <- 10
+
+person_int <- rnorm(n_people, 50, 8)
+df <- expand_grid(person = 1:n_people, day = 1:n_days) |>
+  mutate(
+    sleep  = rnorm(n(), 7, 1.5),
+    mood   = person_int[person] + 2.5 * (sleep - 7) + rnorm(n(), 0, 5),
+    person = factor(person)
+  )
+
+m <- lmer(mood ~ sleep + (1 | person), data = df)
+
+# Compute R²
+r2_vals <- r2(m)
+print(r2_vals)
+```
+
+**Interpretation:**
+- $R^2_m$ tells you how much variance is explained by `sleep` alone
+- $R^2_c$ tells you how much is explained by `sleep` plus person-level clustering
+- The difference ($R^2_c - R^2_m$) is the proportion attributable to person-level random effects — related to the ICC
+
+## ICC as an Effect Size
+
+The ICC from a null model is itself an effect size: it tells you the proportion of total variance that is between-cluster. Reporting this before any predictors is informative — it tells readers how much of the outcome is driven by group membership, regardless of the predictors.
+
+```{r icc-effect}
+m_null <- lmer(mood ~ 1 + (1 | person), data = df)
+icc(m_null)
+```
+
+## Standardized Coefficients
+
+Fixed effect coefficients are in the original units of X and Y. For comparison across studies or predictors with different scales, standardize:
+
+```{r standardized}
+# Method 1: Standardize inputs
+df <- df |>
+  mutate(sleep_z = scale(sleep)[,1],
+         mood_z  = scale(mood)[,1])
+
+m_std <- lmer(mood_z ~ sleep_z + (1 | person), data = df)
+broom.mixed::tidy(m_std, effects = "fixed") |>
+  knitr::kable(digits = 3,
+    caption = "Standardized coefficient: 1 SD increase in sleep → β SD increase in mood")
+```
+
+## What to Report
+
+Here is a model results write-up following JARS-Quant guidelines for multilevel models:
+
+---
+
+*Sample write-up:*
+
+We modeled daily mood as a function of hours of sleep using a two-level mixed-effects model (lme4; Bates et al., 2015), with days (Level 1) nested within participants (Level 2). A random intercept for participant was included to account for between-person differences in baseline mood.
+
+A null model revealed an intraclass correlation of ICC = .{icc}, indicating that {icc*100}% of the variance in mood was attributable to between-person differences in baseline mood.
+
+Adding sleep as a predictor significantly improved model fit (χ² = X, df = 1, p < .001). Sleep significantly predicted same-day mood (b = 2.48, SE = 0.31, t = 8.0, p < .001), indicating that each additional hour of sleep was associated with a 2.5-point increase in mood (on a 0–100 scale). The marginal R² was .{r2_m} and the conditional R² was .{r2_c}, indicating that sleep explained {r2_m*100}% of total variance; together with person-level random effects, the model explained {r2_c*100}% of total variance.
+
+---
+
+## Reporting Checklist
+
+::: {.callout-note}
+## Minimum Reporting Standards for MLM
+
+- [ ] **Fixed effects table:** Coefficients, SEs, t/z statistics, p-values (or credible intervals if Bayesian)
+- [ ] **Random effects table:** Variance components at each level, ICC
+- [ ] **Model comparison:** AIC/BIC or LRT for key model comparisons
+- [ ] **Marginal and conditional R²** (Nakagawa & Schielzeth method)
+- [ ] **Sample sizes at each level:** N participants, N observations (unbalanced patterns if relevant)
+- [ ] **Software and packages:** R version, lme4/brms version, REML vs. ML specification
+- [ ] **Centering decisions:** Was the predictor grand-mean or cluster-mean centered?
+- [ ] **Random effects structure:** What random effects were included and why?
+:::
+
+```{r final-table}
+# A clean reporting table
+broom.mixed::tidy(m, effects = "fixed", conf.int = TRUE) |>
+  mutate(
+    p_value = format.pval(p.value, digits = 2, eps = 0.001)
+  ) |>
+  select(term, estimate, std.error, conf.low, conf.high, p_value) |>
+  knitr::kable(digits = 3,
+    caption = "APA-style fixed effects table")
+```

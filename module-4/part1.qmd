@@ -1,0 +1,186 @@
+---
+title: "From RM-ANOVA to Mixed Models"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(nlme)
+library(ggplot2)
+set.seed(2024)
+```
+
+# From RM-ANOVA to Mixed Models
+
+## The Standard Psychology Approach
+
+Repeated measures ANOVA (RM-ANOVA) has been the default tool for within-subject designs in psychology for decades. It is familiar, built into every statistics textbook, and available in SPSS, JASP, and R. And it makes an assumption about your data that is almost always wrong.
+
+That assumption is **sphericity**.
+
+## What is Sphericity?
+
+Sphericity is a constraint on the variance-covariance matrix of your repeated measurements. Specifically, it requires that the variances of all pairwise *differences* between time points are equal.
+
+Imagine you measure anxiety at three time points: before a speech, immediately after, and one week later. Sphericity requires that:
+- Var(Time1 − Time2) = Var(Time1 − Time3) = Var(Time2 − Time3)
+
+In plain language: the variability in how much people change is the same regardless of which two time points you compare. This is equivalent to assuming **compound symmetry** — that all time points correlate equally with each other.
+
+```{r sphericity-diagram}
+# Visualize compound symmetry vs. a realistic AR(1) structure
+library(Matrix)
+
+# Compound symmetry: equal variances, equal covariances
+CS <- matrix(c(1.0, 0.5, 0.5, 0.5,
+               0.5, 1.0, 0.5, 0.5,
+               0.5, 0.5, 1.0, 0.5,
+               0.5, 0.5, 0.5, 1.0), 4, 4)
+
+# AR(1): closer time points are more correlated
+rho <- 0.7
+AR1 <- outer(1:4, 1:4, FUN = function(i, j) rho^abs(i - j))
+
+# Unstructured: no constraints
+US <- matrix(c(1.0, 0.8, 0.6, 0.3,
+               0.8, 1.0, 0.7, 0.5,
+               0.6, 0.7, 1.0, 0.8,
+               0.3, 0.5, 0.8, 1.0), 4, 4)
+
+plot_cov <- function(M, title) {
+  as.data.frame(M) |>
+    rownames_to_column("row") |>
+    pivot_longer(-row, names_to = "col", values_to = "corr") |>
+    mutate(row = factor(row, levels = rev(unique(row))),
+           col = factor(col)) |>
+    ggplot(aes(x = col, y = row, fill = corr)) +
+    geom_tile(color = "white") +
+    geom_text(aes(label = round(corr, 1)), size = 4) +
+    scale_fill_gradient2(low = "#f7fbff", mid = "#6baed6", high = "#08306b",
+                         midpoint = 0.5, limits = c(0, 1)) +
+    labs(title = title, x = "Time point", y = "Time point", fill = "Corr") +
+    theme_minimal(base_size = 12) +
+    theme(legend.position = "none")
+}
+
+library(patchwork)
+plot_cov(CS, "Compound Symmetry\n(sphericity assumption)") +
+plot_cov(AR1, "AR(1)\n(more realistic)") +
+plot_cov(US, "Unstructured\n(no constraints)")
+```
+
+The compound symmetry structure (left) forces all off-diagonal entries to be equal. The AR(1) structure (middle) lets correlations decay with time lag — closer time points are more correlated. The unstructured matrix (right) lets each correlation be whatever the data say.
+
+Real longitudinal data almost always looks more like AR(1) or unstructured than compound symmetry.
+
+## What Happens When Sphericity is Violated?
+
+When sphericity fails, RM-ANOVA F-tests are anti-conservative — Type I error rates are inflated. You reject the null hypothesis more often than your alpha level would suggest.
+
+```{r sphericity-violation}
+# Simulate data that violates sphericity: correlations decay with lag
+simulate_repeated <- function(n = 50, n_times = 4, spherical = TRUE) {
+  if (spherical) {
+    # Compound symmetry (sphericity holds)
+    Sigma <- CS * 4  # multiply by variance
+  } else {
+    # AR(1) (sphericity violated)
+    Sigma <- AR1 * 4
+  }
+
+  # Simulate null data (no treatment effect) and check Type I error
+  MASS::mvrnorm(n, mu = rep(0, n_times), Sigma = Sigma)
+}
+
+# Under the null (no effect), how often does RM-ANOVA reject?
+n_sims <- 1000
+type1_spherical <- numeric(n_sims)
+type1_violated  <- numeric(n_sims)
+
+for (i in 1:n_sims) {
+  y_sph <- simulate_repeated(spherical = TRUE)
+  y_vio <- simulate_repeated(spherical = FALSE)
+
+  # Reshape and run RM-ANOVA (simplified using lm + anova)
+  pval_sph <- summary(aov(c(y_sph) ~ factor(rep(1:4, each = 50)) +
+    Error(factor(rep(1:50, 4)))))$"Error: factor(rep(1:50, 4))"[[1]][1, "Pr(>F)"]
+  pval_vio <- summary(aov(c(y_vio) ~ factor(rep(1:4, each = 50)) +
+    Error(factor(rep(1:50, 4)))))$"Error: factor(rep(1:50, 4))"[[1]][1, "Pr(>F)"]
+
+  type1_spherical[i] <- ifelse(is.null(pval_sph), NA, pval_sph < 0.05)
+  type1_violated[i]  <- ifelse(is.null(pval_vio), NA, pval_vio < 0.05)
+}
+
+tibble(
+  Condition = c("Sphericity holds (CS)", "Sphericity violated (AR1)"),
+  `Type I Error Rate` = c(mean(type1_spherical, na.rm = TRUE),
+                           mean(type1_violated,  na.rm = TRUE))
+) |>
+  knitr::kable(digits = 3,
+    caption = "Type I error under sphericity vs. violation (nominal alpha = 0.05)")
+```
+
+::: {.callout-warning icon=false}
+## Assumption: Sphericity (RM-ANOVA Only)
+
+**What it means:** All pairwise variance differences among time points are equal. Equivalent to compound symmetry in the covariance matrix.
+
+**Mauchly's test:** The standard test for sphericity in RM-ANOVA. If Mauchly's W is significant (p < 0.05), sphericity is violated.
+
+**The problem with Mauchly's test:** It is sensitive to sample size (underpowered in small samples; overpowered in large ones). It also tests an exact assumption — the question is not whether sphericity is exactly true but whether the violation is large enough to matter.
+
+**Corrections within RM-ANOVA:** Greenhouse-Geisser or Huynh-Feldt corrections adjust the degrees of freedom. These are better than nothing but still assume a specific covariance structure.
+
+**The better solution:** Switch to mixed-effects models, which do not assume sphericity and let you specify the appropriate covariance structure for your data.
+:::
+
+## Mixed-Effects Models: No Sphericity Needed
+
+A mixed-effects model makes no assumption about the overall shape of the covariance matrix (in its most general form). The random effects structure and the residual covariance structure together determine what the model implies about how measurements co-vary.
+
+```{r rm-anova-vs-mlm}
+# Simulate anxiety study: 3 time points, AR(1) correlation structure
+n_people <- 60
+n_times  <- 3
+Sigma_ar <- AR1[1:3, 1:3] * 4  # true covariance is AR(1)
+
+# No treatment effect (null data)
+anx_data <- MASS::mvrnorm(n_people, mu = c(50, 50, 50), Sigma = Sigma_ar) |>
+  as.data.frame() |>
+  setNames(c("time1", "time2", "time3")) |>
+  mutate(person = 1:n_people) |>
+  pivot_longer(-person, names_to = "time", values_to = "anxiety") |>
+  mutate(
+    time_num = as.integer(str_extract(time, "[0-9]")),
+    person   = factor(person)
+  )
+
+# RM-ANOVA
+m_anova <- aov(anxiety ~ factor(time_num) + Error(person / factor(time_num)),
+               data = anx_data)
+
+# Mixed-effects model with AR(1) covariance
+m_mlm <- lme(anxiety ~ factor(time_num),
+             random = ~1 | person,
+             correlation = corAR1(),
+             data = anx_data)
+
+cat("RM-ANOVA p-value for time:", round(summary(m_anova)$`Error: person:factor(time_num)`[[1]]["factor(time_num)", "Pr(>F)"], 4), "\n")
+cat("MLM p-value for time:", round(anova(m_mlm)["factor(time_num)", "p-value"], 4), "\n")
+```
+
+When the true covariance structure is AR(1) (not compound symmetry), the mixed-effects model gives more accurate p-values because it uses the correct covariance model. RM-ANOVA's p-value may be misleading.
+
+## The Key Advantages of Mixed Models Over RM-ANOVA
+
+| Feature | RM-ANOVA | Mixed-Effects Model |
+|---------|----------|-------------------|
+| Handles missing data? | No — requires complete cases | Yes — uses all available data |
+| Assumes sphericity? | Yes | No |
+| Allows continuous time? | No | Yes |
+| Models individual trajectories? | No | Yes (random slopes) |
+| Handles unbalanced designs? | Poorly | Gracefully |
+| Can include level-2 predictors? | No | Yes |
+
+The only reason to prefer RM-ANOVA is familiarity. Mixed-effects models strictly dominate for any longitudinal design.
