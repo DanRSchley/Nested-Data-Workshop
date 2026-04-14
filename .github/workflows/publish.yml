@@ -33,14 +33,26 @@ jobs:
       - name: Install R packages
         run: |
           install.packages(c(
-            "tidyverse", "lme4", "nlme", "lmerTest",
-            "broom.mixed", "texreg", "knitr", "kableExtra",
-            "ggplot2", "patchwork", "ggeffects", "sjPlot",
-            "plm", "brms", "lavaan", "semTools",
-            "glmmTMB", "performance", "parameters",
-            "corrplot", "ggpubr", "viridis",
-            "survival", "survminer", "mice", "miceadds",
-            "Matrix", "MASS"
+            # Core tidyverse & data wrangling
+            "tidyverse", "knitr", "kableExtra",
+            # Mixed models
+            "lme4", "nlme", "lmerTest", "broom.mixed",
+            # Model evaluation & effects
+            "performance", "ggeffects", "parameters",
+            # Visualization
+            "ggplot2", "patchwork", "viridis", "corrplot", "ggpubr",
+            # Panel / causal inference
+            "plm", "AER", "rdrobust", "MatchIt", "sandwich", "lmtest",
+            # SEM / LGC
+            "lavaan", "semTools",
+            # GLMMs & counts
+            "glmmTMB",
+            # Survival
+            "survival", "survminer",
+            # Missing data
+            "mice", "miceadds",
+            # Misc utilities
+            "broom", "car", "Matrix", "MASS"
           ))
         shell: Rscript {0}
 
