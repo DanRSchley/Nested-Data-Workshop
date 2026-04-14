@@ -97,53 +97,60 @@ bind_rows(
 
 ## Multiple Imputation for Multilevel Data
 
-When MCAR/MAR assumptions hold and you want to impute missing values before analysis (e.g., for predictors that are missing), the `mice` package supports multilevel imputation:
+When MCAR/MAR assumptions hold and you want to impute missing values before analysis (e.g., for predictors that are missing), the `mice` package supports multilevel-aware multiple imputation.
+
+`baseline_obs` is a **Level-2 variable** — it is measured once per person, not once per observation. The right strategy is to impute it at the person level (one row per person), then merge the imputations back into the long-format data. This respects the nesting structure and avoids falsely treating the same missing value as if it were independent across waves.
 
 ```{r multiple-imputation}
-# Create a dataset with some missing predictor values
+# Introduce 15% missingness in the person-level baseline covariate
+set.seed(2024)
 df_long_miss <- df_long |>
+  group_by(person) |>
   mutate(
-    baseline_obs = ifelse(runif(n()) < 0.15, NA, baseline)  # 15% missing
+    baseline_obs = ifelse(runif(1) < 0.15, NA_real_, first(baseline))
+  ) |>
+  ungroup()
+
+# --- Step 1: Impute at the person level ---
+# Extract one row per person (Level-2 dataset)
+df_person <- df_long_miss |>
+  group_by(person) |>
+  summarise(
+    treatment    = first(treatment),
+    baseline_obs = first(baseline_obs),
+    mean_Y       = mean(Y_obs, na.rm = TRUE),  # person-level auxiliary variable
+    .groups      = "drop"
   )
 
-# Prepare data for multilevel imputation
-# 2l.pan requires: cluster variable coded as integer, predictor matrix
-# with -2 marking the cluster ID column
-df_mi <- df_long_miss |>
-  select(person, wave, treatment, baseline_obs, Y_obs) |>
-  mutate(person = as.integer(person))
+# Standard mice on the person-level data (pmm = predictive mean matching)
+imp_L2 <- mice(
+  df_person |> select(treatment, baseline_obs, mean_Y),
+  method = "pmm",
+  m      = 5,
+  maxit  = 5,
+  print  = FALSE
+)
 
-# Build predictor matrix: rows = variables to impute, cols = predictors
-# -2 = cluster ID, 1 = fixed predictor, 2 = random predictor, 0 = not used
-ini    <- mice(df_mi, maxit = 0, print = FALSE)
-pred   <- ini$predictorMatrix
-meth   <- ini$method
+# --- Step 2: Merge each imputed L2 dataset back into the long-format data ---
+# and run the mixed model, then pool
+models_imp <- lapply(1:5, function(i) {
+  df_person_imp <- df_person |>
+    mutate(baseline_obs = complete(imp_L2, i)$baseline_obs)
 
-# Only baseline_obs has missing data — use 2l.pan for it
-meth["baseline_obs"] <- "2l.pan"
-meth["Y_obs"]        <- ""       # don't impute outcome
+  df_merged <- df_long_miss |>
+    select(person, wave, treatment, Y_obs) |>
+    left_join(df_person_imp |> select(person, baseline_obs),
+              by = "person")
 
-# Set person as the class variable (-2) for the imputed variable
-pred["baseline_obs", "person"] <- -2
-pred["baseline_obs", "wave"]   <-  2   # random effect of wave
-pred["baseline_obs", "treatment"] <- 1
-pred["baseline_obs", "Y_obs"]     <- 1
+  lmer(Y_obs ~ wave * treatment + baseline_obs + (1 | person),
+       data = df_merged, REML = FALSE)
+})
 
-imp <- mice(df_mi,
-            method           = meth,
-            predictorMatrix  = pred,
-            maxit            = 5,
-            m                = 5,
-            print            = FALSE)
-
-# Analyze each imputed dataset and pool results
-models_imp <- with(imp, lmer(Y_obs ~ wave * treatment + baseline_obs +
-                               (1 | person)))
 pooled <- pool(models_imp)
 summary(pooled) |>
   select(term, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Pooled MI estimates: multiple imputation handles missing predictors")
+    caption = "Pooled MI estimates: imputing at the person level respects nesting structure")
 ```
 
 ::: {.callout-warning icon=false}
