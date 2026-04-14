@@ -5,6 +5,7 @@ title: "Missing Data in Nested Contexts"
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(lme4)
+library(lmerTest)
 library(mice)
 library(miceadds)
 set.seed(2024)
@@ -73,9 +74,11 @@ A key advantage of mixed-effects models: under the MAR assumption, the likelihoo
 This is why mixed-effects models are preferable to RM-ANOVA for longitudinal data with dropout: RM-ANOVA requires complete cases; mixed models do not.
 
 ```{r mlm-vs-complete-case}
-# Complete case analysis
-df_complete <- df_long |> filter(!is.na(Y_obs)) |> group_by(person) |>
-  filter(all(1:n_waves %in% wave)) |> ungroup()
+# Complete case analysis — keep only people with all 4 waves observed
+df_complete <- df_long |>
+  group_by(person) |>
+  filter(sum(!is.na(Y_obs)) == n_waves) |>
+  ungroup()
 
 # Mixed model using all available data
 m_all   <- lmer(Y_obs ~ wave * treatment + (wave | person), data = df_long)
