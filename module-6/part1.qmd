@@ -73,11 +73,11 @@ In linear models, marginal and conditional effects are equal. In logistic models
 ```{r marginal-effects}
 # Conditional predictions
 pred_conditional <- ggpredict(m_logit, terms = "promotion",
-                               type = "re")   # conditional on random effects = 0
+                               type = "random")   # conditional on random effects = 0
 
 # Marginal predictions (averaged over store distribution)
 pred_marginal <- ggpredict(m_logit, terms = "promotion",
-                            type = "fe")   # marginal (fixed effects only)
+                            type = "fixed")   # marginal (fixed effects only)
 
 bind_rows(
   as.data.frame(pred_conditional) |> mutate(type = "Conditional (store RE = 0)"),
