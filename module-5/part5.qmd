@@ -5,6 +5,7 @@ title: "Power Analysis for Nested Designs"
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(lme4)
+library(lmerTest)
 library(ggplot2)
 set.seed(42)
 ```
@@ -81,9 +82,17 @@ simulate_power <- function(n_clusters, n_per_cluster, icc,
             rnorm(n(), 0, sigma_within)
       )
 
-    m <- lmer(Y ~ group + (1 | cluster), data = df)
-    coef(summary(m))["group", "Pr(>|t|)"]
+    tryCatch({
+      m <- lmer(Y ~ group + (1 | cluster), data = df, REML = FALSE)
+      coef(summary(m))["group", "Pr(>|t|)"]
+    }, error = function(e) NA_real_,
+       warning = function(w) {
+         m <- lmer(Y ~ group + (1 | cluster), data = df, REML = FALSE)
+         tryCatch(coef(summary(m))["group", "Pr(>|t|)"],
+                  error = function(e) NA_real_)
+       })
   })
+  p_values <- p_values[!is.na(p_values)]
 
   mean(p_values < 0.05)
 }

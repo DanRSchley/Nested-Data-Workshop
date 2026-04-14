@@ -102,11 +102,21 @@ for (i in 1:n_sims) {
   y_sph <- simulate_repeated(spherical = TRUE)
   y_vio <- simulate_repeated(spherical = FALSE)
 
-  # Reshape and run RM-ANOVA (simplified using lm + anova)
-  pval_sph <- summary(aov(c(y_sph) ~ factor(rep(1:4, each = 50)) +
-    Error(factor(rep(1:50, 4)))))$"Error: factor(rep(1:50, 4))"[[1]][1, "Pr(>F)"]
-  pval_vio <- summary(aov(c(y_vio) ~ factor(rep(1:4, each = 50)) +
-    Error(factor(rep(1:50, 4)))))$"Error: factor(rep(1:50, 4))"[[1]][1, "Pr(>F)"]
+  # Reshape and run RM-ANOVA
+  extract_pval <- function(y_mat) {
+    df_aov <- data.frame(
+      Y      = c(y_mat),
+      time   = factor(rep(1:4, each = 50)),
+      person = factor(rep(1:50, 4))
+    )
+    aov_fit <- aov(Y ~ time + Error(person/time), data = df_aov)
+    s <- summary(aov_fit)
+    # Extract p-value from the within-person time effect
+    tryCatch(s[["Error: person:time"]][[1]][["Pr(>F)"]][1],
+             error = function(e) NA_real_)
+  }
+  pval_sph <- extract_pval(y_sph)
+  pval_vio <- extract_pval(y_vio)
 
   type1_spherical[i] <- ifelse(is.null(pval_sph), NA, pval_sph < 0.05)
   type1_violated[i]  <- ifelse(is.null(pval_vio), NA, pval_vio < 0.05)

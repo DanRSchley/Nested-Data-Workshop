@@ -71,12 +71,11 @@ broom.mixed::tidy(model_rs, effects = "ran_pars") |>
 # Show individual slopes
 person_lines <- df |>
   group_by(person) |>
-  do(model = lm(mood ~ sleep, data = .)) |>
-  mutate(
-    intercept = coef(model)[[1]],
-    slope     = coef(model)[[2]]
-  ) |>
-  select(person, intercept, slope)
+  summarise(
+    intercept = coef(lm(mood ~ sleep, data = cur_data()))[[1]],
+    slope     = coef(lm(mood ~ sleep, data = cur_data()))[[2]],
+    .groups   = "drop"
+  )
 
 # Plot individual regression lines
 sleep_range <- seq(4, 10, by = 0.1)
