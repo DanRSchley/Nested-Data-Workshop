@@ -30,28 +30,22 @@ jobs:
             libfontconfig1-dev libharfbuzz-dev libfribidi-dev \
             libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
 
+      - name: Install pak
+        run: install.packages("pak", repos = "https://r-lib.github.io/p/pak/stable/")
+        shell: Rscript {0}
+
       - name: Install R packages
         run: |
-          install.packages(c(
-            # Core tidyverse & data wrangling
+          pak::pkg_install(c(
             "tidyverse", "knitr", "kableExtra",
-            # Mixed models
             "lme4", "nlme", "lmerTest", "broom.mixed",
-            # Model evaluation & effects
             "performance", "ggeffects", "parameters",
-            # Visualization
             "ggplot2", "patchwork", "viridis", "corrplot", "ggpubr",
-            # Panel / causal inference
-            "plm", "AER", "rdrobust", "MatchIt", "sandwich", "lmtest",
-            # SEM / LGC
+            "plm", "AER", "ivreg", "rdrobust", "MatchIt", "sandwich", "lmtest",
             "lavaan", "semTools",
-            # GLMMs & counts
             "glmmTMB",
-            # Survival
             "survival", "survminer",
-            # Missing data
             "mice", "miceadds",
-            # Misc utilities
             "broom", "car", "Matrix", "MASS"
           ))
         shell: Rscript {0}
