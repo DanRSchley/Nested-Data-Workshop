@@ -548,11 +548,20 @@ window.Quarto = {
   <ul>
   <li><a href="#fixed-effects-models" id="toc-fixed-effects-models" class="nav-link active" data-scroll-target="#fixed-effects-models"><span class="header-section-number">9</span> Fixed Effects Models</a>
   <ul class="collapse">
-  <li><a href="#the-problem-we-are-solving" id="toc-the-problem-we-are-solving" class="nav-link" data-scroll-target="#the-problem-we-are-solving"><span class="header-section-number">9.1</span> The Problem We Are Solving</a></li>
-  <li><a href="#how-fixed-effects-solve-this" id="toc-how-fixed-effects-solve-this" class="nav-link" data-scroll-target="#how-fixed-effects-solve-this"><span class="header-section-number">9.2</span> How Fixed Effects Solve This</a></li>
-  <li><a href="#the-assumptions-of-fixed-effects-models" id="toc-the-assumptions-of-fixed-effects-models" class="nav-link" data-scroll-target="#the-assumptions-of-fixed-effects-models"><span class="header-section-number">9.3</span> The Assumptions of Fixed Effects Models</a></li>
-  <li><a href="#what-fixed-effects-cannot-do" id="toc-what-fixed-effects-cannot-do" class="nav-link" data-scroll-target="#what-fixed-effects-cannot-do"><span class="header-section-number">9.4</span> What Fixed Effects Cannot Do</a></li>
-  <li><a href="#recommended-reading" id="toc-recommended-reading" class="nav-link" data-scroll-target="#recommended-reading"><span class="header-section-number">9.5</span> Recommended Reading</a></li>
+  <li><a href="#two-settings-one-problem" id="toc-two-settings-one-problem" class="nav-link" data-scroll-target="#two-settings-one-problem"><span class="header-section-number">9.1</span> Two Settings, One Problem</a></li>
+  <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model"><span class="header-section-number">9.2</span> The Model</a>
+  <ul class="collapse">
+  <li><a href="#the-within-demeaning-transformation" id="toc-the-within-demeaning-transformation" class="nav-link" data-scroll-target="#the-within-demeaning-transformation"><span class="header-section-number">9.2.1</span> The Within-Demeaning Transformation</a></li>
+  </ul></li>
+  <li><a href="#two-examples-longitudinal-and-experimental" id="toc-two-examples-longitudinal-and-experimental" class="nav-link" data-scroll-target="#two-examples-longitudinal-and-experimental"><span class="header-section-number">9.3</span> Two Examples: Longitudinal and Experimental</a>
+  <ul class="collapse">
+  <li><a href="#example-1-firms-longitudinal-cross-section" id="toc-example-1-firms-longitudinal-cross-section" class="nav-link" data-scroll-target="#example-1-firms-longitudinal-cross-section"><span class="header-section-number">9.3.1</span> Example 1: Firms (Longitudinal Cross-Section)</a></li>
+  <li><a href="#example-2-within-subjects-experiment" id="toc-example-2-within-subjects-experiment" class="nav-link" data-scroll-target="#example-2-within-subjects-experiment"><span class="header-section-number">9.3.2</span> Example 2: Within-Subjects Experiment</a></li>
+  </ul></li>
+  <li><a href="#how-fixed-effects-solve-this" id="toc-how-fixed-effects-solve-this" class="nav-link" data-scroll-target="#how-fixed-effects-solve-this"><span class="header-section-number">9.4</span> How Fixed Effects Solve This</a></li>
+  <li><a href="#the-assumptions-of-fixed-effects-models" id="toc-the-assumptions-of-fixed-effects-models" class="nav-link" data-scroll-target="#the-assumptions-of-fixed-effects-models"><span class="header-section-number">9.5</span> The Assumptions of Fixed Effects Models</a></li>
+  <li><a href="#what-fixed-effects-cannot-do" id="toc-what-fixed-effects-cannot-do" class="nav-link" data-scroll-target="#what-fixed-effects-cannot-do"><span class="header-section-number">9.6</span> What Fixed Effects Cannot Do</a></li>
+  <li><a href="#recommended-reading" id="toc-recommended-reading" class="nav-link" data-scroll-target="#recommended-reading"><span class="header-section-number">9.7</span> Recommended Reading</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -581,46 +590,76 @@ window.Quarto = {
 
 <section id="fixed-effects-models" class="level1" data-number="9">
 <h1 data-number="9"><span class="header-section-number">9</span> Fixed Effects Models</h1>
-<section id="the-problem-we-are-solving" class="level2" data-number="9.1">
-<h2 data-number="9.1" class="anchored" data-anchor-id="the-problem-we-are-solving"><span class="header-section-number">9.1</span> The Problem We Are Solving</h2>
-<p>Before we can introduce fixed effects models, we need to see clearly what problem they solve.</p>
-<p>Suppose you are studying the relationship between employee autonomy (how much control people have over their work) and job satisfaction, using a survey of 500 employees across 25 firms. You run a standard regression: satisfaction ~ autonomy.</p>
+<section id="two-settings-one-problem" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="two-settings-one-problem"><span class="header-section-number">9.1</span> Two Settings, One Problem</h2>
+<p>Fixed effects models are usually introduced in the context of panel data — the same firms tracked over multiple years, the same countries tracked across decades. But the exact same logic applies whenever observations are nested within units, <em>regardless of whether time is involved</em>.</p>
+<p>Consider two studies:</p>
+<p><strong>Study A (Longitudinal):</strong> You survey 500 employees across 25 firms about autonomy and job satisfaction — and you do it again the following year. Each employee is measured twice.</p>
+<p><strong>Study B (Experimental):</strong> You run a within-subjects experiment. Each of 80 participants evaluates 12 product descriptions — 6 under a “scarcity” framing (“only 3 left!”) and 6 under a neutral framing. Each participant sees both conditions.</p>
+<p>Both studies share the same fundamental structure: <strong>multiple observations nested within the same unit</strong> (employee, participant). And both share the same fundamental problem: unit-level differences confound your estimate of the effect you care about.</p>
+<p>In Study A, high-autonomy firms also happen to have better cultures — so the autonomy effect is confounded with culture.</p>
+<p>In Study B, some participants are just more easily persuaded than others — so the framing effect is confounded with individual persuadability.</p>
+<p>Fixed effects solve both problems in exactly the same way.</p>
+<hr>
+</section>
+<section id="the-model" class="level2" data-number="9.2">
+<h2 data-number="9.2" class="anchored" data-anchor-id="the-model"><span class="header-section-number">9.2</span> The Model</h2>
+<p>Let <span class="math inline">\(Y_{ij}\)</span> be the outcome for observation <span class="math inline">\(i\)</span> within unit <span class="math inline">\(j\)</span> (employee <span class="math inline">\(i\)</span> in firm <span class="math inline">\(j\)</span>; rating <span class="math inline">\(i\)</span> by participant <span class="math inline">\(j\)</span>). The fixed-effects model is:</p>
+<p><span class="math display">\[
+\underbrace{Y_{ij}}_{\text{outcome}} = \underbrace{\alpha_j}_{\substack{\text{unit fixed} \\ \text{effect}}} + \underbrace{\beta_1}_{\substack{\text{within-unit} \\ \text{slope}}} \underbrace{X_{ij}}_{\substack{\text{within-unit} \\ \text{predictor}}} + \underbrace{\varepsilon_{ij}}_{\substack{\text{residual}}}
+\]</span></p>
+<p>The <span class="math inline">\(\alpha_j\)</span> is a <strong>separate intercept for every unit</strong> — a dummy variable for firm <span class="math inline">\(j\)</span>, or a dummy variable for participant <span class="math inline">\(j\)</span>. It absorbs <em>everything</em> that is constant within that unit: the firm’s culture, the participant’s baseline persuadability, the country’s institutions.</p>
+<p>The slope <span class="math inline">\(\beta_1\)</span> is estimated purely from <strong>within-unit variation</strong>: how does <span class="math inline">\(Y\)</span> change when <span class="math inline">\(X\)</span> changes <em>within the same unit</em>?</p>
+<section id="the-within-demeaning-transformation" class="level3" data-number="9.2.1">
+<h3 data-number="9.2.1" class="anchored" data-anchor-id="the-within-demeaning-transformation"><span class="header-section-number">9.2.1</span> The Within-Demeaning Transformation</h3>
+<p>An equivalent way to see what FE does is through demeaning. Let <span class="math inline">\(\bar{Y}_j = \frac{1}{n_j}\sum_i Y_{ij}\)</span> be the unit mean. Subtracting the unit mean from every observation:</p>
+<p><span class="math display">\[
+\underbrace{(Y_{ij} - \bar{Y}_j)}_{\substack{\text{outcome} \\ \text{demeaned}}} = \beta_1 \underbrace{(X_{ij} - \bar{X}_j)}_{\substack{\text{predictor} \\ \text{demeaned}}} + \underbrace{(\varepsilon_{ij} - \bar{\varepsilon}_j)}_{\substack{\text{residual} \\ \text{demeaned}}}
+\]</span></p>
+<p>After demeaning, every trace of between-unit variation is gone. The <span class="math inline">\(\alpha_j\)</span> terms vanish completely — they cancel out when you subtract the unit mean from both sides. What remains is the pure <strong>within-unit relationship</strong> between <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>.</p>
+<p>In the firm study: we are comparing each employee to the <em>average</em> employee in their own firm.</p>
+<p>In the experiment: we are comparing each participant’s rating under scarcity to their <em>own average</em> rating — which is precisely what within-subjects experimental designs intend.</p>
+<hr>
+</section>
+</section>
+<section id="two-examples-longitudinal-and-experimental" class="level2" data-number="9.3">
+<h2 data-number="9.3" class="anchored" data-anchor-id="two-examples-longitudinal-and-experimental"><span class="header-section-number">9.3</span> Two Examples: Longitudinal and Experimental</h2>
+<section id="example-1-firms-longitudinal-cross-section" class="level3" data-number="9.3.1">
+<h3 data-number="9.3.1" class="anchored" data-anchor-id="example-1-firms-longitudinal-cross-section"><span class="header-section-number">9.3.1</span> Example 1: Firms (Longitudinal Cross-Section)</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate the problem</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- STUDY A: Employees nested within firms ---</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_firms     <span class="ot">&lt;-</span> <span class="dv">25</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n_employees <span class="ot">&lt;-</span> <span class="dv">20</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Firm effects: high-autonomy firms ALSO have better culture -&gt; higher satisfaction</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># This is the confound we need to handle</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>firm_autonomy_mean  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_firms, <span class="dv">50</span>, <span class="dv">10</span>)   <span class="co"># firms differ in average autonomy</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>firm_culture_effect <span class="ot">&lt;-</span> firm_autonomy_mean <span class="sc">*</span> <span class="fl">0.4</span> <span class="sc">+</span> <span class="fu">rnorm</span>(n_firms, <span class="dv">0</span>, <span class="dv">5</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Culture boosts satisfaction, AND correlates with autonomy</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>df_firms <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">firm     =</span> <span class="dv">1</span><span class="sc">:</span>n_firms,</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">employee =</span> <span class="dv">1</span><span class="sc">:</span>n_employees</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">firm_autonomy   =</span> firm_autonomy_mean[firm],</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">firm_culture    =</span> firm_culture_effect[firm],</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">autonomy        =</span> firm_autonomy <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),   <span class="co"># individual deviations</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">satisfaction    =</span> <span class="dv">30</span> <span class="sc">+</span> <span class="fl">0.2</span> <span class="sc">*</span> autonomy <span class="sc">+</span> firm_culture <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">8</span>),</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True within-firm effect of autonomy is 0.2</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># But between-firm, autonomy and culture are correlated</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">firm_label      =</span> <span class="fu">factor</span>(firm)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Naive pooled regression</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>naive_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(satisfaction <span class="sc">~</span> autonomy, <span class="at">data =</span> df_firms)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>broom<span class="sc">::</span><span class="fu">tidy</span>(naive_model) <span class="sc">|&gt;</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"autonomy"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Pooled OLS: estimated effect of autonomy"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The confound: high-autonomy firms also have better culture</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>firm_autonomy_mean  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_firms, <span class="dv">50</span>, <span class="dv">10</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>firm_culture_effect <span class="ot">&lt;-</span> firm_autonomy_mean <span class="sc">*</span> <span class="fl">0.4</span> <span class="sc">+</span> <span class="fu">rnorm</span>(n_firms, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>df_firms <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">firm     =</span> <span class="dv">1</span><span class="sc">:</span>n_firms,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">employee =</span> <span class="dv">1</span><span class="sc">:</span>n_employees</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">firm_autonomy =</span> firm_autonomy_mean[firm],</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">firm_culture  =</span> firm_culture_effect[firm],</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">autonomy      =</span> firm_autonomy <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True WITHIN-firm effect = 0.2; but between-firm confound inflates it</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">satisfaction  =</span> <span class="dv">30</span> <span class="sc">+</span> <span class="fl">0.2</span> <span class="sc">*</span> autonomy <span class="sc">+</span> firm_culture <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">8</span>),</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">firm_label    =</span> <span class="fu">factor</span>(firm)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Naive pooled regression</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>naive_firms <span class="ot">&lt;-</span> <span class="fu">lm</span>(satisfaction <span class="sc">~</span> autonomy, <span class="at">data =</span> df_firms)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>broom<span class="sc">::</span><span class="fu">tidy</span>(naive_firms) <span class="sc">|&gt;</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"autonomy"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Pooled OLS: estimated effect of autonomy (confounded)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Pooled OLS: estimated effect of autonomy</caption>
+<caption>Pooled OLS: estimated effect of autonomy (confounded)</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">term</th>
@@ -642,107 +681,43 @@ window.Quarto = {
 </table>
 </div>
 </div>
-<p>The pooled estimate says autonomy has a strong positive effect on satisfaction. But is that the true causal effect?</p>
-<p>Look at the picture:</p>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the between-firm confound</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>firm_summary <span class="ot">&lt;-</span> df_firms <span class="sc">|&gt;</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(firm) <span class="sc">|&gt;</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_autonomy =</span> <span class="fu">mean</span>(autonomy),</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_satisfaction =</span> <span class="fu">mean</span>(satisfaction))</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_firms, <span class="fu">aes</span>(<span class="at">x =</span> autonomy, <span class="at">y =</span> satisfaction)) <span class="sc">+</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Pooled regression (ignores firm)"</span>,</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Slope mixes within-firm and between-firm effects"</span>,</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Autonomy"</span>, <span class="at">y =</span> <span class="st">"Satisfaction"</span>) <span class="sc">+</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_firms, <span class="fu">aes</span>(<span class="at">x =</span> autonomy, <span class="at">y =</span> satisfaction,</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>                             <span class="at">color =</span> firm_label, <span class="at">group =</span> firm_label)) <span class="sc">+</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Within-firm regressions"</span>,</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Each line = one firm's autonomy-satisfaction relationship"</span>,</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Autonomy"</span>, <span class="at">y =</span> <span class="st">"Satisfaction"</span>) <span class="sc">+</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>()</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="part1_files/figure-html/pooled-vs-within-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>The pooled slope (left panel) is steep — it looks like autonomy strongly predicts satisfaction. But the within-firm slopes (right panel) are much flatter. What is happening?</p>
-<p><strong>Between firms:</strong> High-autonomy firms also have better cultures, better management, higher pay. All of these push satisfaction up. So firms with high average autonomy have high average satisfaction — but for reasons that go beyond autonomy itself.</p>
-<p><strong>Within firms:</strong> On average, an employee with slightly more autonomy than their colleague in the same firm has modestly higher satisfaction. This is the true causal-adjacent effect we care about.</p>
-<p>The pooled regression cannot separate these two stories. It attributes the between-firm difference (driven by culture, management, etc.) to autonomy. This is <strong>omitted variable bias</strong> from the firm-level confounders.</p>
 </section>
-<section id="how-fixed-effects-solve-this" class="level2" data-number="9.2">
-<h2 data-number="9.2" class="anchored" data-anchor-id="how-fixed-effects-solve-this"><span class="header-section-number">9.2</span> How Fixed Effects Solve This</h2>
-<p>The <strong>fixed-effects (FE) estimator</strong> removes between-unit variation entirely. It estimates the effect of autonomy using only variation <em>within</em> firms — comparing employees to other employees <em>in the same firm</em>, not to employees in other firms.</p>
-<p>It does this by including a dummy variable for each firm (except one baseline), which absorbs all variation that is constant within firms. Everything that makes Firm 1 different from Firm 2 — culture, pay, management quality — gets “partialled out.”</p>
+<section id="example-2-within-subjects-experiment" class="level3" data-number="9.3.2">
+<h3 data-number="9.3.2" class="anchored" data-anchor-id="example-2-within-subjects-experiment"><span class="header-section-number">9.3.2</span> Example 2: Within-Subjects Experiment</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fixed effects model using the plm package</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df_firms_pdata <span class="ot">&lt;-</span> <span class="fu">pdata.frame</span>(df_firms, <span class="at">index =</span> <span class="fu">c</span>(<span class="st">"firm"</span>, <span class="st">"employee"</span>))</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>fe_model <span class="ot">&lt;-</span> <span class="fu">plm</span>(satisfaction <span class="sc">~</span> autonomy,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">data   =</span> df_firms_pdata,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">model  =</span> <span class="st">"within"</span>,  <span class="co"># "within" = fixed effects</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">effect =</span> <span class="st">"individual"</span>)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fe_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Oneway (individual) effect Within Model
-
-Call:
-plm(formula = satisfaction ~ autonomy, data = df_firms_pdata, 
-    effect = "individual", model = "within")
-
-Balanced Panel: n = 25, T = 20, N = 500
-
-Residuals:
-     Min.   1st Qu.    Median   3rd Qu.      Max. 
--21.62569  -5.83434  -0.22037   5.38035  23.87018 
-
-Coefficients:
-         Estimate Std. Error t-value  Pr(&gt;|t|)    
-autonomy 0.298589   0.073875  4.0418 6.188e-05 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-Total Sum of Squares:    30438
-Residual Sum of Squares: 29424
-R-Squared:      0.033317
-Adj. R-Squared: -0.017669
-F-statistic: 16.3364 on 1 and 474 DF, p-value: 6.1879e-05</code></pre>
-</div>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Or equivalently with lm() using firm dummies</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>fe_lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(satisfaction <span class="sc">~</span> autonomy <span class="sc">+</span> firm_label, <span class="at">data =</span> df_firms)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>broom<span class="sc">::</span><span class="fu">tidy</span>(fe_lm) <span class="sc">|&gt;</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"autonomy"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Fixed effects estimate: within-firm effect of autonomy"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- STUDY B: Ratings nested within participants ---</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n_participants <span class="ot">&lt;-</span> <span class="dv">80</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>n_ratings      <span class="ot">&lt;-</span> <span class="dv">12</span>   <span class="co"># 6 scarcity, 6 neutral</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The confound: participants differ in baseline persuadability</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>persuadability <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">50</span>, <span class="dv">10</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>df_exp <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_participants,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">rating_num  =</span> <span class="dv">1</span><span class="sc">:</span>n_ratings</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">condition    =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"scarcity"</span>, <span class="st">"neutral"</span>), n_ratings <span class="sc">/</span> <span class="dv">2</span>)[rating_num],</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">scarcity_bin =</span> <span class="fu">as.integer</span>(condition <span class="sc">==</span> <span class="st">"scarcity"</span>),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True WITHIN-person effect of scarcity = 4 points</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># But persuadability (a person-level trait) also drives ratings</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">purchase_intent =</span> persuadability[participant] <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> scarcity_bin <span class="sc">+</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">8</span>),</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant_f   =</span> <span class="fu">factor</span>(participant)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Naive pooled regression: mixes within-person and between-person variation</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>naive_exp <span class="ot">&lt;-</span> <span class="fu">lm</span>(purchase_intent <span class="sc">~</span> scarcity_bin, <span class="at">data =</span> df_exp)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>broom<span class="sc">::</span><span class="fu">tidy</span>(naive_exp) <span class="sc">|&gt;</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"scarcity_bin"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Pooled OLS: estimated scarcity effect (ignores person differences)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Fixed effects estimate: within-firm effect of autonomy</caption>
+<caption>Pooled OLS: estimated scarcity effect (ignores person differences)</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">term</th>
@@ -754,17 +729,147 @@ F-statistic: 16.3364 on 1 and 474 DF, p-value: 6.1879e-05</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">autonomy</td>
-<td style="text-align: right;">0.299</td>
-<td style="text-align: right;">0.074</td>
-<td style="text-align: right;">4.042</td>
+<td style="text-align: left;">scarcity_bin</td>
+<td style="text-align: right;">3.286</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">4.324</td>
 <td style="text-align: right;">0</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>The FE estimate is now close to the true value of 0.2 — much smaller than the pooled estimate. The firm dummies absorbed the between-firm confound.</p>
+<p>In the experiment, the pooled estimate is closer to the truth than in the firm study — because condition was randomly assigned, persuadability does not systematically correlate with condition. But random assignment only guarantees this <em>on average</em>; individual differences still add noise and can distort estimates in small samples or unbalanced designs.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Show both confound patterns side by side</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>firm_summary <span class="ot">&lt;-</span> df_firms <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(firm) <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_auto =</span> <span class="fu">mean</span>(autonomy), <span class="at">mean_sat =</span> <span class="fu">mean</span>(satisfaction))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_firms, <span class="fu">aes</span>(<span class="at">x =</span> autonomy, <span class="at">y =</span> satisfaction)) <span class="sc">+</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.15</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linewidth =</span> <span class="fl">1.3</span>) <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> firm_summary, <span class="fu">aes</span>(<span class="at">x =</span> mean_auto, <span class="at">y =</span> mean_sat),</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Study A: Firms"</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Red dots = firm means; slope is inflated by culture confound"</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Autonomy"</span>, <span class="at">y =</span> <span class="st">"Satisfaction"</span>) <span class="sc">+</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>person_summary <span class="ot">&lt;-</span> df_exp <span class="sc">|&gt;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(participant, condition) <span class="sc">|&gt;</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_intent =</span> <span class="fu">mean</span>(purchase_intent), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_exp, <span class="fu">aes</span>(<span class="at">x =</span> scarcity_bin, <span class="at">y =</span> purchase_intent,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>                          <span class="at">color =</span> participant_f, <span class="at">group =</span> participant_f)) <span class="sc">+</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">linewidth =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">size =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="fu">aes</span>(<span class="at">group =</span> <span class="dv">1</span>), <span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"line"</span>,</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>               <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Neutral"</span>, <span class="st">"Scarcity"</span>)) <span class="sc">+</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Study B: Experiment"</span>,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Each line = one participant across conditions"</span>,</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Condition"</span>, <span class="at">y =</span> <span class="st">"Purchase Intent"</span>) <span class="sc">+</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>()</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part1_files/figure-html/pooled-vs-within-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="how-fixed-effects-solve-this" class="level2" data-number="9.4">
+<h2 data-number="9.4" class="anchored" data-anchor-id="how-fixed-effects-solve-this"><span class="header-section-number">9.4</span> How Fixed Effects Solve This</h2>
+<p>Fixed effects recover the within-unit slope by including a dummy for every unit. In the firm study that is 25 firm dummies. In the experiment it is 80 participant dummies. Each dummy absorbs everything that is constant within that unit.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Study A: FE via plm</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>df_firms_pdata <span class="ot">&lt;-</span> <span class="fu">pdata.frame</span>(df_firms, <span class="at">index =</span> <span class="fu">c</span>(<span class="st">"firm"</span>, <span class="st">"employee"</span>))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>fe_firms <span class="ot">&lt;-</span> <span class="fu">plm</span>(satisfaction <span class="sc">~</span> autonomy,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">data   =</span> df_firms_pdata,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">model  =</span> <span class="st">"within"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">effect =</span> <span class="st">"individual"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Study B: FE via lm with participant dummies (equivalent)</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>fe_exp <span class="ot">&lt;-</span> <span class="fu">lm</span>(purchase_intent <span class="sc">~</span> scarcity_bin <span class="sc">+</span> participant_f, <span class="at">data =</span> df_exp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare naive vs. FE for both studies</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(naive_firms)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"autonomy"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">study =</span> <span class="st">"Study A"</span>, <span class="at">model =</span> <span class="st">"Pooled OLS"</span>, <span class="at">term =</span> <span class="st">"Predictor"</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="fu">lm</span>(satisfaction <span class="sc">~</span> autonomy <span class="sc">+</span> firm_label, <span class="at">data =</span> df_firms)) <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"autonomy"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">study =</span> <span class="st">"Study A"</span>, <span class="at">model =</span> <span class="st">"Fixed Effects"</span>, <span class="at">term =</span> <span class="st">"Predictor"</span>),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(naive_exp)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"scarcity_bin"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">study =</span> <span class="st">"Study B"</span>, <span class="at">model =</span> <span class="st">"Pooled OLS"</span>, <span class="at">term =</span> <span class="st">"Predictor"</span>),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(fe_exp) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"scarcity_bin"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">study =</span> <span class="st">"Study B"</span>, <span class="at">model =</span> <span class="st">"Fixed Effects"</span>, <span class="at">term =</span> <span class="st">"Predictor"</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(study, model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Pooled vs. Fixed Effects: Study A (true effect = 0.2), Study B (true effect = 4)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Pooled vs.&nbsp;Fixed Effects: Study A (true effect = 0.2), Study B (true effect = 4)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">study</th>
+<th style="text-align: left;">model</th>
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">std.error</th>
+<th style="text-align: right;">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Study A</td>
+<td style="text-align: left;">Pooled OLS</td>
+<td style="text-align: right;">0.433</td>
+<td style="text-align: right;">0.032</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Study A</td>
+<td style="text-align: left;">Fixed Effects</td>
+<td style="text-align: right;">0.299</td>
+<td style="text-align: right;">0.074</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Study B</td>
+<td style="text-align: left;">Pooled OLS</td>
+<td style="text-align: right;">3.286</td>
+<td style="text-align: right;">0.760</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Study B</td>
+<td style="text-align: left;">Fixed Effects</td>
+<td style="text-align: right;">3.286</td>
+<td style="text-align: right;">0.506</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -775,13 +880,16 @@ F-statistic: 16.3364 on 1 and 474 DF, p-value: 6.1879e-05</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Fixed effects recover the within-unit component of the data-generating process. They answer: “within a given unit, as the predictor changes, what happens to the outcome?” This is often the more causally interpretable question — it controls for all stable, unit-level characteristics, measured or unmeasured.</p>
+<p>In Study A, the pooled estimate is badly confounded — it reflects both the true autonomy effect (0.2) <em>and</em> the between-firm culture effect. Fixed effects remove the latter, recovering the within-unit DGP.</p>
+<p>In Study B, the pooled estimate is closer to the truth because random assignment broke the correlation between condition and persuadability. But fixed effects still improve efficiency and explicitly answer the within-person question: for the same participant, does scarcity increase intent?</p>
+<p>Both uses are valid. The experimental use is often overlooked — but within-subjects ANOVA is, mathematically, a fixed-effects model.</p>
 </div>
 </div>
+<hr>
 </section>
-<section id="the-assumptions-of-fixed-effects-models" class="level2" data-number="9.3">
-<h2 data-number="9.3" class="anchored" data-anchor-id="the-assumptions-of-fixed-effects-models"><span class="header-section-number">9.3</span> The Assumptions of Fixed Effects Models</h2>
-<p>Fixed effects models are not assumption-free. They trade one set of assumptions for another. Understanding what assumptions they make — and when those assumptions fail — is essential.</p>
+<section id="the-assumptions-of-fixed-effects-models" class="level2" data-number="9.5">
+<h2 data-number="9.5" class="anchored" data-anchor-id="the-assumptions-of-fixed-effects-models"><span class="header-section-number">9.5</span> The Assumptions of Fixed Effects Models</h2>
+<p>Each assumption is framed for <em>both</em> a longitudinal/observational setting and an experimental/repeated-measures setting.</p>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -792,40 +900,12 @@ F-statistic: 16.3364 on 1 and 474 DF, p-value: 6.1879e-05</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> After conditioning on the fixed effects, the predictor must be uncorrelated with the error term at every time point. Past, present, <em>and future</em> shocks to the outcome must be unrelated to the current predictor.</p>
-<p><strong>Intuition:</strong> If a firm’s autonomy policy is changed <em>in response to</em> satisfaction declining — if managers give employees more autonomy when morale is low — then autonomy is no longer strictly exogenous. Its value today is influenced by yesterday’s outcome.</p>
-<p><strong>How to check:</strong> Plot the residuals against lagged values of the predictor. Look for patterns. Think carefully about the causal story: could the outcome be affecting the predictor over time?</p>
-<p><strong>What to do if it fails:</strong> Consider difference-in-differences (Module 3), or use lagged predictors if the data is longitudinal.</p>
-</div>
-</div>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add residuals back to original data for diagnostics</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df_firms <span class="ot">&lt;-</span> df_firms <span class="sc">|&gt;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">fe_resid =</span> <span class="fu">residuals</span>(fe_lm)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: do residuals correlate with predictor?</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_firms, <span class="fu">aes</span>(<span class="at">x =</span> autonomy, <span class="at">y =</span> fe_resid)) <span class="sc">+</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Residual plot: checking exogeneity"</span>,</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"No pattern = assumption holds; a curve = possible nonlinearity or violation"</span>,</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Autonomy"</span>,</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"FE Residual"</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="part1_files/figure-html/exogeneity-check-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
+<p><strong>The equation implication:</strong> For the within-demeaned estimator to be unbiased, we require:</p>
+<p><span class="math display">\[E[\varepsilon_{ij} \mid X_{i1}, X_{i2}, \ldots, X_{in_j}, \alpha_j] = 0\]</span></p>
+<p>In words: the residuals must be uncorrelated with the predictor <strong>at every observation point</strong> — past, present, and future — after conditioning on the fixed effect.</p>
+<p><strong>In longitudinal data:</strong> This fails if the outcome feeds back into the predictor. If a firm’s declining satisfaction causes it to <em>increase</em> autonomy in the next period, then autonomy at time <span class="math inline">\(t+1\)</span> is correlated with the residual at time <span class="math inline">\(t\)</span>. The predictor is no longer exogenous.</p>
+<p><strong>In experiments:</strong> Strict exogeneity is typically satisfied by design — random assignment ensures that condition is not caused by the outcome. But it can fail in carryover designs where the treatment in one block affects the outcome in a later block (i.e., order effects or fatigue). Counterbalancing and washout periods address this.</p>
+<p><strong>How to check:</strong> In longitudinal data, plot residuals against <em>future</em> values of the predictor. In experiments, check for order effects by including trial number as a covariate.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -834,14 +914,16 @@ F-statistic: 16.3364 on 1 and 474 DF, p-value: 6.1879e-05</code></pre>
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Assumption 2: No Time-Varying Confounds
+<span class="screen-reader-only">Warning</span>Assumption 2: No Time-Varying (or Trial-Varying) Confounds
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> Fixed effects only remove <em>time-invariant</em> (stable) omitted variables. If there is a confound that changes over time <em>and</em> correlates with the predictor, fixed effects will not remove it.</p>
-<p><strong>Example:</strong> If firms that grant more autonomy also simultaneously adopt flexible working hours, and flexible hours independently boost satisfaction, the FE estimate is still biased. The flexible hours policy changed at the same time as autonomy — it is a time-varying confound.</p>
-<p><strong>How to check:</strong> Think carefully about what else changed at the same time as your predictor. In longitudinal designs, look for co-occurrences. In cross-sectional firm data, ask whether any other firm-level policies correlate with autonomy in the cross-section <em>beyond</em> what the firm dummy captures.</p>
-<p><strong>What to do if it fails:</strong> Include time-varying controls. Consider IV strategies if the confound is measurable.</p>
+<p><strong>What it means:</strong> Fixed effects only remove <em>stable</em> unit-level confounds. If a confound changes across observations within the same unit, the fixed effect cannot absorb it.</p>
+<p><span class="math display">\[\alpha_j = \text{constant over all } i \text{ within unit } j\]</span></p>
+<p>If the unit’s “true level” shifts — a firm’s culture changes after a merger; a participant becomes fatigued midway through a session — the single <span class="math inline">\(\alpha_j\)</span> is no longer a valid representation.</p>
+<p><strong>In longitudinal data:</strong> Any policy, economic shock, or personal event that co-occurs with your predictor is a time-varying confound. Example: if firms that grant more autonomy simultaneously adopt flexible hours, and flexible hours boost satisfaction, FE does not remove the flexible hours effect.</p>
+<p><strong>In experiments:</strong> Practice effects, fatigue, and demand characteristics that change systematically across trials. If participants become better at evaluating products as the experiment progresses (learning), and if scarcity items happen to appear later in the session, this is a trial-varying confound.</p>
+<p><strong>How to check:</strong> Include trial order or time as a covariate. Check whether your substantive estimates change when you control for order.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -854,28 +936,29 @@ F-statistic: 16.3364 on 1 and 474 DF, p-value: 6.1879e-05</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> Fixed effects can only estimate effects using within-unit variation. If a predictor barely varies within units, the FE estimator becomes unreliable (high standard errors, sensitivity to outliers).</p>
-<p><strong>Example:</strong> If you want to study the effect of <em>firm size</em> on employee satisfaction using FE, you are in trouble. Firm size does not change much within a firm over time. The FE estimator has almost no within-firm variation in size to work with.</p>
-<p><strong>How to check:</strong> Compute the within-unit standard deviation of your predictor. If it is very small relative to the between-unit standard deviation, FE will struggle.</p>
+<p><strong>What it means:</strong> Fixed effects can only estimate <span class="math inline">\(\beta_1\)</span> from within-unit variation. If the predictor barely changes within units, the estimator is imprecise:</p>
+<p><span class="math display">\[\widehat{\beta}_1 = \frac{\sum_j \sum_i (X_{ij} - \bar{X}_j)(Y_{ij} - \bar{Y}_j)}{\sum_j \sum_i (X_{ij} - \bar{X}_j)^2}\]</span></p>
+<p>The denominator — total within-unit variation in <span class="math inline">\(X\)</span> — appears in the denominator of the variance of <span class="math inline">\(\hat\beta_1\)</span>. Small within-unit variation → large standard errors.</p>
+<p><strong>In longitudinal data:</strong> A predictor like firm size barely changes within a firm from year to year. FE is poorly suited to estimating the effect of stable characteristics.</p>
+<p><strong>In experiments:</strong> This is usually not an issue because condition is deliberately manipulated. But if the manipulation is very small (e.g., a subtle framing tweak that most participants do not notice), within-unit variation in the <em>effective</em> treatment is low.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df_firms <span class="sc">|&gt;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(firm) <span class="sc">|&gt;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">within_sd =</span> <span class="fu">sd</span>(autonomy)) <span class="sc">|&gt;</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_within_sd  =</span> <span class="fu">mean</span>(within_sd),</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_sd        =</span> <span class="fu">sd</span>(df_firms<span class="sc">$</span>autonomy)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">within_fraction =</span> mean_within_sd <span class="sc">/</span> total_sd</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Fraction of autonomy variance that is within-firm"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Study A: how much within-firm variation does autonomy have?</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df_firms <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(firm) <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">within_sd =</span> <span class="fu">sd</span>(autonomy)) <span class="sc">|&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_within_sd   =</span> <span class="fu">mean</span>(within_sd),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">total_sd         =</span> <span class="fu">sd</span>(df_firms<span class="sc">$</span>autonomy),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">within_fraction  =</span> <span class="fu">mean</span>(within_sd) <span class="sc">/</span> <span class="fu">sd</span>(df_firms<span class="sc">$</span>autonomy)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Study A: fraction of autonomy variance that is within-firm"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Fraction of autonomy variance that is within-firm</caption>
+<caption>Study A: fraction of autonomy variance that is within-firm</caption>
 <thead>
 <tr class="header">
 <th style="text-align: right;">mean_within_sd</th>
@@ -901,13 +984,16 @@ F-statistic: 16.3364 on 1 and 474 DF, p-value: 6.1879e-05</code></pre>
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Assumption 4: Fixed Effects are Correctly Specified and Stable
+<span class="screen-reader-only">Warning</span>Assumption 4: Fixed Effects Are Stable (One Intercept Per Unit)
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> The model assumes that each unit has one fixed effect that is constant across all observations for that unit. If the unit’s effect changes over time (a firm’s culture shifts dramatically after a merger), the single fixed effect will be a poor representation.</p>
-<p><strong>In panel data with both entity and time effects:</strong> Including both entity and time fixed effects requires that entity effects do not vary over time and time effects do not vary across entities. This “two-way FE” assumption is often violated in practice and is worth checking explicitly.</p>
-<p><strong>How to check:</strong> Fit separate regressions within each unit and examine whether the intercepts drift systematically over time. Plot the unit-specific estimates.</p>
+<p><strong>What it means:</strong> The model assigns each unit exactly one intercept <span class="math inline">\(\alpha_j\)</span>. This assumes the unit’s baseline is constant across all its observations. The model equation is:</p>
+<p><span class="math display">\[Y_{ij} = \alpha_j + \beta_1 X_{ij} + \varepsilon_{ij}\]</span></p>
+<p>and <span class="math inline">\(\alpha_j\)</span> is the <strong>same</strong> regardless of which observation <span class="math inline">\(i\)</span> we are looking at within unit <span class="math inline">\(j\)</span>.</p>
+<p><strong>In longitudinal data:</strong> If a firm’s culture changes dramatically after a merger halfway through the study, the single <span class="math inline">\(\alpha_j\)</span> no longer accurately represents either period. The early-period and late-period intercepts are different, but the model conflates them.</p>
+<p><strong>In experiments:</strong> If a participant’s attention or mood changes substantially mid-session (and this change is not modeled), the stable-intercept assumption is violated. Split-session designs or attention checks help detect this.</p>
+<p><strong>How to check:</strong> For longitudinal data, split the sample at the midpoint and compare unit intercepts across periods. For experiments, split the trials into first-half and second-half blocks and test whether the effect estimate shifts.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -916,27 +1002,56 @@ F-statistic: 16.3364 on 1 and 474 DF, p-value: 6.1879e-05</code></pre>
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Assumption 5: Homoskedasticity and No Serial Correlation
+<span class="screen-reader-only">Warning</span>Assumption 5: Homoskedasticity and Independence of Residuals Within Units
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> Within-unit errors are assumed to have constant variance and to be uncorrelated with each other across observations. In panel or longitudinal data, errors at time <span class="math inline">\(t\)</span> and time <span class="math inline">\(t-1\)</span> for the same unit are assumed to be independent.</p>
-<p><strong>Why this matters:</strong> Serial correlation inflates standard errors. Heteroskedasticity biases them. Both are very common in real data.</p>
-<p><strong>How to check:</strong> Examine residual plots over time for each unit. Test for serial correlation (Durbin-Watson or Breusch-Godfrey tests).</p>
-<p><strong>What to do if it fails:</strong> Use cluster-robust standard errors (<code>sandwich</code> package in R), which are robust to both heteroskedasticity and serial correlation within clusters.</p>
+<p><strong>What it means:</strong> After conditioning on fixed effects, the residuals <span class="math inline">\(\varepsilon_{ij}\)</span> are assumed to be independent and identically distributed:</p>
+<p><span class="math display">\[\varepsilon_{ij} \overset{iid}{\sim} \mathcal{N}(0,\ \sigma^2_\varepsilon)\]</span></p>
+<p>Two components: (1) constant variance across units and observations (homoskedasticity), and (2) no correlation between residuals of the same unit across observations (independence).</p>
+<p><strong>In longitudinal data:</strong> Serial correlation is nearly universal. Today’s mood affects tomorrow’s mood, so residuals at <span class="math inline">\(t\)</span> and <span class="math inline">\(t+1\)</span> are correlated. Heteroskedasticity also appears if variance changes over time (e.g., outcomes become more variable in later periods).</p>
+<p><strong>In experiments:</strong> Autocorrelation is less severe for blocked designs (participants evaluate each product once), but can appear in trial-level data with carryover. Heteroskedasticity is possible if some conditions produce more variable responses than others.</p>
+<p><strong>What to do:</strong> Use cluster-robust standard errors, which are valid even under heteroskedasticity and within-unit correlation.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fe_lm_firms <span class="ot">&lt;-</span> <span class="fu">lm</span>(satisfaction <span class="sc">~</span> autonomy <span class="sc">+</span> firm_label, <span class="at">data =</span> df_firms)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df_firms <span class="ot">&lt;-</span> df_firms <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">fe_resid =</span> <span class="fu">residuals</span>(fe_lm_firms))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_firms, <span class="fu">aes</span>(<span class="at">x =</span> autonomy, <span class="at">y =</span> fe_resid)) <span class="sc">+</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.25</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Study A: FE residuals vs. autonomy"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"No pattern expected if exogeneity holds"</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Autonomy"</span>, <span class="at">y =</span> <span class="st">"FE Residual"</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part1_files/figure-html/exogeneity-check-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sandwich)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmtest)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Cluster-robust standard errors for the FE model</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">coeftest</span>(fe_lm, <span class="at">vcov =</span> <span class="fu">vcovCL</span>(fe_lm, <span class="at">cluster =</span> <span class="sc">~</span>firm_label))[<span class="st">"autonomy"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">|&gt;</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Autonomy coefficient with cluster-robust SEs"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Cluster-robust standard errors for Study A</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">coeftest</span>(fe_lm_firms,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">vcov =</span> <span class="fu">vcovCL</span>(fe_lm_firms, <span class="at">cluster =</span> <span class="sc">~</span>firm_label))[<span class="st">"autonomy"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">|&gt;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Study A autonomy coefficient with cluster-robust SEs"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Autonomy coefficient with cluster-robust SEs</caption>
+<caption>Study A autonomy coefficient with cluster-robust SEs</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;"></th>
@@ -957,22 +1072,55 @@ F-statistic: 16.3364 on 1 and 474 DF, p-value: 6.1879e-05</code></pre>
 </tbody>
 </table>
 </div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># For Study B, cluster by participant</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coeftest</span>(fe_exp,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">vcov =</span> <span class="fu">vcovCL</span>(fe_exp, <span class="at">cluster =</span> <span class="sc">~</span>participant_f))[<span class="st">"scarcity_bin"</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>] <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Study B scarcity coefficient with cluster-robust SEs"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Study B scarcity coefficient with cluster-robust SEs</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: right;">Std. Error</th>
+<th style="text-align: right;">t value</th>
+<th style="text-align: right;">Pr(&gt;|t|)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">scarcity_bin</td>
+<td style="text-align: right;">3.286</td>
+<td style="text-align: right;">0.509</td>
+<td style="text-align: right;">6.453</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
+</div>
+<hr>
 </section>
-<section id="what-fixed-effects-cannot-do" class="level2" data-number="9.4">
-<h2 data-number="9.4" class="anchored" data-anchor-id="what-fixed-effects-cannot-do"><span class="header-section-number">9.4</span> What Fixed Effects Cannot Do</h2>
-<p>Fixed effects are powerful but have important limits:</p>
+<section id="what-fixed-effects-cannot-do" class="level2" data-number="9.6">
+<h2 data-number="9.6" class="anchored" data-anchor-id="what-fixed-effects-cannot-do"><span class="header-section-number">9.6</span> What Fixed Effects Cannot Do</h2>
+<p>Fixed effects are powerful but have important limits that apply equally in both settings:</p>
 <ol type="1">
-<li><p><strong>They cannot estimate level-2 effects.</strong> Because they absorb all between-unit variation, you cannot estimate the effect of firm size, country GDP, or any other variable that is constant within units. This is the cost of the between-unit purge.</p></li>
-<li><p><strong>They discard between-unit information.</strong> If the between-unit relationship is scientifically interesting — if you actually want to know whether higher-autonomy firms have more satisfied employees on average — FE throws that out.</p></li>
-<li><p><strong>They do not model heterogeneity.</strong> The FE estimator assumes the same slope for every unit. If the autonomy-satisfaction relationship is strong in some firms and weak in others, FE gives you one pooled estimate and misses the heterogeneity.</p></li>
+<li><p><strong>They cannot estimate unit-level predictors.</strong> In Study A, you cannot estimate the effect of firm industry (constant within firm). In Study B, you cannot estimate the effect of participant gender (constant within participant). All between-unit variation is absorbed by the <span class="math inline">\(\alpha_j\)</span> terms.</p></li>
+<li><p><strong>They discard between-unit information.</strong> If the between-unit relationship is scientifically interesting — whether more autonomous firms differ from less autonomous ones — FE discards that comparison. This is the price of controlling for all stable unit-level confounds.</p></li>
+<li><p><strong>They assume a common slope.</strong> The model estimates one <span class="math inline">\(\beta_1\)</span> for everyone. If the effect of autonomy on satisfaction differs across firms, or if the scarcity effect differs across participants, FE averages over this heterogeneity. Random slopes (Module 1, Part 3) address this.</p></li>
+<li><p><strong>They are not well suited to purely between-subjects designs.</strong> If every participant sees only one condition (between-subjects), there is no within-person variation in the predictor — FE collapses entirely to OLS. The fixed-effects logic requires that the predictor varies within units.</p></li>
 </ol>
-<p>These limitations motivate the random-effects approach in the next section.</p>
+<hr>
 </section>
-<section id="recommended-reading" class="level2" data-number="9.5">
-<h2 data-number="9.5" class="anchored" data-anchor-id="recommended-reading"><span class="header-section-number">9.5</span> Recommended Reading</h2>
+<section id="recommended-reading" class="level2" data-number="9.7">
+<h2 data-number="9.7" class="anchored" data-anchor-id="recommended-reading"><span class="header-section-number">9.7</span> Recommended Reading</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 41%">
@@ -990,10 +1138,14 @@ F-statistic: 16.3364 on 1 and 474 DF, p-value: 6.1879e-05</code></pre>
 <td>Wooldridge, J. M. (2010). <em>Econometric Analysis of Cross Section and Panel Data</em> (2nd ed.). MIT Press. (Chapter 10)</td>
 </tr>
 <tr class="even">
+<td>FE in experimental psychology</td>
+<td>Judd, C. M., Westfall, J., &amp; Kenny, D. A. (2012). Treating stimuli as a random factor in social psychology. <em>Journal of Personality and Social Psychology, 103</em>(1), 54–69.</td>
+</tr>
+<tr class="odd">
 <td>Two-way fixed effects</td>
 <td>Imai, K., &amp; Kim, I. S. (2021). On the use of two-way fixed effects regression models for causal inference with panel data. <em>Political Analysis, 29</em>(3), 405–415.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Cluster-robust standard errors</td>
 <td>Cameron, A. C., &amp; Miller, D. L. (2015). A practitioner’s guide to cluster-robust inference. <em>Journal of Human Resources, 50</em>(2), 317–372.</td>
 </tr>

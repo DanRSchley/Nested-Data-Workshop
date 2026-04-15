@@ -548,11 +548,20 @@ window.Quarto = {
   <ul>
   <li><a href="#random-intercepts" id="toc-random-intercepts" class="nav-link active" data-scroll-target="#random-intercepts"><span class="header-section-number">10</span> Random Intercepts</a>
   <ul class="collapse">
-  <li><a href="#the-core-idea" id="toc-the-core-idea" class="nav-link" data-scroll-target="#the-core-idea"><span class="header-section-number">10.1</span> The Core Idea</a></li>
-  <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model"><span class="header-section-number">10.2</span> The Model</a></li>
-  <li><a href="#fitting-a-random-intercept-model" id="toc-fitting-a-random-intercept-model" class="nav-link" data-scroll-target="#fitting-a-random-intercept-model"><span class="header-section-number">10.3</span> Fitting a Random-Intercept Model</a></li>
+  <li><a href="#beyond-absorbing-unit-differences" id="toc-beyond-absorbing-unit-differences" class="nav-link" data-scroll-target="#beyond-absorbing-unit-differences"><span class="header-section-number">10.1</span> Beyond Absorbing Unit Differences</a></li>
+  <li><a href="#the-model-in-two-equivalent-forms" id="toc-the-model-in-two-equivalent-forms" class="nav-link" data-scroll-target="#the-model-in-two-equivalent-forms"><span class="header-section-number">10.2</span> The Model in Two Equivalent Forms</a>
+  <ul class="collapse">
+  <li><a href="#two-level-notation" id="toc-two-level-notation" class="nav-link" data-scroll-target="#two-level-notation"><span class="header-section-number">10.2.1</span> Two-Level Notation</a></li>
+  <li><a href="#combined-single-equation-form" id="toc-combined-single-equation-form" class="nav-link" data-scroll-target="#combined-single-equation-form"><span class="header-section-number">10.2.2</span> Combined (Single-Equation) Form</a></li>
+  <li><a href="#comparing-to-fixed-effects" id="toc-comparing-to-fixed-effects" class="nav-link" data-scroll-target="#comparing-to-fixed-effects"><span class="header-section-number">10.2.3</span> Comparing to Fixed Effects</a></li>
+  </ul></li>
+  <li><a href="#two-examples-longitudinal-and-experimental" id="toc-two-examples-longitudinal-and-experimental" class="nav-link" data-scroll-target="#two-examples-longitudinal-and-experimental"><span class="header-section-number">10.3</span> Two Examples: Longitudinal and Experimental</a>
+  <ul class="collapse">
+  <li><a href="#example-1-daily-mood-and-sleep-longitudinalrepeated-measures" id="toc-example-1-daily-mood-and-sleep-longitudinalrepeated-measures" class="nav-link" data-scroll-target="#example-1-daily-mood-and-sleep-longitudinalrepeated-measures"><span class="header-section-number">10.3.1</span> Example 1: Daily Mood and Sleep (Longitudinal/Repeated Measures)</a></li>
+  <li><a href="#example-2-stimulus-ratings-in-a-judgment-study-experimental" id="toc-example-2-stimulus-ratings-in-a-judgment-study-experimental" class="nav-link" data-scroll-target="#example-2-stimulus-ratings-in-a-judgment-study-experimental"><span class="header-section-number">10.3.2</span> Example 2: Stimulus Ratings in a Judgment Study (Experimental)</a></li>
+  </ul></li>
   <li><a href="#the-assumptions-of-random-intercept-models" id="toc-the-assumptions-of-random-intercept-models" class="nav-link" data-scroll-target="#the-assumptions-of-random-intercept-models"><span class="header-section-number">10.4</span> The Assumptions of Random Intercept Models</a></li>
-  <li><a href="#partial-pooling-the-key-advantage" id="toc-partial-pooling-the-key-advantage" class="nav-link" data-scroll-target="#partial-pooling-the-key-advantage"><span class="header-section-number">10.5</span> Partial Pooling: The Key Advantage</a></li>
+  <li><a href="#partial-pooling-what-random-intercepts-do-uniquely" id="toc-partial-pooling-what-random-intercepts-do-uniquely" class="nav-link" data-scroll-target="#partial-pooling-what-random-intercepts-do-uniquely"><span class="header-section-number">10.5</span> Partial Pooling: What Random Intercepts Do Uniquely</a></li>
   <li><a href="#recommended-reading" id="toc-recommended-reading" class="nav-link" data-scroll-target="#recommended-reading"><span class="header-section-number">10.6</span> Recommended Reading</a></li>
   </ul></li>
   </ul>
@@ -582,50 +591,115 @@ window.Quarto = {
 
 <section id="random-intercepts" class="level1" data-number="10">
 <h1 data-number="10"><span class="header-section-number">10</span> Random Intercepts</h1>
-<section id="the-core-idea" class="level2" data-number="10.1">
-<h2 data-number="10.1" class="anchored" data-anchor-id="the-core-idea"><span class="header-section-number">10.1</span> The Core Idea</h2>
-<p>Fixed effects solve the confound problem by eliminating between-unit variation entirely. But this comes at a cost: you lose all information about <em>why</em> units differ. You also cannot make predictions for new units, estimate the effect of unit-level predictors, or quantify how much units vary.</p>
-<p><strong>Random intercepts</strong> take a different approach. Instead of treating each unit’s deviation from the average as a parameter to be estimated (as fixed effects do), the random-intercept model treats them as <strong>draws from a distribution</strong>. The model estimates the parameters of that distribution — specifically, its variance.</p>
-<p>This distinction has deep consequences. Fixed effects say: “Unit 7 has some specific effect. I’ll absorb it.” Random effects say: “Units are sampled from a population of units. I’ll model that population.”</p>
+<section id="beyond-absorbing-unit-differences" class="level2" data-number="10.1">
+<h2 data-number="10.1" class="anchored" data-anchor-id="beyond-absorbing-unit-differences"><span class="header-section-number">10.1</span> Beyond Absorbing Unit Differences</h2>
+<p>Fixed effects remove between-unit variation by absorbing it into dummy variables. That works, but it destroys information:</p>
+<ul>
+<li>You can no longer estimate the effect of unit-level predictors (firm size, participant trait anxiety)</li>
+<li>You cannot make predictions for new units not in your sample</li>
+<li>You learn nothing about <em>how much</em> units differ from each other</li>
+</ul>
+<p><strong>Random intercepts</strong> take a different view. Instead of asking “what is the specific intercept of unit <span class="math inline">\(j\)</span>?”, the model asks “what is the distribution of intercepts across all units in the population?” It treats unit-level deviations as draws from a probability distribution rather than as fixed constants to be estimated.</p>
+<p>This single shift — from “estimate each intercept” to “estimate the distribution of intercepts” — has wide-reaching consequences for inference, prediction, and interpretation.</p>
+<hr>
 </section>
-<section id="the-model" class="level2" data-number="10.2">
-<h2 data-number="10.2" class="anchored" data-anchor-id="the-model"><span class="header-section-number">10.2</span> The Model</h2>
-<p>The random-intercept model has two levels:</p>
-<p><strong>Level 1 (within-unit):</strong> <span class="math display">\[Y_{ij} = \beta_{0j} + \beta_1 X_{ij} + \varepsilon_{ij}\]</span></p>
-<p><strong>Level 2 (between-unit):</strong> <span class="math display">\[\beta_{0j} = \gamma_{00} + u_{0j}\]</span></p>
-<p>Substituting level 2 into level 1: <span class="math display">\[Y_{ij} = \underbrace{(\gamma_{00} + u_{0j})}_{\text{unit-specific intercept}} + \beta_1 X_{ij} + \varepsilon_{ij}\]</span></p>
-<p>Where: - <span class="math inline">\(\gamma_{00}\)</span> = the grand mean intercept (the “fixed” part) - <span class="math inline">\(u_{0j}\)</span> = the deviation of unit <span class="math inline">\(j\)</span> from the grand mean (the “random” part), assumed <span class="math inline">\(u_{0j} \sim \mathcal{N}(0, \sigma^2_u)\)</span> - <span class="math inline">\(\varepsilon_{ij}\)</span> = level-1 residual, assumed <span class="math inline">\(\varepsilon_{ij} \sim \mathcal{N}(0, \sigma^2_\varepsilon)\)</span></p>
-<p>The model estimates three things: <span class="math inline">\(\gamma_{00}\)</span> (grand mean), <span class="math inline">\(\beta_1\)</span> (slope), <span class="math inline">\(\sigma^2_u\)</span> (between-unit variance), and <span class="math inline">\(\sigma^2_\varepsilon\)</span> (within-unit variance).</p>
+<section id="the-model-in-two-equivalent-forms" class="level2" data-number="10.2">
+<h2 data-number="10.2" class="anchored" data-anchor-id="the-model-in-two-equivalent-forms"><span class="header-section-number">10.2</span> The Model in Two Equivalent Forms</h2>
+<section id="two-level-notation" class="level3" data-number="10.2.1">
+<h3 data-number="10.2.1" class="anchored" data-anchor-id="two-level-notation"><span class="header-section-number">10.2.1</span> Two-Level Notation</h3>
+<p>Random intercept models are most naturally described in two levels.</p>
+<p><strong>Level 1</strong> describes variation <em>within</em> units (within the same person across days; within the same participant across stimuli):</p>
+<p><span class="math display">\[\underbrace{Y_{ij}}_{\substack{\text{outcome for} \\ \text{obs } i \text{ in} \\ \text{unit } j}} = \underbrace{\beta_{0j}}_{\substack{\text{unit-specific} \\ \text{intercept}}} + \underbrace{\beta_1}_{\substack{\text{slope}\\ \text{(fixed)}}} \underbrace{X_{ij}}_{\substack{\text{predictor}}} + \underbrace{\varepsilon_{ij}}_{\substack{\text{within-unit} \\ \text{residual}}}\]</span></p>
+<p><strong>Level 2</strong> describes variation <em>between</em> units — it models where each unit’s intercept comes from:</p>
+<p><span class="math display">\[\underbrace{\beta_{0j}}_{\substack{\text{unit-specific} \\ \text{intercept}}} = \underbrace{\gamma_{00}}_{\substack{\text{grand mean} \\ \text{intercept}}} + \underbrace{u_{0j}}_{\substack{\text{unit deviation} \\ \text{from grand mean}}}\]</span></p>
+<p>where <span class="math inline">\(u_{0j} \sim \mathcal{N}(0, \sigma^2_u)\)</span> — the unit deviations are assumed normally distributed with mean zero and variance <span class="math inline">\(\sigma^2_u\)</span>.</p>
 </section>
-<section id="fitting-a-random-intercept-model" class="level2" data-number="10.3">
-<h2 data-number="10.3" class="anchored" data-anchor-id="fitting-a-random-intercept-model"><span class="header-section-number">10.3</span> Fitting a Random-Intercept Model</h2>
-<p>We return to the sleep-mood example: 30 people, each measured for 7 days. We want to know whether more sleep predicts better mood.</p>
+<section id="combined-single-equation-form" class="level3" data-number="10.2.2">
+<h3 data-number="10.2.2" class="anchored" data-anchor-id="combined-single-equation-form"><span class="header-section-number">10.2.2</span> Combined (Single-Equation) Form</h3>
+<p>Substituting Level 2 into Level 1, we get the combined model. Notice how the Level-1 intercept <span class="math inline">\(\beta_{0j}\)</span> is replaced by its Level-2 expression:</p>
+<p><span class="math display">\[\underbrace{Y_{ij}}_{\text{outcome}} = \underbrace{\gamma_{00}}_{\substack{\text{grand mean} \\ \text{(fixed)}}} + \underbrace{u_{0j}}_{\substack{\text{unit random} \\ \text{intercept}}} + \underbrace{\beta_1 X_{ij}}_{\substack{\text{slope}\\ \text{(fixed)}}} + \underbrace{\varepsilon_{ij}}_{\substack{\text{within-unit} \\ \text{residual}}}\]</span></p>
+<p>The model has two types of components:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 18%">
+<col style="width: 13%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Symbol</th>
+<th>Type</th>
+<th>What it captures</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Grand mean</td>
+<td><span class="math inline">\(\gamma_{00}\)</span></td>
+<td>Fixed</td>
+<td>Average baseline across all units</td>
+</tr>
+<tr class="even">
+<td>Slope</td>
+<td><span class="math inline">\(\beta_1\)</span></td>
+<td>Fixed</td>
+<td>Average within-unit effect of <span class="math inline">\(X\)</span></td>
+</tr>
+<tr class="odd">
+<td>Unit deviation</td>
+<td><span class="math inline">\(u_{0j}\)</span></td>
+<td>Random</td>
+<td>How much unit <span class="math inline">\(j\)</span> departs from <span class="math inline">\(\gamma_{00}\)</span></td>
+</tr>
+<tr class="even">
+<td>Residual</td>
+<td><span class="math inline">\(\varepsilon_{ij}\)</span></td>
+<td>Random</td>
+<td>Leftover within-unit variation</td>
+</tr>
+</tbody>
+</table>
+<p>The model estimates <strong>three variance parameters</strong>: <span class="math inline">\(\sigma^2_u\)</span> (between-unit variance), <span class="math inline">\(\sigma^2_\varepsilon\)</span> (within-unit residual variance), and their ratio defines the ICC.</p>
+</section>
+<section id="comparing-to-fixed-effects" class="level3" data-number="10.2.3">
+<h3 data-number="10.2.3" class="anchored" data-anchor-id="comparing-to-fixed-effects"><span class="header-section-number">10.2.3</span> Comparing to Fixed Effects</h3>
+<p>The FE model was:</p>
+<p><span class="math display">\[Y_{ij} = \alpha_j + \beta_1 X_{ij} + \varepsilon_{ij}\]</span></p>
+<p>where <span class="math inline">\(\alpha_j\)</span> was estimated as a separate free parameter for each unit.</p>
+<p>The random-intercept model replaces the free <span class="math inline">\(\alpha_j\)</span> with <span class="math inline">\(\gamma_{00} + u_{0j}\)</span>, imposing the constraint that unit deviations are <em>drawn from a normal distribution</em>. This constraint is what enables <strong>partial pooling</strong> (shrinkage) and allows between-unit inference — but it comes with an assumption (normality of the random effects) that the FE model does not require.</p>
+<hr>
+</section>
+</section>
+<section id="two-examples-longitudinal-and-experimental" class="level2" data-number="10.3">
+<h2 data-number="10.3" class="anchored" data-anchor-id="two-examples-longitudinal-and-experimental"><span class="header-section-number">10.3</span> Two Examples: Longitudinal and Experimental</h2>
+<p>The random-intercept model is equally natural in longitudinal and experimental settings. The structure is identical; only the substantive interpretation differs.</p>
+<section id="example-1-daily-mood-and-sleep-longitudinalrepeated-measures" class="level3" data-number="10.3.1">
+<h3 data-number="10.3.1" class="anchored" data-anchor-id="example-1-daily-mood-and-sleep-longitudinalrepeated-measures"><span class="header-section-number">10.3.1</span> Example 1: Daily Mood and Sleep (Longitudinal/Repeated Measures)</h3>
+<p>30 people each complete a mood diary for 7 days. We want to know: within a person, does sleeping more predict better mood the next day?</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate the data</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_people <span class="ot">&lt;-</span> <span class="dv">30</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n_days   <span class="ot">&lt;-</span> <span class="dv">7</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>person_intercepts <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="at">mean =</span> <span class="dv">50</span>, <span class="at">sd =</span> <span class="dv">8</span>)   <span class="co"># people differ in baseline mood</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df_sleep <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">day    =</span> <span class="dv">1</span><span class="sc">:</span>n_days</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">sleep =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="at">mean =</span> <span class="dv">7</span>, <span class="at">sd =</span> <span class="fl">1.5</span>),</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">mood  =</span> person_intercepts[person] <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> (sleep <span class="sc">-</span> <span class="dv">7</span>) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_people <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_days   <span class="ot">&lt;-</span> <span class="dv">7</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>person_intercepts <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="at">mean =</span> <span class="dv">50</span>, <span class="at">sd =</span> <span class="dv">8</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>df_sleep <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">day    =</span> <span class="dv">1</span><span class="sc">:</span>n_days</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">sleep  =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="at">mean =</span> <span class="dv">7</span>, <span class="at">sd =</span> <span class="fl">1.5</span>),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True within-person effect of sleep on mood = 3 points per hour</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">mood   =</span> person_intercepts[person] <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> (sleep <span class="sc">-</span> <span class="dv">7</span>) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">person =</span> <span class="fu">factor</span>(person)</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Null model (no predictors — just partition variance)</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>model_null <span class="ot">&lt;-</span> <span class="fu">lmer</span>(mood <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_sleep)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Random intercept model with predictor</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>model_ri <span class="ot">&lt;-</span> <span class="fu">lmer</span>(mood <span class="sc">~</span> sleep <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_sleep)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_ri)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit random intercept model</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>model_ri_sleep <span class="ot">&lt;-</span> <span class="fu">lmer</span>(mood <span class="sc">~</span> sleep <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_sleep)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_ri_sleep)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
@@ -657,16 +731,22 @@ Correlation of Fixed Effects:
 sleep -0.713</code></pre>
 </div>
 </div>
+<p><strong>Reading the output:</strong></p>
+<ul>
+<li><span class="math inline">\(\hat\gamma_{00}\)</span> (Intercept fixed effect): the grand mean mood across all people and days</li>
+<li><span class="math inline">\(\hat\beta_1\)</span> (sleep fixed effect): on average, one extra hour of sleep is associated with ~3 points higher mood, <em>within the same person</em></li>
+<li><span class="math inline">\(\hat\sigma_u\)</span> (person random effect SD): how much people differ in their baseline mood</li>
+<li><span class="math inline">\(\hat\sigma_\varepsilon\)</span> (residual SD): how much a person’s mood varies day-to-day, after accounting for sleep</li>
+</ul>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Key output: fixed effects and variance components</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_ri, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Fixed effects: sleep predicts mood"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_ri_sleep, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Fixed effects: sleep → mood (within-person)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Fixed effects: sleep predicts mood</caption>
+<caption>Fixed effects: sleep → mood (within-person)</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">effect</th>
@@ -702,12 +782,13 @@ sleep -0.713</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_ri, <span class="at">effects =</span> <span class="st">"ran_pars"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Random effects: how much do people differ?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_ri_sleep, <span class="at">effects =</span> <span class="st">"ran_pars"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Variance components: how much do people differ vs. fluctuate?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Random effects: how much do people differ?</caption>
+<caption>Variance components: how much do people differ vs.&nbsp;fluctuate?</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">effect</th>
@@ -733,34 +814,143 @@ sleep -0.713</code></pre>
 </table>
 </div>
 </div>
-<p><strong>Interpretation:</strong> - The fixed effect of <code>sleep</code> (~3.0) tells us: on a day when someone sleeps one hour more than average, their mood increases by about 3 points. This is the average within-person effect. - The random effect variance (~60, i.e., SD ~8) tells us how much people’s baseline moods differ from each other. - The residual variance (~25, SD ~5) tells us how much a person’s mood varies from day to day after accounting for sleep.</p>
+</section>
+<section id="example-2-stimulus-ratings-in-a-judgment-study-experimental" class="level3" data-number="10.3.2">
+<h3 data-number="10.3.2" class="anchored" data-anchor-id="example-2-stimulus-ratings-in-a-judgment-study-experimental"><span class="header-section-number">10.3.2</span> Example 2: Stimulus Ratings in a Judgment Study (Experimental)</h3>
+<p>50 participants each rate 20 charity appeal images on their emotional impact (0–100). Half the images feature children; half feature adults. We want to know: does featuring a child vs.&nbsp;an adult increase perceived emotional impact?</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize random intercepts</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>ranef_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">person    =</span> <span class="fu">rownames</span>(<span class="fu">ranef</span>(model_ri)<span class="sc">$</span>person),</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">intercept =</span> <span class="fu">ranef</span>(model_ri)<span class="sc">$</span>person[, <span class="dv">1</span>]</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(intercept) <span class="sc">|&gt;</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">person =</span> <span class="fu">factor</span>(person, <span class="at">levels =</span> person))</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(ranef_df, <span class="fu">aes</span>(<span class="at">x =</span> person, <span class="at">y =</span> intercept)) <span class="sc">+</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">ymin =</span> intercept <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> <span class="dv">4</span>,  <span class="co"># approximate SE</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">ymax =</span> intercept <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> <span class="dv">4</span>),</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="fl">0.3</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Random intercepts: each person's deviation from the grand mean"</span>,</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"People above zero have higher baseline mood; below zero, lower"</span>,</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Person"</span>,</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Random Intercept (deviation from grand mean)"</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n_participants_exp <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>n_images           <span class="ot">&lt;-</span> <span class="dv">20</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Participants differ in baseline emotionality</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>participant_baseline <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_participants_exp, <span class="at">mean =</span> <span class="dv">50</span>, <span class="at">sd =</span> <span class="dv">12</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>df_charity <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_participants_exp,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">image       =</span> <span class="dv">1</span><span class="sc">:</span>n_images</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">child_subject =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>), n_images <span class="sc">/</span> <span class="dv">2</span>)[image],  <span class="co"># 1 = child, 0 = adult</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True within-person effect of child subject = 8 points</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">impact =</span> participant_baseline[participant] <span class="sc">+</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>             <span class="dv">8</span> <span class="sc">*</span> child_subject <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">10</span>),</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant =</span> <span class="fu">factor</span>(participant)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>model_ri_charity <span class="ot">&lt;-</span> <span class="fu">lmer</span>(impact <span class="sc">~</span> child_subject <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>                          <span class="at">data =</span> df_charity)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_ri_charity, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Fixed effects: child subject → emotional impact"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Fixed effects: child subject → emotional impact</caption>
+<colgroup>
+<col style="width: 10%">
+<col style="width: 21%">
+<col style="width: 13%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">effect</th>
+<th style="text-align: left;">term</th>
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">std.error</th>
+<th style="text-align: right;">statistic</th>
+<th style="text-align: right;">df</th>
+<th style="text-align: right;">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">fixed</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: right;">50.851</td>
+<td style="text-align: right;">1.482</td>
+<td style="text-align: right;">34.321</td>
+<td style="text-align: right;">53.543</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">fixed</td>
+<td style="text-align: left;">child_subject</td>
+<td style="text-align: right;">6.872</td>
+<td style="text-align: right;">0.617</td>
+<td style="text-align: right;">11.130</td>
+<td style="text-align: right;">949.000</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_ri_charity, <span class="at">effects =</span> <span class="st">"ran_pars"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Variance components: participant differences vs. image-to-image variation"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Variance components: participant differences vs.&nbsp;image-to-image variation</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">effect</th>
+<th style="text-align: left;">group</th>
+<th style="text-align: left;">term</th>
+<th style="text-align: right;">estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ran_pars</td>
+<td style="text-align: left;">participant</td>
+<td style="text-align: left;">sd__(Intercept)</td>
+<td style="text-align: right;">10.011</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ran_pars</td>
+<td style="text-align: left;">Residual</td>
+<td style="text-align: left;">sd__Observation</td>
+<td style="text-align: right;">9.762</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Notice the parallel: in the mood study, <span class="math inline">\(u_{0j}\)</span> captures person differences in <em>baseline mood</em>. In the charity study, <span class="math inline">\(u_{0j}\)</span> captures person differences in <em>baseline emotionality</em>. The math is identical. The interpretation is substantively different.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize random intercepts for both examples</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>re_sleep   <span class="ot">&lt;-</span> <span class="fu">ranef</span>(model_ri_sleep)<span class="sc">$</span>person[, <span class="dv">1</span>]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>re_charity <span class="ot">&lt;-</span> <span class="fu">ranef</span>(model_ri_charity)<span class="sc">$</span>participant[, <span class="dv">1</span>]</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">unit =</span> <span class="fu">seq_along</span>(re_sleep), <span class="at">re =</span> <span class="fu">sort</span>(re_sleep)) <span class="sc">|&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(unit, re), <span class="at">y =</span> re)) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Study 1: Person random intercepts"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Each dot = one person's deviation from grand mean mood"</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Person (sorted)"</span>, <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">hat</span>(u)[<span class="dv">0</span><span class="sc">*</span>j])) <span class="sc">+</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">unit =</span> <span class="fu">seq_along</span>(re_charity), <span class="at">re =</span> <span class="fu">sort</span>(re_charity)) <span class="sc">|&gt;</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(unit, re), <span class="at">y =</span> re)) <span class="sc">+</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#2d6a4f"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Study 2: Participant random intercepts"</span>,</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Each dot = one participant's deviation from grand mean emotionality"</span>,</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Participant (sorted)"</span>, <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">hat</span>(u)[<span class="dv">0</span><span class="sc">*</span>j])) <span class="sc">+</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -770,9 +960,12 @@ sleep -0.713</code></pre>
 </div>
 </div>
 </div>
+<hr>
+</section>
 </section>
 <section id="the-assumptions-of-random-intercept-models" class="level2" data-number="10.4">
 <h2 data-number="10.4" class="anchored" data-anchor-id="the-assumptions-of-random-intercept-models"><span class="header-section-number">10.4</span> The Assumptions of Random Intercept Models</h2>
+<p>The same four assumptions apply to both the longitudinal and the experimental settings. Where the assumption plays out differently across contexts, both are discussed.</p>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -783,21 +976,34 @@ sleep -0.713</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> The random intercepts <span class="math inline">\(u_{0j}\)</span> are assumed to follow a normal distribution with mean zero and variance <span class="math inline">\(\sigma^2_u\)</span>.</p>
-<p><strong>Why it matters:</strong> If the true distribution of random effects is highly skewed or has heavy tails, the model will misestimate both the fixed effects and the variance components.</p>
-<p><strong>How to check:</strong> Plot the estimated random effects (from <code>ranef()</code>) as a histogram or Q-Q plot. Look for obvious skewness or outliers.</p>
+<p><strong>The distributional claim:</strong> The model assumes: <span class="math display">\[u_{0j} \overset{iid}{\sim} \mathcal{N}(0,\ \sigma^2_u)\]</span></p>
+<p>This is stronger than the FE model, which makes no distributional claim about the <span class="math inline">\(\alpha_j\)</span> parameters. Here, the unit deviations are required to be normally distributed around zero.</p>
+<p><strong>In longitudinal data:</strong> If your units are firms, some industries may have systematically higher satisfaction for structural reasons (not random deviations). A bimodal or skewed distribution of <span class="math inline">\(u_{0j}\)</span> can arise when there are latent subgroups.</p>
+<p><strong>In experiments:</strong> If participant emotionality is bimodal (high-empathy vs.&nbsp;low-empathy types), the normality assumption is violated. With many participants (n &gt; 50), the model is reasonably robust to mild non-normality.</p>
+<p><strong>How to check:</strong></p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>re_values <span class="ot">&lt;-</span> <span class="fu">ranef</span>(model_ri)<span class="sc">$</span>person[, <span class="dv">1</span>]</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(re_values, <span class="at">breaks =</span> <span class="dv">10</span>,</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Distribution of random intercepts"</span>,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Random intercept value"</span>,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">col  =</span> <span class="st">"#deebf7"</span>, <span class="at">border =</span> <span class="st">"white"</span>)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(re_values, <span class="at">main =</span> <span class="st">"Q-Q plot of random intercepts"</span>)</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(re_values, <span class="at">col =</span> <span class="st">"#e63946"</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>re_vals <span class="ot">&lt;-</span> <span class="fu">ranef</span>(model_ri_sleep)<span class="sc">$</span>person[, <span class="dv">1</span>]</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>p_hist <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">re =</span> re_vals) <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> re)) <span class="sc">+</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"#deebf7"</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">bins =</span> <span class="dv">10</span>) <span class="sc">+</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Random intercepts: histogram"</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">hat</span>(u)[<span class="dv">0</span><span class="sc">*</span>j]), <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>p_qq <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">re =</span> re_vals) <span class="sc">|&gt;</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">sample =</span> re)) <span class="sc">+</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq</span>(<span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq_line</span>(<span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Random intercepts: Q-Q plot"</span>,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Points off the line = non-normality"</span>,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Theoretical quantiles"</span>, <span class="at">y =</span> <span class="st">"Sample quantiles"</span>) <span class="sc">+</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>p_hist <span class="sc">+</span> p_qq</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -807,6 +1013,7 @@ sleep -0.713</code></pre>
 </div>
 </div>
 </div>
+<p>A Q-Q plot that follows the diagonal closely indicates the normality assumption is met. Heavy tails or S-curves indicate non-normality.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -819,37 +1026,34 @@ sleep -0.713</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> The within-unit residuals <span class="math inline">\(\varepsilon_{ij}\)</span> are assumed to be normally distributed and have constant variance across all observations.</p>
-<p><strong>How to check:</strong> Plot residuals against fitted values (look for funnel shapes = heteroskedasticity). Check a Q-Q plot of residuals.</p>
+<p><strong>The distributional claim:</strong> <span class="math display">\[\varepsilon_{ij} \overset{iid}{\sim} \mathcal{N}(0,\ \sigma^2_\varepsilon)\]</span></p>
+<p>where <span class="math inline">\(\sigma^2_\varepsilon\)</span> is the same for every unit <span class="math inline">\(j\)</span> and every observation <span class="math inline">\(i\)</span> — that is, within-unit variation is constant.</p>
+<p><strong>In longitudinal data:</strong> Mood variability might be higher for some people (high neuroticism → more volatile mood). This produces heteroskedastic residuals where <span class="math inline">\(\sigma^2_\varepsilon\)</span> differs by person.</p>
+<p><strong>In experiments:</strong> Some stimuli might produce more variable responses than others (ambiguous images → higher disagreement). This would show up as heteroskedasticity across stimulus conditions.</p>
+<p><strong>How to check:</strong> A residuals vs.&nbsp;fitted values plot. A funnel shape means variance increases with the fitted value (heteroskedasticity). A curve means the relationship is nonlinear.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract residuals and fitted values</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df_sleep <span class="ot">&lt;-</span> df_sleep <span class="sc">|&gt;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">fitted =</span> <span class="fu">fitted</span>(model_ri),</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">resid  =</span> <span class="fu">residuals</span>(model_ri)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_sleep, <span class="fu">aes</span>(<span class="at">x =</span> fitted, <span class="at">y =</span> resid)) <span class="sc">+</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Residuals vs. Fitted"</span>,</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Look for funnel shapes (heteroskedasticity) or curves (nonlinearity)"</span>,</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Fitted Values"</span>, <span class="at">y =</span> <span class="st">"Residuals"</span>) <span class="sc">+</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_sleep, <span class="fu">aes</span>(<span class="at">sample =</span> resid)) <span class="sc">+</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq</span>(<span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq_line</span>(<span class="at">color =</span> <span class="st">"#e63946"</span>) <span class="sc">+</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Q-Q Plot of Residuals"</span>,</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Points off the line = non-normal residuals"</span>,</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Theoretical Quantiles"</span>, <span class="at">y =</span> <span class="st">"Sample Quantiles"</span>) <span class="sc">+</span></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df_sleep <span class="ot">&lt;-</span> df_sleep <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fitted =</span> <span class="fu">fitted</span>(model_ri_sleep), <span class="at">resid =</span> <span class="fu">residuals</span>(model_ri_sleep))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>p_rv <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_sleep, <span class="fu">aes</span>(<span class="at">x =</span> fitted, <span class="at">y =</span> resid)) <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Residuals vs. Fitted"</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Funnel = heteroskedasticity; curve = nonlinearity"</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Fitted values"</span>, <span class="at">y =</span> <span class="st">"Residuals"</span>) <span class="sc">+</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>p_qq2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_sleep, <span class="fu">aes</span>(<span class="at">sample =</span> resid)) <span class="sc">+</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq</span>(<span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_qq_line</span>(<span class="at">color =</span> <span class="st">"#e63946"</span>) <span class="sc">+</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Q-Q: Level-1 residuals"</span>,</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Theoretical"</span>, <span class="at">y =</span> <span class="st">"Sample"</span>) <span class="sc">+</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>p_rv <span class="sc">+</span> p_qq2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -867,29 +1071,28 @@ sleep -0.713</code></pre>
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Assumption 3: Independence of Random Effects from Predictors (The Key Difference from FE)
+<span class="screen-reader-only">Warning</span>Assumption 3: Independence of Random Effects from Predictors
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> The random intercepts <span class="math inline">\(u_{0j}\)</span> must be uncorrelated with the predictors in the model.</p>
-<p><strong>Why this is critical:</strong> This is the assumption that fixed effects models <em>do not</em> require. If a person’s baseline mood (their random intercept) is correlated with their average sleep — e.g., people who are depressed both have lower baseline mood AND sleep more — then the random-effects estimator is biased.</p>
-<p><strong>How to check:</strong> This cannot be directly tested (the random effects are not directly observed), but you can use the <strong>Hausman test</strong> to compare FE and RE estimates. If they differ substantially, the independence assumption is likely violated.</p>
-<p><strong>What to do if it fails:</strong> Use fixed effects instead, or use cluster-mean centering (see Module 2).</p>
+<p><strong>The critical assumption:</strong> The random intercepts <span class="math inline">\(u_{0j}\)</span> must be uncorrelated with the Level-1 predictor <span class="math inline">\(X_{ij}\)</span>:</p>
+<p><span class="math display">\[\text{Cov}(u_{0j},\ X_{ij}) = 0\]</span></p>
+<p><strong>Why this is the key difference from fixed effects:</strong> Fixed effects do not require this. They absorb unit-level variation without assuming anything about its relationship to <span class="math inline">\(X\)</span>. Random effects assume the two are unrelated.</p>
+<p><strong>In longitudinal data:</strong> If people who score high on baseline mood (<span class="math inline">\(u_{0j} &gt; 0\)</span>) tend to sleep <em>more</em> on average — perhaps because they have low anxiety — then <span class="math inline">\(u_{0j}\)</span> and <span class="math inline">\(X_{ij}\)</span> (sleep) are positively correlated. The random-effects estimator attributes some of this between-person relationship to the within-person slope, biasing <span class="math inline">\(\hat\beta_1\)</span> upward.</p>
+<p><strong>In experiments:</strong> When stimuli are randomly assigned, this assumption is met by design for the treatment variable. However, if participants with higher baseline emotionality select into seeing more child images (selection into condition), the assumption fails. Randomization is what makes experiments safe for random effects.</p>
+<p><strong>How to check:</strong> The Hausman test compares the FE and RE estimates. If they agree, the independence assumption is plausible. If the RE estimate is noticeably larger than the FE estimate, the random intercepts are probably correlated with the predictor.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plm)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>df_panel <span class="ot">&lt;-</span> df_sleep <span class="sc">|&gt;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">person_id =</span> <span class="fu">as.integer</span>(person))</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>df_pdata <span class="ot">&lt;-</span> <span class="fu">pdata.frame</span>(df_panel, <span class="at">index =</span> <span class="fu">c</span>(<span class="st">"person_id"</span>, <span class="st">"day"</span>))</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>fe_plm <span class="ot">&lt;-</span> <span class="fu">plm</span>(mood <span class="sc">~</span> sleep, <span class="at">data =</span> df_pdata, <span class="at">model =</span> <span class="st">"within"</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>re_plm <span class="ot">&lt;-</span> <span class="fu">plm</span>(mood <span class="sc">~</span> sleep, <span class="at">data =</span> df_pdata, <span class="at">model =</span> <span class="st">"random"</span>)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Hausman test: H0 = RE is consistent (independence assumption holds)</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="fu">phtest</span>(fe_plm, re_plm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plm)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>df_panel <span class="ot">&lt;-</span> df_sleep <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">person_id =</span> <span class="fu">as.integer</span>(person))</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>df_pdata <span class="ot">&lt;-</span> <span class="fu">pdata.frame</span>(df_panel, <span class="at">index =</span> <span class="fu">c</span>(<span class="st">"person_id"</span>, <span class="st">"day"</span>))</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>fe_plm <span class="ot">&lt;-</span> <span class="fu">plm</span>(mood <span class="sc">~</span> sleep, <span class="at">data =</span> df_pdata, <span class="at">model =</span> <span class="st">"within"</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>re_plm <span class="ot">&lt;-</span> <span class="fu">plm</span>(mood <span class="sc">~</span> sleep, <span class="at">data =</span> df_pdata, <span class="at">model =</span> <span class="st">"random"</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">phtest</span>(fe_plm, re_plm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -900,7 +1103,7 @@ chisq = 0.017224, df = 1, p-value = 0.8956
 alternative hypothesis: one model is inconsistent</code></pre>
 </div>
 </div>
-<p>A non-significant Hausman test (p &gt; 0.05) suggests the RE assumption is plausible. A significant test suggests the random effects are correlated with predictors — use FE or cluster-mean centering.</p>
+<p>A non-significant Hausman test (p &gt; 0.05) suggests the RE assumption is plausible. A significant result — especially when the FE estimate is substantially smaller than the RE estimate — means random intercepts are probably correlated with sleep, and you should use fixed effects or cluster-mean centering (Module 2).</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -913,30 +1116,30 @@ alternative hypothesis: one model is inconsistent</code></pre>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> After conditioning on the random intercept and fixed effects, the within-unit residuals are assumed to be independent. On day 3, person 7’s residual should not predict their day 4 residual.</p>
-<p><strong>Why it fails:</strong> For longitudinal data, this assumption is almost never literally true. Yesterday’s mood influences today’s mood. Yesterday’s leftover prediction error correlates with today’s.</p>
-<p><strong>How to check:</strong> For each unit, plot the autocorrelation function (ACF) of their residuals. If there is significant autocorrelation at lag 1, the independence assumption is violated.</p>
+<p><strong>The assumption:</strong> <span class="math display">\[\text{Cov}(\varepsilon_{ij},\ \varepsilon_{i'j}) = 0 \quad \text{for } i \neq i'\]</span></p>
+<p>After conditioning on the random intercept and the fixed effects, the residuals at different observations within the same unit are assumed to be uncorrelated.</p>
+<p><strong>In longitudinal data:</strong> This assumption is almost never literally true. Mood on day <span class="math inline">\(t\)</span> predicts mood on day <span class="math inline">\(t+1\)</span>. The random intercept absorbs the stable <em>between-day</em> baseline difference, but it cannot capture <em>temporal</em> autocorrelation in the within-day fluctuations. If yesterday’s mood was unexpectedly high, today’s is also likely to be above the person’s mean — a pattern the random intercept cannot model.</p>
+<p><strong>In experiments:</strong> This assumption is usually more defensible because stimuli are presented in random order and participants are asked to evaluate each one independently. However, contrast effects (rating a stimulus relative to the previous one) can induce trial-to-trial correlation.</p>
+<p><strong>How to check:</strong> For longitudinal data, compute the lag-1 autocorrelation of residuals within each unit and examine the distribution:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check autocorrelation for a few people</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>acf_df <span class="ot">&lt;-</span> df_sleep <span class="sc">|&gt;</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(day) <span class="sc">|&gt;</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">lag1_autocorr =</span> <span class="fu">cor</span>(<span class="fu">head</span>(resid, <span class="sc">-</span><span class="dv">1</span>), <span class="fu">tail</span>(resid, <span class="sc">-</span><span class="dv">1</span>))</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(acf_df, <span class="fu">aes</span>(<span class="at">x =</span> lag1_autocorr)) <span class="sc">+</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"#1e3a5f"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">bins =</span> <span class="dv">15</span>) <span class="sc">+</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>) <span class="sc">+</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Lag-1 autocorrelation of residuals by person"</span>,</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"If most values are near 0, residuals are approximately independent"</span>,</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Lag-1 Autocorrelation"</span>,</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Count"</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>acf_df <span class="ot">&lt;-</span> df_sleep <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(day) <span class="sc">|&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">lag1 =</span> <span class="fu">cor</span>(<span class="fu">head</span>(resid, <span class="sc">-</span><span class="dv">1</span>), <span class="fu">tail</span>(resid, <span class="sc">-</span><span class="dv">1</span>)),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(acf_df, <span class="fu">aes</span>(<span class="at">x =</span> lag1)) <span class="sc">+</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"#1e3a5f"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">bins =</span> <span class="dv">15</span>) <span class="sc">+</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>) <span class="sc">+</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Lag-1 autocorrelation of residuals, by person"</span>,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Distribution centered near 0 = independence assumption roughly met"</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Lag-1 autocorrelation"</span>,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Number of people"</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -946,57 +1149,59 @@ alternative hypothesis: one model is inconsistent</code></pre>
 </div>
 </div>
 </div>
-<p>If substantial autocorrelation exists, you need to either model it explicitly (autoregressive covariance structures, covered in Module 4) or accept that your standard errors may be slightly off.</p>
+<p>If the distribution is substantially right-shifted (most values positive), residuals are serially correlated and you need to model the autocorrelation explicitly — see Module 4 (Autoregressive Structures).</p>
+<p><strong>In experiments</strong>, you can do the same check ordered by trial number rather than time.</p>
 </div>
 </div>
+<hr>
 </section>
-<section id="partial-pooling-the-key-advantage" class="level2" data-number="10.5">
-<h2 data-number="10.5" class="anchored" data-anchor-id="partial-pooling-the-key-advantage"><span class="header-section-number">10.5</span> Partial Pooling: The Key Advantage</h2>
-<p>The random-intercept model does something neither pooled OLS nor fixed effects can do: <strong>partial pooling</strong>.</p>
+<section id="partial-pooling-what-random-intercepts-do-uniquely" class="level2" data-number="10.5">
+<h2 data-number="10.5" class="anchored" data-anchor-id="partial-pooling-what-random-intercepts-do-uniquely"><span class="header-section-number">10.5</span> Partial Pooling: What Random Intercepts Do Uniquely</h2>
+<p>Neither pooled OLS nor fixed effects can do what random intercepts do: <strong>borrow strength across units</strong> to produce better estimates for units with little data.</p>
 <ul>
-<li><strong>Pooled OLS</strong> treats all units as identical (complete pooling — forces all intercepts to be the same)</li>
-<li><strong>Fixed effects</strong> treats each unit as completely separate (no pooling — estimates each unit independently)</li>
-<li><strong>Random intercepts</strong> shrinks unit estimates toward the grand mean, weighted by how much data each unit contributes (partial pooling)</li>
+<li><strong>Pooled OLS:</strong> forces all units to have the same intercept (complete pooling)</li>
+<li><strong>Fixed effects:</strong> estimates each unit’s intercept independently (no pooling)</li>
+<li><strong>Random intercepts:</strong> shrinks each unit’s estimate toward the grand mean, weighted by how much information that unit contributes (partial pooling)</li>
 </ul>
-<p>This matters when some units have few observations. A person who completed only 2 days of the mood diary gets less weight in estimating their personal intercept — the model borrows more from the group average for them than for someone who completed all 7 days.</p>
+<p>The combined equation makes this explicit. The random-intercept estimate for unit <span class="math inline">\(j\)</span> is a weighted average:</p>
+<p><span class="math display">\[\hat\beta_{0j} = \underbrace{\lambda_j \bar{Y}_j}_{\substack{\text{unit's own}\\ \text{mean} \times \text{reliability}}} + \underbrace{(1 - \lambda_j) \gamma_{00}}_{\substack{\text{grand mean} \times\\ \text{(1 - reliability)}}}\]</span></p>
+<p>where <span class="math inline">\(\lambda_j = \frac{\sigma^2_u}{\sigma^2_u + \sigma^2_\varepsilon / n_j}\)</span> is the <strong>reliability</strong> of unit <span class="math inline">\(j\)</span>’s estimate. Units with many observations (<span class="math inline">\(n_j\)</span> large) or high ICC (<span class="math inline">\(\sigma^2_u\)</span> large relative to <span class="math inline">\(\sigma^2_\varepsilon\)</span>) get reliability close to 1 — their own data dominates. Units with few observations get reliability close to 0 — the grand mean dominates.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare: unpooled unit means vs. random-intercept estimates</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>unit_means <span class="ot">&lt;-</span> df_sleep <span class="sc">|&gt;</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">unpooled =</span> <span class="fu">mean</span>(mood),</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_obs    =</span> <span class="fu">n</span>()</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>re_estimates <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">person =</span> <span class="fu">rownames</span>(<span class="fu">ranef</span>(model_ri)<span class="sc">$</span>person),</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">random_intercept =</span> <span class="fu">ranef</span>(model_ri)<span class="sc">$</span>person[, <span class="dv">1</span>]</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">grand_mean =</span> <span class="fu">fixef</span>(model_ri)[<span class="st">"(Intercept)"</span>],</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">pooled_re  =</span> grand_mean <span class="sc">+</span> random_intercept</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>comparison <span class="ot">&lt;-</span> <span class="fu">left_join</span>(</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  unit_means <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">person =</span> <span class="fu">as.character</span>(person)),</span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  re_estimates,</span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">by =</span> <span class="st">"person"</span></span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(comparison, <span class="fu">aes</span>(<span class="at">x =</span> unpooled, <span class="at">y =</span> pooled_re)) <span class="sc">+</span></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fu">mean</span>(comparison<span class="sc">$</span>pooled_re),</span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>) <span class="sc">+</span></span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Partial pooling: unpooled means vs. random-intercept estimates"</span>,</span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Points on the diagonal = no shrinkage. Points pulled toward the red line = shrinkage toward grand mean."</span>,</span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Unpooled unit mean"</span>,</span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Random-intercept estimate"</span></span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>unit_means <span class="ot">&lt;-</span> df_sleep <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">unpooled =</span> <span class="fu">mean</span>(mood), <span class="at">n_obs =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>re_ests <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">person           =</span> <span class="fu">rownames</span>(<span class="fu">ranef</span>(model_ri_sleep)<span class="sc">$</span>person),</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">random_intercept =</span> <span class="fu">ranef</span>(model_ri_sleep)<span class="sc">$</span>person[, <span class="dv">1</span>]</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">grand_mean =</span> <span class="fu">fixef</span>(model_ri_sleep)[<span class="st">"(Intercept)"</span>],</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">pooled_re  =</span> grand_mean <span class="sc">+</span> random_intercept</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>comparison <span class="ot">&lt;-</span> <span class="fu">left_join</span>(</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  unit_means <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">person =</span> <span class="fu">as.character</span>(person)),</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  re_ests, <span class="at">by =</span> <span class="st">"person"</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(comparison, <span class="fu">aes</span>(<span class="at">x =</span> unpooled, <span class="at">y =</span> pooled_re)) <span class="sc">+</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fu">mean</span>(comparison<span class="sc">$</span>pooled_re),</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">min</span>(comparison<span class="sc">$</span>unpooled) <span class="sc">+</span> <span class="dv">1</span>,</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="fu">mean</span>(comparison<span class="sc">$</span>pooled_re) <span class="sc">+</span> <span class="fl">1.5</span>,</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"Grand mean"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Partial pooling: unpooled means vs. random-intercept estimates"</span>,</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Estimates are pulled toward the grand mean (red line) — that is shrinkage"</span>,</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Unpooled unit mean (no pooling)"</span>,</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Random-intercept estimate (partial pooling)"</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1006,7 +1211,8 @@ alternative hypothesis: one model is inconsistent</code></pre>
 </div>
 </div>
 </div>
-<p>The estimates are pulled toward the grand mean — that is shrinkage. Units with fewer observations (or more variable observations) get pulled more. This is not a flaw; it is the model being appropriately uncertain about extreme estimates from small samples.</p>
+<p>Points fall below the diagonal for high units and above it for low units — every estimate is pulled toward the grand mean. This is not a flaw; it is the model being appropriately uncertain about extreme values based on limited within-unit data.</p>
+<hr>
 </section>
 <section id="recommended-reading" class="level2" data-number="10.6">
 <h2 data-number="10.6" class="anchored" data-anchor-id="recommended-reading"><span class="header-section-number">10.6</span> Recommended Reading</h2>
@@ -1023,7 +1229,7 @@ alternative hypothesis: one model is inconsistent</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Introduction to random effects for psychologists</td>
+<td>Random effects for psychologists</td>
 <td>Baayen, R. H., Davidson, D. J., &amp; Bates, D. M. (2008). Mixed-effects modeling with crossed random effects for subjects and items. <em>Journal of Memory and Language, 59</em>(4), 390–412.</td>
 </tr>
 <tr class="even">
@@ -1031,6 +1237,10 @@ alternative hypothesis: one model is inconsistent</code></pre>
 <td>Gelman, A., &amp; Hill, J. (2007). <em>Data Analysis Using Regression and Multilevel/Hierarchical Models.</em> Cambridge University Press. (Chapter 12)</td>
 </tr>
 <tr class="odd">
+<td>RE vs FE in experimental designs</td>
+<td>Judd, C. M., Westfall, J., &amp; Kenny, D. A. (2012). Treating stimuli as a random factor in social psychology. <em>Journal of Personality and Social Psychology, 103</em>(1), 54–69.</td>
+</tr>
+<tr class="even">
 <td>Hausman test</td>
 <td>Hausman, J. A. (1978). Specification tests in econometrics. <em>Econometrica, 46</em>(6), 1251–1271.</td>
 </tr>
