@@ -7,247 +7,363 @@ library(tidyverse)
 library(lme4)
 library(plm)
 library(ggplot2)
+library(patchwork)
 library(broom)
 set.seed(2024)
 ```
 
 # Fixed Effects Models
 
-## The Problem We Are Solving
+## Two Settings, One Problem
 
-Before we can introduce fixed effects models, we need to see clearly what problem they solve.
+Fixed effects models are usually introduced in the context of panel data — the same firms tracked over multiple years, the same countries tracked across decades. But the exact same logic applies whenever observations are nested within units, *regardless of whether time is involved*.
 
-Suppose you are studying the relationship between employee autonomy (how much control people have over their work) and job satisfaction, using a survey of 500 employees across 25 firms. You run a standard regression: satisfaction ~ autonomy.
+Consider two studies:
+
+**Study A (Longitudinal):** You survey 500 employees across 25 firms about autonomy and job satisfaction — and you do it again the following year. Each employee is measured twice.
+
+**Study B (Experimental):** You run a within-subjects experiment. Each of 80 participants evaluates 12 product descriptions — 6 under a "scarcity" framing ("only 3 left!") and 6 under a neutral framing. Each participant sees both conditions.
+
+Both studies share the same fundamental structure: **multiple observations nested within the same unit** (employee, participant). And both share the same fundamental problem: unit-level differences confound your estimate of the effect you care about.
+
+In Study A, high-autonomy firms also happen to have better cultures — so the autonomy effect is confounded with culture.
+
+In Study B, some participants are just more easily persuaded than others — so the framing effect is confounded with individual persuadability.
+
+Fixed effects solve both problems in exactly the same way.
+
+---
+
+## The Model
+
+Let $Y_{ij}$ be the outcome for observation $i$ within unit $j$ (employee $i$ in firm $j$; rating $i$ by participant $j$). The fixed-effects model is:
+
+$$
+\underbrace{Y_{ij}}_{\text{outcome}} = \underbrace{\alpha_j}_{\substack{\text{unit fixed} \\ \text{effect}}} + \underbrace{\beta_1}_{\substack{\text{within-unit} \\ \text{slope}}} \underbrace{X_{ij}}_{\substack{\text{within-unit} \\ \text{predictor}}} + \underbrace{\varepsilon_{ij}}_{\substack{\text{residual}}}
+$$
+
+The $\alpha_j$ is a **separate intercept for every unit** — a dummy variable for firm $j$, or a dummy variable for participant $j$. It absorbs *everything* that is constant within that unit: the firm's culture, the participant's baseline persuadability, the country's institutions.
+
+The slope $\beta_1$ is estimated purely from **within-unit variation**: how does $Y$ change when $X$ changes *within the same unit*?
+
+### The Within-Demeaning Transformation
+
+An equivalent way to see what FE does is through demeaning. Let $\bar{Y}_j = \frac{1}{n_j}\sum_i Y_{ij}$ be the unit mean. Subtracting the unit mean from every observation:
+
+$$
+\underbrace{(Y_{ij} - \bar{Y}_j)}_{\substack{\text{outcome} \\ \text{demeaned}}} = \beta_1 \underbrace{(X_{ij} - \bar{X}_j)}_{\substack{\text{predictor} \\ \text{demeaned}}} + \underbrace{(\varepsilon_{ij} - \bar{\varepsilon}_j)}_{\substack{\text{residual} \\ \text{demeaned}}}
+$$
+
+After demeaning, every trace of between-unit variation is gone. The $\alpha_j$ terms vanish completely — they cancel out when you subtract the unit mean from both sides. What remains is the pure **within-unit relationship** between $X$ and $Y$.
+
+In the firm study: we are comparing each employee to the *average* employee in their own firm.
+
+In the experiment: we are comparing each participant's rating under scarcity to their *own average* rating — which is precisely what within-subjects experimental designs intend.
+
+---
+
+## Two Examples: Longitudinal and Experimental
+
+### Example 1: Firms (Longitudinal Cross-Section)
 
 ```{r pooled-problem}
-# Simulate the problem
+# --- STUDY A: Employees nested within firms ---
 n_firms     <- 25
 n_employees <- 20
 
-# Firm effects: high-autonomy firms ALSO have better culture -> higher satisfaction
-# This is the confound we need to handle
-firm_autonomy_mean  <- rnorm(n_firms, 50, 10)   # firms differ in average autonomy
+# The confound: high-autonomy firms also have better culture
+firm_autonomy_mean  <- rnorm(n_firms, 50, 10)
 firm_culture_effect <- firm_autonomy_mean * 0.4 + rnorm(n_firms, 0, 5)
-# Culture boosts satisfaction, AND correlates with autonomy
 
 df_firms <- expand_grid(
   firm     = 1:n_firms,
   employee = 1:n_employees
 ) |>
   mutate(
-    firm_autonomy   = firm_autonomy_mean[firm],
-    firm_culture    = firm_culture_effect[firm],
-    autonomy        = firm_autonomy + rnorm(n(), 0, 5),   # individual deviations
-    satisfaction    = 30 + 0.2 * autonomy + firm_culture + rnorm(n(), 0, 8),
-    # True within-firm effect of autonomy is 0.2
-    # But between-firm, autonomy and culture are correlated
-    firm_label      = factor(firm)
+    firm_autonomy = firm_autonomy_mean[firm],
+    firm_culture  = firm_culture_effect[firm],
+    autonomy      = firm_autonomy + rnorm(n(), 0, 5),
+    # True WITHIN-firm effect = 0.2; but between-firm confound inflates it
+    satisfaction  = 30 + 0.2 * autonomy + firm_culture + rnorm(n(), 0, 8),
+    firm_label    = factor(firm)
   )
 
 # Naive pooled regression
-naive_model <- lm(satisfaction ~ autonomy, data = df_firms)
-broom::tidy(naive_model) |>
+naive_firms <- lm(satisfaction ~ autonomy, data = df_firms)
+broom::tidy(naive_firms) |>
   filter(term == "autonomy") |>
-  knitr::kable(digits = 3, caption = "Pooled OLS: estimated effect of autonomy")
+  knitr::kable(digits = 3,
+    caption = "Pooled OLS: estimated effect of autonomy (confounded)")
 ```
 
-The pooled estimate says autonomy has a strong positive effect on satisfaction. But is that the true causal effect?
+### Example 2: Within-Subjects Experiment
 
-Look at the picture:
+```{r within-subjects-demo}
+# --- STUDY B: Ratings nested within participants ---
+n_participants <- 80
+n_ratings      <- 12   # 6 scarcity, 6 neutral
+
+# The confound: participants differ in baseline persuadability
+persuadability <- rnorm(n_participants, 50, 10)
+
+df_exp <- expand_grid(
+  participant = 1:n_participants,
+  rating_num  = 1:n_ratings
+) |>
+  mutate(
+    condition    = rep(c("scarcity", "neutral"), n_ratings / 2)[rating_num],
+    scarcity_bin = as.integer(condition == "scarcity"),
+    # True WITHIN-person effect of scarcity = 4 points
+    # But persuadability (a person-level trait) also drives ratings
+    purchase_intent = persuadability[participant] + 4 * scarcity_bin +
+                      rnorm(n(), 0, 8),
+    participant_f   = factor(participant)
+  )
+
+# Naive pooled regression: mixes within-person and between-person variation
+naive_exp <- lm(purchase_intent ~ scarcity_bin, data = df_exp)
+broom::tidy(naive_exp) |>
+  filter(term == "scarcity_bin") |>
+  knitr::kable(digits = 3,
+    caption = "Pooled OLS: estimated scarcity effect (ignores person differences)")
+```
+
+In the experiment, the pooled estimate is closer to the truth than in the firm study — because condition was randomly assigned, persuadability does not systematically correlate with condition. But random assignment only guarantees this *on average*; individual differences still add noise and can distort estimates in small samples or unbalanced designs.
 
 ```{r pooled-vs-within}
-# Show the between-firm confound
+# Show both confound patterns side by side
 firm_summary <- df_firms |>
   group_by(firm) |>
-  summarise(mean_autonomy = mean(autonomy),
-            mean_satisfaction = mean(satisfaction))
+  summarise(mean_auto = mean(autonomy), mean_sat = mean(satisfaction))
 
 p1 <- ggplot(df_firms, aes(x = autonomy, y = satisfaction)) +
-  geom_point(alpha = 0.2, color = "#1e3a5f") +
-  geom_smooth(method = "lm", color = "#e63946", linewidth = 1.5) +
-  labs(title = "Pooled regression (ignores firm)",
-       subtitle = "Slope mixes within-firm and between-firm effects",
+  geom_point(alpha = 0.15, color = "#1e3a5f") +
+  geom_smooth(method = "lm", color = "#e63946", linewidth = 1.3) +
+  geom_point(data = firm_summary, aes(x = mean_auto, y = mean_sat),
+             color = "#e63946", size = 3) +
+  labs(title = "Study A: Firms",
+       subtitle = "Red dots = firm means; slope is inflated by culture confound",
        x = "Autonomy", y = "Satisfaction") +
-  theme_minimal(base_size = 13)
+  theme_minimal(base_size = 12)
 
-p2 <- ggplot(df_firms, aes(x = autonomy, y = satisfaction,
-                             color = firm_label, group = firm_label)) +
-  geom_point(alpha = 0.3, size = 1) +
-  geom_smooth(method = "lm", se = FALSE, linewidth = 0.7) +
-  labs(title = "Within-firm regressions",
-       subtitle = "Each line = one firm's autonomy-satisfaction relationship",
-       x = "Autonomy", y = "Satisfaction") +
-  theme_minimal(base_size = 13) +
+person_summary <- df_exp |>
+  group_by(participant, condition) |>
+  summarise(mean_intent = mean(purchase_intent), .groups = "drop")
+
+p2 <- ggplot(df_exp, aes(x = scarcity_bin, y = purchase_intent,
+                          color = participant_f, group = participant_f)) +
+  geom_line(alpha = 0.3, linewidth = 0.5) +
+  geom_point(alpha = 0.2, size = 0.8) +
+  stat_summary(aes(group = 1), fun = mean, geom = "line",
+               color = "#e63946", linewidth = 1.5) +
+  scale_x_continuous(breaks = c(0, 1),
+                     labels = c("Neutral", "Scarcity")) +
+  labs(title = "Study B: Experiment",
+       subtitle = "Each line = one participant across conditions",
+       x = "Condition", y = "Purchase Intent") +
+  theme_minimal(base_size = 12) +
   theme(legend.position = "none") +
   scale_color_viridis_d()
 
-library(patchwork)
 p1 + p2
 ```
 
-The pooled slope (left panel) is steep — it looks like autonomy strongly predicts satisfaction. But the within-firm slopes (right panel) are much flatter. What is happening?
-
-**Between firms:** High-autonomy firms also have better cultures, better management, higher pay. All of these push satisfaction up. So firms with high average autonomy have high average satisfaction — but for reasons that go beyond autonomy itself.
-
-**Within firms:** On average, an employee with slightly more autonomy than their colleague in the same firm has modestly higher satisfaction. This is the true causal-adjacent effect we care about.
-
-The pooled regression cannot separate these two stories. It attributes the between-firm difference (driven by culture, management, etc.) to autonomy. This is **omitted variable bias** from the firm-level confounders.
-
 ## How Fixed Effects Solve This
 
-The **fixed-effects (FE) estimator** removes between-unit variation entirely. It estimates the effect of autonomy using only variation *within* firms — comparing employees to other employees *in the same firm*, not to employees in other firms.
-
-It does this by including a dummy variable for each firm (except one baseline), which absorbs all variation that is constant within firms. Everything that makes Firm 1 different from Firm 2 — culture, pay, management quality — gets "partialled out."
+Fixed effects recover the within-unit slope by including a dummy for every unit. In the firm study that is 25 firm dummies. In the experiment it is 80 participant dummies. Each dummy absorbs everything that is constant within that unit.
 
 ```{r fe-model}
-# Fixed effects model using the plm package
+# Study A: FE via plm
 df_firms_pdata <- pdata.frame(df_firms, index = c("firm", "employee"))
-fe_model <- plm(satisfaction ~ autonomy,
+fe_firms <- plm(satisfaction ~ autonomy,
                 data   = df_firms_pdata,
-                model  = "within",  # "within" = fixed effects
+                model  = "within",
                 effect = "individual")
 
-summary(fe_model)
+# Study B: FE via lm with participant dummies (equivalent)
+fe_exp <- lm(purchase_intent ~ scarcity_bin + participant_f, data = df_exp)
 ```
 
 ```{r fe-compare}
-# Or equivalently with lm() using firm dummies
-fe_lm <- lm(satisfaction ~ autonomy + firm_label, data = df_firms)
-broom::tidy(fe_lm) |>
-  filter(term == "autonomy") |>
+# Compare naive vs. FE for both studies
+bind_rows(
+  broom::tidy(naive_firms)  |> filter(term == "autonomy") |>
+    mutate(study = "Study A", model = "Pooled OLS", term = "Predictor"),
+  broom::tidy(lm(satisfaction ~ autonomy + firm_label, data = df_firms)) |>
+    filter(term == "autonomy") |>
+    mutate(study = "Study A", model = "Fixed Effects", term = "Predictor"),
+  broom::tidy(naive_exp)  |> filter(term == "scarcity_bin") |>
+    mutate(study = "Study B", model = "Pooled OLS", term = "Predictor"),
+  broom::tidy(fe_exp) |> filter(term == "scarcity_bin") |>
+    mutate(study = "Study B", model = "Fixed Effects", term = "Predictor")
+) |>
+  select(study, model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Fixed effects estimate: within-firm effect of autonomy")
+    caption = "Pooled vs. Fixed Effects: Study A (true effect = 0.2), Study B (true effect = 4)")
 ```
-
-The FE estimate is now close to the true value of 0.2 — much smaller than the pooled estimate. The firm dummies absorbed the between-firm confound.
 
 ::: {.callout-note}
 ## The DGP Connection
 
-Fixed effects recover the within-unit component of the data-generating process. They answer: "within a given unit, as the predictor changes, what happens to the outcome?" This is often the more causally interpretable question — it controls for all stable, unit-level characteristics, measured or unmeasured.
+In Study A, the pooled estimate is badly confounded — it reflects both the true autonomy effect (0.2) *and* the between-firm culture effect. Fixed effects remove the latter, recovering the within-unit DGP.
+
+In Study B, the pooled estimate is closer to the truth because random assignment broke the correlation between condition and persuadability. But fixed effects still improve efficiency and explicitly answer the within-person question: for the same participant, does scarcity increase intent?
+
+Both uses are valid. The experimental use is often overlooked — but within-subjects ANOVA is, mathematically, a fixed-effects model.
 :::
+
+---
 
 ## The Assumptions of Fixed Effects Models
 
-Fixed effects models are not assumption-free. They trade one set of assumptions for another. Understanding what assumptions they make — and when those assumptions fail — is essential.
+Each assumption is framed for *both* a longitudinal/observational setting and an experimental/repeated-measures setting.
 
 ::: {.callout-warning icon=false}
 ## Assumption 1: Strict Exogeneity
 
-**What it means:** After conditioning on the fixed effects, the predictor must be uncorrelated with the error term at every time point. Past, present, *and future* shocks to the outcome must be unrelated to the current predictor.
+**The equation implication:** For the within-demeaned estimator to be unbiased, we require:
 
-**Intuition:** If a firm's autonomy policy is changed *in response to* satisfaction declining — if managers give employees more autonomy when morale is low — then autonomy is no longer strictly exogenous. Its value today is influenced by yesterday's outcome.
+$$E[\varepsilon_{ij} \mid X_{i1}, X_{i2}, \ldots, X_{in_j}, \alpha_j] = 0$$
 
-**How to check:** Plot the residuals against lagged values of the predictor. Look for patterns. Think carefully about the causal story: could the outcome be affecting the predictor over time?
+In words: the residuals must be uncorrelated with the predictor **at every observation point** — past, present, and future — after conditioning on the fixed effect.
 
-**What to do if it fails:** Consider difference-in-differences (Module 3), or use lagged predictors if the data is longitudinal.
+**In longitudinal data:** This fails if the outcome feeds back into the predictor. If a firm's declining satisfaction causes it to *increase* autonomy in the next period, then autonomy at time $t+1$ is correlated with the residual at time $t$. The predictor is no longer exogenous.
+
+**In experiments:** Strict exogeneity is typically satisfied by design — random assignment ensures that condition is not caused by the outcome. But it can fail in carryover designs where the treatment in one block affects the outcome in a later block (i.e., order effects or fatigue). Counterbalancing and washout periods address this.
+
+**How to check:** In longitudinal data, plot residuals against *future* values of the predictor. In experiments, check for order effects by including trial number as a covariate.
 :::
 
-```{r exogeneity-check}
-# Add residuals back to original data for diagnostics
-df_firms <- df_firms |>
-  mutate(
-    fe_resid = residuals(fe_lm)
-  )
-
-# Check: do residuals correlate with predictor?
-ggplot(df_firms, aes(x = autonomy, y = fe_resid)) +
-  geom_point(alpha = 0.3, color = "#1e3a5f") +
-  geom_smooth(method = "loess", color = "#e63946", se = TRUE) +
-  geom_hline(yintercept = 0, linetype = "dashed") +
-  labs(
-    title    = "Residual plot: checking exogeneity",
-    subtitle = "No pattern = assumption holds; a curve = possible nonlinearity or violation",
-    x        = "Autonomy",
-    y        = "FE Residual"
-  ) +
-  theme_minimal(base_size = 13)
-```
-
 ::: {.callout-warning icon=false}
-## Assumption 2: No Time-Varying Confounds
+## Assumption 2: No Time-Varying (or Trial-Varying) Confounds
 
-**What it means:** Fixed effects only remove *time-invariant* (stable) omitted variables. If there is a confound that changes over time *and* correlates with the predictor, fixed effects will not remove it.
+**What it means:** Fixed effects only remove *stable* unit-level confounds. If a confound changes across observations within the same unit, the fixed effect cannot absorb it.
 
-**Example:** If firms that grant more autonomy also simultaneously adopt flexible working hours, and flexible hours independently boost satisfaction, the FE estimate is still biased. The flexible hours policy changed at the same time as autonomy — it is a time-varying confound.
+$$\alpha_j = \text{constant over all } i \text{ within unit } j$$
 
-**How to check:** Think carefully about what else changed at the same time as your predictor. In longitudinal designs, look for co-occurrences. In cross-sectional firm data, ask whether any other firm-level policies correlate with autonomy in the cross-section *beyond* what the firm dummy captures.
+If the unit's "true level" shifts — a firm's culture changes after a merger; a participant becomes fatigued midway through a session — the single $\alpha_j$ is no longer a valid representation.
 
-**What to do if it fails:** Include time-varying controls. Consider IV strategies if the confound is measurable.
+**In longitudinal data:** Any policy, economic shock, or personal event that co-occurs with your predictor is a time-varying confound. Example: if firms that grant more autonomy simultaneously adopt flexible hours, and flexible hours boost satisfaction, FE does not remove the flexible hours effect.
+
+**In experiments:** Practice effects, fatigue, and demand characteristics that change systematically across trials. If participants become better at evaluating products as the experiment progresses (learning), and if scarcity items happen to appear later in the session, this is a trial-varying confound.
+
+**How to check:** Include trial order or time as a covariate. Check whether your substantive estimates change when you control for order.
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption 3: Sufficient Within-Unit Variation
 
-**What it means:** Fixed effects can only estimate effects using within-unit variation. If a predictor barely varies within units, the FE estimator becomes unreliable (high standard errors, sensitivity to outliers).
+**What it means:** Fixed effects can only estimate $\beta_1$ from within-unit variation. If the predictor barely changes within units, the estimator is imprecise:
 
-**Example:** If you want to study the effect of *firm size* on employee satisfaction using FE, you are in trouble. Firm size does not change much within a firm over time. The FE estimator has almost no within-firm variation in size to work with.
+$$\widehat{\beta}_1 = \frac{\sum_j \sum_i (X_{ij} - \bar{X}_j)(Y_{ij} - \bar{Y}_j)}{\sum_j \sum_i (X_{ij} - \bar{X}_j)^2}$$
 
-**How to check:** Compute the within-unit standard deviation of your predictor. If it is very small relative to the between-unit standard deviation, FE will struggle.
+The denominator — total within-unit variation in $X$ — appears in the denominator of the variance of $\hat\beta_1$. Small within-unit variation → large standard errors.
+
+**In longitudinal data:** A predictor like firm size barely changes within a firm from year to year. FE is poorly suited to estimating the effect of stable characteristics.
+
+**In experiments:** This is usually not an issue because condition is deliberately manipulated. But if the manipulation is very small (e.g., a subtle framing tweak that most participants do not notice), within-unit variation in the *effective* treatment is low.
 
 ```{r variation-check}
+# Study A: how much within-firm variation does autonomy have?
 df_firms |>
   group_by(firm) |>
   summarise(within_sd = sd(autonomy)) |>
   summarise(
-    mean_within_sd  = mean(within_sd),
-    total_sd        = sd(df_firms$autonomy)
-  ) |>
-  mutate(
-    within_fraction = mean_within_sd / total_sd
+    mean_within_sd   = mean(within_sd),
+    total_sd         = sd(df_firms$autonomy),
+    within_fraction  = mean(within_sd) / sd(df_firms$autonomy)
   ) |>
   knitr::kable(digits = 3,
-    caption = "Fraction of autonomy variance that is within-firm")
+    caption = "Study A: fraction of autonomy variance that is within-firm")
 ```
 :::
 
 ::: {.callout-warning icon=false}
-## Assumption 4: Fixed Effects are Correctly Specified and Stable
+## Assumption 4: Fixed Effects Are Stable (One Intercept Per Unit)
 
-**What it means:** The model assumes that each unit has one fixed effect that is constant across all observations for that unit. If the unit's effect changes over time (a firm's culture shifts dramatically after a merger), the single fixed effect will be a poor representation.
+**What it means:** The model assigns each unit exactly one intercept $\alpha_j$. This assumes the unit's baseline is constant across all its observations. The model equation is:
 
-**In panel data with both entity and time effects:** Including both entity and time fixed effects requires that entity effects do not vary over time and time effects do not vary across entities. This "two-way FE" assumption is often violated in practice and is worth checking explicitly.
+$$Y_{ij} = \alpha_j + \beta_1 X_{ij} + \varepsilon_{ij}$$
 
-**How to check:** Fit separate regressions within each unit and examine whether the intercepts drift systematically over time. Plot the unit-specific estimates.
+and $\alpha_j$ is the **same** regardless of which observation $i$ we are looking at within unit $j$.
+
+**In longitudinal data:** If a firm's culture changes dramatically after a merger halfway through the study, the single $\alpha_j$ no longer accurately represents either period. The early-period and late-period intercepts are different, but the model conflates them.
+
+**In experiments:** If a participant's attention or mood changes substantially mid-session (and this change is not modeled), the stable-intercept assumption is violated. Split-session designs or attention checks help detect this.
+
+**How to check:** For longitudinal data, split the sample at the midpoint and compare unit intercepts across periods. For experiments, split the trials into first-half and second-half blocks and test whether the effect estimate shifts.
 :::
 
 ::: {.callout-warning icon=false}
-## Assumption 5: Homoskedasticity and No Serial Correlation
+## Assumption 5: Homoskedasticity and Independence of Residuals Within Units
 
-**What it means:** Within-unit errors are assumed to have constant variance and to be uncorrelated with each other across observations. In panel or longitudinal data, errors at time $t$ and time $t-1$ for the same unit are assumed to be independent.
+**What it means:** After conditioning on fixed effects, the residuals $\varepsilon_{ij}$ are assumed to be independent and identically distributed:
 
-**Why this matters:** Serial correlation inflates standard errors. Heteroskedasticity biases them. Both are very common in real data.
+$$\varepsilon_{ij} \overset{iid}{\sim} \mathcal{N}(0,\ \sigma^2_\varepsilon)$$
 
-**How to check:** Examine residual plots over time for each unit. Test for serial correlation (Durbin-Watson or Breusch-Godfrey tests).
+Two components: (1) constant variance across units and observations (homoskedasticity), and (2) no correlation between residuals of the same unit across observations (independence).
 
-**What to do if it fails:** Use cluster-robust standard errors (`sandwich` package in R), which are robust to both heteroskedasticity and serial correlation within clusters.
+**In longitudinal data:** Serial correlation is nearly universal. Today's mood affects tomorrow's mood, so residuals at $t$ and $t+1$ are correlated. Heteroskedasticity also appears if variance changes over time (e.g., outcomes become more variable in later periods).
+
+**In experiments:** Autocorrelation is less severe for blocked designs (participants evaluate each product once), but can appear in trial-level data with carryover. Heteroskedasticity is possible if some conditions produce more variable responses than others.
+
+**What to do:** Use cluster-robust standard errors, which are valid even under heteroskedasticity and within-unit correlation.
+
+```{r exogeneity-check}
+fe_lm_firms <- lm(satisfaction ~ autonomy + firm_label, data = df_firms)
+df_firms <- df_firms |> mutate(fe_resid = residuals(fe_lm_firms))
+
+ggplot(df_firms, aes(x = autonomy, y = fe_resid)) +
+  geom_point(alpha = 0.25, color = "#1e3a5f") +
+  geom_smooth(method = "loess", color = "#e63946", se = TRUE) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(
+    title    = "Study A: FE residuals vs. autonomy",
+    subtitle = "No pattern expected if exogeneity holds",
+    x = "Autonomy", y = "FE Residual"
+  ) +
+  theme_minimal(base_size = 13)
+```
 
 ```{r robust-se}
 library(sandwich)
 library(lmtest)
 
-# Cluster-robust standard errors for the FE model
-coeftest(fe_lm, vcov = vcovCL(fe_lm, cluster = ~firm_label))["autonomy", , drop = FALSE] |>
-  knitr::kable(digits = 3, caption = "Autonomy coefficient with cluster-robust SEs")
+# Cluster-robust standard errors for Study A
+coeftest(fe_lm_firms,
+         vcov = vcovCL(fe_lm_firms, cluster = ~firm_label))["autonomy", , drop = FALSE] |>
+  knitr::kable(digits = 3,
+    caption = "Study A autonomy coefficient with cluster-robust SEs")
+
+# For Study B, cluster by participant
+coeftest(fe_exp,
+         vcov = vcovCL(fe_exp, cluster = ~participant_f))["scarcity_bin", , drop = FALSE] |>
+  knitr::kable(digits = 3,
+    caption = "Study B scarcity coefficient with cluster-robust SEs")
 ```
 :::
 
+---
+
 ## What Fixed Effects Cannot Do
 
-Fixed effects are powerful but have important limits:
+Fixed effects are powerful but have important limits that apply equally in both settings:
 
-1. **They cannot estimate level-2 effects.** Because they absorb all between-unit variation, you cannot estimate the effect of firm size, country GDP, or any other variable that is constant within units. This is the cost of the between-unit purge.
+1. **They cannot estimate unit-level predictors.** In Study A, you cannot estimate the effect of firm industry (constant within firm). In Study B, you cannot estimate the effect of participant gender (constant within participant). All between-unit variation is absorbed by the $\alpha_j$ terms.
 
-2. **They discard between-unit information.** If the between-unit relationship is scientifically interesting — if you actually want to know whether higher-autonomy firms have more satisfied employees on average — FE throws that out.
+2. **They discard between-unit information.** If the between-unit relationship is scientifically interesting — whether more autonomous firms differ from less autonomous ones — FE discards that comparison. This is the price of controlling for all stable unit-level confounds.
 
-3. **They do not model heterogeneity.** The FE estimator assumes the same slope for every unit. If the autonomy-satisfaction relationship is strong in some firms and weak in others, FE gives you one pooled estimate and misses the heterogeneity.
+3. **They assume a common slope.** The model estimates one $\beta_1$ for everyone. If the effect of autonomy on satisfaction differs across firms, or if the scarcity effect differs across participants, FE averages over this heterogeneity. Random slopes (Module 1, Part 3) address this.
 
-These limitations motivate the random-effects approach in the next section.
+4. **They are not well suited to purely between-subjects designs.** If every participant sees only one condition (between-subjects), there is no within-person variation in the predictor — FE collapses entirely to OLS. The fixed-effects logic requires that the predictor varies within units.
+
+---
 
 ## Recommended Reading
 
 | Topic | Citation |
 |-------|----------|
 | Fixed effects and panel data | Wooldridge, J. M. (2010). *Econometric Analysis of Cross Section and Panel Data* (2nd ed.). MIT Press. (Chapter 10) |
+| FE in experimental psychology | Judd, C. M., Westfall, J., & Kenny, D. A. (2012). Treating stimuli as a random factor in social psychology. *Journal of Personality and Social Psychology, 103*(1), 54–69. |
 | Two-way fixed effects | Imai, K., & Kim, I. S. (2021). On the use of two-way fixed effects regression models for causal inference with panel data. *Political Analysis, 29*(3), 405–415. |
 | Cluster-robust standard errors | Cameron, A. C., & Miller, D. L. (2015). A practitioner's guide to cluster-robust inference. *Journal of Human Resources, 50*(2), 317–372. |
