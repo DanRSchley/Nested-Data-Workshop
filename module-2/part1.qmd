@@ -1,5 +1,5 @@
 ---
-title: "Centering Your Variables"
+title: "Centering as Decomposition"
 ---
 
 ```{r setup, include=FALSE}
@@ -7,108 +7,269 @@ library(tidyverse)
 library(lme4)
 library(lmerTest)
 library(broom.mixed)
+library(patchwork)
 set.seed(101)
 ```
 
-# Centering Your Variables
+# Centering as Decomposition
 
-## Why Centering Matters
+## One Variable, Two Mechanisms
 
-When you include a predictor in a mixed-effects model, what exactly is it measuring? The answer depends entirely on how you center it. This is not a cosmetic choice — it changes the *meaning* of your coefficients.
+When you measure "hours of sleep" across multiple days from multiple people, that variable carries two completely different stories at the same time:
 
-## Grand-Mean Centering (GMC)
+1. **The within-person story:** On days when *this person* sleeps more than they usually do, how does their mood change?
+2. **The between-person story:** Do *people who sleep more overall* have higher mood than people who sleep less?
 
-**Grand-mean centering** subtracts the overall mean from each observation:
-$$X^{GMC}_{ij} = X_{ij} - \bar{X}_{..}$$
+These are different empirical questions. They may have different answers. They probably operate through different *mechanisms* — the within-person effect may reflect acute physiological recovery, while the between-person effect may reflect stable personality traits (conscientious people both sleep more and have better mood, not because sleep causes mood but because conscientiousness causes both).
 
-In a GMC model, the slope reflects a mix of within-unit and between-unit variation. The intercept now reflects the expected outcome when $X$ equals its grand mean — a meaningful value for continuous predictors.
+**Centering is not a cosmetic choice about where the intercept falls.** It is a decision about which mechanism you are modeling — and whether you want to see both.
 
-GMC is appropriate when:
-- You have a single-level dataset (no nesting)
-- You are not trying to separate within- and between-person effects
-- You want the intercept to be meaningful (grand mean of X rather than X = 0)
+---
 
-## Cluster-Mean Centering (CMC)
+## The Equations: From Conflation to Decomposition
 
-**Cluster-mean centering** (also called person-mean centering or within-person centering) subtracts each unit's mean from their own observations:
-$$X^{CMC}_{ij} = X_{ij} - \bar{X}_{j.}$$
+### The Conflated Model
 
-The centered variable now captures only within-unit deviations. For a daily diary study, $X^{CMC}_{ij}$ = "how much more/less did person $j$ sleep on day $i$ compared to their own average?"
+When you include an uncentered (or grand-mean-centered) predictor in a random-effects model, a single coefficient $\beta_1$ blends two mechanisms:
 
-The between-unit effect of X can be recovered separately by including the unit mean ($\bar{X}_{j.}$) as a level-2 predictor.
+$$
+\underbrace{Y_{ij}}_{\text{outcome}} = \underbrace{\gamma_{00}}_{\substack{\text{grand} \\ \text{mean}}} + \underbrace{\beta_1}_{\substack{\text{blended} \\ \text{slope}}} \underbrace{X_{ij}}_{\substack{\text{predictor}}} + \underbrace{u_{0j}}_{\substack{\text{person} \\ \text{RE}}} + \underbrace{\varepsilon_{ij}}_{\substack{\text{residual}}}
+$$
 
-```{r centering-demo}
-# Simulate: people differ in average sleep AND have within-person variation
-n_people <- 50
-n_days   <- 7
+$\beta_1$ absorbs variation from two sources simultaneously. Its value depends on which source dominates and how the two correlate.
 
-# Between-person: high sleepers have high mood (confound: healthy lifestyle)
-person_sleep_avg <- rnorm(n_people, 7, 1)
-person_mood_base <- 40 + 5 * person_sleep_avg + rnorm(n_people, 0, 5)
+### The Decomposition
 
-# Within-person: on high-sleep days, mood is slightly higher
-df <- expand_grid(person = 1:n_people, day = 1:n_days) |>
-  mutate(
-    sleep_raw   = person_sleep_avg[person] + rnorm(n(), 0, 1),
-    mood        = person_mood_base[person] + 2 * (sleep_raw - person_sleep_avg[person]) +
-                  rnorm(n(), 0, 4),
-    person      = factor(person)
-  )
+CMC separates the predictor into its two components before entering the model:
 
-# Compute centering variables
-df <- df |>
-  group_by(person) |>
-  mutate(
-    sleep_person_mean = mean(sleep_raw),        # L2 variable (between)
-    sleep_cmc         = sleep_raw - sleep_person_mean  # within-person deviation
-  ) |>
-  ungroup() |>
-  mutate(
-    sleep_gmc = sleep_raw - mean(sleep_raw)     # grand-mean centered
-  )
+$$
+\underbrace{X_{ij}}_{\substack{\text{observed} \\ \text{predictor}}} = \underbrace{(X_{ij} - \bar{X}_{j})}_{\substack{\text{within-unit} \\ \text{deviation}}} + \underbrace{\bar{X}_{j}}_{\substack{\text{unit mean} \\ \text{(between)}}}
+$$
 
-# Three models
-m_uncentered <- lmer(mood ~ sleep_raw + (1 | person), data = df)
-m_gmc        <- lmer(mood ~ sleep_gmc + (1 | person), data = df)
-m_cmc        <- lmer(mood ~ sleep_cmc + sleep_person_mean + (1 | person), data = df)
+Adding both as separate predictors gives the **decomposed model**. Notice how the single $\beta_1$ from before splits into two:
 
-# Compare the sleep coefficient across models
-results <- bind_rows(
-  broom.mixed::tidy(m_uncentered, effects = "fixed") |> filter(term == "sleep_raw") |> mutate(model = "Uncentered"),
-  broom.mixed::tidy(m_gmc, effects = "fixed")        |> filter(term == "sleep_gmc") |> mutate(model = "GMC"),
-  broom.mixed::tidy(m_cmc, effects = "fixed")        |> filter(term == "sleep_cmc") |> mutate(model = "CMC (within)"),
-  broom.mixed::tidy(m_cmc, effects = "fixed")        |> filter(term == "sleep_person_mean") |> mutate(model = "CMC (between)")
-) |>
-  select(model, term, estimate, std.error, p.value)
+$$
+\underbrace{Y_{ij}}_{\text{outcome}} = \underbrace{\gamma_{00}}_{\substack{\text{grand} \\ \text{mean}}} + \underbrace{\beta_W}_{\substack{\text{within-unit} \\ \text{slope}}} \underbrace{(X_{ij} - \bar{X}_j)}_{\substack{\text{deviation from} \\ \text{own mean}}} + \underbrace{\beta_B}_{\substack{\text{between-unit} \\ \text{slope}}} \underbrace{\bar{X}_j}_{\substack{\text{unit's} \\ \text{average level}}} + \underbrace{u_{0j}}_{\substack{\text{person} \\ \text{RE}}} + \underbrace{\varepsilon_{ij}}_{\substack{\text{residual}}}
+$$
 
-knitr::kable(results, digits = 3,
-  caption = "Centering changes what the sleep coefficient means")
-```
+Now $\beta_W$ answers the within-person question and $\beta_B$ answers the between-person question. They are allowed to be completely different numbers with different interpretations.
 
-**Reading the table:**
+::: {.callout-note}
+## The DGP Interpretation
 
-- **Uncentered / GMC:** The slope is a blend of within- and between-person effects. Its magnitude is pulled by the larger between-person correlation.
-- **CMC (within):** Close to the true within-person effect (~2). This answers "on days when you sleep more than usual, is your mood better?"
-- **CMC (between):** The between-person effect (~5). This answers "do people who generally sleep more also have higher baseline mood?" — a question contaminated by lifestyle confounds.
-
-The within-effect and the between-effect are different numbers with different interpretations. A model that conflates them gives you neither correctly.
-
-::: {.callout-tip}
-## When to Use Each
-
-- **Grand-mean centering:** When you only care about the overall relationship, not within/between decomposition, and you want a meaningful intercept.
-- **Cluster-mean centering:** Whenever you have a within-unit predictor and want to explicitly separate within-unit from between-unit effects. Default recommendation for longitudinal and panel data.
-- **Uncentered:** When X = 0 is a meaningful value AND you do not need to separate within/between effects (rare in nested data).
+The decomposed model is a **hypothesis about the DGP**: it asserts that two distinct mechanisms are at work, one operating at the within-unit level and one at the between-unit level. If $\beta_W \neq \beta_B$, the DGP truly has two mechanisms. If $\beta_W \approx \beta_B$, a single mechanism may span both levels — but you only know this *after* estimating the decomposed model and testing whether they differ.
 :::
 
-## Assumptions That Centering Affects
+---
 
-Centering is not just an interpretive choice — it affects which assumptions your model makes:
+## Three Archetypal Patterns
+
+The most important practical question is: *how different are $\beta_W$ and $\beta_B$?*
+
+### Pattern 1: Convergent Effects — Exercise and Wellbeing
+
+Both mechanisms point the same direction with similar magnitude. The within-person mechanism (acute endorphins, reduced rumination) and the between-person mechanism (fit people have better overall routines and self-efficacy) both increase wellbeing. True: $\beta_W \approx \beta_B \approx 3$.
+
+```{r exercise-wellbeing}
+n_ppl <- 60; n_days <- 10
+
+person_ex_avg <- rnorm(n_ppl, 45, 12)
+person_wb_base <- 50 + 0.3 * person_ex_avg + rnorm(n_ppl, 0, 6)
+
+df_ex <- expand_grid(person = 1:n_ppl, day = 1:n_days) |>
+  mutate(
+    exercise  = person_ex_avg[person] + rnorm(n(), 0, 8),
+    wellbeing = person_wb_base[person] +
+                3 * (exercise - person_ex_avg[person]) +
+                rnorm(n(), 0, 5),
+    person = factor(person)
+  ) |>
+  group_by(person) |>
+  mutate(ex_mean = mean(exercise), ex_cmc = exercise - ex_mean) |>
+  ungroup()
+
+m_ex <- lmer(wellbeing ~ ex_cmc + ex_mean + (1 | person), data = df_ex)
+broom.mixed::tidy(m_ex, effects = "fixed") |> filter(term != "(Intercept)") |>
+  mutate(mechanism = c("Within-person", "Between-person")) |>
+  select(mechanism, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3, caption = "Pattern 1: within ≈ between ≈ 3. One coherent mechanism at two levels.")
+```
+
+Here, the pooled model would give you a decent approximation — but you only know that *after* running the decomposition. The convergence itself is substantively informative: the same process operates at both timescales.
+
+### Pattern 2: Divergent Effects — Income and Life Satisfaction (Easterlin Paradox)
+
+At the between-person level, wealthier people report substantially higher life satisfaction. But within individuals over time, income growth has a surprisingly modest effect — adaptation, shifting aspirations, and social comparison dampen the within-person response. True: $\beta_W \approx 0.3$, $\beta_B \approx 1.5$.
+
+```{r income-satisfaction}
+n_ppl2 <- 80; n_yrs <- 8
+
+person_inc_avg  <- rnorm(n_ppl2, 50, 15)
+person_sat_base <- 50 + 1.5 * person_inc_avg + rnorm(n_ppl2, 0, 8)
+
+df_inc <- expand_grid(person = 1:n_ppl2, year = 1:n_yrs) |>
+  mutate(
+    income   = person_inc_avg[person] + rnorm(n(), 0, 6),
+    life_sat = person_sat_base[person] +
+               0.3 * (income - person_inc_avg[person]) + rnorm(n(), 0, 4),
+    person   = factor(person)
+  ) |>
+  group_by(person) |>
+  mutate(inc_mean = mean(income), inc_cmc = income - inc_mean) |>
+  ungroup()
+
+m_inc    <- lmer(life_sat ~ inc_cmc + inc_mean + (1 | person), data = df_inc)
+m_pooled <- lmer(life_sat ~ income  + (1 | person), data = df_inc)
+
+bind_rows(
+  broom.mixed::tidy(m_pooled, effects = "fixed") |>
+    filter(term == "income") |> mutate(model = "Pooled (blended)"),
+  broom.mixed::tidy(m_inc, effects = "fixed") |>
+    filter(term == "inc_cmc") |> mutate(model = "Within-person"),
+  broom.mixed::tidy(m_inc, effects = "fixed") |>
+    filter(term == "inc_mean") |> mutate(model = "Between-person")
+) |>
+  select(model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Pattern 2: pooled ≈ 1.2, within ≈ 0.3, between ≈ 1.5. Pooled is wrong for both questions.")
+```
+
+The pooled model gives ~1.2 — it overstates the within-person effect by 4× and understates the between-person effect. A policy conclusion based on this ("raising incomes will substantially improve wellbeing") relies on the between-person relationship but must deliver on the within-person mechanism.
+
+### Pattern 3: Sign Reversal — Study Hours and Grades
+
+Within a student, studying more than their own average helps their grades. But between programs, the harder programs have students who study *more* and earn *lower* grades — because the programs are harder, not because studying hurts. True: $\beta_W \approx +2$, $\beta_B \approx -3$.
+
+```{r study-grades}
+n_students <- 200; n_programs <- 5
+prog_difficulty <- c(2, 4, 6, 8, 10)
+prog_study_avg  <- c(8, 7, 6, 5, 4)
+
+df_study <- tibble(
+  student = 1:n_students,
+  program = rep(1:n_programs, each = n_students / n_programs)
+) |>
+  mutate(
+    study = prog_study_avg[program] + rnorm(n_students, 0, 0.8),
+    grade = 80 - 3 * prog_difficulty[program] +
+            2 * (study - prog_study_avg[program]) + rnorm(n_students, 0, 3),
+    program = factor(program)
+  ) |>
+  group_by(program) |>
+  mutate(study_mean = mean(study), study_cmc = study - study_mean) |>
+  ungroup()
+
+m_study_decomp <- lmer(grade ~ study_cmc + study_mean + (1 | program), data = df_study)
+m_study_pooled <- lm(grade ~ study, data = df_study)
+
+bind_rows(
+  broom::tidy(m_study_pooled) |>
+    filter(term == "study") |> mutate(model = "Pooled OLS"),
+  broom.mixed::tidy(m_study_decomp, effects = "fixed") |>
+    filter(term == "study_cmc") |> mutate(model = "Within-program"),
+  broom.mixed::tidy(m_study_decomp, effects = "fixed") |>
+    filter(term == "study_mean") |> mutate(model = "Between-program")
+) |>
+  select(model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Pattern 3: pooled is negative; within is positive; between is strongly negative. Sign reversal!")
+```
+
+```{r study-grades-plot}
+p1 <- ggplot(df_study, aes(x = study, y = grade)) +
+  geom_point(aes(color = program), alpha = 0.4, size = 1.2) +
+  geom_smooth(method = "lm", color = "black", linewidth = 1.5) +
+  scale_color_brewer(palette = "Set1") +
+  labs(title = "Pooled: studying MORE → LOWER grades?",
+       subtitle = "Slope is negative — a sign reversal",
+       x = "Study hours/week", y = "Grade", color = "Program") +
+  theme_minimal(base_size = 12)
+
+p2 <- ggplot(df_study, aes(x = study, y = grade, color = program)) +
+  geom_point(alpha = 0.3, size = 1) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
+  scale_color_brewer(palette = "Set1") +
+  labs(title = "Within-program: studying MORE → HIGHER grades",
+       subtitle = "Within every program, the slope is positive",
+       x = "Study hours/week", y = "Grade", color = "Program") +
+  theme_minimal(base_size = 12)
+
+p1 + p2
+```
+
+The pooled model says studying hurts — which is wrong. The decomposition reveals the truth: within every program, studying helps, but harder programs demand more studying and are harder by definition. Ignoring the nesting produces a **Simpson's Paradox** (see Part 3).
+
+---
+
+## The Sleep-Mood Example: Applying Decomposition
+
+```{r centering-demo}
+n_people <- 50; n_days2 <- 7
+
+person_sleep_avg  <- rnorm(n_people, 7, 1)
+person_mood_base  <- 40 + 5 * person_sleep_avg + rnorm(n_people, 0, 5)
+
+df <- expand_grid(person = 1:n_people, day = 1:n_days2) |>
+  mutate(
+    sleep_raw = person_sleep_avg[person] + rnorm(n(), 0, 1),
+    mood      = person_mood_base[person] +
+                2 * (sleep_raw - person_sleep_avg[person]) + rnorm(n(), 0, 4),
+    person    = factor(person)
+  ) |>
+  group_by(person) |>
+  mutate(sleep_mean = mean(sleep_raw), sleep_cmc = sleep_raw - sleep_mean) |>
+  ungroup() |>
+  mutate(sleep_gmc = sleep_raw - mean(sleep_raw))
+
+m_uncentered <- lmer(mood ~ sleep_raw  + (1 | person), data = df)
+m_gmc        <- lmer(mood ~ sleep_gmc  + (1 | person), data = df)
+m_cmc        <- lmer(mood ~ sleep_cmc + sleep_mean + (1 | person), data = df)
+
+bind_rows(
+  broom.mixed::tidy(m_uncentered, effects = "fixed") |>
+    filter(term == "sleep_raw") |>
+    mutate(model = "Uncentered", mechanism = "Blended"),
+  broom.mixed::tidy(m_gmc, effects = "fixed") |>
+    filter(term == "sleep_gmc") |>
+    mutate(model = "GMC", mechanism = "Blended"),
+  broom.mixed::tidy(m_cmc, effects = "fixed") |>
+    filter(term == "sleep_cmc") |>
+    mutate(model = "CMC", mechanism = "Within-person"),
+  broom.mixed::tidy(m_cmc, effects = "fixed") |>
+    filter(term == "sleep_mean") |>
+    mutate(model = "CMC", mechanism = "Between-person")
+) |>
+  select(model, mechanism, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Sleep → mood: blended ≈ 4.0; within ≈ 2.0; between ≈ 5.0. Neither blended estimate is correct.")
+```
+
+The uncentered and GMC models give ~4, which is wrong for both questions. CMC reveals: the within-person mechanism is modest (2 points per extra hour of sleep); the between-person correlation is much larger (5 points) because healthy lifestyle confounds it.
+
+---
+
+## Decision Guide
+
+::: {.callout-tip}
+## Which Centering to Use
+
+| Goal | Centering | What you get |
+|------|-----------|--------------|
+| Interpret the intercept at a meaningful value | GMC | Intercept = E[Y] when X = grand mean |
+| Estimate the within-unit effect | CMC | $\hat\beta_W$ — deviation from own mean |
+| Separate within and between mechanisms | CMC + unit mean | $\hat\beta_W$ and $\hat\beta_B$ |
+| Test if within = between | CMC + unit mean | Wald test on equality |
+| Single-level data (no nesting) | Either | No within/between distinction |
+
+**Default recommendation for nested data:** Always use CMC with the unit mean included. Run it, check whether $\hat\beta_W \approx \hat\beta_B$, and only then decide whether the pooled model is defensible.
+:::
 
 ::: {.callout-warning icon=false}
 ## Assumption: No Conflation of Within and Between Effects
 
-If you include a predictor without CMC in a random-effects model, the model assumes the within-unit and between-unit relationships are equal. If they are not equal — as in the example above — this is a misspecification that biases both estimates.
+Including a predictor without CMC in a random-effects model implicitly assumes $\beta_W = \beta_B$. When this is wrong — as in Patterns 2 and 3 above — both estimates are biased.
 
-**How to test:** Fit both the uncentered and the CMC model. If the within-person and between-person coefficients from the CMC model differ substantially, the conflation assumption is violated.
+**How to test:** Fit the CMC model. Compare $\hat\beta_W$ and $\hat\beta_B$. A Wald test (see Part 2) tests the null $H_0: \beta_W = \beta_B$.
+
+**The stakes:** In the worst case (Pattern 3), conflation completely reverses the direction of the effect.
 :::

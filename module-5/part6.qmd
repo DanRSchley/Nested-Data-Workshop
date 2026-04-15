@@ -1,0 +1,333 @@
+---
+title: "Binary and Count Outcomes in Experiments"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(glmmTMB)
+library(ggeffects)
+library(broom.mixed)
+library(patchwork)
+set.seed(2024)
+```
+
+# Binary and Count Outcomes in Experiments
+
+## The Problem: When Experimental Outcomes Aren't Continuous
+
+The experimental designs covered in this module — between-subjects, within-subjects, and mixed factorial — all assumed a continuous, roughly normally distributed outcome. But many experimental outcomes in psychology, marketing, and behavioral science are not continuous:
+
+- **Behavioral choices**: Did the participant donate? Choose the prosocial option? Click the ad?
+- **Count behaviors**: How many times did the participant help a confederate? How many words did they produce? How many items did they correctly recall?
+- **Errors and successes**: How many trials did the participant complete correctly?
+
+Fitting a linear mixed model to a binary or count outcome is not just inefficient — it misspecifies the DGP. Predicted probabilities can exceed 1 or fall below 0. Residuals are structured (they depend on the mean), not random. Parameter estimates are biased.
+
+**Generalized Linear Mixed Models (GLMMs)** extend the experimental mixed model framework to handle these outcome types correctly. The nesting structure (observations within participants, participants within conditions or groups) is handled identically to the continuous case. The difference is in the **link function** and **distributional family**.
+
+---
+
+## Part 1: Binary Outcomes in Experiments
+
+### The Logistic Mixed Model for Experiments
+
+For a binary outcome $Y_{ij} \in \{0,1\}$ at trial $i$ for participant $j$, in a two-condition within-subjects design:
+
+$$\text{logit}\bigl(P(Y_{ij} = 1)\bigr) = \underbrace{\beta_0}_{\substack{\text{average log-odds} \\ \text{at baseline}}} + \underbrace{u_{0j}}_{\substack{\text{person's tendency} \\ \text{to say yes}}} + \underbrace{\beta_1 \cdot \text{condition}_{ij}}_{\substack{\text{condition effect} \\ \text{on log-odds}}}$$
+
+The random intercept $u_{0j}$ captures stable individual differences in response tendency — some people are more likely to help, donate, or choose the prosocial option regardless of the manipulation. Failing to include the random intercept would ignore the clustering from repeated measurements, deflate standard errors, and produce overconfident inferences.
+
+### Example: Framing Effects on Donation Decisions
+
+We simulate a within-subjects framing experiment. 80 participants each evaluate 16 donation appeals — half framed in gain terms ("saves 200 lives"), half in loss terms ("200 people will die"). The outcome is binary: did they decide to donate (1) or not (0)?
+
+The true donation effect of loss framing is an **odds ratio of 1.8** — loss-framed appeals have 80% higher odds of donation, on average. People also differ substantially in their baseline donation tendency (captured by the random intercept).
+
+```{r simulate-binary-experiment}
+n_participants <- 80
+n_trials_each  <- 8  # 8 gain-framed + 8 loss-framed trials per participant
+
+# Person-level random intercepts (log-odds scale)
+u0_person <- rnorm(n_participants, 0, 1.2)  # substantial individual differences
+
+df_donate <- expand_grid(
+  participant = 1:n_participants,
+  framing     = c("gain", "loss"),
+  trial       = 1:n_trials_each
+) |>
+  mutate(
+    u0       = u0_person[participant],
+    framing_dummy = as.integer(framing == "loss"),
+    log_odds = -0.5 + u0 + 0.59 * framing_dummy,  # log(1.8) ≈ 0.59
+    prob     = plogis(log_odds),
+    donated  = rbinom(n(), 1, prob),
+    participant = factor(participant),
+    framing  = factor(framing, levels = c("gain", "loss"))
+  )
+
+# Observed donation rates by condition
+df_donate |>
+  group_by(framing) |>
+  summarise(
+    n_trials      = n(),
+    donation_rate = mean(donated),
+    .groups       = "drop"
+  ) |>
+  knitr::kable(digits = 3, caption = "Observed donation rates by framing condition")
+```
+
+### Fitting and Interpreting the Model
+
+```{r fit-binary-experiment}
+m_donate <- glmer(
+  donated ~ framing + (1 | participant),
+  data   = df_donate,
+  family = binomial
+)
+
+# Results as odds ratios
+broom.mixed::tidy(m_donate, effects = "fixed", exponentiate = TRUE, conf.int = TRUE) |>
+  filter(term != "(Intercept)") |>
+  select(term, estimate, conf.low, conf.high, p.value) |>
+  knitr::kable(
+    digits = 3,
+    caption = "Framing effect as odds ratio. True OR = 1.8; loss framing increases donation odds."
+  )
+```
+
+The **odds ratio** says: among participants with the same random intercept, the odds of donating in the loss-framing condition are `estimate` times the odds in the gain-framing condition.
+
+### Marginal Predicted Probabilities
+
+Odds ratios are the correct internal currency of the logistic model, but they are unintuitive for most audiences. Report predicted probabilities:
+
+```{r binary-predicted-probs}
+preds_donate <- ggpredict(m_donate, terms = "framing", type = "fixed")
+
+plot(preds_donate) +
+  scale_color_manual(values = c("#1e3a5f", "#e63946")) +
+  labs(
+    title    = "Predicted donation probability by framing condition",
+    subtitle = "Marginal predictions (averaging over individual differences)",
+    x = "Framing condition",
+    y = "Predicted probability of donating"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+### The Nonlinearity of Marginal Effects
+
+In logistic models, the effect of a predictor on the **probability** scale depends on where you are. An odds ratio of 1.8 translates to a larger probability increase when the baseline probability is 0.5 than when it is 0.1 or 0.9. This is a property of the logit link, not a problem.
+
+A practical consequence: **the same experimental manipulation can produce different probability effects for different sub-populations** (people who generally give a lot vs. a little), even if the log-odds effect is identical. Reporting odds ratios alongside predicted probabilities at different baseline levels gives a complete picture.
+
+```{r nonlinearity-demo}
+# Show how OR translates to different probability differences at different baselines
+baseline_logodds <- seq(-3, 3, by = 0.5)
+effect_logodds   <- 0.59  # log(1.8)
+
+tibble(
+  baseline_logodds = baseline_logodds,
+  baseline_prob    = plogis(baseline_logodds),
+  treatment_prob   = plogis(baseline_logodds + effect_logodds),
+  prob_difference  = plogis(baseline_logodds + effect_logodds) - plogis(baseline_logodds)
+) |>
+  ggplot(aes(x = baseline_prob, y = prob_difference)) +
+  geom_line(linewidth = 1.3, color = "#1e3a5f") +
+  geom_point(size = 2.5, color = "#1e3a5f") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(
+    title    = "Same log-odds effect → different probability differences",
+    subtitle = sprintf("Log-odds effect = %.2f (OR = 1.8). The probability difference peaks at p ≈ 0.5.", effect_logodds),
+    x = "Baseline probability of outcome",
+    y = "Probability difference due to treatment"
+  ) +
+  scale_x_continuous(labels = scales::percent_format()) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+## Part 2: Count Outcomes in Experiments
+
+### The Poisson Mixed Model for Experiments
+
+For count outcomes in a between-subjects design with $j$ participants nested in condition $g$:
+
+$$\log\bigl(E[Y_{ij}]\bigr) = \underbrace{\beta_0}_{\substack{\text{log expected count} \\ \text{in control}}} + \underbrace{u_{0j}}_{\substack{\text{person's count rate} \\ \text{deviation}}} + \underbrace{\beta_1 \cdot \text{treatment}_j}_{\substack{\text{treatment effect} \\ \text{on log-count}}}$$
+
+Exponentiating $\beta_1$ gives the **rate ratio** — the multiplicative factor by which the count changes in the treatment condition relative to control.
+
+### Example: Prosocial Helping Counts in a Scarcity Experiment
+
+We simulate a between-subjects experiment with 100 participants (50 per condition). Participants in the scarcity condition are told resources are scarce before an opportunity to help a confederate. The outcome is the number of helping behaviors observed in a structured lab task (counts: 0–10).
+
+The true treatment effect is a **rate ratio of 0.65** — scarcity reduces helping by 35%.
+
+```{r simulate-count-experiment}
+n_per_cond <- 50
+
+df_help <- tibble(
+  participant = 1:(n_per_cond * 2),
+  condition   = rep(c("control", "scarcity"), each = n_per_cond)
+) |>
+  mutate(
+    u0        = rnorm(n(), 0, 0.4),
+    log_mu    = 1.8 + u0 + (-0.43) * as.integer(condition == "scarcity"),  # log(0.65)
+    mu        = exp(log_mu),
+    helping   = rpois(n(), mu),
+    condition = factor(condition, levels = c("control", "scarcity"))
+  )
+
+# Summarize counts
+df_help |>
+  group_by(condition) |>
+  summarise(
+    mean_helping = mean(helping),
+    sd_helping   = sd(helping),
+    prop_zero    = mean(helping == 0),
+    .groups      = "drop"
+  ) |>
+  knitr::kable(digits = 3, caption = "Helping count summary by condition")
+```
+
+### Fitting and Checking the Count Model
+
+```{r fit-poisson-experiment}
+m_help <- glmmTMB(
+  helping ~ condition + (1 | participant),
+  data   = df_help,
+  family = poisson
+)
+
+# Check overdispersion
+pearson_resid <- residuals(m_help, type = "pearson")
+dispersion    <- sum(pearson_resid^2) / df.residual(m_help)
+cat("Dispersion ratio:", round(dispersion, 3), "\n")
+cat("Values near 1.0 indicate no overdispersion.\n\n")
+
+# Results as rate ratios
+broom.mixed::tidy(m_help, effects = "fixed", exponentiate = TRUE, conf.int = TRUE) |>
+  filter(term != "(Intercept)") |>
+  select(term, estimate, conf.low, conf.high, p.value) |>
+  knitr::kable(
+    digits = 3,
+    caption = "Scarcity effect as rate ratio. True RR = 0.65 (35% reduction in helping)."
+  )
+```
+
+### When Poisson Is Not Enough: Overdispersion in Experiments
+
+In within-subjects designs, participants complete multiple trials per condition, and individual differences generate more variance in counts than a Poisson model allows. This overdispersion is captured by switching to a **negative binomial** or adding **observation-level random effects**.
+
+```{r overdispersion-within}
+n_par_within  <- 60
+n_trials_cond <- 6  # 6 trials per condition
+
+df_help_within <- expand_grid(
+  participant = 1:n_par_within,
+  condition   = c("control", "scarcity"),
+  trial       = 1:n_trials_cond
+) |>
+  mutate(
+    u0        = rnorm(n_par_within, 0, 0.5)[participant],
+    log_mu    = 1.5 + u0 - 0.43 * as.integer(condition == "scarcity"),
+    mu        = exp(log_mu),
+    # Add extra-Poisson variability (overdispersion)
+    phi       = rgamma(n(), shape = 3, rate = 3),
+    helping   = rpois(n(), mu * phi),
+    participant = factor(participant),
+    condition = factor(condition, levels = c("control", "scarcity"))
+  )
+
+m_nb_within <- glmmTMB(
+  helping ~ condition + (1 | participant),
+  data   = df_help_within,
+  family = nbinom2
+)
+
+broom.mixed::tidy(m_nb_within, effects = "fixed", exponentiate = TRUE, conf.int = TRUE) |>
+  filter(term != "(Intercept)") |>
+  select(term, estimate, conf.low, conf.high, p.value) |>
+  knitr::kable(
+    digits = 3,
+    caption = "Negative binomial mixed model: within-subjects scarcity on helping count."
+  )
+```
+
+---
+
+## Part 3: Mixed Factorial Designs with Non-Normal Outcomes
+
+Many experiments have both a between-subjects factor (e.g., treatment vs. control) and a within-subjects factor (e.g., pre vs. post, gain vs. loss framing). When outcomes are binary or counts, the GLMM handles this naturally through the random effects structure.
+
+```{r mixed-factorial-binary}
+n_par_mf <- 100  # 50 per between-subjects condition
+n_items   <- 8   # 4 items per within-subjects condition
+
+df_mf <- expand_grid(
+  participant  = 1:n_par_mf,
+  ws_condition = c("gain", "loss"),
+  item         = 1:4
+) |>
+  mutate(
+    bs_condition = ifelse(participant <= 50, "low_stakes", "high_stakes"),
+    u0           = rnorm(n_par_mf, 0, 0.9)[participant],
+    log_odds     = -0.3
+      + u0
+      + 0.4 * (ws_condition == "loss")         # within-subjects framing effect
+      + 0.7 * (bs_condition == "high_stakes")  # between-subjects stakes effect
+      + 0.3 * (ws_condition == "loss") * (bs_condition == "high_stakes"),  # interaction
+    prob         = plogis(log_odds),
+    chose_risky  = rbinom(n(), 1, prob),
+    participant  = factor(participant),
+    ws_condition = factor(ws_condition, levels = c("gain", "loss")),
+    bs_condition = factor(bs_condition, levels = c("low_stakes", "high_stakes"))
+  )
+
+m_mf <- glmer(
+  chose_risky ~ ws_condition * bs_condition + (1 | participant),
+  data   = df_mf,
+  family = binomial
+)
+
+broom.mixed::tidy(m_mf, effects = "fixed", exponentiate = TRUE, conf.int = TRUE) |>
+  select(term, estimate, conf.low, conf.high, p.value) |>
+  knitr::kable(
+    digits = 3,
+    caption = "Mixed factorial binary outcome: framing × stakes on risky choice (odds ratios)."
+  )
+```
+
+The interaction term on the odds ratio scale tells you whether the framing effect differs by stakes condition — multiplicatively. A significant interaction (OR ≠ 1) means the framing effect is larger or smaller in the high-stakes condition. As with continuous outcomes, plotting predicted probabilities is essential for communicating the interaction to readers.
+
+---
+
+## Assumptions and Diagnostics
+
+::: {.callout-warning icon=false}
+## Assumption: Correct Link Function
+
+The logit link assumes that the log-odds of the outcome are a linear function of predictors. This is generally robust and appropriate for most binary outcomes near the center of the probability range. If many outcomes are near 0 or 1 (rare or near-certain events), consider whether the probit or complementary log-log link fits better — though in practice, logit and probit rarely disagree meaningfully.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: No Separation
+
+**Complete separation** occurs when one predictor perfectly predicts the outcome (e.g., everyone in condition A donated, no one in condition B did). Maximum likelihood estimation fails in this case — the log-odds estimate goes to infinity. This typically signals a design problem (conditions too extreme, too few observations) rather than a modeling problem. Warning signs: very large standard errors, coefficients in the hundreds.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Correct Distributional Family for Counts
+
+Start with Poisson. Check the dispersion ratio (Pearson $\chi^2$ / df). If > 1.5, switch to negative binomial (`glmmTMB(..., family = nbinom2)`). If zeros are more prevalent than either model predicts, add a zero-inflation component (`ziformula = ~1`). The distributional family should match the DGP — it is a substantive assumption about how the data were generated.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Sufficient Cluster Size for GLMMs
+
+Logistic mixed models can have convergence problems with small cluster sizes (few trials per participant) because the likelihood is flat near the random effects variance. A rule of thumb: at least 5–10 observations per cluster for reliable random intercept estimation. With fewer observations, consider Bayesian estimation (`brms`) which handles small-cluster GLMMs more stably.
+:::

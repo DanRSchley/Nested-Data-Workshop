@@ -1,0 +1,350 @@
+---
+title: "Effect Sizes, Reporting, and Reproducibility"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+library(performance)
+library(patchwork)
+set.seed(2024)
+```
+
+# Effect Sizes, Reporting, and Reproducibility
+
+## Why This Chapter Exists
+
+Nested data creates reporting problems that do not exist in simple ANOVA or OLS regression. When effects are estimated at multiple levels, when random effects have their own variance components, and when outcomes live on transformed scales, the standard playbook for effect sizes (Cohen's $d$, $\eta^2$, $R^2$) breaks down or becomes ambiguous.
+
+This chapter covers:
+
+1. Effect size measures for mixed models — what they mean and how to compute them
+2. Translating fixed effect estimates to interpretable metrics
+3. Conditional vs. marginal $R^2$
+4. Reporting standards for nested experimental data
+5. Reproducibility practices: seeds, version pinning, and transparent reporting
+
+---
+
+## Part 1: Effect Size in Mixed Models
+
+### The Problem with Standard Effect Sizes
+
+Cohen's $d$ is defined as the standardized mean difference:
+
+$$d = \frac{\mu_1 - \mu_2}{\sigma}$$
+
+But what is $\sigma$ in a mixed model? There are multiple variance components: the residual variance $\sigma^2_\varepsilon$, the random intercept variance $\tau^2_{00}$, and possibly additional random slope variances. Each gives a different denominator — and therefore a different $d$.
+
+The answer depends on the question you are asking:
+
+- **Conditional $d$:** standardizes by the within-cluster (residual) variance. Answers: "How large is the effect within a person/cluster, relative to how much observations vary within that cluster?"
+- **Marginal $d$:** standardizes by the total variance (random effects + residual). Answers: "How large is the effect relative to all variability in the outcome?"
+
+Neither is wrong. They answer different questions.
+
+### Cohen's $d$ for Experimental Effects in Nested Data
+
+In a typical within-subjects experiment, the effect of interest is the difference between conditions, and the relevant variability is the within-person trial-level variance. The residual SD from the mixed model (not including the random effect variance) is the appropriate standardizer for a *within-person* $d$.
+
+```{r compute-d}
+# Simulate a within-subjects experiment: 80 participants × 10 trials per condition
+n_par  <- 80
+n_trial <- 10
+
+df_d <- expand_grid(
+  participant = 1:n_par,
+  condition   = c("control", "treatment"),
+  trial       = 1:n_trial
+) |>
+  mutate(
+    u0          = rnorm(n_par, 0, 8)[participant],  # between-person SD = 8
+    residual_sd = 5,
+    effect      = 3,  # true within-person effect
+    response    = 50 + u0 + effect * (condition == "treatment") + rnorm(n(), 0, residual_sd),
+    participant = factor(participant),
+    condition   = factor(condition, levels = c("control", "treatment"))
+  )
+
+m_d <- lmer(response ~ condition + (1 | participant), data = df_d)
+
+# Extract variance components
+vc <- as.data.frame(VarCorr(m_d))
+sigma_residual <- vc$sdcor[vc$grp == "Residual"]     # within-person SD
+sigma_person   <- vc$sdcor[vc$grp == "participant"]   # between-person SD
+sigma_total    <- sqrt(sigma_person^2 + sigma_residual^2)
+
+# Fixed effect estimate
+beta_treatment <- fixef(m_d)["conditiontreatment"]
+
+# Two versions of d
+d_conditional <- beta_treatment / sigma_residual
+d_marginal    <- beta_treatment / sigma_total
+
+tibble(
+  metric         = c("Fixed effect (unstandardized)", "Conditional d (÷ residual SD)", "Marginal d (÷ total SD)"),
+  value          = c(beta_treatment, d_conditional, d_marginal),
+  denominator    = c("—", round(sigma_residual, 2), round(sigma_total, 2))
+) |>
+  knitr::kable(digits = 3, caption = "Three ways to express the same treatment effect")
+```
+
+**Interpreting the two $d$ values:**
+- **Conditional $d$:** standardizes within the trial-level noise. A $d$ of 0.6 here means the treatment shifts the mean by 0.6 trial-level SDs — controlling for stable person differences.
+- **Marginal $d$:** standardizes relative to all variability including between-person differences. This will always be smaller than conditional $d$ when there is substantial between-person variance, because the denominator is larger. It represents the treatment's effect size in the full distribution of responses.
+
+The **conditional $d$ is usually more appropriate for experimental reporting**, because the design specifically removes between-person variance through random assignment and repeated measurement. Marginal $d$ deflates the effect by variance that the design was explicitly not trying to explain.
+
+---
+
+## Part 2: Conditional and Marginal $R^2$ for Mixed Models
+
+### The Nakagawa-Schielzeth $R^2$
+
+For linear mixed models, Nakagawa & Schielzeth (2013) define two $R^2$ values:
+
+- **Marginal $R^2_m$:** Variance explained by **fixed effects only** — how much the predictors in the model account for, ignoring individual differences.
+- **Conditional $R^2_c$:** Variance explained by **fixed effects plus random effects** — how much the whole model (predictors + clustering) accounts for.
+
+The difference $R^2_c - R^2_m$ is the variance uniquely attributable to the random effects (the clustering).
+
+```{r r2-computation}
+# Compute R² using the performance package
+r2_results <- performance::r2(m_d)
+print(r2_results)
+```
+
+### Interpreting $R^2$ in Nested Designs
+
+Consider what these values tell you:
+
+- A large **marginal $R^2$** means your experimental manipulations account for substantial variance in the outcome.
+- A large gap between **conditional and marginal $R^2$** means individual differences (the random effects) account for substantial variance — much of the outcome is determined by who the person is, not what condition they were in.
+
+In a typical within-subjects experiment, conditional $R^2$ can be quite high (0.5–0.8) while marginal $R^2$ is low (0.03–0.15). This is not a sign that the experiment failed — it is a sign that the random effects structure is doing its job, absorbing the stable between-person variance and leaving the experimental effect clearly visible in the residuals.
+
+```{r r2-decomposition}
+# Show R² decomposition visually
+r2_vals <- performance::r2(m_d)
+
+r2_df <- tibble(
+  component = c("Fixed effects (marginal R²)", "Random effects (conditional − marginal)", "Unexplained"),
+  proportion = c(
+    r2_vals$R2_marginal,
+    r2_vals$R2_conditional - r2_vals$R2_marginal,
+    1 - r2_vals$R2_conditional
+  )
+)
+
+ggplot(r2_df, aes(x = "", y = proportion, fill = component)) +
+  geom_col(width = 0.5) +
+  scale_fill_manual(values = c("#1e3a5f", "#4a90d9", "#d0d0d0")) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  coord_flip() +
+  labs(
+    title = "Variance decomposition in the mixed model",
+    subtitle = "Fixed effects (marginal R²) + Random effects contribution + Residual unexplained",
+    x = NULL, y = "Proportion of total variance", fill = NULL
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "bottom")
+```
+
+---
+
+## Part 3: ICC as an Effect Size
+
+The **Intraclass Correlation Coefficient (ICC)** — covered in Module 1 — is itself an effect size: it quantifies how much of the outcome's variance is attributable to the clustering structure.
+
+$$\text{ICC} = \frac{\tau^2_{00}}{\tau^2_{00} + \sigma^2_\varepsilon}$$
+
+In experimental reporting, the ICC tells readers how much stable between-person differences matter:
+
+- **High ICC (> 0.5):** Most variance is between people. Within-subjects designs are very efficient here (they remove the large between-person noise). Between-subjects designs require large samples to detect effects against this noise.
+- **Low ICC (< 0.1):** Little between-person clustering. Within- and between-subjects designs are roughly equivalent in power.
+
+Reporting the ICC in an experimental methods section tells readers how much person-to-person variability was present and why a particular design choice (within vs. between subjects) was efficient.
+
+---
+
+## Part 4: Translating Model Output to Interpretable Metrics
+
+### From Log-Odds to Probabilities
+
+For logistic mixed models, the fixed effect is in log-odds units. Always translate to probabilities for reporting:
+
+```{r logit-to-prob}
+# Example: framing experiment on donation probability
+# Log-odds effect = 0.59 (OR = 1.8)
+
+log_odds_effect    <- 0.59
+baseline_log_odds  <- -0.5  # average person's log-odds in control
+
+control_prob   <- plogis(baseline_log_odds)
+treatment_prob <- plogis(baseline_log_odds + log_odds_effect)
+
+tibble(
+  metric = c("Log-odds effect", "Odds ratio", "Control probability", "Treatment probability", "Probability difference"),
+  value  = c(log_odds_effect, exp(log_odds_effect), control_prob, treatment_prob, treatment_prob - control_prob)
+) |>
+  knitr::kable(digits = 3, caption = "Translating from log-odds to probabilities for reporting")
+```
+
+**Reporting template:** "Loss-framed appeals had higher donation rates than gain-framed appeals (OR = 1.81, 95% CI [1.42, 2.31], $z$ = 4.7, $p$ < .001). At the average baseline donation probability of 38%, loss framing increased donation probability by approximately 12 percentage points (to 50%)."
+
+### From Log-Counts to Rate Ratios
+
+For Poisson/negative binomial models, exponentiate to get rate ratios:
+
+```{r count-interpretation}
+# Example: scarcity on helping count
+# Log effect = -0.43 (rate ratio = 0.65)
+
+log_rate_effect    <- -0.43
+baseline_log_count <- 1.8  # average log(expected count) in control
+
+control_count   <- exp(baseline_log_count)
+treatment_count <- exp(baseline_log_count + log_rate_effect)
+
+tibble(
+  metric = c("Log-count effect", "Rate ratio", "Control mean count", "Treatment mean count", "Count reduction"),
+  value  = c(log_rate_effect, exp(log_rate_effect), control_count, treatment_count, control_count - treatment_count)
+) |>
+  knitr::kable(digits = 3, caption = "Translating from log-counts to counts for reporting")
+```
+
+**Reporting template:** "Scarcity reduced helping behavior relative to control (RR = 0.65, 95% CI [0.48, 0.88], $p$ = .005). In the control condition, participants helped on average 6.0 times; in the scarcity condition, 3.9 times — a reduction of approximately 2.1 helping episodes."
+
+---
+
+## Part 5: Reporting Standards for Nested Experimental Data
+
+### What to Report
+
+A complete report for a mixed model analysis includes:
+
+::: {.callout-tip}
+## Reporting Checklist for Mixed Models
+
+**Design description:**
+- [ ] Whether the design is within-subjects, between-subjects, or mixed factorial
+- [ ] Number of participants, clusters, and observations per cell
+- [ ] ICC of the outcome (how much between-person variance was present)
+
+**Model specification:**
+- [ ] Fixed effects included (and their coding: treatment, contrast, etc.)
+- [ ] Random effects structure (intercept only? slopes? which predictors vary by person?)
+- [ ] Software and package versions used
+
+**Results for each effect:**
+- [ ] Unstandardized estimate with units
+- [ ] Standard error and 95% confidence interval
+- [ ] Test statistic and degrees of freedom ($t$, $z$, or $F$ with Satterthwaite/Kenward-Roger df)
+- [ ] $p$-value
+- [ ] Effect size ($d$, $\eta^2$, OR, RR as appropriate)
+
+**Model-level fit:**
+- [ ] Marginal and conditional $R^2$
+- [ ] Variance components ($\tau^2_{00}$, $\sigma^2_\varepsilon$, and any random slopes)
+
+**For non-normal outcomes:**
+- [ ] Overdispersion check (for count models)
+- [ ] Predicted probabilities or counts at substantively meaningful covariate values
+:::
+
+### Example APA-Style Results Paragraph
+
+> "We analyzed donation decisions using a logistic mixed model with participant random intercepts, framing condition (gain vs. loss) as a fixed effect, and trial nested within participant. Loss-framing significantly increased donation probability (b = 0.59, OR = 1.81, 95% CI [1.42, 2.31], $z$ = 4.7, $p$ < .001). At the sample's average baseline donation rate (38%), loss framing increased donation probability by approximately 12 percentage points. The ICC was .48, indicating substantial stable individual differences in donation tendency; the random intercept accounted for 31% of total variance (conditional $R^2_c$ = .35; marginal $R^2_m$ = .04)."
+
+---
+
+## Part 6: Reproducibility Practices
+
+### Setting Seeds
+
+Simulations, multiple imputation, bootstrapped CIs, and permutation tests all depend on random number generation. A fixed seed ensures the analysis is reproducible:
+
+```{r seed-demo, eval=FALSE}
+# Set seed at the top of every analysis script
+set.seed(42)
+
+# For parallel computing, set seeds for each worker explicitly
+library(parallel)
+RNGkind("L'Ecuyer-CMRG")  # safe for parallel streams
+set.seed(42)
+```
+
+A single `set.seed()` call at the top of the script is sufficient for non-parallel analyses. Document the seed in the manuscript methods section.
+
+### Package Version Pinning
+
+Results can change between package versions (model fitting algorithms improve, bugs are fixed, defaults change). Record the environment at the time of analysis:
+
+```{r session-info, eval=FALSE}
+# At the end of every analysis script:
+sessionInfo()
+
+# Or more concisely:
+writeLines(capture.output(sessionInfo()), "session_info.txt")
+```
+
+For fully reproducible environments, use `renv`:
+
+```r
+# Initialize renv in the project root
+renv::init()
+
+# After installing/updating packages:
+renv::snapshot()  # saves renv.lock with exact package versions
+
+# To restore the environment on a new machine:
+renv::restore()
+```
+
+### Preregistration for Experimental Analyses
+
+Preregistration specifies your analysis plan before data collection, separating confirmatory from exploratory findings. For mixed model experiments, the preregistration should specify:
+
+1. The exact model formula (including random effects structure)
+2. The primary outcome variable
+3. The family and link function (for GLMMs)
+4. How multiple comparisons will be handled
+5. Any planned sensitivity analyses (e.g., random slopes model as robustness check)
+
+Deviations from the preregistered plan should be disclosed and labeled as exploratory.
+
+---
+
+## Part 7: Common Reporting Mistakes in Nested Data
+
+::: {.callout-warning icon=false}
+## Mistake 1: Reporting Only the Pooled Estimate
+
+If you ran a random-intercepts model but forgot to decompose within- and between-person effects (Module 2), the fixed effect coefficient is a blend of two mechanisms. Report both if they differ.
+:::
+
+::: {.callout-warning icon=false}
+## Mistake 2: Using Total SD for Within-Subjects d
+
+Reporting Cohen's $d$ using the total SD (including between-person variance) dramatically understates the within-person effect. Use the residual SD from the mixed model for within-subjects standardization.
+:::
+
+::: {.callout-warning icon=false}
+## Mistake 3: Interpreting ICC-Corrected SEs Incorrectly
+
+Standard errors from `lmer` already account for the nested structure. Do not additionally "correct" them for clustering (e.g., by applying cluster-robust SEs on top of a random intercept model). That would double-count the clustering adjustment.
+:::
+
+::: {.callout-warning icon=false}
+## Mistake 4: Reporting Conditional R² as the "Effect Size" of a Fixed Effect
+
+Conditional $R^2$ includes variance explained by the random effects. It is not an effect size for your experimental manipulation. Use marginal $R^2$ for the fixed-effects explanation, or report individual $\eta^2$ or $d$ for specific contrasts.
+:::
+
+::: {.callout-warning icon=false}
+## Mistake 5: Omitting the Random Effects Structure from the Methods
+
+Reporting "we used a mixed model" without specifying the random effects structure (intercept only? random slopes for condition?) makes the analysis non-reproducible. Another researcher cannot verify or extend your work without knowing the exact model formula.
+:::

@@ -1,118 +1,355 @@
 ---
-title: "Endogeneity"
+title: "Endogeneity: Why Regression Lies (and How to Catch It)"
 ---
 
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(ggplot2)
+library(patchwork)
 library(broom)
 set.seed(1234)
 ```
 
-# Endogeneity
+# Endogeneity: Why Regression Lies (and How to Catch It)
 
-## What Does "Independent" Really Mean?
+## The Fundamental Problem of Causal Inference
 
-In regression, we call X the "independent variable." The name suggests that X is free of any influence — that it varies on its own, unrelated to the forces that also shape Y. In a well-executed randomized experiment, this is approximately true.
+Before introducing regression at all, consider the true object of scientific interest: the **causal effect** of X on Y for a specific unit $i$.
 
-In observational data — and in most nested data — this assumption is almost never satisfied.
+Under the **potential outcomes framework** (Rubin, 1974), every unit has two potential outcomes:
 
-**Endogeneity** means that your predictor X is correlated with the error term in your regression. Some of the forces that drive X are the same forces that drive Y, beyond what your model accounts for. When this happens, your regression coefficient is not an estimate of the effect of X on Y. It is a blend of that effect and spurious associations created by shared forces.
+$$
+\underbrace{\tau_i}_{\substack{\text{causal effect} \\ \text{for unit } i}} = \underbrace{Y_i(1)}_{\substack{\text{outcome if} \\ \text{treated}}} - \underbrace{Y_i(0)}_{\substack{\text{outcome if} \\ \text{not treated}}}
+$$
 
-There are three main sources of endogeneity.
+The fundamental problem: **we can never observe both $Y_i(1)$ and $Y_i(0)$ for the same unit at the same time.** A person either received psychotherapy or they did not. A country either adopted a carbon tax or it did not. We observe one potential outcome and must infer the other.
+
+Regression estimates the **average treatment effect** (ATE):
+
+$$
+\text{ATE} = E[\tau_i] = E[Y_i(1) - Y_i(0)]
+$$
+
+For regression to estimate the ATE correctly, the *observed* difference in outcomes between treated and untreated units must equal the *counterfactual* difference between what would have happened to those same units under both conditions. This requires that who gets treated is **independent** of the potential outcomes.
+
+When this independence fails — when who gets X is related to Y through pathways other than X itself — the regression coefficient is **endogenous** and does not estimate the causal effect.
+
+---
+
+## What is Endogeneity?
+
+**Endogeneity** means your predictor X is correlated with the error term $\varepsilon$ in your regression:
+
+$$
+Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, \varepsilon_i) \neq 0
+$$
+
+When this happens, $\hat{\beta}_1$ is biased. It estimates not just the effect of X on Y but a blend of that effect and all the other pathways through which X and Y are connected.
+
+There are four main sources.
 
 ---
 
 ## Source 1: Omitted Variable Bias (OVB)
 
-A variable Z influences both X and Y, but you have not included Z in your model. The effect of Z on Y gets attributed to X.
+A variable Z influences both X and Y, but Z is not in your model. The path Z → Y gets attributed to X because X and Z are correlated.
 
-**Classic example:** Ice cream sales (X) predict drowning deaths (Y). Not because ice cream causes drowning — but because summer heat (Z) increases both.
+### The Bias Formula
+
+The expected value of the biased coefficient is:
+
+$$
+\underbrace{E[\hat{\beta}_1]}_{\substack{\text{what we} \\ \text{estimate}}} = \underbrace{\beta_1}_{\substack{\text{true} \\ \text{effect}}} + \underbrace{\delta_{ZY}}_{\substack{Z \text{'s effect} \\ \text{on } Y}} \cdot \underbrace{\tilde{\rho}_{XZ}}_{\substack{\text{correlation of} \\ X \text{ and } Z}}
+$$
+
+where $\delta_{ZY}$ is the effect of Z on Y (holding X constant) and $\tilde{\rho}_{XZ}$ is the correlation of Z with X after partialling out other covariates.
+
+**The bias formula has a critical practical use:** even without data on Z, if you know the *sign* of both $\delta_{ZY}$ and $\tilde\rho_{XZ}$, you can predict the *direction* of the bias on your estimate.
+
+```{r ovb-bias-table}
+# Bias direction table
+tibble(
+  Example         = c("Ice cream → drowning", "Advertising → sales", "Mindfulness → stress"),
+  Confounder_Z    = c("Summer heat", "Store quality", "Stable personality"),
+  `Sign Z→X`      = c("+", "+", "+"),
+  `Sign Z→Y`      = c("+", "+", "-"),
+  `Bias direction` = c("Positive (↑ est.)", "Positive (↑ est.)", "Negative (↓ est.)")
+) |>
+  knitr::kable(caption = "OVB bias direction: multiply signs to get bias direction")
+```
+
+::: {.callout-note}
+## Reading the Bias Table
+
+Sign(Z→X) × Sign(Z→Y) = sign of the bias:
+- Both positive → positive bias (estimate is too large)
+- Both negative → positive bias (two negatives multiply to positive)
+- Mixed signs → negative bias (estimate is too small or reversed)
+
+You can use this qualitatively even before collecting data: "If my estimate is already large, and the likely omitted confound would produce positive bias, my true effect is probably smaller than I think."
+:::
+
+### Three Demonstrations
 
 ```{r ovb-simulation}
 n <- 500
-Z <- rnorm(n, 70, 10)       # Temperature (the confounder)
-X <- 0.3 * Z + rnorm(n, 0, 5)  # Ice cream sales (caused by heat)
-Y <- 0.5 * Z + rnorm(n, 0, 8)  # Drowning deaths (caused by heat, NOT ice cream)
-# True effect of X on Y = 0
 
-df_ovb <- tibble(X, Y, Z)
+# Example 1: Ice cream / drowning / heat
+Z_heat    <- rnorm(n, 70, 10)
+X_icecream <- 0.3 * Z_heat + rnorm(n, 0, 5)
+Y_drowning <- 0.5 * Z_heat + rnorm(n, 0, 8)  # true X effect = 0
 
-m_biased  <- lm(Y ~ X, data = df_ovb)
-m_correct <- lm(Y ~ X + Z, data = df_ovb)
+m_biased_1  <- lm(Y_drowning ~ X_icecream)
+m_correct_1 <- lm(Y_drowning ~ X_icecream + Z_heat)
+
+# Example 2: Advertising / sales / store quality
+Z_quality   <- rnorm(n, 50, 10)
+X_ads       <- 0.4 * Z_quality + rnorm(n, 0, 8)
+Y_sales     <- 0.6 * Z_quality + 0.15 * X_ads + rnorm(n, 0, 10)
+# true X effect = 0.15; quality inflates this upward
+
+m_biased_2  <- lm(Y_sales ~ X_ads)
+m_correct_2 <- lm(Y_sales ~ X_ads + Z_quality)
+
+# Example 3: Mindfulness / stress / stable personality
+Z_stability   <- rnorm(n, 50, 10)
+X_mindfulness <- 0.5 * Z_stability + rnorm(n, 0, 6)
+Y_stress      <- 80 - 0.4 * Z_stability - 2 * X_mindfulness + rnorm(n, 0, 8)
+# true X effect = -2; stability also lowers stress AND increases mindfulness → downward bias
+
+m_biased_3  <- lm(Y_stress ~ X_mindfulness)
+m_correct_3 <- lm(Y_stress ~ X_mindfulness + Z_stability)
 
 bind_rows(
-  tidy(m_biased)  |> filter(term == "X") |> mutate(model = "Omits Z (biased)"),
-  tidy(m_correct) |> filter(term == "X") |> mutate(model = "Includes Z (correct)")
+  tidy(m_biased_1)  |> filter(term == "X_icecream")   |> mutate(example = "Ice cream (true=0)",    model = "Omits Z"),
+  tidy(m_correct_1) |> filter(term == "X_icecream")   |> mutate(example = "Ice cream (true=0)",    model = "Includes Z"),
+  tidy(m_biased_2)  |> filter(term == "X_ads")        |> mutate(example = "Advertising (true=0.15)", model = "Omits Z"),
+  tidy(m_correct_2) |> filter(term == "X_ads")        |> mutate(example = "Advertising (true=0.15)", model = "Includes Z"),
+  tidy(m_biased_3)  |> filter(term == "X_mindfulness")|> mutate(example = "Mindfulness (true=-2)",   model = "Omits Z"),
+  tidy(m_correct_3) |> filter(term == "X_mindfulness")|> mutate(example = "Mindfulness (true=-2)",   model = "Includes Z")
 ) |>
-  select(model, estimate, std.error, p.value) |>
-  knitr::kable(digits = 3, caption = "OVB: the ice cream effect disappears once we control for heat")
+  select(example, model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3, caption = "OVB across three examples: omitting Z biases estimates in predictable directions")
 ```
 
-Without Z, the X coefficient is large and significant — even though the true effect is zero.
-
-**In nested data:** OVB is especially insidious because the omitted variable often varies at a higher level. Studying whether neighborhood green space predicts depression while omitting neighborhood income (which predicts both) biases your estimate. The omitted variable is a neighborhood-level characteristic — exactly the kind of thing that clustering creates.
+In every case, adding the confounder pulls the estimate toward the true value. The bias direction matches the prediction from the sign table.
 
 ::: {.callout-warning icon=false}
 ## Assumption: No Omitted Variables Correlated with Both X and Y
 
-**How to check:** Draw a causal diagram. List every plausible cause of Y and ask: is any of these also correlated with X? You cannot fully test this from data — it requires substantive reasoning about the DGP.
+**How to check:** Draw a causal diagram. List every plausible cause of Y. Ask: is any of these also correlated with X? This requires substantive reasoning about the DGP — you cannot test it purely from data.
 
-**What to do:** Add the variable if measurable. If not measurable, consider IV, fixed effects, or DiD.
+**In nested data:** OVB is especially insidious because the omitted variable often varies at a higher level. Studying whether neighborhood green space predicts depression while omitting neighborhood income biases your estimate; the omitted variable is a neighborhood-level characteristic that clustering creates.
+
+**What to do:** Add the variable if measurable. Use fixed effects to absorb all stable unit-level confounders. Use IV, RDD, or DiD if the confound is unmeasurable (covered in Parts 2–6).
 :::
 
 ---
 
 ## Source 2: Simultaneity / Reverse Causality
 
-X causes Y, but Y also causes X. The causal arrow runs in both directions, creating a feedback loop.
+X causes Y, but Y also causes X. The causal arrow runs in both directions, creating a feedback loop that OLS cannot untangle.
 
-**Example:** Income and spending. Higher income causes more spending. But the desire to spend more can motivate people to seek higher income. Both directions are real. A cross-sectional regression picks up a mix of both.
+```{r simultaneity-plot}
+n_sim <- 300
+set.seed(42)
 
-Simultaneity is especially common in panel and longitudinal data, where today's outcome can become tomorrow's predictor — a structure naturally produced by the nested DGP of time.
+# Social support → depression (negative), but depression → social withdrawal (negative)
+# Simulate equilibrium: both processes are real
+time_pts <- tibble(
+  t    = 1:10,
+  support = c(60, 55, 52, 50, 49, 48, 47, 47, 47, 47) + rnorm(10, 0, 2),
+  depression = c(30, 35, 38, 40, 41, 42, 43, 43, 43, 43) + rnorm(10, 0, 2)
+)
+
+p_sim <- time_pts |>
+  pivot_longer(-t) |>
+  ggplot(aes(x = t, y = value, color = name, group = name)) +
+  geom_line(linewidth = 1.2) + geom_point(size = 2.5) +
+  scale_color_manual(values = c("#e63946", "#1e3a5f"),
+                     labels = c("Depression", "Social Support")) +
+  labs(title = "Simultaneity: support → depression AND depression → support",
+       subtitle = "OLS on cross-sectional data picks up both arrows simultaneously",
+       x = "Time", y = "Level", color = NULL) +
+  theme_minimal(base_size = 13)
+
+p_sim
+```
+
+**Psychology example:** Social support reduces depression — but depression also causes people to withdraw from social networks. A cross-sectional regression of depression on social support picks up both directions simultaneously and gives a confounded estimate.
+
+**Marketing example:** Brand awareness drives sales, but sales revenue funds advertising that builds brand awareness. A cross-sectional regression cannot tell you whether awareness causes sales or sales cause awareness.
 
 ::: {.callout-warning icon=false}
 ## Assumption: No Reverse Causality
 
-**How to check:** Ask whether Y at time $t$ could plausibly influence X at time $t$ or $t+1$.
+**How to check:** Ask: could Y at time $t$ plausibly influence X at time $t$ or $t+1$? If yes, simultaneity is a concern.
 
-**What to do:** Use lagged predictors ($X_{t-1}$ predicting $Y_t$). Use IV. Use cross-lagged panel models (Module 4, Part 6).
+**What to do:**
+- Use **lagged predictors** ($X_{t-1}$ predicting $Y_t$) in panel data
+- Use **instrumental variables** (Part 2) to isolate the causal direction
+- Use **cross-lagged panel models** (Module 4, Part 6) which model both causal arrows explicitly
 :::
 
 ---
 
 ## Source 3: Selection Effects
 
-The observations in your dataset are not a random sample. Something about who ends up in your data is related to both X and Y. This is covered in depth in Part 3.
+The observations in your dataset are not a random sample of the population. Who ends up in your data — and which treatment they receive — is systematically related to both X and Y.
+
+**Self-selection:** People who choose to undergo therapy are systematically different from those who don't — they may be more motivated to change, have better social support, or have less severe disorders. Comparing therapy-goers to non-therapy-goers conflates the effect of therapy with all these pre-existing differences.
+
+**Survivorship bias:** You only observe firms that survived long enough to be in your dataset. Failed firms are absent. Conclusions about firm strategy drawn from survivors are biased because you are conditioning on survival.
+
+**Attrition in longitudinal studies:** Participants who drop out of a study are often systematically different from completers. If the sickest patients drop out of a clinical trial, the observed treatment effect among completers overstates the population-level effect.
+
+This source of endogeneity is covered in depth in Part 3.
 
 ---
 
-## Pearl's Backdoor Criterion
+## Source 4: Collider Bias
 
-Judea Pearl's framework gives us precise language for endogeneity. A **backdoor path** from X to Y is any path that flows through a common cause — a path that goes "backwards" into X from a confounder.
+This source is frequently overlooked but is just as dangerous as the others. **Conditioning on a collider** — a variable caused by *both* X and Y — creates a spurious association between X and Y even when none exists.
 
-```{r backdoor-diagram}
-dag_df <- tibble(
-  node = c("Z\n(Confounder)", "X\n(Predictor)", "Y\n(Outcome)"),
-  x    = c(2, 1, 3),
-  y    = c(2, 1, 1)
-)
+A **collider** is a variable C where two causal arrows "collide":
 
-ggplot(dag_df, aes(x = x, y = y, label = node)) +
-  geom_point(size = 22, color = "#deebf7", shape = 21, fill = "#deebf7", stroke = 1.5) +
-  geom_text(size = 3.5, fontface = "bold", color = "#1e3a5f") +
-  annotate("segment", x = 1.8, xend = 1.2, y = 1.9, yend = 1.1,
-           arrow = arrow(length = unit(0.3, "cm")), color = "#e63946", linewidth = 1.2) +
-  annotate("segment", x = 2.2, xend = 2.8, y = 1.9, yend = 1.1,
-           arrow = arrow(length = unit(0.3, "cm")), color = "#e63946", linewidth = 1.2) +
-  annotate("segment", x = 1.2, xend = 2.8, y = 1.0, yend = 1.0,
-           arrow = arrow(length = unit(0.3, "cm")), color = "#1e3a5f", linewidth = 1.5) +
-  annotate("text", x = 2, y = 0.75, label = "Causal path of interest",
-           color = "#1e3a5f", size = 3.2) +
-  annotate("text", x = 1.5, y = 1.62, label = "Backdoor\npath", color = "#e63946", size = 3) +
-  xlim(0.5, 3.5) + ylim(0.5, 2.5) +
-  theme_void() +
-  labs(title = "Backdoor path: Z creates a non-causal correlation between X and Y")
+$$X \rightarrow C \leftarrow Y$$
+
+When you condition on C (include it as a control, restrict your sample to a subset defined by C, or analyze a non-random sample selected on C), you open a spurious backdoor path between X and Y.
+
+```{r collider-demo}
+n_col <- 1000
+
+# True DGP: X and Y are uncorrelated
+X_col <- rnorm(n_col)
+Y_col <- rnorm(n_col)  # truly independent of X
+
+# Collider C is caused by both X and Y
+C_col <- X_col + Y_col + rnorm(n_col, 0, 0.5)
+
+# Full sample: no correlation
+r_full <- cor(X_col, Y_col)
+
+# Conditioning on C: restrict to top half of C
+high_C <- C_col > median(C_col)
+r_cond <- cor(X_col[high_C], Y_col[high_C])
+
+tibble(
+  Sample           = c("Full sample (no conditioning)", "Restricted to high-C (conditioning)"),
+  `Cor(X, Y)`      = c(round(r_full, 3), round(r_cond, 3)),
+  Interpretation   = c("True: X and Y are unrelated",
+                        "Spurious: conditioning on C creates negative correlation")
+) |>
+  knitr::kable(caption = "Collider bias: conditioning on C creates a spurious X-Y association")
 ```
 
-Blocking the backdoor is the goal of every identification strategy in this module — either by including Z in the model (when measurable), by using fixed effects to absorb all time-invariant confounds, or by finding an instrument that purges the contaminated variation in X.
+**The publish-or-perish example:** Prolificacy (X) and idea quality (Y) may be uncorrelated in the full population of researchers. But publication (C) is caused by both — prolific researchers with good ideas get published. If you study *only published papers* (conditioning on C), you'll observe that prolificacy and idea quality are *negatively correlated* within the published set, even though they're unrelated in the population.
+
+**Berkson's paradox in hospitals:** Disease A (X) and disease B (Y) are unrelated in the general population. But both can lead to hospitalization (C). If you study only hospitalized patients, A and B appear negatively correlated — because having A makes it less likely you also have B to explain your hospitalization.
+
+```{r collider-viz}
+df_col <- tibble(X = X_col, Y = Y_col, C_high = high_C)
+
+p_full <- ggplot(df_col, aes(x = X, y = Y)) +
+  geom_point(alpha = 0.15, color = "#1e3a5f") +
+  geom_smooth(method = "lm", color = "#e63946", linewidth = 1.2) +
+  labs(title = "Full sample", subtitle = paste0("r = ", round(r_full, 3)),
+       x = "X", y = "Y") +
+  theme_minimal(base_size = 12)
+
+p_cond <- ggplot(df_col |> filter(C_high), aes(x = X, y = Y)) +
+  geom_point(alpha = 0.2, color = "#2d6a4f") +
+  geom_smooth(method = "lm", color = "#e63946", linewidth = 1.2) +
+  labs(title = "Conditioned on high C", subtitle = paste0("r = ", round(r_cond, 3)),
+       x = "X", y = "Y") +
+  theme_minimal(base_size = 12)
+
+p_full + p_cond
+```
+
+::: {.callout-warning icon=false}
+## Assumption: No Conditioning on Colliders
+
+**How to check:** Draw a DAG. For every variable you are controlling for or selecting on, ask: is this caused by X, by Y, or by both? If caused by both, it is a collider — do not condition on it.
+
+**Common mistake:** "Kitchen sink" regressions that add every available covariate. If any of those covariates is a collider, adding it *creates* bias where none existed.
+:::
+
+---
+
+## Pearl's Causal Framework: Three Types of Paths
+
+Judea Pearl's causal graph (DAG) framework provides a systematic way to identify endogeneity. Every causal graph has three fundamental path structures:
+
+```{r dag-structures}
+make_dag_panel <- function(nodes, edges_df, title, note = NULL) {
+  p <- ggplot() +
+    geom_point(data = nodes, aes(x = x, y = y), size = 18,
+               shape = 21, fill = "#deebf7", color = "#1e3a5f", stroke = 1.5) +
+    geom_text(data = nodes, aes(x = x, y = y, label = label), size = 3.8,
+              fontface = "bold", color = "#1e3a5f")
+  for (i in seq_len(nrow(edges_df))) {
+    p <- p + annotate("segment",
+                      x    = edges_df$x1[i], xend = edges_df$x2[i],
+                      y    = edges_df$y1[i], yend = edges_df$y2[i],
+                      arrow = arrow(length = unit(0.25, "cm")),
+                      color = edges_df$color[i], linewidth = 1.2)
+  }
+  p + labs(title = title, subtitle = note) +
+    xlim(0.3, 3.7) + ylim(0.4, 2.6) + theme_void(base_size = 11) +
+    theme(plot.title = element_text(face = "bold", size = 11),
+          plot.subtitle = element_text(size = 9, color = "gray40"))
+}
+
+nodes_fork <- tibble(label = c("Z", "X", "Y"), x = c(2, 1, 3), y = c(2, 1, 1))
+edges_fork <- tibble(x1=c(1.8,2.2), x2=c(1.2,2.8), y1=c(1.9,1.9), y2=c(1.1,1.1),
+                     color = c("#e63946","#e63946"))
+p_fork <- make_dag_panel(nodes_fork, edges_fork, "Fork (Confounder)",
+  "Z → X and Z → Y\nCreates spurious X-Y correlation\nFix: control for Z")
+
+nodes_chain <- tibble(label = c("X", "M", "Y"), x = c(1, 2, 3), y = c(1, 1, 1))
+edges_chain <- tibble(x1=c(1.2,2.2), x2=c(1.8,2.8), y1=c(1,1), y2=c(1,1),
+                      color = c("#1e3a5f","#1e3a5f"))
+p_chain <- make_dag_panel(nodes_chain, edges_chain, "Chain (Mediator)",
+  "X → M → Y\nM is on the causal path\nFix: do NOT control for M")
+
+nodes_coll <- tibble(label = c("X", "C", "Y"), x = c(1, 2, 3), y = c(1, 1, 1))
+edges_coll <- tibble(x1=c(1.2,2.8), x2=c(1.8,2.2), y1=c(1,1), y2=c(1,1),
+                     color = c("#1e3a5f","#1e3a5f"))
+p_coll <- make_dag_panel(nodes_coll, edges_coll, "Collider",
+  "X → C ← Y\nCondition on C = open backdoor\nFix: do NOT control for C")
+
+p_fork + p_chain + p_coll
+```
+
+| Path Type | Structure | What it means | What to do |
+|-----------|-----------|---------------|------------|
+| **Fork** | Z → X and Z → Y | Z confounds X-Y relationship | Block by controlling for Z |
+| **Chain** | X → M → Y | M mediates X's effect on Y | Do NOT block (it carries the effect) |
+| **Collider** | X → C ← Y | C is caused by both X and Y | Do NOT block (conditioning opens a backdoor) |
+
+The goal of every identification strategy in the rest of this module is to **block all backdoor paths** (forks) without blocking causal paths (chains) and without conditioning on colliders.
+
+---
+
+## The Backdoor Criterion
+
+A set of variables S satisfies Pearl's **backdoor criterion** for estimating the effect of X on Y if:
+
+1. S blocks every path between X and Y that has an arrow *into* X (i.e., all backdoor paths)
+2. S does not include any descendant of X on a causal path to Y (no colliders, no mediators on the X→Y path)
+
+When you can find such a set S from measured variables, controlling for S gives you the causal effect. When you cannot — because the confounders are unmeasured — you need the identification strategies in Parts 2–6.
+
+::: {.callout-important}
+## Before Running Any Regression
+
+Draw a causal diagram. Every arrow is a hypothesis about the DGP. Then ask:
+
+1. Are there any **forks** (confounders) not in my model? → OVB
+2. Could the outcome affect the predictor? → Simultaneity
+3. Is my sample selected on something related to both X and Y? → Selection
+4. Am I controlling for anything caused by X or Y? → Collider bias
+
+Answering these four questions before looking at your results will save you from the most common errors in applied regression.
+:::

@@ -1,0 +1,337 @@
+---
+title: "Binary and Count Outcomes Over Time"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(glmmTMB)
+library(ggeffects)
+library(ggplot2)
+library(broom.mixed)
+set.seed(2024)
+```
+
+# Binary and Count Outcomes Over Time
+
+## When the DGP Does Not Generate Continuous Data
+
+Every model we have used in this module so far assumes something about your outcome: that the true data-generating process (DGP) produces values that, after accounting for predictors and random effects, are normally distributed. That assumption is perfectly reasonable for outcomes like stress scores, reaction times, or cognitive performance — values that can in principle be any real number.
+
+But many longitudinal outcomes in psychology and medicine are not continuous. They are **binary** — did the person have a depressive episode this week? Did they relapse? Did they complete the task? Or they are **counts** — how many panic attacks occurred this week? How many drinks did someone consume on Monday? How many hospital visits did a patient have this year?
+
+When the DGP generates binary or count data, a linear mixed model imposes the wrong structure on that DGP. Predicted probabilities can fall outside [0, 1]. Residuals cannot be normally distributed. Parameter estimates become biased. The model is not just inefficient — it is misspecified.
+
+**Generalized Linear Mixed Models (GLMMs)** extend the mixed model framework to non-normal outcomes. They combine:
+
+1. A **random effects structure** (exactly as in `lmer`) to handle nesting and repeated measures
+2. A **link function** that transforms the linear predictor to the appropriate scale
+3. A **distributional family** that matches the DGP
+
+The longitudinal setting makes GLMMs especially important, because tracking people over time almost guarantees you will encounter binary events and count outcomes alongside the usual continuous measures.
+
+---
+
+## Part 1: Binary Longitudinal Outcomes — The Logistic Mixed Model
+
+### The Model
+
+For a binary outcome $Y_{ij} \in \{0, 1\}$ measured at occasion $i$ for person $j$, the logistic mixed model is:
+
+$$\text{logit}\bigl(P(Y_{ij} = 1)\bigr) = \underbrace{\beta_0}_{\substack{\text{average log-odds} \\ \text{at baseline}}} + \underbrace{u_{0j}}_{\substack{\text{person's deviation} \\ \text{from average}}} + \underbrace{\beta_1 \cdot \text{week}_{ij}}_{\substack{\text{change in log-odds} \\ \text{per week}}} + \underbrace{\beta_2 \cdot \text{treatment}_j}_{\substack{\text{treatment effect} \\ \text{on log-odds scale}}}$$
+
+where:
+
+- $\text{logit}(p) = \log\frac{p}{1-p}$ is the log-odds of the event
+- $u_{0j} \sim \mathcal{N}(0, \tau^2)$ is a person-level random intercept — capturing the fact that some people are generally more likely to have an episode, regardless of treatment or time
+- The fixed effects $\beta_1$ and $\beta_2$ operate on the **log-odds scale**, so we exponentiate them to get **odds ratios**
+
+This is exactly the linear mixed model, but with a logit link function wrapping the left-hand side.
+
+### Simulating a Longitudinal Intervention Study
+
+We simulate 60 participants tracked over 6 weeks. Half are randomly assigned to a treatment that halves the odds of having a depressive episode each week. The outcome is binary: whether the participant had at least one depressive episode that week.
+
+```{r simulate-binary}
+n_people    <- 60
+n_weeks     <- 6
+treatment   <- rep(c(0, 1), each = n_people / 2)
+
+# Person-level random intercepts (on log-odds scale)
+u0 <- rnorm(n_people, 0, 0.8)
+
+df_binary <- expand_grid(
+  person = 1:n_people,
+  week   = 0:(n_weeks - 1)
+) |>
+  mutate(
+    treatment = treatment[person],
+    u0        = u0[person],
+    # True log-odds: intercept + time trend + treatment effect + random intercept
+    log_odds  = -0.5 + u0 - 0.1 * week - 0.7 * treatment,
+    prob      = plogis(log_odds),
+    episode   = rbinom(n(), 1, prob),
+    person    = factor(person),
+    treatment = factor(treatment, labels = c("Control", "Treatment"))
+  )
+
+# Quick look at observed proportions by week and treatment
+df_binary |>
+  group_by(week, treatment) |>
+  summarise(prop_episode = mean(episode), .groups = "drop") |>
+  ggplot(aes(x = week, y = prop_episode, color = treatment, group = treatment)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3) +
+  scale_color_manual(values = c("#1e3a5f", "#e63946")) +
+  scale_y_continuous(limits = c(0, 1), labels = scales::percent_format()) +
+  labs(
+    title = "Proportion with depressive episode each week",
+    subtitle = "Observed proportions by treatment group",
+    x = "Week", y = "Proportion with episode", color = "Group"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+### Fitting the Logistic Mixed Model
+
+```{r fit-glmer-binary}
+m_binary <- glmer(
+  episode ~ week * treatment + (1 | person),
+  data   = df_binary,
+  family = binomial
+)
+
+summary(m_binary)
+```
+
+### Reading the Output
+
+Fixed effects come out on the **log-odds scale**. To interpret them as odds ratios, exponentiate:
+
+```{r binary-odds-ratios}
+broom.mixed::tidy(m_binary, effects = "fixed", exponentiate = TRUE, conf.int = TRUE) |>
+  select(term, estimate, conf.low, conf.high, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Fixed effects as odds ratios (exponentiated log-odds)")
+```
+
+The **treatment odds ratio** tells you: among people at the same week and with the same random intercept, how does the odds of an episode in the treatment group compare to the control group? If OR = 0.50, treatment halves the odds — which is what we simulated.
+
+### Marginal Predicted Probabilities
+
+Odds ratios describe the model's internal logic, but audiences (and your future self) think in probabilities, not log-odds. `ggeffects::ggpredict()` computes **marginal predicted probabilities** — averaging over the random effects distribution rather than conditioning on a specific individual.
+
+```{r binary-predicted-probs}
+preds_binary <- ggpredict(m_binary, terms = c("week", "treatment"), type = "fixed")
+
+plot(preds_binary) +
+  scale_color_manual(values = c("#1e3a5f", "#e63946")) +
+  scale_fill_manual(values  = c("#1e3a5f", "#e63946")) +
+  labs(
+    title    = "Marginal predicted probability of a depressive episode",
+    subtitle = "Averaging over individual differences (marginal effect)",
+    x = "Week", y = "Predicted probability", color = "Group", fill = "Group"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+### Marginal vs. Conditional Effects
+
+This distinction matters more in GLMMs than in linear models, because the logit link is nonlinear.
+
+- A **conditional effect** asks: "For a specific person (with a specific $u_{0j}$), what is the predicted probability?" It conditions on knowing that person's random intercept.
+- A **marginal effect** asks: "For an average person drawn from this population, what is the predicted probability?" It averages over the distribution of random effects.
+
+The conditional effect is the right answer for **individual-level prediction** — predicting whether *this patient* will have an episode. The marginal effect is the right answer for **policy-level inference** — estimating the population-average impact of a treatment.
+
+`ggpredict(..., type = "fixed")` gives marginal effects. `ggpredict(..., type = "random")` gives predictions for an average individual (random effects set to zero). Neither is wrong — they answer different questions.
+
+:::{.callout-warning icon=false}
+**Assumption: Correct link function**
+
+Logistic regression assumes the log-odds of the outcome are a linear function of the predictors. For bounded probabilities near 0 or 1, this is usually reasonable. The probit link is an alternative if you have theoretical reasons to prefer it (probit assumes a latent Gaussian threshold; logistic assumes a logistic latent distribution). In practice, they rarely differ much.
+:::
+
+:::{.callout-warning icon=false}
+**Assumption: No overdispersion in binomial outcomes**
+
+Binomial outcomes (0/1 per trial) cannot be overdispersed in the strict statistical sense — by definition, a Bernoulli draw has variance $p(1-p)$. However, if your outcome is a proportion based on multiple trials (e.g., 3 out of 5 tasks completed), overdispersion can occur. Check it with Pearson $\chi^2$ / df. For strict 0/1 data, this is not a concern.
+:::
+
+:::{.callout-warning icon=false}
+**Assumption: Normality of random effects on the log-odds scale**
+
+The random intercepts $u_{0j}$ are assumed to follow a normal distribution on the log-odds scale — not on the probability scale. This means a person with $u_{0j} = 2$ is simply a person with systematically higher log-odds. The distribution of random effects is not directly observable, but you can inspect BLUPs (Best Linear Unbiased Predictors) for gross departures from normality.
+:::
+
+---
+
+## Part 2: Count Longitudinal Outcomes — Poisson and Negative Binomial
+
+### Why Counts Need Different Models
+
+Count outcomes (0, 1, 2, 3, …) have two properties that break standard regression assumptions:
+
+1. **Non-negativity.** Counts cannot be negative. A linear model can happily predict −2 hospitalizations.
+2. **Mean-variance relationship.** For a Poisson process, the variance equals the mean. Higher-count people are intrinsically more variable. A linear model assumes constant variance.
+
+The **Poisson mixed model** handles both:
+
+$$\log\bigl(\mu_{ij}\bigr) = \underbrace{\beta_0}_{\substack{\text{log expected count} \\ \text{at baseline}}} + \underbrace{u_{0j}}_{\substack{\text{person's log-rate} \\ \text{deviation}}} + \underbrace{\beta_1 \cdot \text{visit}_{ij}}_{\substack{\text{change in log-count} \\ \text{per visit}}} + \underbrace{\beta_2 \cdot \text{treatment}_j}_{\substack{\text{treatment effect} \\ \text{on log-count scale}}}$$
+
+The log link ensures predicted counts are always positive. Exponentiating fixed effects gives **rate ratios** (also called incidence rate ratios).
+
+### Simulating Longitudinal Count Data
+
+We simulate 80 patients tracked over 8 clinic visits. The count outcome is the number of pain flares per week between visits.
+
+```{r simulate-counts}
+n_patients  <- 80
+n_visits    <- 8
+treatment_c <- rep(c(0, 1), each = n_patients / 2)
+
+u0_count <- rnorm(n_patients, 0, 0.5)
+
+df_count <- expand_grid(
+  patient = 1:n_patients,
+  visit   = 1:n_visits
+) |>
+  mutate(
+    treatment = treatment_c[patient],
+    u0        = u0_count[patient],
+    log_mu    = 1.8 + u0 - 0.08 * visit - 0.5 * treatment,
+    mu        = exp(log_mu),
+    flares    = rpois(n(), mu),
+    patient   = factor(patient),
+    treatment = factor(treatment, labels = c("Control", "Treatment"))
+  )
+
+# Observed mean counts by visit and treatment
+df_count |>
+  group_by(visit, treatment) |>
+  summarise(mean_flares = mean(flares), .groups = "drop") |>
+  ggplot(aes(x = visit, y = mean_flares, color = treatment, group = treatment)) +
+  geom_line(linewidth = 1.2) +
+  geom_point(size = 3) +
+  scale_color_manual(values = c("#1e3a5f", "#e63946")) +
+  labs(
+    title    = "Mean pain flares per week, by clinic visit",
+    subtitle = "Observed means by treatment group",
+    x = "Visit number", y = "Mean weekly flares", color = "Group"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+### Fitting the Poisson Mixed Model
+
+```{r fit-poisson}
+m_poisson <- glmmTMB(
+  flares ~ visit + treatment + (1 | patient),
+  data   = df_count,
+  family = poisson
+)
+
+summary(m_poisson)
+```
+
+### Checking for Overdispersion
+
+The Poisson model assumes variance = mean. If your data are more variable than this (which is common in practice — people differ in unmeasured ways), the model will underestimate standard errors and produce overconfident p-values. This is called **overdispersion**.
+
+A simple check: compute the Pearson statistic divided by the residual degrees of freedom. If this ratio is substantially greater than 1 (a common rule of thumb is > 1.5), overdispersion is present.
+
+```{r check-overdispersion}
+# Pearson statistic / residual df
+pearson_resid <- residuals(m_poisson, type = "pearson")
+dispersion_ratio <- sum(pearson_resid^2) / df.residual(m_poisson)
+
+cat("Dispersion ratio (Pearson χ² / df):", round(dispersion_ratio, 3), "\n")
+cat("Interpretation: values near 1.0 indicate no overdispersion;\n")
+cat("values > 1.5 suggest the negative binomial model is preferred.\n")
+```
+
+### Negative Binomial Model
+
+The negative binomial adds a **dispersion parameter** ($\theta$) that allows variance to exceed the mean:
+
+$$\text{Var}(Y) = \mu + \frac{\mu^2}{\theta}$$
+
+When $\theta \to \infty$, the negative binomial reduces to Poisson. Smaller $\theta$ means more overdispersion (more between-person variance in counts beyond what the Poisson allows).
+
+```{r fit-negbin}
+m_negbin <- glmmTMB(
+  flares ~ visit + treatment + (1 | patient),
+  data   = df_count,
+  family = nbinom2
+)
+
+summary(m_negbin)
+
+# Compare AIC
+AIC(m_poisson, m_negbin) |>
+  knitr::kable(caption = "Model comparison: Poisson vs. Negative Binomial")
+```
+
+### Predicted Count Trajectories
+
+```{r count-predictions}
+preds_count <- ggpredict(m_negbin, terms = c("visit", "treatment"), type = "fixed")
+
+plot(preds_count) +
+  scale_color_manual(values = c("#1e3a5f", "#e63946")) +
+  scale_fill_manual(values  = c("#1e3a5f", "#e63946")) +
+  labs(
+    title    = "Predicted pain flares per week over clinic visits",
+    subtitle = "Marginal predictions from negative binomial mixed model",
+    x = "Visit", y = "Predicted flares", color = "Group", fill = "Group"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+### What About Zero-Inflation?
+
+In many longitudinal count outcomes, there are far more zeros than a Poisson or negative binomial distribution would predict. For example, in a study of alcohol use, many people on many days consume zero drinks. A standard count model will underfit these zeros and overfit the positive counts.
+
+`glmmTMB` handles this cleanly with a **zero-inflation component**:
+
+```r
+# Zero-inflated negative binomial (not run — for illustration)
+m_zinb <- glmmTMB(
+  flares ~ visit + treatment + (1 | patient),
+  ziformula = ~1,        # intercept-only zero-inflation model
+  family    = nbinom2,
+  data      = df_count
+)
+```
+
+The zero-inflation formula `ziformula` models the probability that an observation comes from the "always zero" process (e.g., someone who never drinks) rather than the count-generating process. You can make this a function of predictors too.
+
+:::{.callout-warning icon=false}
+**Assumption: Correct distributional family**
+
+Start with Poisson. Check the dispersion ratio. If > 1.5, switch to negative binomial (`nbinom2`). If you have many more zeros than either model predicts (compare `prop_zero` in your data to `mean(predict(..., type="response") == 0)`), add zero-inflation. The model should match the DGP that generated your outcome.
+:::
+
+:::{.callout-warning icon=false}
+**Assumption: Log link is appropriate**
+
+The log link assumes that predictor effects are multiplicative on the count scale (each unit increase in X multiplies the expected count by $e^\beta$). This is usually sensible for rate outcomes. If you have strong theoretical reasons to expect additive effects on the count scale, the identity link is possible but numerically unstable with count data.
+:::
+
+---
+
+## Putting It Together: GLMMs and the DGP
+
+The key insight is that GLMMs are not a special case of mixed models — they are a *more faithful representation* of the DGP when your outcome is binary or a count. Forcing binary or count data into a linear mixed model is equivalent to saying "I know the DGP generates counts, but I will pretend it generates continuous normal data." The parameter estimates you get from that misspecified model are biased and not meaningful.
+
+GLMMs respect the DGP:
+
+| Outcome type | DGP generates | Appropriate model | Link function | Exponentiate for |
+|---|---|---|---|---|
+| 0/1 event | Binary Bernoulli trials | `glmer(..., family = binomial)` | logit | Odds ratios |
+| Counts (no overdispersion) | Poisson process | `glmmTMB(..., family = poisson)` | log | Rate ratios |
+| Counts (overdispersed) | Negative binomial process | `glmmTMB(..., family = nbinom2)` | log | Rate ratios |
+| Counts (excess zeros) | Zero-inflated process | `glmmTMB(..., ziformula = ~1, family = nbinom2)` | log | Rate ratios |
+
+In every case, the random effects structure stays exactly as it would be in a linear mixed model: participants are nested within themselves across time, and the random intercept (or random slope, if you have one) captures stable individual differences in the outcome on the transformed scale.

@@ -1,87 +1,231 @@
 ---
-title: "Between-Unit vs. Within-Unit Effects"
+title: "Separating Within and Between Effects"
 ---
 
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(lme4)
 library(lmerTest)
+library(broom.mixed)
+library(car)
+library(patchwork)
 set.seed(202)
 ```
 
-# Between-Unit vs. Within-Unit Effects
+# Separating Within and Between Effects
 
-## The Same Variable, Two Stories
+## The Mundlak Device
 
-Consider studying whether a nation's GDP predicts its citizens' wellbeing. You have survey data from 60 countries over 10 years.
+Part 1 showed that a predictor in nested data carries two mechanisms. The formal statistical tool for separating them is known as the **Mundlak device** (Mundlak, 1978) or equivalently the **within-between (WB) model**.
 
-**The between-country question:** Do richer countries have happier citizens on average?
-**The within-country question:** In years when a country's GDP grows, do its citizens report higher wellbeing?
+The key equation — building on Part 1's decomposition — is:
 
-These are completely different empirical questions. The between-country question picks up all stable differences between rich and poor countries (culture, institutions, climate, history). The within-country question is closer to a causal estimate of the effect of economic growth on wellbeing, net of these stable differences.
+$$
+\underbrace{Y_{ij}}_{\text{outcome}} = \underbrace{\gamma_{00}}_{\substack{\text{grand} \\ \text{mean}}} + \underbrace{\beta_W (X_{ij} - \bar{X}_j)}_{\substack{\text{within-unit effect} \\ \text{(deviation from own mean)}}} + \underbrace{\beta_B \bar{X}_j}_{\substack{\text{between-unit effect} \\ \text{(unit's average level)}}} + \underbrace{u_{0j}}_{\substack{\text{unit random} \\ \text{intercept}}} + \underbrace{\varepsilon_{ij}}_{\substack{\text{residual}}}
+$$
 
-Research consistently finds that the answers are *different*: rich countries are happier than poor ones, but within a country, economic booms correlate with wellbeing only modestly (the "Easterlin Paradox").
+The **Mundlak insight**: this model is equivalent to including the unit mean $\bar{X}_j$ alongside the raw predictor $X_{ij}$ in a random-effects model. The coefficient on $X_{ij}$ then estimates the within-unit effect, and the coefficient on $\bar{X}_j$ estimates the *additional* between-unit effect beyond the within-unit effect.
 
-## Separating the Effects: The Mundlak Device
+Both are valid. The CMC parameterization (Part 1) gives $\beta_W$ and $\beta_B$ directly and makes interpretation cleaner. The Mundlak parameterization adds $\bar{X}_j$ alongside the raw $X_{ij}$ and gives a test of whether $\beta_W = \beta_B$.
 
-The cleanest way to separate within- and between-unit effects is to include both in the same model:
+---
 
-1. Cluster-mean center the predictor (captures within-unit variation)
-2. Include the cluster mean as a separate level-2 predictor (captures between-unit variation)
+## Example 1: The Easterlin Paradox — GDP and Wellbeing
+
+The classic motivating case. Between countries, richer nations are happier. Within countries over time, economic growth has a modest and inconsistent effect on wellbeing. Two different mechanisms, same predictor.
 
 ```{r mundlak-demo}
-# Simulate country panel data
-n_countries <- 40
-n_years     <- 10
+n_countries <- 40; n_years <- 10
 
-# Between: rich countries ARE happier (partly for other reasons)
-country_gdp_avg  <- rnorm(n_countries, 50, 15)
+country_gdp_avg       <- rnorm(n_countries, 50, 15)
 country_wellbeing_base <- 50 + 0.6 * country_gdp_avg + rnorm(n_countries, 0, 8)
 
-# Within: growth has only modest effect on wellbeing
 df_gdp <- expand_grid(country = 1:n_countries, year = 1:n_years) |>
   mutate(
-    gdp_raw       = country_gdp_avg[country] + rnorm(n(), 0, 5),
-    wellbeing     = country_wellbeing_base[country] +
-                    0.15 * (gdp_raw - country_gdp_avg[country]) +
-                    rnorm(n(), 0, 4),
-    country       = factor(country)
+    gdp_raw   = country_gdp_avg[country] + rnorm(n(), 0, 5),
+    wellbeing = country_wellbeing_base[country] +
+                0.15 * (gdp_raw - country_gdp_avg[country]) + rnorm(n(), 0, 4),
+    country   = factor(country)
   ) |>
   group_by(country) |>
-  mutate(
-    gdp_mean = mean(gdp_raw),
-    gdp_cmc  = gdp_raw - gdp_mean
-  ) |>
+  mutate(gdp_mean = mean(gdp_raw), gdp_cmc = gdp_raw - gdp_mean) |>
   ungroup()
 
-# Pooled (mixes effects)
-m_pooled <- lmer(wellbeing ~ gdp_raw + (1 | country), data = df_gdp)
-
-# Mundlak: both within and between
+m_pooled  <- lmer(wellbeing ~ gdp_raw + (1 | country), data = df_gdp)
 m_mundlak <- lmer(wellbeing ~ gdp_cmc + gdp_mean + (1 | country), data = df_gdp)
 
 bind_rows(
-  broom.mixed::tidy(m_pooled,  effects = "fixed") |> mutate(model = "Pooled"),
-  broom.mixed::tidy(m_mundlak, effects = "fixed") |> mutate(model = "Mundlak")
+  broom.mixed::tidy(m_pooled,  effects = "fixed") |>
+    filter(term == "gdp_raw") |> mutate(model = "Pooled"),
+  broom.mixed::tidy(m_mundlak, effects = "fixed") |>
+    filter(term == "gdp_cmc")  |> mutate(model = "Within-country"),
+  broom.mixed::tidy(m_mundlak, effects = "fixed") |>
+    filter(term == "gdp_mean") |> mutate(model = "Between-country")
 ) |>
-  select(model, term, estimate, std.error, p.value) |>
-  knitr::kable(digits = 3, caption = "Within vs. between effects of GDP on wellbeing")
+  select(model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "GDP → wellbeing: pooled ~0.45 blends within ~0.15 and between ~0.60")
 ```
 
-The Mundlak model reveals:
-- **Within effect (gdp_cmc ≈ 0.15):** When a country's GDP is above its own average, wellbeing is modestly higher. Small effect.
-- **Between effect (gdp_mean ≈ 0.6):** Countries with higher average GDP have substantially higher wellbeing — but this partly reflects other stable advantages of wealthy nations.
+**Interpretation:**
+- **Within-country (gdp_cmc ≈ 0.15):** In years when GDP is above a country's own average, wellbeing ticks up slightly. Modest — consistent with hedonic adaptation and shifting aspirations.
+- **Between-country (gdp_mean ≈ 0.60):** Countries with permanently higher GDP have substantially higher wellbeing. But this reflects institutions, infrastructure, healthcare, and social safety nets that co-occur with wealth — not just income itself.
+- **Pooled (~0.45):** An average that describes neither mechanism accurately.
 
-The pooled model blends these two stories into one coefficient that misrepresents both.
+---
 
-## The Assumption Test: Are Within and Between Effects Equal?
+## Example 2: Within-Subjects Experiments — Trait vs. State Effects
 
-The formal test for whether within and between effects are equal is simple: if the CMC model's within coefficient ($\beta_{within}$) and between coefficient ($\beta_{between}$) are statistically indistinguishable, you can use the simpler pooled model. If they differ, they must be separated.
+In a within-subjects experiment, the same decomposition applies — but now the "cluster" is the participant and the nesting is observations within person.
+
+**Design:** 80 participants each evaluate 10 charity appeals. Half feature statistical evidence; half feature personal stories. Outcome: whether they donate (continuous willingness-to-donate scale, 0–100).
+
+**The within-person effect** ($\beta_W$): For a given participant, do story-based appeals get higher donations than statistical appeals — compared to that participant's *own average* donation?
+
+**The between-person effect** ($\beta_B$): Do participants who are exposed to more story-based appeals (by random assignment variation) tend to donate more overall? This would pick up trait-level empathizers who respond to everything more generously.
+
+With random assignment, $\beta_B$ should be near zero — randomization ensures that more story-exposed participants are not systematically more empathetic. A large $\beta_B$ is a red flag.
+
+```{r experiment-demo}
+n_p_exp <- 80; n_appeals <- 10
+
+# Some participants are trait high-empathy: they donate more AND
+# in this (imperfect) design, happen to see more story appeals
+person_empathy     <- rnorm(n_p_exp, 50, 10)
+person_story_prop  <- 0.5 + 0.01 * (person_empathy - 50) + rnorm(n_p_exp, 0, 0.05)
+person_story_prop  <- pmin(pmax(person_story_prop, 0), 1)
+person_base_donate <- 40 + 0.8 * person_empathy + rnorm(n_p_exp, 0, 8)
+
+df_exp <- expand_grid(participant = 1:n_p_exp, appeal = 1:n_appeals) |>
+  mutate(
+    story = rbinom(n(), 1, person_story_prop[participant]),
+    donate = person_base_donate[participant] +
+             5 * (story - person_story_prop[participant]) +
+             rnorm(n(), 0, 6),
+    participant = factor(participant)
+  ) |>
+  group_by(participant) |>
+  mutate(story_mean = mean(story), story_cmc = story - story_mean) |>
+  ungroup()
+
+m_exp <- lmer(donate ~ story_cmc + story_mean + (1 | participant), data = df_exp)
+broom.mixed::tidy(m_exp, effects = "fixed") |> filter(term != "(Intercept)") |>
+  mutate(mechanism = c("Within-person (causal effect)", "Between-person (trait confound)")) |>
+  select(mechanism, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Story vs. stats: within ≈ 5 (treatment effect); between ≈ near zero (good randomization)")
+```
+
+With good randomization, $\beta_B \approx 0$ and $\beta_W$ recovers the true treatment effect. A significant $\beta_B$ would suggest a randomization failure or a design confound — worth always checking in within-subjects designs.
+
+---
+
+## Example 3: Ecological Fallacy — Education and Fertility
+
+Between countries: more educated countries have lower fertility (strong negative relationship). Within countries over time: rising education predicts declining fertility (also negative). Here the signs align, but the magnitudes and mechanisms differ.
+
+The *between-country* effect reflects structural factors: cultural norms, female labor force participation, urbanization, and healthcare access all co-vary with education across nations.
+
+The *within-country* effect over time reflects a causal mechanism: as individual women gain education, they delay marriage, have fewer children, and invest more per child.
+
+Same direction, but if you use the cross-national correlation to inform policy about what happens when you increase education within a country, you are using the wrong estimate — the between-country relationship is confounded by dozens of co-varying structural factors.
+
+```{r education-fertility}
+n_countries_ef <- 50; n_years_ef <- 8
+
+country_edu_avg <- rnorm(n_countries_ef, 60, 12)
+country_fert_base <- 4.5 - 0.05 * country_edu_avg + rnorm(n_countries_ef, 0, 0.4)
+
+df_ef <- expand_grid(country = 1:n_countries_ef, year = 1:n_years_ef) |>
+  mutate(
+    education = country_edu_avg[country] + rnorm(n(), 0, 5),
+    fertility = country_fert_base[country] -
+                0.01 * (education - country_edu_avg[country]) + rnorm(n(), 0, 0.2),
+    country   = factor(country)
+  ) |>
+  group_by(country) |>
+  mutate(edu_mean = mean(education), edu_cmc = education - edu_mean) |>
+  ungroup()
+
+m_ef <- lmer(fertility ~ edu_cmc + edu_mean + (1 | country), data = df_ef)
+broom.mixed::tidy(m_ef, effects = "fixed") |> filter(term != "(Intercept)") |>
+  mutate(mechanism = c("Within-country over time", "Between-country cross-section")) |>
+  select(mechanism, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Education → fertility: both negative, but between is 5× larger due to structural confounds")
+```
+
+The between-country estimate is 5× larger than the within-country estimate. Using the cross-sectional number to predict what happens when you raise education *within* a country would dramatically overstate the policy effect.
+
+---
+
+## Example 4: Convergent Effects — Training and Performance
+
+Not every decomposition reveals a divergence. When within and between effects are approximately equal, this is itself a substantive finding: the same mechanism operates at both levels.
+
+**Employee training hours → job performance.** Within an employee: weeks where they receive more training, their performance ticks up (skill acquisition). Between employees: those who invest more in training overall also perform better (both due to training AND because high performers seek out training). Both effects are positive and of similar magnitude.
+
+```{r training-performance}
+n_emp <- 100; n_weeks <- 8
+
+emp_train_avg   <- rnorm(n_emp, 4, 1.5)
+emp_perf_base   <- 50 + 3 * emp_train_avg + rnorm(n_emp, 0, 6)
+
+df_train <- expand_grid(employee = 1:n_emp, week = 1:n_weeks) |>
+  mutate(
+    training    = pmax(0, emp_train_avg[employee] + rnorm(n(), 0, 1)),
+    performance = emp_perf_base[employee] +
+                  2.8 * (training - emp_train_avg[employee]) + rnorm(n(), 0, 5),
+    employee    = factor(employee)
+  ) |>
+  group_by(employee) |>
+  mutate(train_mean = mean(training), train_cmc = training - train_mean) |>
+  ungroup()
+
+m_train <- lmer(performance ~ train_cmc + train_mean + (1 | employee), data = df_train)
+broom.mixed::tidy(m_train, effects = "fixed") |> filter(term != "(Intercept)") |>
+  mutate(mechanism = c("Within-employee", "Between-employee")) |>
+  select(mechanism, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Training → performance: within ≈ between ≈ 3. Pooled model is approximately correct here.")
+```
+
+When $\beta_W \approx \beta_B$, the pooled model is defensible. But again: **you only know this after running the decomposition.** The convergence is informative — it suggests training itself (not some trait that drives both training and performance) is the active mechanism.
+
+---
+
+## Testing Whether Within and Between Effects Are Equal
+
+The formal test is a **Wald test** on the null hypothesis $H_0: \beta_W = \beta_B$:
 
 ```{r wald-test}
-library(car)
-# Test: within effect = between effect?
+# Test on the Easterlin model: are within and between GDP effects equal?
 linearHypothesis(m_mundlak, "gdp_cmc = gdp_mean")
 ```
 
-A significant test (p < 0.05) means within and between effects differ — the pooled model is misspecified.
+A significant result (p < 0.05) means you must report both effects separately — the pooled model is misspecified. A non-significant result means you *cannot rule out* that the effects are equal, and a pooled model may be defensible (though the CMC model is always more informative).
+
+---
+
+## A Decision Table
+
+::: {.callout-tip}
+## What to Report: Within, Between, or Both?
+
+| Pattern | $\beta_W$ vs. $\beta_B$ | Wald test | What to report |
+|---------|------------------------|-----------|----------------|
+| Convergent | Similar magnitude and sign | p > .05 | Pooled estimate is OK, but note the decomposition confirmed equivalence |
+| Divergent | Different magnitudes | p < .05 | Report both; discuss different mechanisms |
+| Sign reversal | Opposite signs | p < .05 | Report both; warn about Simpson's Paradox |
+| Experimental | $\beta_B \approx 0$, $\beta_W$ = treatment effect | p < .05 | Report within as the treatment effect; $\beta_B$ is a randomization check |
+
+**Always run the decomposed model first.** Use the Wald test to decide whether to simplify. Do not start with the pooled model.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Correct Level Attribution
+
+Including a variable as within-unit (CMC) or between-unit (unit mean) requires knowing which level it genuinely varies at. A variable that appears to vary within units but is actually stable should be treated as a level-2 predictor.
+
+**How to check:** Compute the ICC of the predictor itself. High ICC (>0.70) means most variation is between units; CMC will give you noisy, low-variance within deviations. Low ICC means the variable genuinely varies at the within-unit level.
+:::

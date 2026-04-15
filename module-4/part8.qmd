@@ -1,0 +1,305 @@
+---
+title: "Survival Analysis for Longitudinal Events"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(survival)
+library(survminer)
+library(broom)
+library(patchwork)
+set.seed(2024)
+```
+
+# Survival Analysis for Longitudinal Events
+
+## When the Outcome Is Time-to-Event
+
+Many longitudinal outcomes of interest are not scores that change over time — they are **events**: relapse, remission, dropout, divorce, promotion, death. The scientific question is not "how did the score change?" but "how long until the event happened, and what predicts the rate at which it happens?"
+
+**Survival analysis** (also called event history analysis or time-to-event analysis) is the appropriate framework for these outcomes. It addresses three features that distinguish event data from ordinary repeated measures:
+
+1. **Censoring.** Not every person experiences the event during the study window. Someone who has not relapsed by the end of the study contributed real information — they survived at least that long — but you do not know when (or whether) they eventually relapsed. Discarding them would introduce selection bias. Treating them as non-events would distort the rate estimates.
+
+2. **Non-constant hazard.** The risk of an event is not constant over time. Depression relapse is highest in the first months after remission. Divorce peaks around the 7-year mark. Survival models estimate a **hazard function** — the instantaneous rate of the event at each time point, conditional on having survived to that point.
+
+3. **Nesting.** When participants are nested in clinics, teams, or therapists, standard survival models assume independence that is violated. Frailty models extend survival analysis to handle clustering, exactly as random intercepts extend regression.
+
+---
+
+## The Hazard Function and Survival Function
+
+The two central quantities in survival analysis are mathematically related:
+
+**The survival function** $S(t)$ gives the probability of surviving (not experiencing the event) past time $t$:
+
+$$S(t) = P(T > t)$$
+
+**The hazard function** $h(t)$ gives the instantaneous rate of the event at time $t$, given survival to that point:
+
+$$h(t) = \lim_{\Delta t \to 0} \frac{P(t \leq T < t + \Delta t \mid T \geq t)}{\Delta t}$$
+
+They are linked by:
+
+$$S(t) = \exp\left(-\int_0^t h(u)\, du\right)$$
+
+A high hazard at time $t$ means the event is likely to occur around that time for people who have survived. Survival curves fall steeply when hazards are high.
+
+---
+
+## Step 1: The Kaplan-Meier Estimator
+
+The Kaplan-Meier (KM) estimator is the standard nonparametric estimate of the survival function. It makes no assumptions about the shape of the hazard function and handles censoring correctly.
+
+### Simulating Time-to-Relapse Data
+
+We simulate 120 patients in a depression remission study. Half receive a maintenance therapy; half receive standard care. We track time-to-relapse (in weeks) over a 52-week follow-up. Patients who have not relapsed by week 52 are censored.
+
+```{r simulate-survival}
+n_patients <- 120
+treatment  <- rep(c(0, 1), each = n_patients / 2)
+
+# True relapse times: exponential with treatment-dependent rate
+set.seed(2024)
+rate_control  <- 0.025  # average relapse ~40 weeks
+rate_treatment <- 0.012  # treatment roughly halves the rate
+
+relapse_time <- ifelse(
+  treatment == 0,
+  rexp(n_patients, rate = rate_control),
+  rexp(n_patients, rate = rate_treatment)
+)
+
+# Censoring at week 52
+follow_up  <- 52
+event_time <- pmin(relapse_time, follow_up)
+event      <- as.integer(relapse_time <= follow_up)
+
+df_surv <- tibble(
+  patient   = 1:n_patients,
+  time      = event_time,
+  event     = event,
+  treatment = factor(treatment, labels = c("Standard care", "Maintenance therapy"))
+)
+
+# Quick summary
+df_surv |>
+  group_by(treatment) |>
+  summarise(
+    n_events  = sum(event),
+    n_censored = sum(1 - event),
+    median_time = median(time[event == 1]),
+    .groups = "drop"
+  ) |>
+  knitr::kable(caption = "Event summary by treatment group")
+```
+
+### Fitting and Plotting the Kaplan-Meier Curve
+
+```{r km-fit}
+km_fit <- survfit(
+  Surv(time, event) ~ treatment,
+  data = df_surv
+)
+
+# Base R version for reproducibility
+plot_data <- broom::tidy(km_fit)
+
+ggplot(plot_data, aes(x = time, y = estimate, color = strata, fill = strata)) +
+  geom_step(linewidth = 1.2) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.15, color = NA) +
+  scale_color_manual(
+    values = c("#1e3a5f", "#e63946"),
+    labels = c("Standard care", "Maintenance therapy")
+  ) +
+  scale_fill_manual(
+    values = c("#1e3a5f", "#e63946"),
+    labels = c("Standard care", "Maintenance therapy")
+  ) +
+  scale_y_continuous(limits = c(0, 1), labels = scales::percent_format()) +
+  labs(
+    title    = "Kaplan-Meier survival curves: time to depression relapse",
+    subtitle = "Shaded bands = 95% confidence intervals. Steps at each event time.",
+    x = "Weeks since remission",
+    y = "Probability of remaining relapse-free",
+    color = "Group", fill = "Group"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+### Reading the KM Curve
+
+The KM curve starts at $S(0) = 1$ and steps down at each event time. The **median survival time** is the time at which the curve crosses 0.50 — half the group has relapsed by that point.
+
+Censored observations appear as tick marks on the curve (here suppressed for clarity). Patients who are censored contribute their partial information: they reduce the "at risk" count at later times without contributing a step down in the survival curve.
+
+---
+
+## Step 2: The Log-Rank Test
+
+The log-rank test compares survival curves between groups without assuming a parametric shape. It tests $H_0: S_1(t) = S_2(t)$ for all $t$.
+
+```{r log-rank}
+logrank_test <- survdiff(Surv(time, event) ~ treatment, data = df_surv)
+logrank_test
+```
+
+The log-rank test is most powerful when the hazard ratio between groups is approximately constant over time (proportional hazards assumption). If the curves cross — one group has higher early hazard, the other higher late hazard — the log-rank test loses power and may be misleading.
+
+---
+
+## Step 3: The Cox Proportional Hazards Model
+
+The Cox model is the standard regression tool for survival outcomes. It models the **hazard** as a function of covariates without specifying the shape of the baseline hazard:
+
+$$h(t \mid X_j) = \underbrace{h_0(t)}_{\substack{\text{baseline hazard} \\ \text{(unspecified)}}} \cdot \underbrace{\exp(\beta_1 X_{1j} + \beta_2 X_{2j} + \cdots)}_{\substack{\text{multiplicative predictor} \\ \text{effect on hazard rate}}}$$
+
+- $h_0(t)$ is the **baseline hazard** — the hazard for someone with all covariates at zero. Its shape is left completely unspecified (this is why Cox is called "semi-parametric").
+- Each $\exp(\beta_k)$ is a **hazard ratio**: the multiplicative factor by which the hazard changes for a one-unit increase in $X_k$, holding other covariates constant.
+- A hazard ratio of 0.5 means the event rate is halved at every time point.
+
+### Fitting the Cox Model
+
+```{r cox-fit}
+cox_model <- coxph(
+  Surv(time, event) ~ treatment,
+  data = df_surv
+)
+
+broom::tidy(cox_model, exponentiate = TRUE, conf.int = TRUE) |>
+  select(term, estimate, conf.low, conf.high, p.value) |>
+  knitr::kable(
+    digits = 3,
+    caption = "Cox model: hazard ratios. HR < 1 means lower hazard (better prognosis) in treatment group."
+  )
+```
+
+The treatment hazard ratio tells you: at any given week, what is the ratio of the relapse rate in the maintenance therapy group to the standard care group? A hazard ratio of ~0.5 means the maintenance therapy cuts the instantaneous relapse rate in half at every time point — which is what we simulated.
+
+### The Proportional Hazards Assumption
+
+The Cox model assumes the hazard ratio is **constant over time** — the curves diverge proportionally. If the treatment effect fades over time (hazard ratio drifts toward 1.0 at later weeks), the model is misspecified.
+
+```{r ph-test}
+cox_test <- cox.zph(cox_model)
+cox_test
+
+# Schoenfeld residual plot
+ggplot(
+  data.frame(
+    time     = cox_test$time,
+    residual = cox_test$y[, 1]
+  ),
+  aes(x = time, y = residual)
+) +
+  geom_point(alpha = 0.4, color = "#1e3a5f") +
+  geom_smooth(method = "loess", color = "#e63946", se = TRUE) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(
+    title    = "Schoenfeld residuals: testing proportional hazards",
+    subtitle = "A flat loess line supports proportional hazards; a trend suggests time-varying effect",
+    x = "Time", y = "Schoenfeld residual"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+A non-significant global test (`cox.zph`) and a flat Schoenfeld residual plot both support the proportional hazards assumption. If the assumption is violated, you can add time-by-covariate interaction terms (`tt()` in the `survival` package) or stratify by the violating variable.
+
+---
+
+## Step 4: Frailty Models — Handling Clustered Survival Data
+
+When participants are nested in groups (patients within hospitals, employees within teams), standard Cox models assume independence between observations. This assumption is violated in clustered data. The analogue of a random intercept in survival analysis is a **frailty** — a latent multiplicative factor that shifts the hazard up or down for everyone in a cluster.
+
+The frailty model:
+
+$$h_{ij}(t) = h_0(t) \cdot \exp(\beta X_{ij}) \cdot \underbrace{Z_j}_{\substack{\text{cluster frailty} \\ Z_j \sim \text{Gamma}(1, \theta)}}$$
+
+$Z_j$ is the frailty for cluster $j$. If $Z_j > 1$, all patients in that cluster have higher hazard (frailty variance $\theta$ captures how much clusters differ).
+
+### Simulating Clustered Survival Data
+
+```{r simulate-clustered-survival}
+n_hospitals  <- 15
+n_per_hosp   <- 8  # patients per hospital
+n_total      <- n_hospitals * n_per_hosp
+
+hospital     <- rep(1:n_hospitals, each = n_per_hosp)
+treatment_h  <- rep(rep(c(0, 1), each = n_per_hosp / 2), n_hospitals)
+
+# Hospital-level frailty (Gamma distributed, mean=1)
+hospital_frailty <- rgamma(n_hospitals, shape = 2, rate = 2)  # var = 0.5
+
+# Patient-level times
+base_rate   <- 0.02
+indiv_time  <- rexp(
+  n_total,
+  rate = base_rate * hospital_frailty[hospital] * exp(-0.5 * treatment_h)
+)
+
+event_frailty <- as.integer(indiv_time <= follow_up)
+time_frailty  <- pmin(indiv_time, follow_up)
+
+df_frailty <- tibble(
+  patient    = 1:n_total,
+  hospital   = factor(hospital),
+  time       = time_frailty,
+  event      = event_frailty,
+  treatment  = factor(treatment_h, labels = c("Control", "Treatment"))
+)
+```
+
+### Fitting the Frailty Model
+
+```{r frailty-fit}
+cox_frailty <- coxph(
+  Surv(time, event) ~ treatment + frailty(hospital, distribution = "gamma"),
+  data = df_frailty
+)
+
+summary(cox_frailty)
+```
+
+The frailty variance estimate tells you how much hospitals differ in their baseline hazard. Large frailty variance means the hospital you are treated at matters a great deal for your prognosis — independent of treatment. This is the survival analogue of a large ICC in a linear mixed model.
+
+---
+
+## Assumptions Summary
+
+::: {.callout-warning icon=false}
+## Assumption: Non-Informative Censoring
+
+Censoring must be **independent** of the event process. If sicker patients are more likely to drop out (informative censoring), survival estimates will be biased upward — the sample becomes increasingly healthy as patients are lost, making the event appear rarer than it is.
+
+**How to check:** Compare baseline characteristics between censored and uncensored patients. If they differ systematically, consider sensitivity analyses (e.g., worst-case imputation) or inverse-probability-of-censoring weighting.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Proportional Hazards (Cox Model Only)
+
+The Cox model requires the hazard ratio between groups to be constant over time. If treatment effects fade or accelerate, the proportional hazards assumption is violated.
+
+**How to check:** Run `cox.zph()`. If significant, plot Schoenfeld residuals. Solutions: add time-by-treatment interaction, stratify by the violating variable, or use an accelerated failure time (AFT) model, which makes a different structural assumption (time ratios rather than hazard ratios).
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Correct Functional Form (Parametric Models)
+
+If you use a parametric survival model (exponential, Weibull, log-normal), you are asserting a specific shape for the baseline hazard. These models are more efficient than Cox when the assumption is correct but badly misspecified when it is wrong.
+
+**How to check:** Plot the KM curve and compare it visually to the parametric fit. The log-cumulative hazard plot can distinguish Weibull from exponential shapes.
+:::
+
+---
+
+## A Map of Survival Methods
+
+| Goal | Method | Package |
+|------|---------|---------|
+| Describe survival curves nonparametrically | Kaplan-Meier | `survival::survfit()` |
+| Compare two groups | Log-rank test | `survival::survdiff()` |
+| Regression with covariates | Cox proportional hazards | `survival::coxph()` |
+| Test proportional hazards | Schoenfeld test | `survival::cox.zph()` |
+| Handle clustered/nested data | Frailty model | `survival::coxph(frailty(...))` |
+| Visualize survival curves | KM plots, forest plots | `survminer` |
+| Parametric models | Weibull, log-normal, etc. | `survival::survreg()` |
