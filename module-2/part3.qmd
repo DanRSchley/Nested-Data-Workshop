@@ -276,9 +276,9 @@ bind_rows(
   tidy_correct |> filter(term == "val_s") |>
     mutate(model = "Correct (concreteness + stimulus RE)")
 ) |>
-  select(model, estimate, std.error, statistic, p.value) |>
+  select(model, estimate, std.error, statistic) |>
   knitr::kable(digits = 3,
-               caption = "Valence coefficient: false positive vs. null result")
+               caption = "Valence coefficient: false positive vs. null result (statistic = t-value)")
 ```
 
 The wrong model finds a statistically significant positive valence effect. The correct model — which includes concreteness as a covariate and crossed stimulus random effects — shows that valence has no effect. The apparent memory advantage of positive words disappears entirely once the concreteness confound is controlled.
