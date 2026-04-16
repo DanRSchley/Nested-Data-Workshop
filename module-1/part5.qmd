@@ -8,149 +8,485 @@ library(lme4)
 library(lmerTest)
 library(broom.mixed)
 library(performance)
-set.seed(77)
+library(ggplot2)
+library(patchwork)
+set.seed(42)
 ```
 
 # Three-Level Structures
 
 ## When Two Levels Aren't Enough
 
-Real organizational and social data is almost always more than two levels deep. Patients are nested within therapists, who are nested within clinics. Students are nested within classrooms, which are nested within schools, which are nested within districts. Employees are nested within teams, which are nested within departments, which are nested within firms.
+Real data rarely comes in neat two-level packages. The nesting structures encountered in organizational research and experimental science are often deeper, and collapsing them to two levels misattributes variance in ways that affect both inference and interpretation.
 
-A three-level model extends the random-effects framework by adding a third random effect — one for each of the three levels of the hierarchy.
+Three-level structures arise in two distinct research contexts:
+
+**Longitudinal organizational research.** Quarterly observations (L1) are nested within employees (L2), who are nested within organizations (L3). The ICC at L3 tells you how much organizations differ in employee outcomes — a direct measure of organizational-level influence. Ignoring the organizational level means assuming that all employees within the same firm are no more similar to each other than to employees at a different firm — an implausible assumption when organizations shape work environments, norms, policies, and resources.
+
+**Multi-site experimental research.** Trials (L1) are nested within participants (L2), who are nested within labs or research sites (L3). The ICC at L3 tells you how much results vary across labs — a direct measure of the replication generalizability problem. A multi-site replication study — increasingly common in psychological science as a response to the replication crisis — is structurally a three-level model. Ignoring the lab level treats site-to-site variation as random noise attributable to participants or trials, misattributing variance and producing overconfident estimates.
 
 ## The Model
 
-**Level 1 (observations within units within groups):**
+**Level 1** (observations within level-2 units):
 $$Y_{ijk} = \beta_{0jk} + \beta_1 X_{ijk} + e_{ijk}$$
 
-**Level 2 (units within groups):**
+**Level 2** (level-2 units within level-3 groups):
 $$\beta_{0jk} = \gamma_{00k} + u_{0jk}$$
 
-**Level 3 (groups):**
+**Level 3** (groups):
 $$\gamma_{00k} = \delta_{000} + v_{0k}$$
 
-Combined:
-$$Y_{ijk} = \delta_{000} + \beta_1 X_{ijk} + v_{0k} + u_{0jk} + e_{ijk}$$
+**Combined form:**
+$$Y_{ijk} = \underbrace{\delta_{000}}_{\text{grand mean}} + \underbrace{\beta_1 X_{ijk}}_{\text{L1 predictor}} + \underbrace{v_{0k}}_{\text{org/lab RE}} + \underbrace{u_{0jk}}_{\text{employee/participant RE}} + \underbrace{e_{ijk}}_{\text{residual}}$$
 
-Three variance components: $\sigma^2_v$ (level-3 variance), $\sigma^2_u$ (level-2 variance), $\sigma^2_e$ (level-1 variance).
+**Three variance components:**
 
-```{r three-level-sim}
-# Simulate: patients within therapists within clinics
-n_clinics    <- 8
-n_therapists <- 4  # per clinic
-n_patients   <- 10 # per therapist
+- $\sigma^2_v$: variance at level 3 (between organizations or labs)
+- $\sigma^2_u$: variance at level 2 (between employees or participants, within groups)
+- $\sigma^2_e$: variance at level 1 (within employees or participants, across occasions or trials)
 
-clinic_effects    <- rnorm(n_clinics, 0, 4)     # clinic-level variance
-therapist_effects <- rnorm(n_clinics * n_therapists, 0, 3)  # therapist-level
+The total variance in $Y$ is $\sigma^2_v + \sigma^2_u + \sigma^2_e$, and each component can be expressed as a proportion of this total to obtain the ICCs.
+
+## Longitudinal Example — Employee Wellbeing Panel
+
+**Design:** 6 organizations × 12 employees × 6 quarterly waves = 432 observations. The three levels are:
+
+- **Level 1:** quarterly observation (well-being score, workload)
+- **Level 2:** employee (random intercept per employee, nested within organization)
+- **Level 3:** organization (random intercept per organization)
+
+**Research question:** How much of total well-being variance is attributable to organizational differences vs. employee-level stable differences vs. wave-to-wave fluctuation within employees?
+
+```{r longitudinal-3level}
+n_orgs   <- 6
+n_emp    <- 12    # employees per organization
+n_waves  <- 6    # quarterly observations per employee
+
+# Level-3 random effects (organization)
+org_effects <- rnorm(n_orgs, 0, 4)            # SD = 4 between organizations
+
+# Level-2 random effects (employee within organization)
+emp_effects <- rnorm(n_orgs * n_emp, 0, 3)   # SD = 3 between employees within org
 
 df_3l <- expand_grid(
-  clinic    = 1:n_clinics,
-  therapist = 1:n_therapists,
-  patient   = 1:n_patients
+  org      = 1:n_orgs,
+  employee = 1:n_emp,
+  wave     = 1:n_waves
 ) |>
   mutate(
-    therapist_id    = (clinic - 1) * n_therapists + therapist,
-    sessions        = round(runif(n(), 5, 20)),
-    outcome         = 50 + 0.5 * sessions +
-                      clinic_effects[clinic] +
-                      therapist_effects[therapist_id] +
-                      rnorm(n(), 0, 5),
-    clinic          = factor(clinic, labels = paste0("C", 1:n_clinics)),
-    therapist_f     = factor(therapist_id)
+    emp_id    = (org - 1) * n_emp + employee,
+    workload  = rnorm(n(), mean = 50, sd = 10),
+    workload_c = workload - 50,
+    well_being = 60 +
+                 org_effects[org] +
+                 emp_effects[emp_id] +
+                 -0.2 * workload_c +
+                 rnorm(n(), 0, 4),          # SD = 4 within-employee
+    org    = factor(org,    labels = paste0("Org", 1:n_orgs)),
+    emp_id = factor(emp_id)
   )
 
-# Three-level model: patients in therapists in clinics
-model_3l <- lmer(outcome ~ sessions + (1 | clinic/therapist_f), data = df_3l)
+# Three-level model: waves within employees within organizations
+model_3l <- lmer(well_being ~ workload_c + (1 | org/emp_id),
+                 data = df_3l)
+
 summary(model_3l)
 ```
 
-```{r three-level-icc}
-# Variance components and level-specific ICCs
-vc <- as.data.frame(VarCorr(model_3l))
-vc |>
+The `(1 | org/emp_id)` shorthand is equivalent to `(1 | org) + (1 | emp_id:org)`. Both tell `lme4` to estimate a random intercept for each organization *and* for each employee *within* their organization.
+
+```{r longitudinal-variance-decomp}
+vc_long <- as.data.frame(VarCorr(model_3l))
+
+vc_long |>
   select(grp, vcov) |>
   mutate(
-    total_var = sum(vcov),
-    icc       = vcov / total_var
+    pct_variance = round(100 * vcov / sum(vcov), 1)
   ) |>
-  knitr::kable(digits = 3, caption = "Variance decomposition across levels")
+  knitr::kable(
+    digits  = 2,
+    col.names = c("Level", "Variance", "% of Total"),
+    caption = "Variance decomposition: employee well-being panel"
+  )
 ```
 
 **Reading the variance components:**
 
-- `clinic`: How much of the outcome variance is due to differences between clinics?
-- `therapist_f:clinic` (therapists within clinics): How much is due to differences between therapists *within* the same clinic?
-- `Residual`: How much is due to differences between patients *within* the same therapist?
+- `org`: How much of total well-being variance is explained by *which organization* an employee works for? This is the organization-level ICC (ICC$_3$).
+- `emp_id:org`: How much is explained by stable differences *between employees* within the same organization?
+- `Residual`: How much is wave-to-wave fluctuation *within the same employee* — the portion that varies over time.
 
-This decomposition tells us where the action is — and where intervention should be targeted.
+A large org-level ICC (ICC$_3 > 0.10$) means organizations matter substantially for employee well-being — suggesting organization-level interventions (management practices, structural policies) are warranted, not just individual-level ones.
 
-## ICC for Three-Level Data
+## Experimental Example — Multi-Lab Replication Study
 
-In a three-level model, there are two ICCs:
+**Design:** 5 labs × 20 participants × 8 trials = 800 observations. The three levels are:
 
-**Level-3 ICC:** Proportion of variance attributable to the highest-level unit (e.g., clinic):
-$$\text{ICC}_3 = \frac{\sigma^2_v}{\sigma^2_v + \sigma^2_u + \sigma^2_e}$$
+- **Level 1:** trial (decision quality score, condition: scarcity vs. control)
+- **Level 2:** participant (random intercept per participant, nested within lab)
+- **Level 3:** lab (random intercept per lab)
 
-**Level-2 ICC:** Proportion of variance attributable to level-2 units *and above* (e.g., therapist or above):
-$$\text{ICC}_2 = \frac{\sigma^2_v + \sigma^2_u}{\sigma^2_v + \sigma^2_u + \sigma^2_e}$$
+**Research question:** How much variance in decision quality is attributable to lab differences, participant differences within labs, and trial-to-trial fluctuation? The lab-level ICC quantifies how much the results depend on *where* the study was run.
 
-```{r three-level-icc2}
-library(performance)
-icc(model_3l)
+```{r experimental-3level}
+n_labs    <- 5
+n_par     <- 20   # participants per lab
+n_trials  <- 8    # trials per participant
+
+# Level-3 random effects (lab)
+lab_effects <- rnorm(n_labs, 0, 3)             # SD = 3 between labs
+
+# Level-2 random effects (participant within lab)
+par_effects <- rnorm(n_labs * n_par, 0, 5)    # SD = 5 between participants within lab
+
+df_multilab <- expand_grid(
+  lab         = 1:n_labs,
+  participant = 1:n_par,
+  trial       = 1:n_trials
+) |>
+  mutate(
+    par_id    = (lab - 1) * n_par + participant,
+    condition = rep(c(0, 1), times = n_trials / 2)[trial],
+    dq        = 65 +
+                lab_effects[lab] +
+                par_effects[par_id] +
+                -4 * condition +
+                rnorm(n(), 0, 4),            # SD = 4 within-participant trial noise
+    lab        = factor(lab,  labels = paste0("Lab", 1:n_labs)),
+    par_id     = factor(par_id),
+    condition  = factor(condition, labels = c("control", "scarcity"))
+  )
+
+# Three-level model: trials within participants within labs
+model_multilab <- lmer(dq ~ condition + (1 | lab/par_id),
+                       data = df_multilab)
+
+summary(model_multilab)
 ```
 
-## The Assumptions of Three-Level Models
+```{r experimental-variance-decomp}
+vc_exp <- as.data.frame(VarCorr(model_multilab))
 
-All assumptions from the two-level model carry over. Additionally:
+vc_exp |>
+  select(grp, vcov) |>
+  mutate(
+    pct_variance = round(100 * vcov / sum(vcov), 1)
+  ) |>
+  knitr::kable(
+    digits  = 2,
+    col.names = c("Level", "Variance", "% of Total"),
+    caption = "Variance decomposition: multi-lab scarcity replication"
+  )
+```
+
+**Reading the variance components in the experimental case:**
+
+- `lab`: Lab-to-lab variability. How much does it matter *which lab* ran the study? If this is high, the same nominal procedure produces meaningfully different baseline decision quality across sites — suggesting lab culture, participant pools, or local implementation differences are consequential.
+- `par_id:lab`: Individual differences between participants within the same lab. In a within-subjects design this is typically the largest component.
+- `Residual`: Trial-to-trial noise within a participant — random fluctuation from one decision to the next.
+
+**The connection to the replication crisis.** If ICC$_3 = 0.15$, then 15% of variance in decision quality is due to which lab a participant was tested in — independent of the scarcity manipulation. A single-lab study that happens to be run in a high-performing lab will systematically overestimate baseline scores, and if the manipulation interacts with lab characteristics, will also misestimate the effect size. Many replication failures occur because the original study had high lab-level variance: the effect was real in lab A but not lab B. Three-level models quantify this risk directly.
+
+## ICC Decomposition for Three-Level Models
+
+In a three-level model, there are two ICCs to report and interpret:
+
+**Level-3 ICC** (variance attributable to the highest-level unit alone):
+$$\text{ICC}_3 = \frac{\sigma^2_v}{\sigma^2_v + \sigma^2_u + \sigma^2_e}$$
+
+**Level-2 ICC** (variance attributable to level-2 *and above*):
+$$\text{ICC}_2 = \frac{\sigma^2_v + \sigma^2_u}{\sigma^2_v + \sigma^2_u + \sigma^2_e}$$
+
+The difference $\text{ICC}_2 - \text{ICC}_3$ is the variance *uniquely* attributable to level-2 units after removing level-3 variance.
+
+```{r icc-both}
+icc_long <- icc(model_3l)
+icc_exp  <- icc(model_multilab)
+
+cat("=== Longitudinal panel (well-being) ===\n")
+print(icc_long)
+
+cat("\n=== Experimental multi-lab replication ===\n")
+print(icc_exp)
+```
+
+```{r icc-viz}
+# Build a side-by-side variance partition bar chart for both models
+make_varpart_df <- function(model, labels, design) {
+  vc  <- as.data.frame(VarCorr(model))
+  tot <- sum(vc$vcov)
+  tibble(
+    level  = labels,
+    pct    = vc$vcov / tot,
+    design = design
+  )
+}
+
+vp_long <- make_varpart_df(
+  model_3l,
+  labels = c("Organization (L3)", "Employee (L2)", "Occasion (L1)"),
+  design = "Longitudinal"
+)
+
+vp_exp <- make_varpart_df(
+  model_multilab,
+  labels = c("Lab (L3)", "Participant (L2)", "Trial (L1)"),
+  design = "Experimental"
+)
+
+vp_all <- bind_rows(vp_long, vp_exp)
+
+p_vp_long <- ggplot(vp_long, aes(x = "", y = pct, fill = factor(level, levels = rev(level)))) +
+  geom_col(width = 0.5, color = "white") +
+  scale_fill_manual(values = c("#d4e6f1", "#457b9d", "#1e3a5f")) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Longitudinal", y = "% of variance", x = NULL, fill = "Level") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+
+p_vp_exp <- ggplot(vp_exp, aes(x = "", y = pct, fill = factor(level, levels = rev(level)))) +
+  geom_col(width = 0.5, color = "white") +
+  scale_fill_manual(values = c("#fde8e8", "#e63946", "#9b1d20")) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Experimental (Multi-Lab)", y = "% of variance", x = NULL, fill = "Level") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom")
+
+p_vp_long + p_vp_exp +
+  plot_annotation(title = "Variance decomposition: where does the outcome variance live?")
+```
+
+## Cross-Level Interactions
+
+Three-level models allow testing whether higher-level variables moderate lower-level effects — some of the most theoretically interesting questions in multilevel research.
+
+### Longitudinal: Does organizational culture moderate workload → well-being?
+
+**Hypothesis:** In more authoritarian organizations (top-down management, low autonomy), the negative effect of workload on well-being may be steeper than in more egalitarian organizations where employees can modulate their own workload.
+
+```{r cross-level-long}
+# Add L3 predictor: org type (1 = authoritarian, 0 = egalitarian)
+df_3l <- df_3l |>
+  group_by(org) |>
+  mutate(org_type = if_else(org %in% c("Org1", "Org2", "Org3"), 1L, 0L)) |>
+  ungroup()
+
+model_cli <- lmer(well_being ~ workload_c * org_type + (1 | org/emp_id),
+                  data = df_3l)
+
+broom.mixed::tidy(model_cli, effects = "fixed") |>
+  knitr::kable(
+    digits  = 3,
+    caption = "Cross-level interaction: org type × workload → well-being"
+  )
+```
+
+The interaction term `workload_c:org_type` tests whether the workload slope differs between authoritarian and egalitarian organizations. A significant negative coefficient would indicate that workload is more damaging in authoritarian organizations — where employees lack the autonomy to buffer its impact.
+
+### Experimental: Does lab context moderate the scarcity effect?
+
+**Hypothesis:** Labs that routinely use deception may have participant pools that are more suspicious or alert, potentially dampening or amplifying responses to the scarcity manipulation.
+
+```{r cross-level-exp}
+# Add L3 predictor: lab type (1 = uses deception, 0 = does not)
+df_multilab <- df_multilab |>
+  group_by(lab) |>
+  mutate(lab_type = if_else(lab %in% c("Lab1", "Lab2"), 1L, 0L)) |>
+  ungroup()
+
+model_cli_exp <- lmer(dq ~ condition * lab_type + (1 | lab/par_id),
+                      data = df_multilab)
+
+broom.mixed::tidy(model_cli_exp, effects = "fixed") |>
+  knitr::kable(
+    digits  = 3,
+    caption = "Cross-level interaction: lab type × scarcity condition"
+  )
+```
+
+```{r cli-viz}
+# Visualize the experimental cross-level interaction
+pred_df <- expand_grid(
+  condition = c("control", "scarcity"),
+  lab_type  = c(0L, 1L)
+) |>
+  mutate(
+    predicted = predict(model_cli_exp,
+                        newdata = tibble(condition, lab_type),
+                        re.form = NA),
+    lab_label = factor(lab_type, labels = c("No deception", "Uses deception"))
+  )
+
+ggplot(pred_df, aes(x = condition, y = predicted,
+                    group = lab_label, color = lab_label)) +
+  geom_line(linewidth = 1.4) +
+  geom_point(size = 3.5) +
+  scale_color_manual(values = c("#1e3a5f", "#e63946")) +
+  labs(
+    title    = "Cross-level interaction: lab type moderates scarcity effect",
+    subtitle = "Predicted decision quality by condition and lab context",
+    x        = "Condition",
+    y        = "Predicted decision quality",
+    color    = "Lab type"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "bottom")
+```
 
 ::: {.callout-warning icon=false}
-## Assumption: Correct Level Specification
+## Including Random Slopes in Cross-Level Interactions
 
-**What it means:** The model must correctly identify which units belong to which level. If therapists are incorrectly attributed to clinics (data entry errors, therapists who work at multiple clinics), the variance components will be misattributed.
+**Heisig & Schaeffer (2019)** showed that when a cross-level interaction involves a level-1 predictor, you must include a random slope for that predictor to obtain unbiased estimates of the interaction. Without the random slope, the cross-level interaction estimate absorbs variance that should be attributed to individual-level heterogeneity.
 
-**How to check:** Cross-tabulate your level-2 and level-3 identifiers. Each level-2 unit should belong to exactly one level-3 unit (in a pure hierarchy).
+In practice: if you include `workload_c * org_type`, you should also include `(workload_c | org)` or at minimum allow the workload slope to vary across organizations. This model requires more data to estimate reliably, but it is the correctly specified model.
+:::
+
+## Assumptions of Three-Level Models
+
+All two-level model assumptions carry over — normality of random effects at each level, correct specification of fixed effects, independence of residuals conditional on random effects. Three additional concerns become prominent with three levels.
+
+::: {.callout-warning icon=false}
+## Assumption 1: Correct Level Specification
+
+**What it means:** The model must correctly identify which units belong to which level. If employees are incorrectly assigned to organizations (data entry errors, employees who move between organizations mid-study), variance components will be misattributed between levels.
+
+**In experimental designs:** Participants must be uniquely and correctly assigned to labs. Cross-site contamination — participants completing a study at one lab but attributed to another — corrupts the level-3 variance estimate.
+
+**How to check:** Cross-tabulate your level-2 and level-3 identifiers. In a pure nested hierarchy, each level-2 unit belongs to exactly one level-3 unit. Any rows returned below signal a cross-classified or misassigned structure.
 
 ```{r level-check}
+# Longitudinal: each employee should belong to exactly one organization
 df_3l |>
-  distinct(clinic, therapist_id) |>
-  group_by(therapist_id) |>
-  filter(n() > 1)  # should return 0 rows for a pure hierarchy
+  distinct(emp_id, org) |>
+  group_by(emp_id) |>
+  filter(n() > 1)   # should return 0 rows
+
+# Experimental: each participant should belong to exactly one lab
+df_multilab |>
+  distinct(par_id, lab) |>
+  group_by(par_id) |>
+  filter(n() > 1)   # should return 0 rows
+```
+
+Zero rows confirms a clean nested hierarchy. If rows appear, you have a cross-classified structure requiring a different model specification (e.g., `(1 | org) + (1 | emp_id)` instead of `(1 | org/emp_id)`).
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 2: Sufficient Sample Size at Each Level
+
+**What it means:** Variance components at higher levels require sufficient numbers of higher-level units to be estimated reliably. With only 5 labs or 6 organizations, the level-3 variance estimate is extremely noisy — confidence intervals for $\sigma^2_v$ will be very wide.
+
+**Why it matters:** Type I error rates for fixed effects are also affected. With very few level-3 units, the degrees of freedom for organization- or lab-level effects are essentially the number of level-3 units minus the number of predictors at that level.
+
+**How to check:** Count units at each level explicitly.
+
+```{r sample-size-check}
+cat("=== Longitudinal design ===\n")
+cat("Organizations (L3):", n_distinct(df_3l$org), "\n")
+cat("Employees per org (avg):",
+    round(nrow(distinct(df_3l, org, emp_id)) / n_distinct(df_3l$org), 1), "\n")
+cat("Waves per employee (avg):",
+    round(nrow(df_3l) / nrow(distinct(df_3l, emp_id)), 1), "\n")
+
+cat("\n=== Experimental design ===\n")
+cat("Labs (L3):", n_distinct(df_multilab$lab), "\n")
+cat("Participants per lab (avg):",
+    round(nrow(distinct(df_multilab, lab, par_id)) / n_distinct(df_multilab$lab), 1), "\n")
+cat("Trials per participant (avg):",
+    round(nrow(df_multilab) / nrow(distinct(df_multilab, par_id)), 1), "\n")
 ```
 :::
 
 ::: {.callout-warning icon=false}
-## Assumption: Sample Size at Each Level
+## Assumption 3: Minimum Clusters at L3
 
-**What it means:** Variance components at higher levels require sufficient numbers of level-3 units to be estimated reliably. As a rough guide, you want at least 20–30 units at each level where you are estimating a random effect.
+**Rule of thumb:** ≥ 20 units at L3 for reliable variance estimation at the top level. Below this threshold, the level-3 ICC estimate has very wide confidence intervals, and Wald-type standard errors for level-3 predictors can be severely anti-conservative.
 
-**Why it matters:** With only 5 clinics, the clinic-level variance estimate is very noisy. Confidence intervals for level-3 variance components are wide with small level-3 samples.
+| Level | Minimum recommended | Note |
+|-------|---------------------|------|
+| Level 3 (top-level groups) | ≥ 20 units | Below this, L3 variance is highly unstable |
+| Level 2 per L3 unit | ≥ 10 units | Needed for stable L2 variance within groups |
+| Level 1 per L2 unit | ≥ 5 observations | Needed for within-unit estimates |
 
-**How to check:** Count units at each level. Be cautious interpreting level-3 variance with fewer than 20 level-3 units.
+**Practical implication for multi-lab research:** With only 5 labs (as in our example), the lab-level ICC is estimated with very low precision. This is not a reason to avoid three-level models — a biased two-level model that ignores labs is worse — but it is a reason to:
+
+- Report wide confidence intervals for the lab ICC
+- Avoid strong claims about the magnitude of lab-level effects
+- Plan future multi-site studies with more labs rather than more participants per lab, if cross-site generalizability is the scientific goal
+
+For Bayesian approaches with informative priors on variance components, smaller level-3 samples can be handled more gracefully. The `brms` package provides a natural extension.
 :::
 
 ## Adding Level-2 and Level-3 Predictors
 
-One of the major advantages of the three-level model is the ability to include predictors at each level and examine cross-level interactions.
+One major advantage of three-level models is the ability to include predictors at each level simultaneously, each partialling out the others.
 
-```{r multilevel-predictors}
-# Add clinic-level predictor (e.g., clinic size)
+### Longitudinal Setting
+
+```{r longitudinal-predictors}
+# Add employee-level predictor (L2): job tenure
+# Add organization-level predictor (L3): org size (large vs. small)
+set.seed(42)
+
 df_3l <- df_3l |>
-  group_by(clinic) |>
-  mutate(clinic_size = n_distinct(therapist_f) * n_patients + rnorm(1, 0, 2)) |>
-  ungroup() |>
-  group_by(clinic, therapist_f) |>
-  mutate(therapist_experience = round(runif(1, 1, 20))) |>
+  group_by(org) |>
+  mutate(org_size = if_else(org %in% c("Org1", "Org2", "Org3"), 1L, 0L)) |>
+  ungroup()
+
+df_3l <- df_3l |>
+  group_by(org, emp_id) |>
+  mutate(tenure = round(runif(1, 1, 20), 0)) |>
   ungroup()
 
 model_3l_pred <- lmer(
-  outcome ~ sessions + therapist_experience + clinic_size +
-    (1 | clinic/therapist_f),
+  well_being ~ workload_c + tenure + org_size + (1 | org/emp_id),
   data = df_3l
 )
 
 broom.mixed::tidy(model_3l_pred, effects = "fixed") |>
-  knitr::kable(digits = 3, caption = "Three-level model with predictors at all levels")
+  knitr::kable(
+    digits  = 3,
+    caption = "Three-level panel model with L1 (workload), L2 (tenure), and L3 (org size) predictors"
+  )
 ```
 
-The output gives you effects at three levels simultaneously: the individual patient level (sessions), the therapist level (experience), and the clinic level (size). Each effect is estimated while accounting for the nesting at all other levels.
+Each fixed effect is estimated controlling for the others: the workload effect is within-employee, the tenure effect is between-employees within the same organization, and the org-size effect is between organizations.
+
+### Experimental Setting
+
+```{r experimental-predictors}
+# Add participant-level predictor (L2): cognitive ability score
+# Add lab-level predictor (L3): lab prestige (high vs. standard)
+df_multilab <- df_multilab |>
+  group_by(lab) |>
+  mutate(lab_prestige = if_else(lab %in% c("Lab1", "Lab2"), 1L, 0L)) |>
+  ungroup()
+
+df_multilab <- df_multilab |>
+  group_by(lab, par_id) |>
+  mutate(cog_ability = round(rnorm(1, 100, 15), 0)) |>
+  ungroup()
+
+model_multilab_pred <- lmer(
+  dq ~ condition + cog_ability + lab_prestige + (1 | lab/par_id),
+  data = df_multilab
+)
+
+broom.mixed::tidy(model_multilab_pred, effects = "fixed") |>
+  knitr::kable(
+    digits  = 3,
+    caption = "Three-level experimental model with condition (L1), cognitive ability (L2), and lab prestige (L3)"
+  )
+```
+
+The model simultaneously estimates the scarcity effect (within participants across trials), the cognitive ability effect (between participants within labs), and the lab prestige effect (between labs) — each adjusted for the other two levels.
+
+## Recommended Reading
+
+| Topic | Citation |
+|-------|----------|
+| Three-level models: foundations | Raudenbush, S. W., & Bryk, A. S. (2002). *Hierarchical linear models: Applications and data analysis methods* (2nd ed.). Sage. |
+| Multi-site replication and lab effects | Westfall, J., Kenny, D. A., & Judd, C. M. (2014). Statistical power and optimal design in experiments in which samples of participants respond to samples of stimuli. *Journal of Experimental Psychology: General, 143*(5), 2020–2045. |
+| Cross-level interactions and random slopes | Heisig, J. P., & Schaeffer, M. (2019). Why you should always include a random slope for the lower-level variable involved in a cross-level interaction. *European Sociological Review, 35*(2), 258–279. |
+| Sample size at higher levels | Maas, C. J. M., & Hox, J. J. (2005). Sufficient sample sizes for multilevel modeling. *Methodology, 1*(3), 86–92. |
+| Replication crisis and multilevel structure | Nosek, B. A., et al. (2015). Estimating the reproducibility of psychological science. *Science, 349*(6251), aac4716. |

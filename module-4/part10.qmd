@@ -1,0 +1,389 @@
+---
+title: "Applied Identification Strategies for Panel Data"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(plm)
+library(AER)
+library(broom)
+library(broom.mixed)
+library(ggplot2)
+library(patchwork)
+library(sandwich)
+library(lmtest)
+set.seed(42)
+```
+
+## Section 1: Introduction — Module 3 Meets Panel Data
+
+Module 3 covered six sources of endogeneity and six identification strategies. The discussion there was largely cross-sectional: a researcher observes units at one point in time and tries to isolate causal effects despite confounding. This chapter applies each of those strategies to **longitudinal panel data**, where units are observed repeatedly across time. The time dimension creates both new problems (time-varying confounders, dynamic selection) and new opportunities (the ability to difference out stable confounders using fixed effects, the ability to exploit policy rollout dates as natural experiments).
+
+The table below maps Module 3 threats to their panel-data solutions.
+
+| Module 3 Threat | Panel Solution | Key R Function |
+|---|---|---|
+| Time-invariant OVB (Part 1) | Fixed effects (Module 1) | `lmer(..., REML=F)` or `plm(model="within")` |
+| Time-varying endogeneity (Part 2 IV) | Panel IV | `ivreg(y ~ x + factor(unit) | z + factor(unit))` |
+| Policy adoption at known date (Part 5 DiD) | TWFE + event study | `plm(model="within", effect="twoways")` |
+| Temporal threshold (Part 4 RDD) | Interrupted Time Series | `lmer(y ~ t + post + t_post + (1|unit))` |
+| Non-random treatment adoption (Part 6 PS) | Time-varying PS matching | `matchit()` at each adoption wave |
+| Non-random attrition (Part 3 Selection) | Available-case lmer + MI | Module 4 Part 9 |
+
+: Module 3 identification strategies mapped to their panel-data analogs {tbl-colwidths="[30,35,35]"}
+
+The sections that follow walk through hands-on implementations of the most commonly needed strategies: two-way fixed effects DiD with an event study, interrupted time series (the temporal RDD), and panel IV.
+
+---
+
+## Section 2: Panel DiD with Two-Way Fixed Effects
+
+### Setup and simulation
+
+The **two-way fixed effects (TWFE)** estimator is the workhorse of panel difference-in-differences. It absorbs unit fixed effects (removing stable confounders) and time fixed effects (removing common shocks), then estimates the treatment effect from within-unit, within-period variation.
+
+We simulate 60 firms observed over 8 quarters. Thirty firms adopt a management initiative at quarter 5. The true average treatment effect on the treated (ATT) is 10 productivity points.
+
+```{r twfe-simulate}
+n_firms    <- 60
+n_quarters <- 8
+
+firm_eff    <- rnorm(n_firms, 0, 8)
+quarter_eff <- rnorm(n_quarters, 0, 3)
+
+df_twfe <- expand_grid(firm = 1:n_firms, quarter = 1:n_quarters) |>
+  mutate(
+    treated      = as.integer(firm <= 30),
+    post         = as.integer(quarter >= 5),
+    D            = treated * post,
+    f_eff        = firm_eff[firm],
+    q_eff        = quarter_eff[quarter],
+    productivity = 50 + 10 * D + f_eff + q_eff + rnorm(n(), 0, 4),
+    firm         = factor(firm),
+    quarter      = factor(quarter)
+  )
+```
+
+### Three equivalent estimators
+
+```{r twfe-models}
+# 1. Manual 2x2 DiD
+did_manual <- with(
+  df_twfe |>
+    group_by(treated, post) |>
+    summarise(y = mean(productivity), .groups = "drop"),
+  (y[treated == 1 & post == 1] - y[treated == 1 & post == 0]) -
+    (y[treated == 0 & post == 1] - y[treated == 0 & post == 0])
+)
+cat("Manual DiD estimate:", round(did_manual, 2), "\n")
+
+# 2. Regression DiD with firm-clustered SEs
+m_reg_did  <- lm(productivity ~ treated * post, data = df_twfe)
+se_cluster <- coeftest(m_reg_did, vcov = vcovCL(m_reg_did, cluster = ~firm))
+
+# 3. TWFE via plm (two-way within)
+pdata_twfe <- pdata.frame(
+  df_twfe |> mutate(firm_id = as.integer(firm), qtr = as.integer(quarter)),
+  index = c("firm_id", "qtr")
+)
+m_twfe <- plm(productivity ~ D, data = pdata_twfe,
+              model = "within", effect = "twoways")
+```
+
+```{r twfe-compare, echo=FALSE}
+naive_se <- sqrt(diag(vcov(m_reg_did)))["treated:post"]
+clust_se <- se_cluster["treated:post", "Std. Error"]
+
+tibble(
+  Method           = c("Manual DiD", "Regression DiD (naive SE)",
+                       "Regression DiD (clustered SE)", "TWFE via plm"),
+  Estimate         = c(did_manual,
+                       coef(m_reg_did)["treated:post"],
+                       se_cluster["treated:post", "Estimate"],
+                       coef(m_twfe)["D"]),
+  `Std. Error`     = c(NA, naive_se, clust_se, NA)
+) |>
+  knitr::kable(digits = 3,
+               caption = "All three approaches recover the true ATT ≈ 10. Clustered SEs exceed naive SEs because productivity shocks are correlated within firms over time.")
+```
+
+::: {.callout-warning icon=false}
+## Why Cluster Standard Errors in Panel DiD?
+
+Observations within the same firm are not independent — productivity shocks persist over time. Treating them as independent (naive OLS SEs) understates uncertainty and inflates Type I error rates. The rule of thumb: cluster at the level of treatment assignment. Here, treatment varies at the firm level, so we cluster on `firm`. With fewer than ~30 clusters, consider wild cluster bootstrap (`fwildclusterboot` package).
+:::
+
+### Event study: testing parallel trends
+
+The parallel trends assumption — that treated and control firms would have followed the same trajectory absent treatment — is not directly testable, but we can look for violations by checking whether pre-treatment differences in trends are already present.
+
+```{r event-study-plot, fig.width=8, fig.height=4.5}
+m_event <- lm(productivity ~ treated * factor(quarter), data = df_twfe)
+
+event_df <- broom::tidy(m_event, conf.int = TRUE) |>
+  filter(str_detect(term, "treated:")) |>
+  mutate(
+    quarter = as.integer(str_extract(term, "[0-9]+")),
+    pre     = quarter < 5
+  )
+
+ggplot(event_df, aes(x = quarter, y = estimate, color = pre)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_vline(xintercept = 4.5, linetype = "dotted", color = "gray30") +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2) +
+  geom_point(size = 3) +
+  scale_color_manual(
+    values = c("FALSE" = "#1e3a5f", "TRUE" = "#aec6e8"),
+    labels = c("FALSE" = "Post-treatment", "TRUE" = "Pre-treatment (should \u2248 0)")
+  ) +
+  annotate("text", x = 4.7, y = max(event_df$conf.high) * 0.9,
+           label = "Treatment\nadoption", hjust = 0, size = 3.5, color = "gray30") +
+  labs(
+    title   = "Event study: pre-period near zero supports parallel trends",
+    subtitle = "Post-period coefficients trace the materializing treatment effect",
+    x       = "Quarter",
+    y       = "Estimated treatment effect vs. Q1",
+    color   = NULL
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "bottom")
+```
+
+Pre-period interaction coefficients (light blue) are scattered around zero — consistent with parallel pre-trends. Post-period coefficients (dark blue) step up after quarter 5 and hover near the true effect of 10. If the pre-period coefficients showed a systematic upward or downward slope, that would be evidence of pre-existing differential trends and would undermine the DiD identification assumption.
+
+::: {.callout-tip}
+## Reading an Event Study Plot
+
+- **Pre-period coefficients near zero**: parallel trends plausible. Fail this check and DiD is suspect.
+- **Sharp jump at treatment date**: consistent with an immediate treatment effect.
+- **Gradual post-period increase**: treatment effect builds over time (dynamic effects).
+- **Anticipation effects** (pre-period coefficients trending upward before treatment): firms may be responding in advance; adjust the "post" indicator.
+:::
+
+---
+
+## Section 3: Interrupted Time Series (Temporal RDD)
+
+### Concept
+
+**Interrupted Time Series (ITS)** applies the RDD logic to time rather than a continuous running variable. When a policy takes effect at a known calendar date $c$, we look for a discontinuity in the time series at that date — a sudden level jump and/or a change in slope. The key identification assumption mirrors RDD's continuity assumption: absent the policy, the time trend would have continued smoothly through $c$.
+
+The ITS model decomposes the response into:
+
+$$Y_{it} = \beta_0 + \beta_1 t + \underbrace{\beta_2 D_t}_{\text{level jump}} + \underbrace{\beta_3 (t - c)\, D_t}_{\text{slope change}} + u_{0i} + \varepsilon_{it}$$
+
+where $D_t = \mathbf{1}[t \geq c]$, $t - c$ is time elapsed since the intervention (zero before), $u_{0i}$ is a unit random intercept (absorbing stable unit differences), and $\varepsilon_{it}$ is idiosyncratic error.
+
+- $\beta_1$: pre-intervention monthly trend
+- $\beta_2$: immediate level change at month $c$ (the "jump")
+- $\beta_3$: additional slope change after intervention (change in rate of change)
+
+### Simulation
+
+We simulate 40 retail stores observed for 30 months. A new pricing policy takes effect at month 16. The true DGP has a $+5$ level jump and a $+0.3$/month additional slope change.
+
+```{r its-simulate}
+n_stores <- 40
+n_months <- 30
+store_eff <- rnorm(n_stores, 0, 6)
+
+df_its <- expand_grid(store = 1:n_stores, month = 1:n_months) |>
+  mutate(
+    post   = as.integer(month >= 16),
+    t_post = pmax(month - 15, 0),       # months elapsed since policy; 0 before
+    s_eff  = store_eff[store],
+    sales  = 60 + 0.8 * month + 5 * post + 0.3 * t_post + s_eff + rnorm(n(), 0, 5),
+    store  = factor(store)
+  )
+```
+
+```{r its-model}
+m_its <- lmer(sales ~ month + post + t_post + (1 | store), data = df_its)
+
+broom.mixed::tidy(m_its, effects = "fixed") |>
+  knitr::kable(digits = 3,
+               caption = "ITS model: pre-trend (month), level jump (post), slope change (t_post). True values: 0.8, 5, 0.3.")
+```
+
+### Visualization
+
+```{r its-plot, fig.width=8.5, fig.height=4.5}
+store_avg <- df_its |>
+  group_by(month) |>
+  summarise(mean_sales = mean(sales), .groups = "drop")
+
+# Predicted values from lmer for an average store
+pred_df <- tibble(
+  month   = 1:n_months,
+  post    = as.integer(month >= 16),
+  t_post  = pmax(month - 15, 0),
+  store   = factor(1)          # prediction for store 1 (fixed effects only for plot)
+)
+pred_df$pred <- predict(m_its, newdata = pred_df, re.form = NA)
+
+ggplot(store_avg, aes(x = month, y = mean_sales)) +
+  geom_point(color = "gray60", size = 2) +
+  geom_line(data = pred_df, aes(y = pred), color = "#1e3a5f", linewidth = 1.2) +
+  geom_vline(xintercept = 15.5, linetype = "dashed", color = "#c0392b") +
+  annotate("segment",
+           x = 15.5, xend = 15.5, y = 67, yend = 72,
+           arrow = arrow(length = unit(0.25, "cm")), color = "#c0392b") +
+  annotate("text", x = 16, y = 73,
+           label = expression(beta[2]*": level jump"), hjust = 0,
+           color = "#c0392b", size = 3.5) +
+  annotate("text", x = 22, y = 83,
+           label = expression(beta[3]*": slope change"),
+           color = "#2980b9", size = 3.5) +
+  labs(
+    title    = "Interrupted Time Series: pricing policy at month 16",
+    subtitle = "Level jump (\u03b22) and slope change (\u03b23) both visible at the cutoff",
+    x        = "Month",
+    y        = "Store-average sales"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+### Pre-trend test
+
+The ITS equivalent of the RDD density (McCrary) test is to check whether the pre-intervention trend is genuinely linear, or whether a non-linear pre-trend exists that could masquerade as a level jump. A simple diagnostic:
+
+```{r its-pretrend}
+df_pre <- df_its |> filter(month < 16)
+m_pretrend <- lmer(sales ~ month + I(month^2) + (1 | store), data = df_pre)
+broom.mixed::tidy(m_pretrend, effects = "fixed") |>
+  knitr::kable(digits = 4,
+               caption = "Pre-period model with quadratic term. If I(month^2) is far from zero, the pre-trend is curved and the level-jump interpretation is suspect.")
+```
+
+A quadratic coefficient near zero in the pre-period supports the linearity assumption. A large quadratic coefficient means the trajectory was already bending at the cutoff — the ITS level jump would be confounded.
+
+---
+
+## Section 4: Panel IV
+
+### When fixed effects are not enough
+
+Unit fixed effects remove **time-invariant** confounders. But if a confounder varies both across units and across time — and is correlated with the predictor — FE alone is insufficient. Panel IV combines the within-unit differencing of FE with an instrument that shifts the endogenous predictor but has no direct path to the outcome.
+
+### Simulation: R&D investment and patents
+
+We simulate 200 firms over 6 years. R&D investment is endogenous (high-quality firms invest more). Industry-level tax incentives serve as the instrument (relevant to R&D, excluded from the patent equation except through R&D).
+
+```{r panel-iv-simulate}
+n_f  <- 200
+n_y  <- 6
+firm_q       <- rnorm(n_f, 0, 5)                  # unobserved firm quality
+industry     <- rep(1:10, each = n_f / 10)
+tax_incentive <- rnorm(10, 0, 2)[industry]         # industry-level component
+
+df_piv <- expand_grid(firm = 1:n_f, year = 1:n_y) |>
+  mutate(
+    fq      = firm_q[firm],
+    tax_inc = tax_incentive[firm] + rnorm(n(), 0, 0.5),  # firm-year realization
+    # R&D: endogenous — high-quality firms invest more
+    rd      = 20 + 2 * fq + 3 * tax_inc + rnorm(n(), 0, 5),
+    # Patents: causal effect of R&D = 0.5; also depends on quality
+    patents = 5 + 0.5 * rd + 1.5 * fq + rnorm(n(), 0, 3),
+    firm    = factor(firm),
+    year    = factor(year)
+  )
+```
+
+```{r panel-iv-models}
+# OLS + FE: still biased by time-varying fq-rd correlation
+m_ols_fe <- lm(patents ~ rd + factor(firm) + factor(year), data = df_piv)
+
+# IV + FE: use tax_inc as instrument, include firm + year FE
+m_iv_fe  <- ivreg(
+  patents ~ rd + factor(firm) + factor(year) |
+    tax_inc + factor(firm) + factor(year),
+  data = df_piv
+)
+
+# First-stage F-statistic
+fs <- lm(rd ~ tax_inc + factor(firm) + factor(year), data = df_piv)
+fs_F <- summary(fs)$fstatistic[1]
+cat("First-stage F on instrument:", round(fs_F, 1), "\n")
+```
+
+```{r panel-iv-compare, echo=FALSE}
+tibble(
+  Model    = c("OLS + unit/year FE", "IV + unit/year FE"),
+  Estimate = c(coef(m_ols_fe)["rd"], coef(m_iv_fe)["rd"]),
+  `Std. Error` = c(
+    sqrt(diag(vcov(m_ols_fe)))["rd"],
+    sqrt(diag(vcov(m_iv_fe)))["rd"]
+  ),
+  `True value` = 0.5
+) |>
+  knitr::kable(digits = 4,
+               caption = "OLS + FE overestimates the R&D effect because time-varying firm quality (fq) remains a confounder. IV recovers the true coefficient of 0.5.")
+```
+
+::: {.callout-warning icon=false}
+## Weak Instruments in Panel Data
+
+Panel fixed effects remove between-unit variation and retain only **within-unit** variation. This can substantially weaken an instrument that looked strong in cross-sectional data: the industry tax incentive varies mostly across industries, and much of that cross-industry variation is soaked up by the firm fixed effects. Always check the first-stage $F$-statistic using the **demeaned** (within-transformed) data, not the raw data. The conventional threshold is $F > 10$; for inference-robust methods (Anderson-Rubin test), the threshold matters less.
+
+```r
+# Safe check: first stage on demeaned data via plm
+pdata_piv   <- pdata.frame(df_piv |> mutate(firm_id=as.integer(firm), yr=as.integer(year)),
+                             index=c("firm_id","yr"))
+fs_within   <- plm(rd ~ tax_inc, data=pdata_piv, model="within", effect="twoways")
+summary(fs_within)
+```
+:::
+
+---
+
+## Section 5: Time-Varying Propensity Score Matching
+
+When units adopt a treatment at **different waves** — a staggered rollout rather than a single cutoff — the two-by-two DiD logic breaks down because the "post" period differs across treated units. Two-way FE with staggered adoption can produce negatively-weighted treatment effect estimates when treatment effects are heterogeneous across cohorts (the "negative weighting" problem documented by Callaway & Sant'Anna, 2021).
+
+One practical alternative is **time-varying propensity score matching**, which handles staggered adoption explicitly:
+
+**Step 1**: For each adoption wave $w$, identify:
+- Firms that just adopted in wave $w$ (the "treated" at wave $w$).
+- Firms that have not yet adopted by wave $w$ (the "not-yet-treated" controls).
+
+**Step 2**: Compute the propensity score at wave $w$ among eligible units:
+
+```r
+glm(adopted_now ~ lag_outcome + size + industry + region,
+    family = binomial,
+    data   = eligible_at_wave_w)
+```
+
+**Step 3**: Match treated firms to the most similar not-yet-treated firms **at that wave** using nearest-neighbor matching within the wave-specific pool.
+
+**Step 4**: Estimate the ATT on the matched sample, using the matched controls' post-adoption outcomes as the counterfactual.
+
+This approach produces a cohort-specific ATT for each adoption wave, which can be aggregated into an overall ATT. It is conceptually equivalent to the Callaway & Sant'Anna (2021) estimator (available in the `did` package) and is doubly robust when combined with outcome regression.
+
+::: {.callout-tip}
+## PS-Weighted DiD: Doubly Robust Panel Estimation
+
+Combining time-varying PS weighting with DiD regression produces an estimator that is **doubly robust**: consistent if either (a) the propensity score model is correctly specified, or (b) parallel trends holds conditional on covariates. Neither assumption alone is sufficient for ordinary DiD; neither alone is sufficient for ordinary PSM. The combination of both provides extra insurance. See `drdid` package for implementation.
+:::
+
+---
+
+## Section 6: Decision Tree — Which Strategy for Which Panel Problem?
+
+::: {.callout-tip}
+## Which Identification Strategy for Which Panel Problem?
+
+| Problem | Method | Key assumption | Module reference |
+|---------|---------|----------------|-----------------|
+| Stable unit-level confounders | Unit fixed effects | Time-invariant endogeneity | M1 Parts 1–2 |
+| Time-varying endogeneity | Panel IV | Instrument relevance + exclusion restriction | M3 Part 2 |
+| Parallel policy rollout | TWFE DiD | Parallel trends | M3 Part 5 |
+| Staggered adoption | Callaway-Sant'Anna / `drdid` | Parallel trends by cohort | M3 Part 5 |
+| Temporal policy cutoff | ITS | Continuity of time trend at cutoff | M3 Part 4 |
+| Non-random treatment adoption | Time-varying PS matching | Selection on observables | M3 Part 6 |
+| Non-random attrition | Available-case lmer + MI | MAR | M4 Part 9 |
+
+The first question is always: **what creates the identifying variation?** Time, a threshold, an instrument, or a policy rollout? The answer determines the method.
+:::

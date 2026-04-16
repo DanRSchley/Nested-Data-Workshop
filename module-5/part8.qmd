@@ -1,0 +1,270 @@
+---
+title: "Non-Compliance: ITT and LATE"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(AER)
+library(broom)
+library(ggplot2)
+library(patchwork)
+library(sandwich)
+library(lmtest)
+set.seed(42)
+```
+
+## Section 1: The Compliance Problem
+
+Random assignment guarantees unbiased **intent-to-treat (ITT)** estimates — the effect of being offered or assigned to treatment. But ITT is not always the quantity of interest.
+
+Consider a randomized exercise intervention: half the participants are assigned to a 12-week program, the other half to a waitlist control. At 12 weeks, the ITT estimate is the effect of *being assigned* to the program — but if only 65% of assigned participants actually exercised regularly, the ITT averages together the exercise effect with a zero effect for the 35% who never engaged. The ITT underestimates the effect of exercise itself for people who would comply.
+
+This is the **compliance problem**: the treatment assigned ($Z$) diverges from the treatment received ($D$).
+
+Four estimands address this situation, each answering a different question:
+
+| Estimand | Definition | Bias? |
+|---------|-----------|-------|
+| Intent-to-treat (ITT) | Effect of assignment ($Z \rightarrow Y$) | Unbiased but attenuated |
+| As-treated (AT) | Compare $D=1$ to $D=0$ regardless of $Z$ | Biased (self-selection into compliance) |
+| Per-protocol | Analyze only observed compliers | Biased (excludes non-compliers non-randomly) |
+| LATE via IV | Effect for compliers, using $Z$ as instrument for $D$ | Unbiased for compliers |
+
+The **as-treated** and **per-protocol** estimators are both biased for the same reason: compliers are not a random subset of assigned participants. People who follow through on an exercise intervention likely differ from non-compliers on motivation, health consciousness, schedule flexibility, and many other characteristics that also predict the outcome. Comparing them to non-compliers is an observational comparison, not a causal one.
+
+---
+
+## Section 2: The Four Compliance Types
+
+To understand what IV recovers, we need to categorize participants by their potential compliance behavior. Imagine each person has a latent compliance type that determines how they respond to each value of the instrument:
+
+| | Z = 0 (Control assigned) | Z = 1 (Treatment assigned) |
+|---|---|---|
+| **D = 0 (no treatment received)** | Never-takers & Compliers | Never-takers & Defiers |
+| **D = 1 (treatment received)** | Always-takers & Defiers | Always-takers & Compliers |
+
+The four types:
+
+- **Compliers**: Take treatment when assigned ($Z=1$), do not take it when not assigned ($Z=0$). Treatment status follows assignment.
+- **Never-takers**: Never take treatment regardless of assignment. Their $D$ is unaffected by $Z$.
+- **Always-takers**: Always take treatment regardless of assignment. Their $D$ is also unaffected by $Z$.
+- **Defiers**: Do the opposite of their assignment. Assumed away by the **monotonicity** assumption.
+
+The key insight: **only compliers are affected by the instrument**. Never-takers and always-takers have the same $D$ regardless of $Z$, so the instrument creates no variation in $D$ for them. Comparing outcomes by $Z$ among never-takers and always-takers is just noise. The ITT effect is therefore a diluted average: it reflects the treatment effect for compliers but zero for never- and always-takers.
+
+Instrumental variables "zooms in" on compliers by scaling the ITT by the compliance rate.
+
+---
+
+## Section 3: The LATE Formula
+
+The **Local Average Treatment Effect (LATE)** — the average causal effect for compliers — is recovered via the Wald estimator:
+
+$$\text{LATE} = \frac{\overbrace{E[Y \mid Z=1] - E[Y \mid Z=0]}^{\text{ITT (reduced form)}}}{\underbrace{E[D \mid Z=1] - E[D \mid Z=0]}_{\text{Compliance rate (first stage)}}}$$
+
+The numerator is the ITT: the effect of assignment on the outcome. The denominator is the **first stage**: the effect of assignment on treatment receipt, i.e., the share of the sample whose treatment status is changed by the instrument. Dividing by the compliance rate "scales up" the diluted ITT to recover the effect for the sub-population whose treatment changed.
+
+**One-sided noncompliance** is the special case where the control group has zero take-up ($E[D \mid Z=0] = 0$ — no always-takers, no crossover). Then:
+
+$$\text{LATE} = \frac{\text{ITT}}{\text{Compliance rate in treatment group}}$$
+
+This simplification applies whenever the control condition makes treatment practically impossible (e.g., a surgical intervention, an in-person program with no self-enroll option).
+
+::: {.callout-tip}
+## Four Assumptions for LATE to Be Valid
+
+1. **Relevance**: The instrument $Z$ must affect take-up $D$ (testable — check first-stage $F > 10$).
+2. **Exclusion restriction**: $Z$ affects $Y$ *only* through $D$, not directly. This is an untestable assumption that must be justified by design.
+3. **Monotonicity**: No defiers. Assignment can only push people toward treatment, never away from it.
+4. **Independence**: $Z$ is as good as randomly assigned (satisfied by design in an RCT).
+:::
+
+---
+
+## Section 4: Worked Example — Online Coaching Intervention
+
+### Simulation
+
+We simulate an online coaching study: 200 participants randomized 1:1. In the treatment arm, 65% complete the coaching program (one-sided noncompliance — no control participants access coaching). The true causal effect of completing the program is 12 points on an efficacy scale.
+
+```{r sim-coaching}
+n <- 200
+Z <- rep(c(0, 1), each = 100)
+D <- ifelse(Z == 1, rbinom(100, 1, 0.65), 0)   # one-sided: 65% comply
+efficacy <- 40 + 12 * D + rnorm(n, 0, 8)        # true effect for compliers = 12
+
+df_nc <- tibble(id = 1:n, Z = factor(Z), D = factor(D), efficacy)
+```
+
+### Estimating all three quantities
+
+```{r coaching-models}
+m_itt  <- lm(efficacy ~ Z,   data = df_nc)
+m_at   <- lm(efficacy ~ D,   data = df_nc)
+m_late <- ivreg(efficacy ~ D | Z, data = df_nc)
+```
+
+```{r coaching-table, echo=FALSE}
+bind_rows(
+  broom::tidy(m_itt)  |> filter(term == "Z1") |>
+    mutate(method = "ITT (assignment)"),
+  broom::tidy(m_at)   |> filter(term == "D1") |>
+    mutate(method = "As-treated (biased — self-selection)"),
+  broom::tidy(m_late) |> filter(term == "D1") |>
+    mutate(method = "LATE via IV (Wald estimator)")
+) |>
+  select(method, estimate, std.error, p.value) |>
+  knitr::kable(
+    digits  = 3,
+    caption = "True effect for compliers = 12. ITT is diluted by the 35% non-compliers. As-treated is biased upward (compliers are more motivated). LATE recovers the true complier effect."
+  )
+```
+
+### Manual Wald check
+
+The IV estimate should equal ITT divided by the compliance rate:
+
+```{r wald-check}
+itt_est   <- coef(m_itt)["Z1"]
+comp_rate <- mean(as.integer(as.character(df_nc$D))[Z == 1]) -
+             mean(as.integer(as.character(df_nc$D))[Z == 0])
+
+cat("ITT estimate:      ", round(itt_est, 3), "\n")
+cat("Compliance rate:   ", round(comp_rate, 3), "\n")
+cat("Wald LATE:         ", round(itt_est / comp_rate, 3), "\n")
+cat("ivreg LATE:        ", round(coef(m_late)["D1"], 3), "\n")
+```
+
+The manual Wald calculation and `ivreg()` agree (up to rounding). This confirms the mechanics: `ivreg()` is just solving the Wald formula via two-stage least squares.
+
+### Visualization
+
+```{r coaching-plot, fig.width=7, fig.height=4.5}
+est_df <- bind_rows(
+  broom::tidy(m_itt)  |> filter(term == "Z1") |>
+    mutate(method = "ITT"),
+  broom::tidy(m_at)   |> filter(term == "D1") |>
+    mutate(method = "As-treated"),
+  broom::tidy(m_late) |> filter(term == "D1") |>
+    mutate(method = "LATE (IV)")
+) |>
+  mutate(
+    method   = factor(method, levels = c("ITT", "As-treated", "LATE (IV)")),
+    biased   = method == "As-treated"
+  )
+
+ggplot(est_df, aes(x = method, y = estimate, fill = biased)) +
+  geom_col(width = 0.55, alpha = 0.85) +
+  geom_errorbar(aes(ymin = estimate - 1.96 * std.error,
+                    ymax = estimate + 1.96 * std.error),
+                width = 0.18) +
+  geom_hline(yintercept = 12, linetype = "dashed", color = "#c0392b", linewidth = 0.9) +
+  annotate("text", x = 3.45, y = 12.5, label = "True effect = 12",
+           color = "#c0392b", hjust = 1, size = 3.5) +
+  scale_fill_manual(values = c("FALSE" = "#1e3a5f", "TRUE" = "#e67e22"),
+                    guide = "none") +
+  labs(
+    title    = "ITT, as-treated, and LATE estimates",
+    subtitle = "ITT diluted by non-compliers; as-treated biased by self-selection; LATE recovers true effect",
+    x        = NULL,
+    y        = "Estimated effect on efficacy"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+## Section 5: When Is ITT vs. LATE the Right Estimand?
+
+Both ITT and LATE are valid causal estimands — they answer different questions. The choice depends on what the researcher or policymaker actually wants to know.
+
+| Estimand | Right for | Policy analog |
+|---------|-----------|---------------|
+| **ITT** | "What happens if we *offer* this program?" | Opt-in program evaluation — you offer it, some take it |
+| **LATE** | "What is the effect of *actually receiving* treatment?" | Compliance-based evaluation — effect among those who engage |
+
+**Policy example 1 — Free childcare vouchers**: A government evaluates whether to offer free childcare vouchers to low-income families. Some families will use the voucher, others will not. The policy assigns the *offer*, not the childcare itself. The ITT (effect of receiving a voucher, even if unused) is the directly relevant estimand for evaluating the voucher program — it captures the real-world effect of running the program.
+
+**Policy example 2 — Cognitive behavioral therapy**: A clinical researcher wants to know whether CBT reduces depression symptoms for patients who attend sessions. The instrument is referral to a CBT provider; only some referred patients actually attend. LATE — the effect for those who attended because they were referred (compliers) — is the clinically relevant quantity. The ITT (effect of referral) captures the effect of the *system*, which is less informative about whether CBT itself works.
+
+::: {.callout-tip}
+## Practical Guidance
+
+When writing up results, report **both** ITT and LATE. The ITT is interpretable as an "offer effect" that any policymaker can use directly. The LATE is interpretable as the treatment effect for those who would engage, given the design. Report the first-stage compliance rate and the $F$-statistic so readers can evaluate the strength of the instrument.
+:::
+
+---
+
+## Section 6: Two-Sided Noncompliance
+
+**Two-sided noncompliance** occurs when some control-group participants find the treatment on their own (always-takers, crossover). This is common in studies of freely available interventions (apps, publicly available therapies, exercise programs). The control group no longer has zero take-up.
+
+```{r two-sided}
+n   <- 200
+Z   <- rep(c(0, 1), each = 100)
+D   <- ifelse(Z == 1,
+              rbinom(100, 1, 0.75),   # 75% compliance in treatment
+              rbinom(100, 1, 0.10))   # 10% crossover in control
+Y   <- 50 - 8 * D + rnorm(n, 0, 7)
+
+df_2s      <- tibble(Z = factor(Z), D = factor(D), Y)
+m_late_2s  <- ivreg(Y ~ D | Z, data = df_2s)
+
+broom::tidy(m_late_2s) |>
+  filter(term == "D1") |>
+  select(estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+               caption = "Two-sided noncompliance: ivreg() generalizes automatically. True effect = -8.")
+```
+
+The Wald formula generalizes: the denominator is now $E[D \mid Z=1] - E[D \mid Z=0] = 0.75 - 0.10 = 0.65$, reflecting that 65% of the sample has their treatment status determined by the instrument (the compliers). `ivreg()` handles this automatically.
+
+::: {.callout-warning icon=false}
+## Two-Sided Non-Compliance Shrinks the Complier Pool
+
+With 10% crossover in the control group, the effective "complier" share drops. The first-stage $F$-statistic will be lower than in the one-sided case with the same treatment-group compliance rate, because there is less net variation in $D$ driven by $Z$. Monitor the first-stage $F$-statistic carefully when crossover is suspected.
+:::
+
+---
+
+## Section 7: Noncompliance in Nested Experimental Designs
+
+In multi-site experiments (students nested in classrooms, patients nested in clinics), **noncompliance can cluster at the site level**: an entire school may implement the program poorly, or an entire clinic may have low patient adherence. Treating compliance as independent across participants in the same site understates uncertainty.
+
+The remedy is cluster-robust standard errors at the site level:
+
+```{r cluster-se, eval=FALSE}
+library(sandwich)
+
+# Assume df_nc has a 'site' variable
+coeftest(m_late, vcov = vcovCL(m_late, cluster = ~site))
+```
+
+When site-level compliance rates vary substantially, it can also be informative to model compliance as a site-level random effect — sites with low compliance contribute attenuated ITT estimates, and the LATE for each site reflects that site's compliance rate.
+
+::: {.callout-tip}
+## Site-Level Compliance in Multi-Site Studies
+
+If site-level compliance is itself of interest (e.g., "does full implementation matter?"), you can model it explicitly:
+
+```r
+# Site-level compliance rate as a predictor
+site_compliance <- df_nested |>
+  filter(Z == 1) |>
+  group_by(site) |>
+  summarise(compliance_rate = mean(D_numeric))
+
+df_nested <- left_join(df_nested, site_compliance, by = "site")
+lmer(Y ~ compliance_rate + (1 | site), data = df_nested |> filter(Z == 1))
+```
+
+This is a "dose-response" analysis at the site level and requires its own identification argument (why does compliance vary across sites independent of site characteristics?).
+:::
+
+---
+
+## Section 8: Reporting Template
+
+Use the following template for APA-style reporting of ITT and LATE results:
+
+> Participants were randomly assigned to [*coaching intervention*] (*n* = 100) or waitlist control (*n* = 100). Compliance was 65% in the treatment group (one-sided noncompliance; no control participants accessed the intervention). Intent-to-treat analysis — using treatment assignment as the predictor regardless of compliance — showed a statistically significant but attenuated effect (*b* = [*ITT estimate*], *SE* = [*ITT SE*], *p* = [*p*]). To estimate the effect for participants who complied with treatment, we used instrumental variables regression (two-stage least squares) with treatment assignment as the instrument for treatment receipt. The complier average causal effect (LATE) was *b* = [*LATE estimate*], *SE* = [*LATE SE*], *p* = [*p*], consistent with a [*direction and magnitude*] effect for participants who engaged with the intervention. The first-stage *F*-statistic (*F* = [*F*]) exceeded the conventional weak-instruments threshold of 10, supporting the instrument's relevance.

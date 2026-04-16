@@ -7,206 +7,445 @@ library(tidyverse)
 library(lme4)
 library(lmerTest)
 library(broom.mixed)
+library(performance)
 library(ggplot2)
+library(patchwork)
 set.seed(42)
 ```
 
 # Random Slopes
 
-## When the Effect Varies Across Units
+## When Effects Vary Across Units
 
-The random-intercept model assumes that the *slope* — the relationship between the predictor and the outcome — is identical across all units. Everyone's mood responds to sleep in exactly the same way; only their baseline mood differs.
+The random-intercept model assumes that the *slope* — the relationship between a predictor and the outcome — is identical across all units. Only the baseline level differs from unit to unit. This is often an unrealistic assumption.
 
-But is that realistic?
+Consider two research settings:
 
-Some people are highly sensitive to sleep: one bad night and they feel terrible. Others are remarkably resilient: they function almost the same regardless of how much they sleep. The *magnitude* of the sleep-mood relationship varies across people. If we force a single slope for everyone, we are misrepresenting the data-generating process.
+**Longitudinal panel data.** An employee well-being study tracks workers across weekly waves. The average effect of workload on well-being may be negative — heavier workloads are associated with lower well-being. But some employees are highly sensitive: a small increase in workload produces a steep drop in their scores. Others are remarkably resilient: their well-being stays high regardless of how demanding their job gets. The slope of workload → well-being *varies across employees*.
 
-The **random-slope model** allows the slope to vary across units, treating individual slopes as draws from a distribution.
+**Within-subjects experiments.** A scarcity priming study asks participants to complete decision tasks under either resource-scarcity or control conditions. On average, the scarcity condition reduces decision quality. But individual responses to the manipulation vary considerably — some participants are strongly affected, others barely register a difference. The *treatment effect itself* is heterogeneous across participants.
+
+The **random-slope model** addresses this directly. Rather than fixing one slope for everyone, we treat each unit's slope as a draw from a distribution, allowing us to estimate:
+
+- The **average** effect across units (the fixed slope, $\gamma_{10}$)
+- The **variability** of that effect across units (the random slope variance, $\sigma^2_{u_1}$)
+- The **correlation** between where units start and how strongly they respond ($\rho_{u_0, u_1}$)
 
 ## The Model
 
-**Level 1:**
+**Level 1** (observations within units):
 $$Y_{ij} = \beta_{0j} + \beta_{1j} X_{ij} + \varepsilon_{ij}$$
 
-**Level 2:**
+**Level 2** (units):
 $$\beta_{0j} = \gamma_{00} + u_{0j}$$
 $$\beta_{1j} = \gamma_{10} + u_{1j}$$
 
-Combined:
-$$Y_{ij} = \gamma_{00} + \gamma_{10} X_{ij} + u_{0j} + u_{1j} X_{ij} + \varepsilon_{ij}$$
+**Combined form:**
+$$Y_{ij} = \underbrace{\gamma_{00}}_{\text{grand mean}} + \underbrace{\gamma_{10} X_{ij}}_{\text{avg slope}} + \underbrace{u_{0j}}_{\text{person intercept}} + \underbrace{u_{1j} X_{ij}}_{\text{person slope deviation}} + \varepsilon_{ij}$$
 
-The new component is $u_{1j}$: each unit's deviation from the average slope. We estimate $\gamma_{10}$ (the average slope), $\sigma^2_{u_0}$ (variance in intercepts), $\sigma^2_{u_1}$ (variance in slopes), and crucially — $\sigma_{u_0 u_1}$ (the correlation between intercepts and slopes).
+The random effects are assumed to follow a bivariate normal distribution:
+$$\begin{pmatrix} u_{0j} \\ u_{1j} \end{pmatrix} \sim \mathcal{N}\left(\begin{pmatrix} 0 \\ 0 \end{pmatrix}, \begin{pmatrix} \sigma^2_{u_0} & \sigma_{u_0 u_1} \\ \sigma_{u_0 u_1} & \sigma^2_{u_1} \end{pmatrix}\right)$$
 
-```{r fit-random-slopes}
-n_people <- 40
-n_days   <- 7
+**What does $u_{1j}$ mean in each context?**
 
-person_intercepts <- rnorm(n_people, mean = 50, sd = 8)
-person_slopes     <- rnorm(n_people, mean = 3, sd = 2.5)  # slopes vary!
+- **Longitudinal:** $u_{1j}$ is employee $j$'s deviation from the average workload sensitivity. A large negative $u_{1j}$ means this employee is especially sensitive to workload demands — their well-being drops steeply when workload increases. A near-zero $u_{1j}$ means workload has its typical effect on this person.
 
-df <- expand_grid(
-  person = 1:n_people,
-  day    = 1:n_days
+- **Experimental:** $u_{1j}$ is participant $j$'s deviation from the average scarcity effect on decision quality. A large positive or negative $u_{1j}$ signals heterogeneous treatment response — the manipulation was much stronger or weaker for this individual than average.
+
+## Longitudinal Example — Employee Wellbeing and Workload
+
+**Design:** 50 employees measured at 8 weekly time points. The predictor is weekly workload (centered at its grand mean of 50). The outcome is well-being (0–100 scale). Each employee has their own workload sensitivity — modeled as a random slope.
+
+The simulation imposes a correlation of −0.3 between intercepts and slopes, so employees who start with high baseline well-being are somewhat less sensitive to workload fluctuations.
+
+```{r longitudinal-data}
+n_employees <- 50
+n_waves     <- 8
+
+# Correlated random intercepts and slopes: SD_int = 8, SD_slope = 1.5, rho = -0.3
+Sigma_long <- matrix(c(64, -3.6, -3.6, 2.25), nrow = 2)
+re_mat     <- MASS::mvrnorm(n_employees, mu = c(0, 0), Sigma = Sigma_long)
+
+df_long <- expand_grid(
+  employee = 1:n_employees,
+  wave     = 1:n_waves
 ) |>
   mutate(
-    sleep  = rnorm(n(), mean = 7, sd = 1.5),
-    mood   = person_intercepts[person] +
-             person_slopes[person] * (sleep - 7) +
-             rnorm(n(), 0, 5),
-    person = factor(person)
+    workload   = rnorm(n(), mean = 50, sd = 10),
+    workload_c = workload - 50,
+    well_being = (55 + re_mat[employee, 1]) +
+                 (-2 + re_mat[employee, 2]) * workload_c +
+                 rnorm(n(), 0, 5),
+    employee   = factor(employee)
   )
 
 # Random intercept only
-model_ri <- lmer(mood ~ sleep + (1 | person), data = df)
+model_ri_long <- lmer(well_being ~ workload_c + (1 | employee),
+                      data = df_long, REML = TRUE)
 
 # Random intercept + slope
-model_rs <- lmer(mood ~ sleep + (sleep | person), data = df)
+model_rs_long <- lmer(well_being ~ workload_c + (workload_c | employee),
+                      data = df_long, REML = TRUE)
 
-# Compare
-broom.mixed::tidy(model_rs, effects = "ran_pars") |>
-  knitr::kable(digits = 3, caption = "Variance components: random intercepts and slopes")
+broom.mixed::tidy(model_rs_long, effects = "ran_pars") |>
+  knitr::kable(digits = 3,
+               caption = "Variance components: workload → well-being random slope model")
 ```
 
-```{r visualize-slopes}
-# Show individual slopes
-person_lines <- df |>
-  group_by(person) |>
+The variance component for `workload_c` at the employee level ($\hat\sigma^2_{u_1}$) captures how much individual sensitivity varies. The correlation term estimates the intercept-slope association.
+
+```{r longitudinal-slopes-plot}
+# Extract OLS estimates per employee for visualization
+employee_lines <- df_long |>
+  group_by(employee) |>
   summarise(
-    intercept = coef(lm(mood ~ sleep, data = cur_data()))[[1]],
-    slope     = coef(lm(mood ~ sleep, data = cur_data()))[[2]],
+    intercept = coef(lm(well_being ~ workload_c))[[1]],
+    slope     = coef(lm(well_being ~ workload_c))[[2]],
     .groups   = "drop"
   )
 
-# Plot individual regression lines
-sleep_range <- seq(4, 10, by = 0.1)
+workload_range <- seq(-20, 20, by = 0.5)
 
-lines_df <- person_lines |>
+lines_df_long <- employee_lines |>
   mutate(
-    x = list(sleep_range),
-    y = map2(intercept, slope, ~ .x + .y * (sleep_range - 7))
+    x = list(workload_range),
+    y = map2(intercept, slope, ~ .x + .y * workload_range)
   ) |>
   unnest(c(x, y)) |>
-  rename(sleep = x, mood = y)
+  rename(workload_c = x, well_being = y)
 
-ggplot() +
-  geom_line(data = lines_df,
-            aes(x = sleep, y = mood, group = person),
-            color = "#1e3a5f", alpha = 0.3, linewidth = 0.5) +
+p_long_slopes <- ggplot() +
+  geom_line(data = lines_df_long,
+            aes(x = workload_c, y = well_being, group = employee),
+            color = "#1e3a5f", alpha = 0.3, linewidth = 0.4) +
   geom_abline(
-    slope     = fixef(model_rs)["sleep"],
-    intercept = fixef(model_rs)["(Intercept)"] - fixef(model_rs)["sleep"] * 7,
-    color     = "#e63946", linewidth = 2
+    slope     = fixef(model_rs_long)["workload_c"],
+    intercept = fixef(model_rs_long)["(Intercept)"],
+    color     = "#e63946", linewidth = 1.8
   ) +
   labs(
-    title    = "Random slopes: each person's sleep-mood relationship",
-    subtitle = "Red line = average slope (fixed effect); grey lines = individual slopes",
-    x        = "Hours of sleep",
-    y        = "Mood"
+    title    = "Longitudinal: workload → well-being",
+    subtitle = "Each line = one employee; red = average fixed slope",
+    x        = "Workload (centered)",
+    y        = "Well-being"
   ) +
-  xlim(4.5, 9.5) +
-  theme_minimal(base_size = 13)
+  theme_minimal(base_size = 12)
+
+p_long_slopes
 ```
 
-The grey lines show enormous variation in how strongly sleep predicts mood across people. The red line — the fixed effect — is the average story. But for some people, the relationship is strong; for others, nearly flat. A model that forces a single slope misses this heterogeneity entirely.
+The grey lines reveal substantial variation in workload sensitivity. Most employees show the expected negative slope, but the *steepness* varies considerably. A few employees show near-flat or even slightly positive slopes — for them, workload may not be experienced as burdensome during this observation period.
+
+**Intercept-slope correlation:** A negative correlation (as simulated here) means employees who start with high baseline well-being tend to show a *weaker* negative workload effect. High-well-being employees may have resources — social support, autonomy, resilience — that buffer against workload demands. Conversely, employees already struggling (low baseline) may be most vulnerable to workload spikes.
+
+## Experimental Example — Scarcity and Decision Quality
+
+**Design:** 60 participants complete 12 decision trials each (6 in the scarcity condition, 6 in the control condition, counterbalanced). The predictor is condition (scarcity = 1, control = 0). The outcome is decision quality (0–100 scale). Each participant is allowed their own scarcity sensitivity.
+
+The simulation imposes a positive correlation of 0.2 between intercepts and slopes: participants with higher baseline decision quality show a slightly stronger scarcity effect.
+
+```{r experimental-data}
+n_participants <- 60
+n_trials_each  <- 6   # per condition
+
+# Correlated intercepts and slopes: SD_int = 10, SD_slope = 3, rho = 0.2
+Sigma_exp  <- matrix(c(100, 6, 6, 9), nrow = 2)
+re_mat_exp <- MASS::mvrnorm(n_participants, mu = c(0, 0), Sigma = Sigma_exp)
+
+df_exp <- expand_grid(
+  participant = 1:n_participants,
+  condition   = c(0, 1),
+  trial       = 1:n_trials_each
+) |>
+  mutate(
+    decision_quality = (65 + re_mat_exp[participant, 1]) +
+                       (-5 + re_mat_exp[participant, 2]) * condition +
+                       rnorm(n(), 0, 6),
+    participant     = factor(participant),
+    condition_label = factor(condition, labels = c("Control", "Scarcity"))
+  )
+
+# Random intercept only
+model_ri_exp <- lmer(decision_quality ~ condition + (1 | participant),
+                     data = df_exp, REML = TRUE)
+
+# Random intercept + slope for condition
+model_rs_exp <- lmer(decision_quality ~ condition + (condition | participant),
+                     data = df_exp, REML = TRUE)
+
+broom.mixed::tidy(model_rs_exp, effects = "ran_pars") |>
+  knitr::kable(digits = 3,
+               caption = "Variance components: scarcity condition random slope model")
+```
+
+```{r experimental-ranef-histogram}
+# Extract per-participant scarcity effects (random slope BLUPs + fixed effect)
+re_exp     <- ranef(model_rs_exp)$participant
+names(re_exp) <- c("u0", "u1")
+avg_effect <- fixef(model_rs_exp)["condition"]
+
+re_exp <- re_exp |>
+  mutate(person_scarcity_effect = avg_effect + u1)
+
+p_hist <- ggplot(re_exp, aes(x = person_scarcity_effect)) +
+  geom_histogram(bins = 20, fill = "#457b9d", color = "white", alpha = 0.85) +
+  geom_vline(xintercept = avg_effect, color = "#e63946",
+             linewidth = 1.5, linetype = "dashed") +
+  annotate("text", x = avg_effect + 0.4, y = Inf,
+           label = "avg effect", color = "#e63946",
+           vjust = 2, hjust = 0, size = 3.5) +
+  labs(
+    title    = "Distribution of individual scarcity effects",
+    subtitle = "Each bar = how many participants experienced that effect size",
+    x        = "Person-level scarcity effect on decision quality",
+    y        = "Count"
+  ) +
+  theme_minimal(base_size = 12)
+
+p_hist
+```
+
+Some participants show almost no scarcity effect; others show a drop exceeding −10 points. The random slope captures this theoretically important heterogeneity — heterogeneity that is invisible in a model that forces the same effect on everyone.
+
+```{r experimental-slopes-plot}
+participant_lines <- df_exp |>
+  group_by(participant) |>
+  summarise(
+    intercept = coef(lm(decision_quality ~ condition))[[1]],
+    slope     = coef(lm(decision_quality ~ condition))[[2]],
+    .groups   = "drop"
+  )
+
+p_exp_slopes <- ggplot() +
+  geom_segment(
+    data = participant_lines,
+    aes(x = 0, xend = 1,
+        y = intercept,
+        yend = intercept + slope,
+        group = participant),
+    color = "#457b9d", alpha = 0.4, linewidth = 0.5
+  ) +
+  geom_segment(
+    aes(x = 0, xend = 1,
+        y = fixef(model_rs_exp)["(Intercept)"],
+        yend = fixef(model_rs_exp)["(Intercept)"] + fixef(model_rs_exp)["condition"]),
+    color = "#e63946", linewidth = 2
+  ) +
+  scale_x_continuous(breaks = c(0, 1), labels = c("Control", "Scarcity")) +
+  labs(
+    title    = "Experimental: scarcity → decision quality",
+    subtitle = "Each line = one participant's treatment effect; red = average",
+    x        = "Condition",
+    y        = "Decision quality"
+  ) +
+  theme_minimal(base_size = 12)
+
+p_exp_slopes
+```
+
+::: {.callout-warning icon=false}
+## Key Point: Random Slopes and Type I Error in Experiments
+
+**Barr, Levy, Scheepers, & Tily (2013)** demonstrated that omitting random slopes for within-subjects conditions inflates Type I error rates substantially. The mechanism: if you do not model variation in the treatment effect across participants, that variation is absorbed into the residual — deflating standard errors and making the average effect appear more precise than it is.
+
+**The recommendation:** In within-subjects designs, include random slopes for all within-subjects factors by default (the "maximal" random effects structure). The random slope is not merely a nuisance parameter — it *is* the treatment effect heterogeneity, which is often scientifically interesting in its own right.
+:::
+
+## Comparing the Two Examples Side by Side
+
+```{r side-by-side}
+p_long_slopes + p_exp_slopes +
+  plot_annotation(
+    title   = "Random slopes: heterogeneous effects in two research designs",
+    caption = "Red lines/segments = fixed (average) effects; colored lines = individual unit slopes"
+  )
+```
 
 ## The Intercept-Slope Correlation
 
-The random-slope model also estimates the correlation between intercepts and slopes: $\rho_{u_0, u_1}$.
+The random-slope model estimates not just variance in intercepts and variance in slopes, but also their **covariance** — equivalently, the correlation $\rho_{u_0, u_1}$.
 
-This is substantively meaningful. A positive correlation would mean people with higher baseline mood also benefit more from sleep. A negative correlation would mean people with low baseline mood are more sensitive to sleep deprivation.
+This correlation is substantively meaningful in both contexts.
 
-```{r slope-intercept-corr}
-# Plot the intercept-slope relationship
-ggplot(person_lines, aes(x = intercept, y = slope)) +
-  geom_point(size = 3, color = "#1e3a5f", alpha = 0.7) +
-  geom_smooth(method = "lm", color = "#e63946", se = TRUE) +
+**Longitudinal interpretation.** A negative intercept-slope correlation means: employees with *higher* baseline well-being tend to show a *weaker* negative workload effect. This is a buffering pattern — high-well-being employees are more resilient to workload fluctuations than their struggling colleagues.
+
+**Experimental interpretation.** A positive intercept-slope correlation means: participants with *higher* baseline decision quality (in the control condition) show a *stronger* drop under scarcity. One interpretation: the scarcity manipulation particularly disrupts the elaborate, careful strategies that high-ability participants rely on — a "more to lose" pattern.
+
+```{r intercept-slope-corr}
+p_corr_long <- ggplot(employee_lines, aes(x = intercept, y = slope)) +
+  geom_point(size = 2.5, color = "#1e3a5f", alpha = 0.7) +
+  geom_smooth(method = "lm", color = "#e63946", se = TRUE, linewidth = 1) +
   labs(
-    title    = "Intercept-slope correlation",
-    subtitle = "Is the sleep effect stronger for people with higher or lower baseline mood?",
-    x        = "Individual intercept (baseline mood)",
-    y        = "Individual slope (sleep effect)"
+    title    = "Longitudinal",
+    subtitle = "Negative: high-baseline employees less workload-sensitive",
+    x        = "Intercept (baseline well-being)",
+    y        = "Slope (workload effect)"
   ) +
-  theme_minimal(base_size = 13)
+  theme_minimal(base_size = 12)
+
+p_corr_exp <- ggplot(participant_lines, aes(x = intercept, y = slope)) +
+  geom_point(size = 2.5, color = "#457b9d", alpha = 0.7) +
+  geom_smooth(method = "lm", color = "#e63946", se = TRUE, linewidth = 1) +
+  labs(
+    title    = "Experimental",
+    subtitle = "Positive: high-baseline participants more scarcity-sensitive",
+    x        = "Intercept (control condition quality)",
+    y        = "Slope (scarcity effect)"
+  ) +
+  theme_minimal(base_size = 12)
+
+p_corr_long + p_corr_exp +
+  plot_annotation(title = "Intercept-slope correlations in each design")
 ```
 
-## The Assumptions of Random-Slope Models
+## The Zero-Correlation Parameterization
+
+By default, `(predictor | group)` estimates random slope variance *and* the intercept-slope correlation. When the correlation is near zero, theoretically uninteresting, or causing convergence problems, the **zero-correlation parameterization** separates the two:
+
+```r
+# Full: estimates intercept variance, slope variance, AND their correlation
+lmer(well_being ~ workload_c + (workload_c | employee), data = df_long)
+
+# Zero-correlation: estimates both variances, forces correlation to zero
+lmer(well_being ~ workload_c + (1 | employee) + (0 + workload_c | employee), data = df_long)
+```
+
+Applied to the experimental data:
+
+```{r zero-corr-example}
+model_zcp_exp <- lmer(decision_quality ~ condition +
+                        (1 | participant) + (0 + condition | participant),
+                      data = df_exp, REML = FALSE)
+
+# Staged LRT: (1) does the random slope variance matter?
+#             (2) does the correlation additionally matter?
+model_ri_only_ml <- lmer(decision_quality ~ condition + (1 | participant),
+                         data = df_exp, REML = FALSE)
+model_zcp_ml     <- lmer(decision_quality ~ condition +
+                           (1 | participant) + (0 + condition | participant),
+                         data = df_exp, REML = FALSE)
+model_full_rs_ml <- lmer(decision_quality ~ condition + (condition | participant),
+                         data = df_exp, REML = FALSE)
+
+anova(model_ri_only_ml, model_zcp_ml, model_full_rs_ml)
+```
+
+The sequence tests: (1) does the random slope variance matter at all? (RI vs. ZCP) and (2) does the intercept-slope correlation additionally matter? (ZCP vs. full). This staged approach identifies the minimum sufficient random effects structure.
+
+**When to prefer zero-correlation parameterization:**
+
+| Situation | Recommendation |
+|-----------|---------------|
+| Small sample (< 20 units) | ZCP; estimating $\rho$ is unreliable |
+| Model fails to converge | Try ZCP as a first simplification step |
+| Correlation is theoretically uninteresting | ZCP avoids unnecessary parameters |
+| Testing whether the correlation matters | Compare ZCP vs. full with LRT |
+
+## Assumptions of Random-Slope Models
 
 ::: {.callout-warning icon=false}
 ## Assumption 1: Multivariate Normality of Random Effects
 
-**What it means:** The random intercepts and slopes are jointly drawn from a bivariate normal distribution:
-$$\begin{pmatrix} u_{0j} \\ u_{1j} \end{pmatrix} \sim \mathcal{N}\left(\begin{pmatrix} 0 \\ 0 \end{pmatrix}, \begin{pmatrix} \sigma^2_{u_0} & \sigma_{u_0 u_1} \\ \sigma_{u_0 u_1} & \sigma^2_{u_1} \end{pmatrix}\right)$$
+**What it means:** The random intercepts and slopes are jointly drawn from a bivariate normal distribution. Severe departures — banana-shaped clouds, truncation, discrete clusters — suggest the normality assumption is violated, and estimates may be biased.
 
-**How to check:** Plot the estimated random effects (from `ranef()`) as a scatterplot. Look for elliptical distributions, not banana-shaped or clustered patterns.
+**How to check:** Plot the BLUP estimates from `ranef()` as a scatterplot. A well-specified model produces an elliptical cloud centered at the origin.
 
-```{r ranef-scatter}
-re_df <- as.data.frame(ranef(model_rs)$person)
-names(re_df) <- c("intercept", "slope")
+```{r ranef-check}
+re_df_exp <- as.data.frame(ranef(model_rs_exp)$participant)
+names(re_df_exp) <- c("u0_intercept", "u1_slope")
 
-ggplot(re_df, aes(x = intercept, y = slope)) +
-  geom_point(size = 3, color = "#1e3a5f", alpha = 0.7) +
-  geom_hline(yintercept = 0, linetype = "dashed", color = "gray60") +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "gray60") +
+ggplot(re_df_exp, aes(x = u0_intercept, y = u1_slope)) +
+  geom_point(size = 2.5, color = "#457b9d", alpha = 0.7) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
   labs(
-    title    = "Bivariate distribution of random effects",
-    subtitle = "Should look elliptical for bivariate normality",
-    x        = "Random intercept",
-    y        = "Random slope"
+    title    = "BLUP random effects: experimental model",
+    subtitle = "Elliptical cloud centered at (0,0) supports bivariate normality",
+    x        = "Random intercept (u0j)",
+    y        = "Random slope for condition (u1j)"
   ) +
   theme_minimal(base_size = 13)
 ```
 :::
 
 ::: {.callout-warning icon=false}
-## Assumption 2: The Correct Random Effects Structure is Specified
+## Assumption 2: Correct Random Effects Structure Is Specified
 
-**What it means:** The model must include random slopes for every predictor whose effect varies meaningfully across units. Failing to include a necessary random slope biases standard errors downward — producing anti-conservatively small p-values.
+**What it means:** The model must include random slopes for every predictor whose effect varies meaningfully across units. Omitting a necessary random slope pushes that variability into the residual, deflating standard errors for the fixed effect and producing anti-conservatively small *p*-values.
 
-**Judd, Westfall, & Kenny (2012, 2017)** showed that omitting random slopes that should be in the model is one of the most common sources of Type I error inflation in experimental psychology, particularly when stimuli are treated as fixed rather than random.
-
-**How to check:** Likelihood ratio tests (LRT) comparing models with and without the random slope. If the LRT is significant, the random slope is needed.
+**How to check:** Use likelihood ratio tests (LRT) comparing models with and without the random slope. Models must be fitted with `REML = FALSE` for valid LRT comparisons.
 
 ```{r lrt-slopes}
-# Test: does adding the random slope significantly improve fit?
-model_ri_refit <- lmer(mood ~ sleep + (1 | person), data = df, REML = FALSE)
-model_rs_refit <- lmer(mood ~ sleep + (sleep | person), data = df, REML = FALSE)
+model_ri_long_ml <- lmer(well_being ~ workload_c + (1 | employee),
+                         data = df_long, REML = FALSE)
+model_rs_long_ml <- lmer(well_being ~ workload_c + (workload_c | employee),
+                         data = df_long, REML = FALSE)
 
-anova(model_ri_refit, model_rs_refit)
+cat("=== Longitudinal: does workload slope vary across employees? ===\n")
+anova(model_ri_long_ml, model_rs_long_ml)
+
+model_ri_exp_ml  <- lmer(decision_quality ~ condition + (1 | participant),
+                          data = df_exp, REML = FALSE)
+model_rs_exp_ml  <- lmer(decision_quality ~ condition + (condition | participant),
+                          data = df_exp, REML = FALSE)
+
+cat("\n=== Experimental: does scarcity effect vary across participants? ===\n")
+anova(model_ri_exp_ml, model_rs_exp_ml)
 ```
 
-Note: use `REML = FALSE` when comparing models with likelihood ratio tests. Switch back to `REML = TRUE` for final parameter estimation.
+A significant LRT ($p < .05$) indicates the random slope accounts for meaningful variance and should be retained. Use `REML = TRUE` for final parameter estimation once the model structure is settled.
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption 3: Convergence
 
-**What it means:** Complex random-slope models — especially with many predictors and crossed random effects — frequently fail to converge. A convergence warning from `lme4` means the optimization algorithm did not find a stable minimum. Estimates from non-converged models should not be trusted.
+**What it means:** Complex random-slope models — especially with multiple predictors or crossed random effects — frequently fail to converge. A convergence warning from `lme4` signals the optimization algorithm did not find a stable solution. Estimates from non-converged models should not be trusted or reported.
 
-**How to check:** Look for convergence warnings in `lmer()` output. Use `check_convergence()` from the `performance` package.
-
-**What to do if it fails:**
-- Rescale continuous predictors (center and divide by SD)
-- Simplify the random effects structure (remove the correlation between intercept and slope: use `(1 | person) + (0 + sleep | person)`)
-- Try alternative optimizers: `control = lmerControl(optimizer = "bobyqa")`
-- Switch to Bayesian estimation (`brms`), which is more robust for complex models
+**How to check:** Use `check_convergence()` from the `performance` package.
 
 ```{r convergence-check}
-library(performance)
-check_convergence(model_rs)
+check_convergence(model_rs_long)
+check_convergence(model_rs_exp)
 ```
+
+**What to do if convergence fails:**
+
+- Center and scale continuous predictors
+- Remove the intercept-slope correlation (see zero-correlation parameterization above)
+- Try alternative optimizers: `control = lmerControl(optimizer = "bobyqa")`
+- Simplify the random effects structure if the LRT supports it (non-significant random slope variance)
+- Consider Bayesian estimation via `brms`, which handles complex random-effects structures more robustly
 :::
 
-## Model Comparison: Do You Need Random Slopes?
+## Model Comparison — Do You Need Random Slopes?
 
-Adding random slopes adds parameters and complexity. You should include them when:
+Add random slopes when:
 
-1. **Theory predicts heterogeneous effects:** Do you have a reason to believe the relationship varies across units?
-2. **The LRT supports them:** The model with random slopes fits significantly better than the model without.
-3. **The design requires them:** In within-subject experimental designs, random slopes for experimental conditions are almost always needed (see Module 5).
+1. **Theory predicts heterogeneous effects.** In organizational research, employee-level differences in workload sensitivity are plausible and interesting. In experiments, individual differences in response to priming manipulations are well-documented.
+
+2. **The LRT supports them.** The model with random slopes fits significantly better than the model without (at `REML = FALSE`).
+
+3. **The design mandates them.** In within-subjects experimental designs, random slopes for within-subjects conditions are structurally required to account for heterogeneous treatment effects. Omitting them is not conservative — it inflates Type I error (Barr et al., 2013).
+
+4. **Sample size is adequate.** Estimating a random slope requires sufficient variation in the predictor *within each unit*. Longitudinally: each employee must have multiple waves with varying workload. Experimentally: each participant must complete trials in multiple conditions.
+
+```{r model-comparison-table}
+bind_rows(
+  broom.mixed::glance(model_ri_long_ml) |> mutate(model = "RI only",    setting = "Longitudinal"),
+  broom.mixed::glance(model_rs_long_ml) |> mutate(model = "RI + Slope", setting = "Longitudinal"),
+  broom.mixed::glance(model_ri_exp_ml)  |> mutate(model = "RI only",    setting = "Experimental"),
+  broom.mixed::glance(model_rs_exp_ml)  |> mutate(model = "RI + Slope", setting = "Experimental")
+) |>
+  select(setting, model, AIC, BIC, logLik) |>
+  knitr::kable(digits = 1,
+               caption = "Model fit: random intercept vs. random intercept + slope")
+```
 
 ## Recommended Reading
 
 | Topic | Citation |
 |-------|----------|
-| Random slopes in experimental designs | Barr, D. J., Levy, R., Scheepers, C., & Tily, H. J. (2013). Random effects structure for confirmatory hypothesis testing: Keep it maximal. *Journal of Memory and Language, 68*(3), 255–278. |
-| When random slopes matter | Heisig, J. P., & Schaeffer, M. (2019). Why you should always include a random slope for the lower-level variable involved in a cross-level interaction. *European Sociological Review, 35*(2), 258–279. |
+| Maximal random effects in experiments | Barr, D. J., Levy, R., Scheepers, C., & Tily, H. J. (2013). Random effects structure for confirmatory hypothesis testing: Keep it maximal. *Journal of Memory and Language, 68*(3), 255–278. |
+| Random slopes and cross-level interactions | Heisig, J. P., & Schaeffer, M. (2019). Why you should always include a random slope for the lower-level variable involved in a cross-level interaction. *European Sociological Review, 35*(2), 258–279. |
+| Random slopes in experimental psychology | Judd, C. M., Westfall, J., & Kenny, D. A. (2012). Treating stimuli as a random factor in social psychology: A new and compelling case for mixed models. *Journal of Personality and Social Psychology, 103*(1), 54–69. |
+| Practical guide to `lme4` | Bates, D., Mächler, M., Bolker, B., & Walker, S. (2015). Fitting linear mixed-effects models using lme4. *Journal of Statistical Software, 67*(1), 1–48. |

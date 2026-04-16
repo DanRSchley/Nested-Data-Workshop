@@ -6,6 +6,8 @@ title: "Regression Discontinuity Design"
 library(tidyverse)
 library(rdrobust)
 library(ggplot2)
+library(patchwork)
+library(lme4)
 set.seed(42)
 ```
 
@@ -13,28 +15,33 @@ set.seed(42)
 
 ## The Threshold as a Quasi-Experiment
 
-Suppose college admission is partly determined by a test score cutoff: applicants above 70 are admitted, those below are not. People just below 70 and just above 70 are otherwise very similar — nearly identical test scores, similar backgrounds, similar demographics. The only thing separating them is whether they fell above or below an arbitrary threshold.
+Regression Discontinuity Design (RDD) exploits a rule: treatment is assigned when a continuous **running variable** crosses a known threshold. Observations just below and just above the threshold are nearly identical in every respect except treatment status — because small differences in the running variable near the cutoff are essentially random noise in the data-generating process.
 
-This **discontinuity in treatment assignment**, driven by a continuous **running variable**, is the foundation of Regression Discontinuity Design (RDD).
+**The key insight:** Right at the threshold, treatment is as-good-as-randomly assigned. The jump in outcomes at the cutoff is the causal effect of treatment for units near the threshold.
 
-The key insight: **right at the threshold, treatment is as-good-as-randomly assigned**, because small differences in the running variable near the cutoff are essentially random noise in the DGP.
+RDD appears in two distinct forms across the research contexts this course covers. In **longitudinal research**, the running variable is often time itself (Interrupted Time Series) or a cumulative score that triggers a policy intervention. In **experimental research**, the running variable is often a continuous eligibility screening score, and the cutoff determines who qualifies for a treatment arm.
 
-## The Core Assumption
+---
+
+## Part A: RDD in Longitudinal Research
+
+### Sharp RDD: Test Scores and Earnings
+
+The canonical cross-sectional RDD uses a test score cutoff to assign college admission. Applicants above the cutoff are admitted; those below are not. Applicants just below and just above an arbitrary threshold are otherwise nearly identical.
 
 ::: {.callout-warning icon=false}
 ## Assumption: Continuity of Potential Outcomes at the Threshold
 
-**What it means:** In the absence of treatment, the expected outcome must be a continuous function of the running variable at the cutoff. The only reason outcomes should jump at the threshold is the treatment.
+**What it means:** In the absence of treatment, the expected outcome must be a continuous function of the running variable at the cutoff. The only reason outcomes should jump at the threshold is the treatment itself.
 
 **Why it fails:**
-- **Sorting/manipulation:** If people can manipulate their running variable to cross the threshold (retaking tests, strategic reporting), those just above and just below are not comparable.
-- **Other policies at the same cutoff:** If another treatment also kicks in at exactly the same threshold, you cannot separate the effects.
-- **Anticipation:** If people change behavior in anticipation of crossing the threshold.
 
-**How to check:** McCrary density test — a spike in the running variable just above the cutoff indicates manipulation.
+- **Sorting/manipulation:** If people can manipulate their running variable to cross the threshold (retaking tests, strategic score reporting), those just above and just below are no longer comparable.
+- **Other policies at the same cutoff:** If a second treatment also activates at exactly the same threshold, you cannot separate the effects.
+- **Anticipation effects:** If people change behavior in anticipation of crossing the threshold (e.g., firms change investment plans because they know a regulatory threshold is approaching).
+
+**How to check:** McCrary density test — a spike in the density of the running variable just above the cutoff indicates manipulation/sorting.
 :::
-
-## A Worked Example
 
 ```{r rdd-simulation}
 n <- 1000
@@ -48,8 +55,10 @@ df_rdd <- tibble(test_score, admitted, earnings)
 
 ggplot(df_rdd, aes(x = test_score, y = earnings, color = factor(admitted))) +
   geom_point(alpha = 0.2, size = 1) +
-  geom_smooth(method = "lm", formula = y ~ poly(x, 2), se = TRUE, linewidth = 1.2) +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+  geom_smooth(method = "lm", formula = y ~ poly(x, 2), se = TRUE,
+              linewidth = 1.2) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black",
+             linewidth = 1) +
   scale_color_manual(values = c("#aec6e8", "#1e3a5f"),
                      labels = c("Not admitted", "Admitted")) +
   labs(title = "RDD: earnings vs. test score",
@@ -64,23 +73,26 @@ rdd_result <- rdrobust(y = df_rdd$earnings, x = df_rdd$test_score, c = 0)
 summary(rdd_result)
 ```
 
-`rdrobust` uses local polynomial regression with an automatically selected optimal bandwidth.
+`rdrobust` uses local polynomial regression with an automatically selected optimal bandwidth. The estimated jump at the cutoff recovers the true causal effect of approximately 8 earnings units.
 
-## The Density Test
+### The Density Test
 
 ```{r density-test}
 ggplot(df_rdd, aes(x = test_score)) +
   geom_histogram(bins = 40, fill = "#1e3a5f", color = "white", alpha = 0.8) +
-  geom_vline(xintercept = 0, color = "#e63946", linewidth = 1.2, linetype = "dashed") +
+  geom_vline(xintercept = 0, color = "#e63946", linewidth = 1.2,
+             linetype = "dashed") +
   labs(title = "Density test: check for manipulation at the cutoff",
        subtitle = "A spike just right of the dashed line = sorting violation",
        x = "Test Score (centered at cutoff)", y = "Count") +
   theme_minimal(base_size = 13)
 ```
 
-## Falsification Tests
+The distribution is smooth through the cutoff — no evidence of sorting. In real test-score data, a spike just above the cutoff would indicate that applicants near the threshold are retaking tests or that administrators are rounding scores upward.
 
-Run the RDD on **pre-treatment covariates** (age, gender, family income). These cannot be caused by the treatment. A jump at the threshold in a covariate means something else is discontinuous there — a serious threat to validity.
+### Falsification Tests
+
+Run the RDD on **pre-treatment covariates** (age, family income, gender). These variables cannot be caused by the treatment. A jump at the threshold in a covariate means something else is discontinuous there — a serious threat to validity.
 
 ```{r falsification}
 df_rdd <- df_rdd |> mutate(age = 18 + rnorm(n, 0, 1))
@@ -89,9 +101,9 @@ cat("Jump in age at cutoff (should be ~0):", round(fake$coef[1], 3),
     "| p =", round(fake$pv[1], 3), "\n")
 ```
 
-## Bandwidth Sensitivity
+### Bandwidth Sensitivity
 
-The estimate should be stable as you vary the bandwidth around the default. Dramatic changes signal dependence on functional form.
+The estimate should be stable as you vary the bandwidth around the default. Dramatic changes signal dependence on functional form assumptions.
 
 ```{r bandwidth-sensitivity}
 bws  <- seq(0.3, 1.5, by = 0.2)
@@ -103,7 +115,199 @@ tibble(Bandwidth = bws, Estimate = ests) |>
   geom_line(color = "#1e3a5f", linewidth = 1.2) +
   geom_point(size = 3, color = "#1e3a5f") +
   geom_hline(yintercept = 8, linetype = "dashed", color = "#e63946") +
-  labs(title = "Bandwidth sensitivity (red = true effect)",
+  labs(title = "Bandwidth sensitivity (red dashed = true effect = 8)",
        x = "Bandwidth", y = "Estimated Discontinuity") +
   theme_minimal(base_size = 13)
 ```
+
+---
+
+### Interrupted Time Series as Temporal RDD
+
+A special form of RDD uses **time** as the running variable. When a policy takes effect at a known date, observations before that date serve as "control" and observations after as "treated." The continuity assumption becomes: absent the policy, the pre-existing time trend would have continued smoothly through the policy date.
+
+This design is called an **Interrupted Time Series (ITS)** and is especially valuable in longitudinal panel data where a policy is applied to all units simultaneously.
+
+The ITS model separates three distinct quantities:
+
+$$Y_t = \underbrace{\beta_0 + \beta_1 t}_{\text{pre-policy trend}} + \underbrace{\beta_2 D_t}_{\text{level jump at policy date}} + \underbrace{\beta_3 (t - c) D_t}_{\text{post-policy slope change}} + \varepsilon_t$$
+
+- $\beta_1$: the pre-policy trend (the counterfactual slope — what would have continued)
+- $\beta_2$: the immediate level jump at the policy date (the "intercept shift")
+- $\beta_3$: the change in slope after the policy (whether the policy altered the trajectory)
+
+```{r its-simulation}
+n_stores <- 30
+n_months <- 30
+store_eff <- rnorm(n_stores, 0, 6)  # store-level random intercepts
+
+df_its <- expand_grid(store = 1:n_stores, month = 1:n_months) |>
+  mutate(
+    post    = as.integer(month >= 16),          # policy starts at month 16
+    t_post  = pmax(month - 15, 0),              # time since policy, 0 pre-policy
+    store_u = store_eff[store],
+    # True: level jump = +5, slope change = +0.3/month
+    sales   = 60 + 0.8 * month + 5 * post + 0.3 * t_post + store_u +
+                rnorm(n(), 0, 5),
+    store   = factor(store)
+  )
+
+m_its <- lmer(sales ~ month + post + t_post + (1 | store), data = df_its,
+              REML = FALSE)
+summary(m_its)$coefficients |>
+  as.data.frame() |>
+  rownames_to_column("term") |>
+  filter(term %in% c("month", "post", "t_post")) |>
+  rename(estimate = Estimate, std.error = `Std. Error`, t = `t value`) |>
+  mutate(across(where(is.numeric), \(x) round(x, 3))) |>
+  knitr::kable(caption = "ITS model: pre-trend, level jump (post), and slope change (t_post)")
+```
+
+```{r its-plot}
+# Aggregate to store-average for plotting
+df_its_agg <- df_its |>
+  group_by(month, post) |>
+  summarise(sales = mean(sales), .groups = "drop")
+
+# Predicted line from model (using population-level prediction, no store RE)
+coefs <- fixef(m_its)
+df_pred <- tibble(month = 1:30) |>
+  mutate(
+    post   = as.integer(month >= 16),
+    t_post = pmax(month - 15, 0),
+    pred   = coefs["(Intercept)"] + coefs["month"] * month +
+               coefs["post"] * post + coefs["t_post"] * t_post
+  )
+
+ggplot() +
+  geom_point(data = df_its_agg, aes(x = month, y = sales, color = factor(post)),
+             size = 2, alpha = 0.8) +
+  geom_line(data = df_pred, aes(x = month, y = pred), linewidth = 1.2,
+            color = "#1e3a5f") +
+  geom_vline(xintercept = 15.5, linetype = "dashed", color = "#e63946",
+             linewidth = 1.1) +
+  annotate("text", x = 16.5, y = 72, label = expression(beta[2] ~ "(level jump)"),
+           hjust = 0, color = "#e63946", size = 4) +
+  annotate("text", x = 22, y = 84, label = expression(beta[3] ~ "(slope change)"),
+           hjust = 0, color = "#555555", size = 4) +
+  scale_color_manual(values = c("#aec6e8", "#1e3a5f"),
+                     labels = c("Pre-policy", "Post-policy")) +
+  labs(title = "Interrupted Time Series: pricing policy at month 16",
+       x = "Month", y = "Mean Sales", color = NULL) +
+  theme_minimal(base_size = 13)
+```
+
+**Interpretation:**
+
+- $\hat{\beta}_2 \approx 5$: The policy caused an immediate, step-change increase in sales at implementation.
+- $\hat{\beta}_3 \approx 0.3$: The policy also increased the monthly sales growth rate by 0.3 units per month compared to the pre-policy trend.
+- $\hat{\beta}_1 \approx 0.8$: The counterfactual — in the absence of the policy, sales would have continued rising by 0.8 units per month.
+
+The ITS design cannot rule out other events that happened exactly at month 16. The strongest threats are contemporaneous shocks (another policy, a market event) that coincide precisely with the policy date.
+
+**The density-test equivalent for ITS:** Check for unusual clustering of observations just before the policy implementation date. Firms that anticipate a pricing policy may accelerate purchases or delay inventory, creating a temporary spike in the outcome in periods 14–15. Plot the distribution of the outcome in the 3–4 periods immediately before implementation and compare to the pre-trend expectation.
+
+---
+
+## Part B: RDD in Experimental Research
+
+RDD logic appears in experiments when eligibility for treatment is determined by crossing a continuous screening threshold. Unlike the observational RDD — where the cutoff is an exogenous administrative rule — the experimental RDD uses the cutoff to create a natural comparison group within a clinical or intervention study.
+
+### Clinical Trial with PHQ-9 Screening Cutoff
+
+In a depression intervention trial, participants who score ≥ 15 on the PHQ-9 depression screening instrument are eligible for the treatment arm; those scoring below 15 are placed on a waitlist (active control). This creates a regression discontinuity: participants just above and just below the cutoff of 15 are nearly identical in all respects except treatment assignment.
+
+The PHQ-9 RDD is a **sharp RDD** if the cutoff is strictly enforced (everyone scoring ≥ 15 receives treatment; no one below 15 does). It becomes a **fuzzy RDD** if clinician judgment overrides the score — some below-15 participants receive treatment based on clinical discretion, and some above-15 participants decline. In the fuzzy case, the cutoff is an instrument for treatment receipt (not a deterministic assignment rule), and the estimand is a LATE — just as in the IV framework.
+
+::: {.callout-warning icon=false}
+## Assumption: Sharp vs. Fuzzy Cutoff
+
+**Sharp RDD:** Treatment is deterministically assigned by the cutoff — everyone above the threshold is treated, no one below is. The discontinuity directly identifies the treatment effect for units near the cutoff.
+
+**Fuzzy RDD:** The cutoff changes the *probability* of treatment receipt — some above-threshold participants do not receive treatment (refusal, clinical override), some below-threshold participants do (clinician discretion). Fuzzy RDD gives a LATE via IV: the cutoff serves as an instrument for treatment receipt. Use `rdrobust(..., fuzzy = treatment_received)` for fuzzy designs.
+
+The key diagnostic: check the first stage — does crossing the cutoff produce a large, discontinuous jump in the *probability* of treatment receipt?
+:::
+
+```{r clinical-rdd}
+n     <- 600
+phq9  <- round(runif(n, 0, 27))  # PHQ-9 scores from 0 to 27
+treated <- as.integer(phq9 >= 15)
+
+# True causal effect for participants near threshold = 6 points improvement
+# on Hamilton Depression Rating Scale (HDRS; lower = less depressed)
+hdrs <- 12 - 0.15 * phq9 + 6 * treated + rnorm(n, 0, 4)
+
+df_clinical <- tibble(phq9, treated, hdrs)
+
+rdd_clinical <- rdrobust(y = df_clinical$hdrs, x = df_clinical$phq9, c = 15)
+summary(rdd_clinical)
+```
+
+```{r clinical-rdd-plot}
+ggplot(df_clinical, aes(x = phq9, y = hdrs, color = factor(treated))) +
+  geom_point(alpha = 0.3, size = 1.2) +
+  geom_smooth(method = "lm", formula = y ~ x, se = TRUE, linewidth = 1.3) +
+  geom_vline(xintercept = 15, linetype = "dashed", color = "black",
+             linewidth = 1.1) +
+  scale_color_manual(values = c("#aec6e8", "#1e3a5f"),
+                     labels = c("Waitlist (PHQ-9 < 15)",
+                                "Treated (PHQ-9 ≥ 15)")) +
+  labs(title = "RDD: depression intervention at PHQ-9 cutoff = 15",
+       subtitle = "Jump at the cutoff = causal effect of treatment for participants near 15",
+       x = "PHQ-9 Screening Score", y = "HDRS Outcome Score",
+       color = NULL) +
+  theme_minimal(base_size = 13)
+```
+
+### Density Test: Did Participants Game Their PHQ-9 Score?
+
+If participants believe that scoring ≥ 15 gives them access to a desirable treatment, they might inflate their self-reported PHQ-9 responses to qualify. A spike in the density just above 15 indicates this gaming behavior — a sorting violation that makes those just above and just below the threshold non-comparable.
+
+```{r clinical-density}
+ggplot(df_clinical, aes(x = phq9)) +
+  geom_histogram(bins = 28, fill = "#1e3a5f", color = "white", alpha = 0.8) +
+  geom_vline(xintercept = 15, color = "#e63946", linewidth = 1.2,
+             linetype = "dashed") +
+  labs(title = "Density test: PHQ-9 score distribution",
+       subtitle = "A spike just above 15 (red dashed) = participants inflating scores to qualify",
+       x = "PHQ-9 Score", y = "Count") +
+  theme_minimal(base_size = 13)
+```
+
+In this simulation there is no spike — the distribution is smooth through the cutoff, consistent with the continuity assumption.
+
+### Falsification Test: No Jump in Pre-Treatment Covariates
+
+Run the RDD on age — a pre-treatment covariate that cannot be caused by depression treatment eligibility. A discontinuity in age at PHQ-9 = 15 would indicate that something other than depression severity drives the threshold, undermining the identification assumption.
+
+```{r clinical-falsification}
+df_clinical <- df_clinical |>
+  mutate(age = 35 + rnorm(n, 0, 10))
+
+fake_clinical <- rdrobust(y = df_clinical$age, x = df_clinical$phq9, c = 15)
+cat("Jump in age at PHQ-9 = 15 (should be ~0):",
+    round(fake_clinical$coef[1], 3),
+    "| p =", round(fake_clinical$pv[1], 3), "\n")
+```
+
+### The LATE Interpretation for Clinical RDD
+
+Like all RDD estimates, this is a **Local Average Treatment Effect** for participants near the PHQ-9 = 15 cutoff. The treatment effect for severely depressed patients (PHQ-9 > 25) may be very different — and RDD cannot speak to it, because those patients are far from the threshold. Similarly, participants with PHQ-9 scores of 5–10 (mild symptoms) are far below the cutoff; the treatment effect there is entirely unidentified by this design.
+
+**The clinical implication:** The RDD estimate is most credible precisely where the clinical evidence is most contested — the moderate-severity range near the threshold. It cannot adjudicate whether the treatment would work better for the most severely depressed, who are already likely to receive treatment through other channels.
+
+---
+
+## Summary: RDD Across Contexts
+
+| Feature | Cross-sectional / Observational RDD | Interrupted Time Series | Experimental Screening RDD |
+|---|---|---|---|
+| Running variable | Continuous score (test, age, income) | Time (months, quarters) | Continuous screening instrument |
+| Threshold | Administrative cutoff | Policy date | Eligibility cutoff |
+| Treatment | Program / policy eligibility | Pre vs. post policy | Treatment arm entry |
+| Density test | Spike in score near cutoff | Unusual clustering before policy date | Spike in screening score near cutoff |
+| Continuity assumption | No sorting on unobservables | No confounding events at policy date | No gaming of screening score |
+| LATE for... | Units near score threshold | All units at the policy date | Participants near screening cutoff |
+
+RDD is most credible when the threshold is truly arbitrary from the unit's perspective, when the running variable cannot be precisely manipulated, and when the bandwidth is narrow enough that treated and control units are genuinely comparable. The narrower the bandwidth, the more credible the local randomization — but also the smaller the sample and the larger the standard errors.

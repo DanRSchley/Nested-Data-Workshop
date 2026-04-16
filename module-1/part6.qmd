@@ -7,33 +7,47 @@ library(tidyverse)
 library(lme4)
 library(lmerTest)
 library(broom.mixed)
-set.seed(2025)
+library(ggplot2)
+library(patchwork)
+set.seed(42)
 ```
 
 # Crossed Random Effects
 
-## The Problem with Pure Hierarchies
+Pure hierarchies assume each lower-level unit belongs to exactly one higher-level unit. But many real data structures — in both experimental psychology and longitudinal panel research — have units that belong to *multiple* grouping factors simultaneously. This chapter covers two major instances of crossed random effects:
 
-Pure hierarchies assume each lower-level unit belongs to exactly one higher-level unit. But in many real data structures — especially experimental designs in psychology — units belong to *multiple* grouping factors simultaneously.
+1. **Within-subjects experiments**: participants × stimuli (the classic psycholinguistics problem)
+2. **Longitudinal panel data**: firms × calendar years (the economy-wide shock problem)
 
-**The classic example:** A reaction time experiment. 40 participants each respond to 80 words. Each observation belongs to one participant AND one word. Participants are not nested within words. Words are not nested within participants. Both grouping factors are fully crossed.
+Both cases share the same formal structure. Both produce badly wrong standard errors when one of the crossed grouping factors is omitted.
 
-If you only include a random effect for participants (as most psychologists do), you are assuming that all variance due to words is captured by the residual. But words differ systematically — some words are rare and hard to process; others are frequent and easy. This word-level variance inflates your residuals and biases your standard errors.
+---
+
+## Part A: Crossed Random Effects in Experimental Designs
+
+### The Problem with Treating Stimuli as Fixed
+
+A reaction time experiment: 40 participants each respond to 80 words. Each observation belongs to one participant AND one word. Participants are not nested within words. Words are not nested within participants. Both grouping factors are fully **crossed**.
+
+If you only include a random effect for participants, you are assuming that all variance due to words is captured by the residual. But words differ systematically — some are rare and slow to process; others are frequent and easy. This word-level variance inflates your residuals and biases your standard errors.
 
 Judd, Westfall, and Kenny (2012, 2017) showed that failing to include random effects for stimuli is one of the most widespread sources of Type I error inflation in social and cognitive psychology.
 
-## The Model
+### The Model
 
-For crossed random effects with participants ($p$) and stimuli ($s$):
+For observation $y_{ps}$ from participant $p$ responding to stimulus $s$:
 
-$$Y_{ps} = \gamma_{00} + \beta_1 X_{ps} + u_{0p} + w_{0s} + \varepsilon_{ps}$$
+$$
+Y_{ps} = \underbrace{\gamma_{00}}_{\text{grand mean}} + \underbrace{\beta_1 X_{ps}}_{\text{predictor}} + \underbrace{u_{0p}}_{\text{participant RE}} + \underbrace{w_{0s}}_{\text{stimulus RE}} + \underbrace{\varepsilon_{ps}}_{\text{residual}}
+$$
 
 Where:
-- $u_{0p} \sim \mathcal{N}(0, \sigma^2_u)$: participant random intercepts
-- $w_{0s} \sim \mathcal{N}(0, \sigma^2_w)$: stimulus random intercepts
-- $\varepsilon_{ps}$: residual
 
-```{r crossed-model}
+- $u_{0p} \sim \mathcal{N}(0, \sigma^2_u)$: participant random intercepts (some people are slower overall)
+- $w_{0s} \sim \mathcal{N}(0, \sigma^2_w)$: stimulus random intercepts (some words are harder overall)
+- $\varepsilon_{ps}$: trial-level residual noise
+
+```{r experiment-sim}
 # Simulate a lexical decision task
 n_participants <- 40
 n_words        <- 80
@@ -56,50 +70,50 @@ df_ld <- expand_grid(
     participant     = factor(participant),
     word            = factor(word)
   )
+```
 
-# Crossed random effects model
+```{r experiment-models}
+# Without word random effects (wrong)
+model_no_words <- lmer(RT ~ frequency + (1 | participant),
+                       data = df_ld)
+
+# With word random effects (correct: crossed)
 model_crossed <- lmer(RT ~ frequency + (1 | participant) + (1 | word),
                       data = df_ld)
 
 summary(model_crossed)
 ```
 
-```{r crossed-variance}
+```{r experiment-variance}
 broom.mixed::tidy(model_crossed, effects = "ran_pars") |>
-  knitr::kable(digits = 2, caption = "Variance components: participants, words, and residual")
+  knitr::kable(digits = 2,
+               caption = "Variance components: participants, words, and residual")
 ```
 
-**Reading the output:** The model now decomposes variance into three sources: participant-level differences, word-level differences, and residual trial-level noise. The frequency effect is estimated after accounting for *both* sources of clustering.
+**Reading the output:** The model decomposes variance into three sources: participant-level differences, word-level differences, and residual trial-level noise. The frequency effect is estimated after accounting for *both* sources of clustering.
 
-## Comparing: With and Without Word Random Effects
+### Comparing: With and Without Word Random Effects
 
-```{r comparison-models}
-# Without word random effects (wrong)
-model_no_words <- lmer(RT ~ frequency + (1 | participant), data = df_ld)
-
-# With word random effects (correct)
-model_with_words <- lmer(RT ~ frequency + (1 | participant) + (1 | word), data = df_ld)
-
-# Compare standard errors for the frequency effect
-wrong_se  <- broom.mixed::tidy(model_no_words)[2, "std.error"][[1]]
-correct_se <- broom.mixed::tidy(model_with_words)[2, "std.error"][[1]]
+```{r experiment-se-comparison}
+wrong_se   <- broom.mixed::tidy(model_no_words)[2, "std.error"][[1]]
+correct_se <- broom.mixed::tidy(model_crossed)[2, "std.error"][[1]]
 
 tibble(
-  Model = c("Without word RE", "With word RE"),
+  Model        = c("Without word RE", "With word RE (crossed)"),
   Frequency_SE = c(wrong_se, correct_se)
 ) |>
   knitr::kable(digits = 3,
-    caption = "Standard error of frequency effect: ignoring vs. modeling word-level variance")
+    caption = "SE of frequency effect: ignoring vs. modeling word-level variance")
 ```
 
-When word-level variance is ignored, the standard error for frequency is smaller — the model is treating word-level variance as residual noise, which artificially deflates uncertainty. This produces anti-conservative inference: p-values are too small.
+When word-level variance is ignored, the standard error for frequency is smaller — the model treats word-level variance as residual noise, artificially deflating uncertainty. This produces anti-conservative inference: *p*-values are too small.
 
-## The Assumptions of Crossed Random-Effects Models
+### The Assumptions of Crossed Random-Effects Models
 
 ::: {.callout-warning icon=false}
 ## Assumption 1: Independence of Participant and Stimulus Random Effects
 
-**What it means:** The random effect for participant $p$ and the random effect for word $w$ are assumed to be independent of each other. Person 7 having an unusually fast RT is not related to whether word 42 is unusually easy.
+**What it means:** The random effect for participant $p$ and the random effect for word $w$ are assumed to be independent. Person 7 having an unusually fast RT is not related to whether word 42 is unusually easy.
 
 **How to check:** In a balanced fully-crossed design, this is usually reasonable. In unbalanced designs (not all participants see all stimuli), check whether missingness is systematic.
 :::
@@ -107,42 +121,246 @@ When word-level variance is ignored, the standard error for frequency is smaller
 ::: {.callout-warning icon=false}
 ## Assumption 2: Random Effects are Independent of the Predictor
 
-**What it means:** As with all random-effects models, the random intercepts for participants and words should be uncorrelated with the predictors. Word frequency should not predict which words were seen by which participants (in a balanced design, it cannot).
+**What it means:** The random intercepts for participants and words should be uncorrelated with the predictors. Word frequency should not predict which words were seen by which participants — in a balanced design, it cannot.
 
-**Why this is usually satisfied in experiments:** In a fully-crossed, counterbalanced design, every participant sees every word — so assignment is orthogonal to word characteristics. This is one reason well-designed experiments support random-effects modeling.
+**Why this is usually satisfied in experiments:** In a fully-crossed, counterbalanced design, every participant sees every word, so assignment is orthogonal to word characteristics. This is one reason well-designed experiments support random-effects modeling.
 :::
 
 ::: {.callout-warning icon=false}
-## Assumption 3: The Same Model Applies to All Participant-Stimulus Pairs
+## Assumption 3: The Same Model Applies to All Participant–Stimulus Pairs
 
-**What it means:** The frequency effect is assumed to be the same for all participants (unless a random slope for frequency by participants is included). If some participants are more sensitive to frequency than others, a random slope for frequency by participants is needed.
+**What it means:** The frequency effect is assumed to be the same for all participants unless a random slope for frequency by participants is included. If some participants are more sensitive to frequency than others, a random slope is needed.
 
-**How to check:** As with all random-slope decisions, use likelihood ratio tests and theoretical reasoning.
+**How to check:** Use likelihood ratio tests and theoretical reasoning.
 
-```{r random-slopes-crossed}
-# Can add random slopes for frequency by participants
+```{r experiment-random-slopes}
 model_maximal <- lmer(RT ~ frequency + (frequency | participant) + (1 | word),
-                      data   = df_ld,
+                      data    = df_ld,
                       control = lmerControl(optimizer = "bobyqa"))
 
-anova(model_with_words, model_maximal)
+anova(model_crossed, model_maximal)
 ```
 :::
 
-## The "Keep It Maximal" Debate
+### The "Keep It Maximal" Debate
 
 Barr et al. (2013) argued that you should always include the **maximal random effects structure** — every random slope that is theoretically justified by the design. This minimizes Type I error.
 
-Bates et al. (2015) and Matuschek et al. (2017) pushed back, arguing that maximal models frequently fail to converge, and that parsimonious models (with only the random effects supported by the data) often provide better estimates.
+Bates et al. (2015) and Matuschek et al. (2017) pushed back, arguing that maximal models frequently fail to converge, and that parsimonious models often provide better estimates.
 
 The current consensus: include random slopes for all within-unit manipulations (this is critical), but simplify the correlation structure or remove slopes not supported by the data if the model fails to converge.
 
 This debate is covered in depth in Module 5.
 
+---
+
+## Part B: Crossed Random Effects in Longitudinal Panel Data
+
+### Handling Year Effects in Firm-Year Panels
+
+In a standard firm-year panel dataset, every firm is observed in the same calendar years. Years are **not** nested within firms — instead, years and firms are **crossed**. Each observation belongs simultaneously to one firm AND one year.
+
+The data-generating process has two sources of clustering:
+
+1. **Firm random effects**: stable between-firm differences (some firms are always more productive — due to management quality, technology, or location)
+2. **Year random effects**: economy-wide shocks that affect **all** firms in a given year equally (interest rates, commodity prices, regulatory changes, recessions and booms)
+
+**Why this matters — if year random effects are ignored:**
+
+- Year variance is absorbed into the residual
+- Standard errors for predictors are too small (anti-conservative)
+- Economy-wide shocks appear as noise when they are actually systematic, shared variance
+
+### The Model
+
+For observation $Y_{ft}$ from firm $f$ in year $t$:
+
+$$
+Y_{ft} = \underbrace{\gamma_{00}}_{\text{grand mean}} + \underbrace{\beta_1 \text{Investment}_{ft}}_{\text{predictor effect}} + \underbrace{u_{0f}}_{\text{firm RE}} + \underbrace{w_{0t}}_{\text{year RE}} + \underbrace{\varepsilon_{ft}}_{\text{residual}}
+$$
+
+Where:
+
+- $u_{0f} \sim \mathcal{N}(0, \sigma^2_{\text{firm}})$: firm random intercepts (persistent productivity differences)
+- $w_{0t} \sim \mathcal{N}(0, \sigma^2_{\text{year}})$: year random intercepts (economy-wide shocks)
+- $\varepsilon_{ft}$: firm-year idiosyncratic noise
+
+The formal structure is identical to the lexical decision model — only the substantive labels change.
+
+### Simulation: 30 Firms × 15 Annual Waves
+
+```{r panel-sim}
+n_firms <- 30
+n_years <- 15
+
+firm_effects <- rnorm(n_firms, 0, 6)   # between-firm productivity variance
+year_effects <- rnorm(n_years, 0, 4)   # economy-wide year shocks (not in model)
+
+df_panel <- expand_grid(firm = 1:n_firms, year = 1:n_years) |>
+  mutate(
+    investment   = rnorm(n(), 50, 15),
+    productivity = 40 + 0.3 * investment +
+                   firm_effects[firm] +
+                   year_effects[year] +
+                   rnorm(n(), 0, 5),
+    firm     = factor(firm),
+    year_fac = factor(year)
+  )
+
+glimpse(df_panel)
+```
+
+Notice: `year_effects` — the year-level economy-wide variation — is **not included as a predictor** in any model below. It is the hidden source of year-level clustering that the year random effect must absorb.
+
+### Fitting Three Models
+
+```{r panel-models}
+# Model 1: Wrong — firm RE only; year variance goes into residual
+m_firm_only <- lmer(productivity ~ investment + (1 | firm),
+                    data = df_panel)
+
+# Model 2: Correct — crossed RE for firm and year
+m_crossed   <- lmer(productivity ~ investment + (1 | firm) + (1 | year_fac),
+                    data = df_panel)
+
+# Model 3: Conservative alternative — year fixed effects (year as dummy variables)
+m_year_fe   <- lmer(productivity ~ investment + (1 | firm) + year_fac,
+                    data = df_panel)
+```
+
+### Variance Components: The Smoking Gun
+
+```{r panel-variance-table}
+vc_wrong   <- broom.mixed::tidy(m_firm_only, effects = "ran_pars")
+vc_correct <- broom.mixed::tidy(m_crossed,   effects = "ran_pars")
+
+bind_rows(
+  vc_wrong   |> mutate(model = "Firm RE only (wrong)"),
+  vc_correct |> mutate(model = "Crossed RE (correct)")
+) |>
+  select(model, group, term, estimate) |>
+  knitr::kable(digits = 2,
+               caption = "Variance components: firm-only vs. crossed specification")
+```
+
+In the crossed model, variance is correctly partitioned into firm-level variance, year-level variance, and residual. In the firm-only model, the residual variance is inflated — it has absorbed both the true residual and the year-level economy shocks.
+
+### The Key Diagnostic: Standard Error Comparison
+
+```{r panel-se-comparison}
+se_wrong   <- broom.mixed::tidy(m_firm_only)[2, "std.error"][[1]]
+se_crossed <- broom.mixed::tidy(m_crossed)[2,   "std.error"][[1]]
+se_fe      <- broom.mixed::tidy(m_year_fe)[2,   "std.error"][[1]]
+
+tibble(
+  Model             = c("Firm RE only (wrong)",
+                         "Firm + Year RE (correct)",
+                         "Firm RE + Year FE"),
+  Investment_SE     = c(se_wrong, se_crossed, se_fe),
+  Anti_conservative = c("Yes — too small", "Correct", "Correct")
+) |>
+  knitr::kable(digits = 4,
+               caption = "SE of investment coefficient: year effects ignored vs. modeled")
+```
+
+The firm-only model understates uncertainty for the investment coefficient. When economy-wide year variance is left in the residual, the model mistakes correlated year-level noise for independent observations, producing an artificially small standard error.
+
+### Visualizing the Problem: Residual Heatmaps
+
+A powerful diagnostic: plot model residuals as a heatmap over the firm × year grid. Under the wrong model, economy-wide shocks create **vertical stripes** — in a bad year, all firms have negative residuals simultaneously. Under the correct model, residuals are patternless.
+
+```{r panel-heatmap}
+df_diag <- df_panel |>
+  mutate(
+    resid_wrong   = residuals(m_firm_only),
+    resid_correct = residuals(m_crossed)
+  )
+
+p_wrong <- ggplot(df_diag, aes(x = year_fac, y = firm, fill = resid_wrong)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "#2166ac", mid = "white", high = "#d73027",
+                       midpoint = 0, name = "Residual") +
+  labs(title = "Wrong model (firm RE only)",
+       subtitle = "Vertical stripes = year shocks pooled into residuals",
+       x = "Year", y = "Firm") +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_correct <- ggplot(df_diag, aes(x = year_fac, y = firm, fill = resid_correct)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "#2166ac", mid = "white", high = "#d73027",
+                       midpoint = 0, name = "Residual") +
+  labs(title = "Correct model (firm + year RE)",
+       subtitle = "No vertical stripes — year shocks absorbed by year RE",
+       x = "Year", y = "Firm") +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_wrong / p_correct
+```
+
+The vertical stripes in the wrong model are the visual signature of an omitted crossed random effect. Each stripe represents a year in which the economy was unusually good or bad — variance that is genuinely year-level but has been misattributed to the residual.
+
+### Year Fixed Effects vs. Year Random Effects
+
+In panel data, analysts often absorb year effects using **year dummy variables** (year fixed effects) rather than a random intercept. The choice has a precise statistical interpretation:
+
+| Approach | When to use | Key assumption |
+|---|---|---|
+| Year random effects | Years are a random sample from a broader population of time periods | Normality of year effects; exchangeability |
+| Year fixed effects | These specific years are the complete population of interest | No distributional assumption on year effects |
+| Neither | Years have no systematic shared component | All year variance is idiosyncratic noise |
+
+**Rule of thumb:** With $\geq 10$ years, random effects and fixed effects give similar coefficient estimates. With $< 5$ years, fixed effects are more conservative and generally preferred because there is too little information to estimate the year-level variance reliably.
+
+**Connection to Module 1 Part 1 (Fixed Effects):** Year dummies in a fixed-effects model ARE year fixed effects. The choice between fixed effects and random effects for the year dimension mirrors the general FE vs. RE choice from Part 4 — it depends on whether you want to generalize to years outside your sample.
+
+### The Assumptions of Crossed Panel Random-Effects Models
+
+::: {.callout-warning icon=false}
+## Assumption: Year Effects are Exchangeable
+
+**What it means:** The year random intercepts $w_{0t}$ are assumed to be i.i.d. draws from $\mathcal{N}(0, \sigma^2_{\text{year}})$. This implies no autocorrelation across years — a good year does not predict the next year will also be good.
+
+**When it fails:** In the presence of multi-year macroeconomic trends (sustained expansions or recessions), year effects are correlated over time. The remedy is to include a linear time trend as a fixed effect, or to model AR(1) residual structure (covered in Module 4).
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Firm and Year Effects are Independent
+
+**What it means:** A firm being highly productive should not predict whether it was observed during good or bad years. In observational panels with attrition (firms entering and exiting), this can fail — high-performing firms may be more likely to survive through downturns.
+
+**How to check:** Examine whether firm-level characteristics (size, industry, age) are systematically different across years of entry and exit. If firms drop out preferentially during bad years, year random effects will be estimated from a selected sample.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Crossed Effects are Independent
+
+**What it means:** The firm random effect and year random effect are assumed to be independent. This fails if certain types of firms are disproportionately observed in certain years (non-random panel composition over time).
+
+**How to check:** Does the distribution of firm types change substantially over years in your panel? For example, if a regulatory change in year 8 causes small firms to exit the panel, the remaining firms in years 9–15 will be a selected sample. The firm and year random effects are no longer independent.
+:::
+
+### Experimental vs. Panel: Side-by-Side Summary
+
+| Dimension | Lexical Decision Experiment | Firm-Year Panel |
+|---|---|---|
+| **Observation** | Participant $\times$ Word trial | Firm $\times$ Year observation |
+| **Crossed factor 1** | Participant | Firm |
+| **Crossed factor 2** | Word (stimulus) | Calendar year |
+| **RE 1 absorbs** | Baseline RT differences across people | Persistent productivity differences across firms |
+| **RE 2 absorbs** | Difficulty differences across words | Economy-wide shocks shared by all firms in a year |
+| **If RE 2 omitted** | Word variance inflates residual; frequency SE too small | Year variance inflates residual; investment SE too small |
+| **Predictor** | Word frequency | Firm investment spending |
+| **Fix** | `(1\|participant) + (1\|word)` | `(1\|firm) + (1\|year_fac)` |
+
+---
+
 ## Recommended Reading
 
 | Topic | Citation |
-|-------|----------|
+|---|---|
 | Subjects and items as crossed random effects | Judd, C. M., Westfall, J., & Kenny, D. A. (2012). Treating stimuli as a random factor in social psychology. *Journal of Personality and Social Psychology, 103*(1), 54–69. |
 | Keep it maximal | Barr, D. J., Levy, R., Scheepers, C., & Tily, H. J. (2013). Random effects structure for confirmatory hypothesis testing: Keep it maximal. *Journal of Memory and Language, 68*(3), 255–278. |
 | Parsimonious random effects | Matuschek, H., Kliegl, R., Vasishth, S., Baayen, H., & Bates, D. (2017). Balancing Type I error and power in linear mixed models. *Journal of Memory and Language, 94*, 305–315. |
+| Two-way fixed effects in panel data | Wooldridge, J. M. (2010). *Econometric Analysis of Cross Section and Panel Data* (2nd ed.). MIT Press. Chapter 10. |

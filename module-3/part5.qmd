@@ -6,22 +6,56 @@ title: "Difference-in-Differences"
 library(tidyverse)
 library(ggplot2)
 library(broom)
-set.seed(99)
+library(lme4)
+library(lmerTest)
+library(patchwork)
+library(sandwich)
+library(lmtest)
+set.seed(42)
 ```
 
 # Difference-in-Differences
 
-## The Idea
+## The Core Idea
 
 A policy rolls out: some firms must adopt a new management practice; others are unaffected. You have productivity data from before and after. Can you estimate the effect?
 
 The naive approach — compare treated and control firms after the rollout — is biased if they were already different. The **Difference-in-Differences (DiD)** approach subtracts the control group's change from the treated group's change:
 
-$$\hat{\tau}_{DiD} = \underbrace{(\bar{Y}_{T,post} - \bar{Y}_{T,pre})}_{\text{treated group change}} - \underbrace{(\bar{Y}_{C,post} - \bar{Y}_{C,pre})}_{\text{control group change}}$$
+$$\hat{\tau}_{DiD} = \underbrace{(\bar{Y}_{T,\text{post}} - \bar{Y}_{T,\text{pre}})}_{\text{treated group change}} - \underbrace{(\bar{Y}_{C,\text{post}} - \bar{Y}_{C,\text{pre}})}_{\text{control group change}}$$
 
-The control group's change serves as the counterfactual: what would have happened to treated firms if they had not been treated?
+The control group's change serves as the counterfactual: what would have happened to treated units if they had not been treated?
 
-## The Core Assumption
+DiD appears in two distinct research contexts, and the same estimator underlies both:
+
+- **Longitudinal panel data**: firms, employees, or hospitals tracked across calendar time, with a policy or shock affecting some units.
+- **Repeated-measures experimental data**: participants assigned to treatment vs. control and measured both before and after an intervention.
+
+---
+
+## Part A: Panel DiD
+
+### Setup and Simulation
+
+```{r did-panel-sim}
+n_firms <- 80
+n_waves <- 6  # waves 1–3: pre; 4–6: post
+
+firm_treat <- c(rep(1, 40), rep(0, 40))
+firm_base  <- rnorm(n_firms, 50, 8)
+
+df_did <- expand_grid(firm = 1:n_firms, wave = 1:n_waves) |>
+  mutate(
+    treat        = firm_treat[firm],
+    post         = as.integer(wave > 3),
+    baseline     = firm_base[firm],
+    trend        = (wave - 3.5) * 1.5,
+    te           = treat * post * 10,
+    productivity = baseline + trend + te + rnorm(n(), 0, 4)
+  )
+```
+
+### The Core Assumption: Parallel Trends
 
 ::: {.callout-warning icon=false}
 ## Assumption: Parallel Trends
@@ -29,102 +63,366 @@ The control group's change serves as the counterfactual: what would have happene
 **What it means:** In the absence of treatment, treated and control units would have followed the same trend over time. They can start at different levels — DiD handles that. But their *trajectories* must be parallel.
 
 **How to check:**
-1. **Visual inspection:** Plot pre-treatment trends for both groups. They should look parallel.
-2. **Formal pre-trend test:** Regress the outcome on `treat × time` using only pre-treatment data. Significant interaction = non-parallel trends.
-3. **Event study plot:** Estimate separate treatment effects for each period. Pre-period coefficients should be near zero.
+
+1. **Visual inspection:** Plot pre-treatment trends for both groups — they should look parallel.
+2. **Formal pre-trend test:** Regress the outcome on `treat × wave` using only pre-treatment data. A significant interaction signals non-parallel trends.
+3. **Event study plot:** Estimate separate treatment effects for each period. Pre-period coefficients should hover near zero.
 
 **Why it fails:** Treated and control units may have been on different trajectories before treatment — perhaps because units that selected into treatment were already changing faster. No statistical fix can rescue DiD if parallel trends are implausible given the selection process.
 :::
 
-## A Simulated Example
-
-```{r did-sim}
-n_firms <- 80
-n_waves <- 6  # waves 1-3: pre; 4-6: post
-
-firm_treat   <- c(rep(1, 40), rep(0, 40))
-firm_base    <- rnorm(n_firms, 50, 8)
-
-df_did <- expand_grid(firm = 1:n_firms, wave = 1:n_waves) |>
-  mutate(
-    treat      = firm_treat[firm],
-    post       = as.integer(wave > 3),
-    baseline   = firm_base[firm],
-    trend      = (wave - 3.5) * 1.5,
-    te         = treat * post * 10,
-    productivity = baseline + trend + te + rnorm(n(), 0, 4)
-  )
-
-# Plot parallel pre-trends
+```{r did-panel-plot}
 group_means <- df_did |>
   group_by(wave, treat) |>
   summarise(mean_prod = mean(productivity), .groups = "drop") |>
   mutate(group = ifelse(treat == 1, "Treated", "Control"))
 
 ggplot(group_means, aes(x = wave, y = mean_prod, color = group, linetype = group)) +
-  geom_line(linewidth = 1.3) + geom_point(size = 3) +
+  geom_line(linewidth = 1.3) +
+  geom_point(size = 3) +
   geom_vline(xintercept = 3.5, linetype = "dotted", color = "gray40") +
   annotate("text", x = 3.65, y = max(group_means$mean_prod),
-           label = "Treatment", hjust = 0, color = "gray40", size = 3.5) +
+           label = "Treatment onset", hjust = 0, color = "gray40", size = 3.5) +
   scale_color_manual(values = c("#aec6e8", "#1e3a5f")) +
-  labs(title = "DiD: parallel pre-trends, divergence post-treatment",
-       x = "Wave", y = "Productivity", color = NULL, linetype = NULL) +
+  labs(
+    title = "DiD: parallel pre-trends, divergence post-treatment",
+    x = "Wave", y = "Productivity", color = NULL, linetype = NULL
+  ) +
   theme_minimal(base_size = 13)
 ```
 
-```{r did-estimate}
-m_did <- lm(productivity ~ treat * post + baseline, data = df_did)
-tidy(m_did) |>
+### Regression Implementation: Two-Way Fixed Effects
+
+The regression implementation of DiD is the **Two-Way Fixed Effects (TWFE)** model:
+
+$$Y_{it} = \underbrace{\alpha_i}_{\text{unit FE}} + \underbrace{\lambda_t}_{\text{time FE}} + \underbrace{\delta \cdot D_{it}}_{\text{treatment effect}} + \varepsilon_{it}$$
+
+Unit fixed effects $\alpha_i$ absorb all time-invariant differences between firms (e.g., size, industry). Time fixed effects $\lambda_t$ absorb all unit-invariant temporal trends (e.g., business cycles). The treatment indicator $D_{it}$ captures the DiD estimate after removing both sources of variation.
+
+In the 2×2 case (one treated group, one pre and one post period), `treat:post` in an OLS interaction model is algebraically identical to the DiD estimator above. With multiple periods and multiple units, the TWFE formulation generalises naturally.
+
+```{r did-panel-lm}
+# OLS with unit and time fixed effects
+m_did_fe <- lm(productivity ~ treat * post + factor(firm) + factor(wave),
+               data = df_did)
+
+# The treat:post coefficient IS the DiD estimate
+tidy(m_did_fe) |>
+  filter(term == "treat:post") |>
   knitr::kable(digits = 3,
-    caption = "`treat:post` interaction = DiD estimate (true = 10)")
+    caption = "`treat:post` = DiD estimate via TWFE (true effect = 10)")
 ```
 
-## Pre-Trend Test
+The same model via `plm` makes the fixed-effects structure explicit:
+
+```{r did-panel-plm, eval=FALSE}
+library(plm)
+df_panel <- df_did |> mutate(did_treat = treat * post)
+
+m_plm <- plm(productivity ~ did_treat,
+             data   = df_panel,
+             index  = c("firm", "wave"),
+             model  = "within",
+             effect = "twoways")
+summary(m_plm)
+```
+
+::: {.callout-warning icon=false}
+## Connection to Module 1, Part 1 (Unit Fixed Effects)
+
+Adding time fixed effects to a unit-FE panel model **is** DiD when treatment varies over time. The DiD design is the observational analog of a within-subjects experimental design with a control group: the within-unit pre-to-post change is the "within-subjects" component, and subtracting the control group's change removes confounding time trends.
+:::
+
+### Clustered Standard Errors
+
+In DiD with panel data, residuals are correlated within units across waves — the same firm's errors co-vary over time. Ignoring this inflates precision (underestimates standard errors). Cluster at the unit level:
+
+```{r clustered-se}
+m_did_basic <- lm(productivity ~ treat * post + baseline, data = df_did)
+
+# Cluster-robust standard errors at the firm level
+coeftest(m_did_basic, vcov = vcovCL(m_did_basic, cluster = ~firm)) |>
+  tidy() |>
+  filter(term == "treat:post") |>
+  knitr::kable(digits = 3,
+    caption = "DiD with cluster-robust SEs (clustered by firm)")
+```
+
+### Pre-Trend Test
 
 ```{r pretrend-test}
 m_pre <- lm(productivity ~ treat * factor(wave) + baseline,
             data = df_did |> filter(post == 0))
+
 tidy(m_pre) |>
   filter(str_detect(term, "treat:")) |>
   knitr::kable(digits = 3,
-    caption = "Pre-period treat × wave interactions should be near zero")
+    caption = "Pre-period treat × wave interactions — should be near zero")
 ```
 
-## Event Study Plot
+### Event Study Plot
+
+An event study estimates a separate treatment effect for each period (omitting one reference pre-period). Pre-period coefficients should not differ significantly from zero — that would indicate differential pre-trends. Post-period coefficients trace out the dynamic treatment effect.
 
 ```{r event-study}
 m_ev  <- lm(productivity ~ treat * factor(wave) + baseline, data = df_did)
 ev_df <- tidy(m_ev, conf.int = TRUE) |>
-  filter(str_detect(term, "treat:")) |>
-  mutate(wave = as.integer(str_extract(term, "[0-9]+")),
-         pre  = wave <= 3)
+  filter(str_detect(term, "treat:factor")) |>
+  mutate(
+    wave = as.integer(str_extract(term, "[0-9]+")),
+    pre  = wave <= 3
+  )
 
 ggplot(ev_df, aes(x = wave, y = estimate, color = pre)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray60") +
   geom_vline(xintercept = 3.5, linetype = "dotted", color = "gray40") +
   geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2) +
   geom_point(size = 3) +
-  scale_color_manual(values = c("#1e3a5f", "#aec6e8"),
-                     labels = c("Post-treatment", "Pre-treatment (should ≈ 0)")) +
-  labs(title = "Event study: pre-period near zero, post-period shows effect",
-       x = "Wave", y = "Estimated Treatment Effect", color = NULL) +
+  scale_color_manual(
+    values = c("#1e3a5f", "#aec6e8"),
+    labels = c("Post-treatment", "Pre-treatment (should ≈ 0)")
+  ) +
+  labs(
+    title = "Event study: pre-period near zero, post-period shows effect",
+    x = "Wave", y = "Estimated Treatment Effect", color = NULL
+  ) +
   theme_minimal(base_size = 13)
 ```
 
-## Additional Assumptions
+### A Note on Staggered Adoption
+
+When different units adopt treatment at different calendar times, the standard TWFE estimator becomes a weighted average of all pairwise DiD comparisons — including "forbidden comparisons" where already-treated units serve as controls for later-treated units. If treatment effects are heterogeneous across cohorts or over time, this weighting can produce a biased and even sign-reversed estimate.
+
+::: {.callout-warning icon=false}
+## Staggered DiD: A Module 4/5 Preview
+
+Callaway & Sant'Anna (2021) and related estimators address this by computing group-time average treatment effects $ATT(g, t)$ for each cohort $g$ at each post-treatment period $t$, then aggregating. If you have staggered adoption, check whether the `did` or `staggered` packages are appropriate before relying on plain TWFE. See Roth et al. (2023) for a comprehensive review of the staggered DiD literature.
+:::
+
+---
+
+## Part B: Experimental DiD
+
+### DiD Logic in Pre-Post Controlled Experiments
+
+DiD logic appears directly in experimental designs when you have both a **between-subjects factor** (treatment vs. control assignment) and a **within-subjects time factor** (pre vs. post measurement). This is the standard pre-post controlled experimental design — and it is a DiD.
+
+$$\hat{\tau}_{DiD} = \underbrace{(\bar{Y}_{T,\text{post}} - \bar{Y}_{T,\text{pre}})}_{\text{treatment group change}} - \underbrace{(\bar{Y}_{C,\text{post}} - \bar{Y}_{C,\text{pre}})}_{\text{control group change}}$$
+
+In a randomized experiment, pre-test differences are zero **in expectation** due to random assignment. The DiD estimate therefore equals the ATT. Adding the pre-test measurement makes the estimate more **efficient** (reduced variance compared to post-only comparison) and corrects for chance pre-randomization imbalances — especially important in smaller samples.
+
+### The Experimental DiD as a Mixed Model
+
+Pre-post experimental data is nested: **measurements (L1) within participants (L2) within conditions (between-subjects)**. The correct model includes a random intercept for participant to account for the within-person correlation across time points:
+
+$$Y_{ij} = \gamma_{00} + \underbrace{\gamma_{10} \cdot \text{time}_{ij}}_{\text{pre-to-post change}} + \underbrace{\gamma_{01} \cdot \text{cond}_j}_{\text{group difference}} + \underbrace{\gamma_{11} \cdot \text{time}_{ij} \times \text{cond}_j}_{\text{DiD estimate}} + u_{0j} + \varepsilon_{ij}$$
+
+The interaction $\gamma_{11}$ is the DiD estimand. The random effect $u_{0j}$ absorbs between-person variance in the outcome level, just as unit fixed effects do in the panel setting.
+
+### Why Use DiD Instead of Post-Only Comparison?
+
+In a randomized experiment, a simple post-test comparison gives an unbiased estimate of the treatment effect. But DiD is **more efficient** because:
+
+1. It reduces variance by removing stable individual differences (absorbed by the participant random intercept).
+2. It corrects for chance pre-randomization imbalances — important in small samples.
+3. With three or more waves, it allows testing pre-trend patterns (the experimental analog of an event study).
+
+The random intercept for participant is the experimental equivalent of unit fixed effects in the panel TWFE model. Both absorb time-invariant individual heterogeneity; the DiD interaction term in both cases identifies the treatment effect net of that heterogeneity.
+
+### Worked Example: Mindfulness Intervention
+
+120 participants (60 intervention, 60 control) are measured at **baseline** and at an **8-week follow-up**. The outcome is perceived stress (PSS, 0–40 scale; higher = more stressed). The true DiD effect is −8: the intervention reduces stress 8 points more than the control condition.
+
+```{r mindful-sim}
+n_per <- 60
+
+df_mindful <- tibble(
+  participant = rep(1:(n_per * 2), each = 2),
+  condition   = rep(c("control", "intervention"), each = n_per * 2),
+  wave        = rep(c("pre", "post"), times = n_per * 2),
+  u0          = rep(rnorm(n_per * 2, 0, 5), each = 2)
+) |>
+  mutate(
+    time_num  = as.integer(wave == "post"),
+    treat_num = as.integer(condition == "intervention"),
+    stress    = 25 + u0 - 2 * time_num - 8 * time_num * treat_num + rnorm(n(), 0, 4),
+    participant = factor(participant),
+    wave        = factor(wave, levels = c("pre", "post")),
+    condition   = factor(condition)
+  )
+```
+
+```{r mindful-model}
+# The DiD mixed model: time × condition interaction = DiD estimate
+m_exp_did <- lmer(stress ~ wave * condition + (1 | participant),
+                  data = df_mindful)
+
+# wavepost:conditionintervention ≈ -8
+tidy(m_exp_did, effects = "fixed") |>
+  knitr::kable(digits = 3,
+    caption = "`wavepost:conditionintervention` = DiD estimate (true = -8)")
+```
+
+```{r mindful-plot}
+# (a) Group means plot
+group_means_exp <- df_mindful |>
+  group_by(wave, condition) |>
+  summarise(mean_stress = mean(stress), se = sd(stress)/sqrt(n()), .groups = "drop")
+
+p_means <- ggplot(group_means_exp,
+                  aes(x = wave, y = mean_stress, color = condition, group = condition)) +
+  geom_line(linewidth = 1.3) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean_stress - se, ymax = mean_stress + se), width = 0.1) +
+  annotate("segment",
+           x = 2, xend = 2,
+           y = group_means_exp$mean_stress[group_means_exp$wave == "post" &
+                                            group_means_exp$condition == "control"],
+           yend = group_means_exp$mean_stress[group_means_exp$wave == "post" &
+                                               group_means_exp$condition == "intervention"],
+           arrow = arrow(ends = "both", length = unit(0.1, "inches")),
+           color = "black", linewidth = 0.8) +
+  annotate("text", x = 2.08, y = mean(c(
+    group_means_exp$mean_stress[group_means_exp$wave == "post" &
+                                  group_means_exp$condition == "control"],
+    group_means_exp$mean_stress[group_means_exp$wave == "post" &
+                                  group_means_exp$condition == "intervention"]
+  )), label = "DiD", hjust = 0, size = 3.5) +
+  scale_color_manual(values = c("#aec6e8", "#1e3a5f")) +
+  labs(
+    title = "(a) Group means",
+    subtitle = "Annotation shows the DiD estimate at post",
+    x = "Wave", y = "Mean Perceived Stress", color = "Condition"
+  ) +
+  theme_minimal(base_size = 12)
+
+# (b) Individual trajectories (sample of 30 per group)
+set.seed(42)
+sampled_ids <- df_mindful |>
+  distinct(participant, condition) |>
+  group_by(condition) |>
+  slice_sample(n = 30) |>
+  pull(participant)
+
+p_indiv <- df_mindful |>
+  filter(participant %in% sampled_ids) |>
+  ggplot(aes(x = wave, y = stress, group = participant, color = condition)) +
+  geom_line(alpha = 0.35, linewidth = 0.5) +
+  stat_summary(aes(group = condition), fun = mean,
+               geom = "line", linewidth = 1.5, linetype = "solid") +
+  scale_color_manual(values = c("#aec6e8", "#1e3a5f")) +
+  labs(
+    title = "(b) Individual trajectories",
+    subtitle = "Thin lines = participants; thick = group mean",
+    x = "Wave", y = "Perceived Stress", color = "Condition"
+  ) +
+  theme_minimal(base_size = 12)
+
+p_means + p_indiv
+```
+
+### Comparing Estimation Strategies
+
+Three common analytic strategies for pre-post experimental data differ in efficiency and assumptions:
+
+```{r compare-approaches}
+# (a) Post-test only comparison — ignores pre-test; unbiased but less efficient
+m_post_only <- lm(stress ~ condition,
+                  data = df_mindful |> filter(wave == "post"))
+
+# (b) ANCOVA: pre-test as covariate, outcome is post-test score
+df_wide <- df_mindful |>
+  select(participant, condition, wave, stress) |>
+  pivot_wider(names_from = wave, values_from = stress) |>
+  rename(stress_pre = pre, stress_post = post)
+
+m_ancova <- lm(stress_post ~ condition + stress_pre, data = df_wide)
+
+# Collect treatment effect estimates
+bind_rows(
+  tidy(m_post_only) |> filter(term == "conditionintervention") |>
+    mutate(model = "Post-only"),
+  tidy(m_ancova) |> filter(term == "conditionintervention") |>
+    mutate(model = "ANCOVA"),
+  tidy(m_exp_did, effects = "fixed") |>
+    filter(str_detect(term, "wave.*condition|condition.*wave")) |>
+    mutate(model = "Mixed DiD")
+) |>
+  select(model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Comparison of estimation strategies (true effect = -8)")
+```
+
+ANCOVA and the mixed DiD model are numerically equivalent when the model is correctly specified (linear pre-post relationship, equal slopes across groups). ANCOVA is often slightly more efficient in the two-wave case; the mixed DiD generalises naturally to three or more waves. The post-only comparison is unbiased but uses less information, yielding wider confidence intervals.
+
+### Experimental Event Study: Multiple Waves
+
+With three or more measurement waves, you can estimate separate time-point effects — the experimental analog of the panel event study. Pre-intervention point estimates should hover near zero (confirming randomization was successful), while post-intervention estimates trace the trajectory of the effect.
+
+```{r exp-event-study}
+# 4 waves: pre, mid-intervention (4 wk), post (8 wk), follow-up (6 mo)
+df_long <- tibble(
+  participant = rep(1:(n_per * 2), each = 4),
+  condition   = rep(c("control", "intervention"), each = n_per * 2 * 2),
+  wave        = rep(c("pre", "mid", "post", "followup"), times = n_per * 2),
+  u0          = rep(rnorm(n_per * 2, 0, 5), each = 4)
+) |>
+  mutate(
+    wave_num  = case_when(wave == "pre" ~ 0, wave == "mid" ~ 1,
+                          wave == "post" ~ 2, wave == "followup" ~ 3),
+    treat_num = as.integer(condition == "intervention"),
+    true_did  = case_when(wave == "pre" ~ 0, wave == "mid" ~ -4,
+                          wave == "post" ~ -8, wave == "followup" ~ -5),
+    stress    = 25 + u0 - 2 * wave_num + true_did * treat_num + rnorm(n(), 0, 4),
+    wave      = factor(wave, levels = c("pre", "mid", "post", "followup")),
+    participant = factor(participant),
+    condition   = factor(condition)
+  )
+
+m_ev_exp <- lmer(stress ~ wave * condition + (1 | participant), data = df_long)
+
+ev_exp <- tidy(m_ev_exp, effects = "fixed", conf.int = TRUE) |>
+  filter(str_detect(term, "wave.*condition")) |>
+  mutate(wave = str_extract(term, "mid|post|followup"),
+         wave = factor(wave, levels = c("mid", "post", "followup")))
+
+ggplot(ev_exp, aes(x = wave, y = estimate)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray60") +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2,
+                color = "#1e3a5f") +
+  geom_point(size = 3, color = "#1e3a5f") +
+  labs(
+    title = "Experimental event study: differential effect at each post-wave",
+    subtitle = "Pre-period reference = 0 by construction (wave 'pre' is omitted category)",
+    x = "Wave (relative to pre)", y = "DiD Estimate (vs. pre)"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+The pre-period reference wave is omitted by construction and equals zero. A coefficient near zero at "mid" and significantly negative at "post" would confirm the expected pattern: the effect builds during the intervention and partially persists at follow-up.
+
+---
+
+## Shared Assumptions
 
 ::: {.callout-warning icon=false}
 ## Assumption: SUTVA — No Spillovers
 
 **What it means:** Treatment of unit A should not affect the outcomes of unit B. If treated firms compete with control firms and treatment improves treated performance at control firms' expense, the control trend is contaminated.
 
-**How to check:** Test whether control units near treated units trend differently from distant controls.
+**In within-subjects experimental designs**, SUTVA violation is called **carryover effects**: exposure to condition A changes responses to condition B. If participants learn that resources are scarce in the scarcity condition, this knowledge may carry over to the control condition, reducing the contrast. Carryover effects also arise when the effects of an intervention are physiological or psychological and persist beyond the measurement window.
+
+**How to manage (experimental):** Randomize condition order across participants; use filler tasks or rest periods between conditions; consider between-subjects designs when carryover is likely to be severe. Including condition order as a covariate also allows you to test for and estimate carryover.
+
+**How to check (panel):** Test whether control units near treated units trend differently from distant controls.
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption: Stable Composition
 
-**What it means:** The composition of treated and control groups should not change differentially after treatment. If the policy causes the most productive employees to leave treated firms, the post-treatment group is a different population.
+**What it means:** The composition of treated and control groups should not change differentially after treatment. If the policy causes the most productive employees to leave treated firms, the post-treatment group is a different population — you are comparing different people, not the same people in different states.
 
-**How to check:** Check whether observable characteristics of units change differentially post-treatment.
+**In experiments**, differential attrition at follow-up can produce the same bias. If high-stress participants in the intervention drop out before the post-test, the remaining sample is not representative of the randomized group. The treatment effect estimated on completers may differ from the true intent-to-treat effect.
+
+**How to check:** Test whether observable baseline characteristics predict group × attrition status. If they do, consider inverse probability weighting to correct for non-random dropout (see Part 6).
 :::

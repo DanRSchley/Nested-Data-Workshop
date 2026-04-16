@@ -1,0 +1,380 @@
+---
+title: "Quasi-Experimental Methods for Applied Researchers"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(MatchIt)
+library(broom)
+library(lme4)
+library(lmerTest)
+library(ggplot2)
+library(patchwork)
+library(sandwich)
+library(lmtest)
+set.seed(42)
+```
+
+## Section 1: When Experiments Have Observational Features
+
+A fully randomized experiment with perfect compliance and no attrition is the gold standard for causal inference — but it rarely survives contact with the field intact. In practice, experiments accumulate observational features: participants drop out for reasons related to the treatment, some assigned to treatment never engage, ethical or logistical constraints limit who can be randomized, and field implementations vary substantially across sites.
+
+These complications do not invalidate the experiment. They do require the researcher to reach into the quasi-experimental toolkit that Module 3 introduced for observational studies. The good news: the same tools that handle observational confounding also handle experimental imperfections — often in a cleaner setting, because the original randomization still provides some traction.
+
+The table below maps common experimental complications to their methodological remedies and their Module 3 antecedents:
+
+| Situation | Method | Module 3 Connection |
+|-----------|--------|---------------------|
+| Perfect randomization, no attrition | Standard mixed model | — (Modules 1–2) |
+| Non-random attrition at follow-up | IPW for attrition | Part 6 (propensity scores) |
+| Noncompliance with assignment | ITT or LATE via IV | Part 2 (IV) → Module 5 Part 8 |
+| Eligibility determined by a threshold | Regression discontinuity | Part 4 (RDD) |
+| Pre-post design with comparison group | DiD mixed model | Part 5 (DiD) |
+| Self-selected sub-treatment within experiment | PSM within treatment arm | Part 6 (PS) |
+
+: Experimental complications and their quasi-experimental remedies {tbl-colwidths="[30,30,40]"}
+
+This chapter walks through implementations for four of these situations: DiD as the logic of pre-post designs, IPW for non-random attrition, PSM for voluntary sub-treatment participation, and threshold-based eligibility (RDD). The noncompliance case is covered in detail in Module 5 Part 8.
+
+---
+
+## Section 2: DiD as the Logic of Pre-Post Designs
+
+### The structural equivalence
+
+The standard randomized pre-post design **is** a difference-in-differences design. It has:
+
+- Two groups: intervention and control (the "treated vs. untreated" dimension of DiD)
+- Two time points: baseline and follow-up (the "pre vs. post" dimension of DiD)
+- The DiD estimand: $(\bar{Y}^{\text{post}}_{\text{int}} - \bar{Y}^{\text{pre}}_{\text{int}}) - (\bar{Y}^{\text{post}}_{\text{ctrl}} - \bar{Y}^{\text{pre}}_{\text{ctrl}})$
+
+Recognizing this equivalence is valuable for two reasons. First, it makes explicit what the pre-post mixed model assumes (parallel trends in the absence of treatment — which randomization guarantees in expectation). Second, it gives you the full DiD toolkit: you can add multiple waves, test pre-trend balance, and use the event study framework to trace the treatment trajectory over time.
+
+### Simulation: stress management intervention
+
+We simulate 120 participants (60 per arm) measured at baseline (pre) and 8-week follow-up (post). A stress management training reduces cortisol. True DiD effect = −8 units.
+
+```{r did-simulate}
+n_per <- 60
+
+df_pp <- expand_grid(
+  participant = 1:(n_per * 2),
+  wave        = c("pre", "post")
+) |>
+  mutate(
+    condition = ifelse(participant <= n_per, "control", "intervention"),
+    time_num  = as.integer(wave == "post"),
+    treat_num = as.integer(condition == "intervention"),
+    u0        = rnorm(n_per * 2, 0, 5)[participant],   # person random intercept
+    cortisol  = 25 + u0 - 1.5 * time_num - 8 * time_num * treat_num + rnorm(n(), 0, 4),
+    participant = factor(participant),
+    wave      = factor(wave, levels = c("pre", "post")),
+    condition = factor(condition, levels = c("control", "intervention"))
+  )
+```
+
+### DiD mixed model
+
+```{r did-model}
+m_did_exp <- lmer(cortisol ~ wave * condition + (1 | participant),
+                  data = df_pp, REML = FALSE)
+
+broom.mixed::tidy(m_did_exp, effects = "fixed") |>
+  knitr::kable(digits = 3,
+               caption = "DiD mixed model. The wave:condition interaction is the DiD estimate (target: -8).")
+```
+
+The `wavepost:conditionintervention` interaction coefficient is the DiD estimand — the differential change from pre to post in the intervention arm relative to the control arm.
+
+### Comparison to ANCOVA
+
+ANCOVA on the wide-format outcome, controlling for the pre-test, is a common alternative:
+
+```{r ancova}
+df_wide <- df_pp |>
+  pivot_wider(names_from = wave, values_from = cortisol,
+              names_prefix = "cortisol_") |>
+  mutate(cortisol_pre_c = cortisol_pre - mean(cortisol_pre))
+
+m_ancova <- lm(cortisol_post ~ condition + cortisol_pre_c, data = df_wide)
+
+broom::tidy(m_ancova) |>
+  filter(term == "conditionintervention") |>
+  knitr::kable(digits = 3,
+               caption = "ANCOVA treatment estimate. Numerically close to DiD mixed model when pre-test is mean-centered.")
+```
+
+The two approaches converge when the pre-test is mean-centered and the random-effect variance is estimated well. The DiD mixed model generalizes more naturally to three or more waves and produces an interpretable random-effects structure, making it preferred for longitudinal experimental designs.
+
+### Event study visualization
+
+```{r did-plot, fig.width=8, fig.height=4.5}
+summ_pp <- df_pp |>
+  group_by(wave, condition) |>
+  summarise(mean_c = mean(cortisol), se_c = sd(cortisol) / sqrt(n()),
+            .groups = "drop")
+
+ggplot(summ_pp, aes(x = wave, y = mean_c,
+                     color = condition, group = condition)) +
+  geom_line(linewidth = 1.1) +
+  geom_errorbar(aes(ymin = mean_c - 1.96 * se_c,
+                    ymax = mean_c + 1.96 * se_c), width = 0.1) +
+  geom_point(size = 3.5) +
+  scale_color_manual(values = c("control" = "#aec6e8", "intervention" = "#1e3a5f")) +
+  annotate("segment",
+           x = 2.05, xend = 2.05, y = 20.5, yend = 14.5,
+           arrow = arrow(length = unit(0.25, "cm"), ends = "both"),
+           color = "#c0392b") +
+  annotate("text", x = 2.12, y = 17.5,
+           label = "DiD \u2248 \u22128", color = "#c0392b", hjust = 0, size = 3.5) +
+  labs(
+    title    = "Pre-post cortisol by condition",
+    subtitle = "Parallel pre-period (randomization), divergent post-period (treatment)",
+    x        = "Wave",
+    y        = "Mean cortisol (arbitrary units)",
+    color    = "Condition"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+### Three-wave extension
+
+With baseline, mid-point, and follow-up, the time × condition interaction becomes a trajectory. Pre-baseline balance checks verify randomization; post-baseline coefficients trace how the treatment effect builds over time. This is the experimental event study:
+
+```{r three-wave-sketch, eval=FALSE}
+# Three-wave data with months 0, 4, 8
+m_3wave <- lmer(cortisol ~ factor(month) * condition + (1 | participant),
+                data = df_3wave)
+# Plot estimated coefficients for each month x condition cell
+```
+
+Pre-period interaction coefficients near zero confirm that randomization produced balanced groups. Post-period coefficients show whether treatment effects are immediate, delayed, or accumulating.
+
+---
+
+## Section 3: IPW for Non-Random Attrition
+
+### The problem
+
+Even in a fully randomized trial, attrition at follow-up can reintroduce bias. If high-anxiety control-group participants are more likely to drop out — because the study reminds them of their struggles and they disengage — then the observed control-group follow-up average is inflated (it excludes the highest-anxiety participants). The treatment appears more effective than it truly is for the full intention-to-treat sample.
+
+### Simulation
+
+```{r ipw-simulate}
+n          <- 200
+treatment  <- rep(c(0, 1), each = 100)
+baseline_anx <- rnorm(n, 50, 10)
+
+# Attrition: higher anxiety + control → more likely to drop out
+p_remain  <- plogis(2 - 0.04 * baseline_anx + 0.4 * treatment)
+remained  <- rbinom(n, 1, p_remain)
+
+# True treatment effect = -5 (treatment reduces outcome)
+outcome   <- 40 - 5 * treatment + 0.3 * baseline_anx + rnorm(n, 0, 6)
+
+df_att <- tibble(id = 1:n, treatment, baseline_anx, remained, outcome)
+
+cat("Retention rate — control:  ", mean(remained[treatment == 0]), "\n")
+cat("Retention rate — treatment:", mean(remained[treatment == 1]), "\n")
+```
+
+### IPW correction
+
+We model the probability of remaining in the study as a function of baseline anxiety and treatment, then weight complete cases by the inverse of their retention probability:
+
+```{r ipw-model}
+ps_att    <- glm(remained ~ baseline_anx + treatment,
+                 family = binomial, data = df_att)
+df_att$ipw <- 1 / fitted(ps_att)
+
+df_obs <- df_att |> filter(remained == 1)
+
+m_naive_att <- lm(outcome ~ treatment, data = df_obs)
+m_ipw_att   <- lm(outcome ~ treatment, data = df_obs,
+                   weights = df_att$ipw[df_att$remained == 1])
+```
+
+```{r ipw-compare, echo=FALSE}
+bind_rows(
+  broom::tidy(m_naive_att) |> filter(term == "treatment") |>
+    mutate(method = "Naive complete-case analysis"),
+  broom::tidy(m_ipw_att)   |> filter(term == "treatment") |>
+    mutate(method = "IPW-corrected analysis")
+) |>
+  select(method, estimate, std.error, p.value) |>
+  knitr::kable(
+    digits  = 3,
+    caption = "True treatment effect = -5. Naive estimate is attenuated toward zero because high-anxiety control participants (who would show the smallest benefit) dropped out. IPW recovers the true estimate by upweighting their remaining counterparts."
+  )
+```
+
+::: {.callout-warning icon=false}
+## IPW Assumptions for Attrition Correction
+
+IPW corrects for attrition under **Missing at Random (MAR)**: the probability of dropout depends on observed pre-treatment variables (here, baseline anxiety and treatment condition), but not on the unobserved post-treatment outcome. If dropout is driven by the unmeasured outcome itself — e.g., people drop out because they are getting worse and do not want to be measured — IPW will not fully correct the bias. Consider collecting data on dropouts via brief follow-up contacts to test the MAR assumption empirically.
+:::
+
+### Visualization
+
+```{r ipw-plot, fig.width=7, fig.height=4}
+est_df <- bind_rows(
+  broom::tidy(m_naive_att) |> filter(term == "treatment") |>
+    mutate(method = "Naive"),
+  broom::tidy(m_ipw_att) |> filter(term == "treatment") |>
+    mutate(method = "IPW corrected")
+) |>
+  mutate(method = factor(method, levels = c("Naive", "IPW corrected")))
+
+ggplot(est_df, aes(x = method, y = estimate, fill = method)) +
+  geom_col(width = 0.5, alpha = 0.85) +
+  geom_errorbar(aes(ymin = estimate - 1.96 * std.error,
+                    ymax = estimate + 1.96 * std.error), width = 0.18) +
+  geom_hline(yintercept = -5, linetype = "dashed", color = "#c0392b") +
+  annotate("text", x = 2.4, y = -4.6, label = "True effect = -5",
+           color = "#c0392b", size = 3.5) +
+  scale_fill_manual(values = c("Naive" = "#e67e22", "IPW corrected" = "#1e3a5f"),
+                    guide = "none") +
+  labs(
+    title    = "IPW corrects attrition bias",
+    subtitle = "Naive estimate attenuated; IPW recovers true treatment effect",
+    x        = NULL,
+    y        = "Estimated treatment effect"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+## Section 4: PSM for Voluntary Sub-Treatment Participation
+
+### The within-experiment observational problem
+
+Random assignment creates treatment and control arms, but within the treatment arm, **engagement is voluntary**. Consider a digital health app randomized to half the sample: some participants use it daily, others open it once and forget it. Comparing high-users to low-users is an observational comparison — heavier users likely differ from lighter users on motivation, health literacy, and self-regulation, all of which are independent predictors of health outcomes.
+
+Propensity score matching on pre-treatment covariates makes this within-arm comparison more credible by constructing a control group of low-users who resembled high-users at baseline.
+
+### Simulation and matching
+
+We work within the treatment arm of the attrition simulation and create a high-use indicator that is related to baseline anxiety:
+
+```{r psm-usage}
+df_treat_only <- df_att |>
+  filter(treatment == 1) |>
+  mutate(
+    high_user = rbinom(n(), 1, plogis(-0.5 + 0.04 * baseline_anx))
+  )
+
+m_usage <- matchit(
+  high_user ~ baseline_anx,
+  data   = df_treat_only,
+  method = "nearest",
+  ratio  = 1
+)
+
+summary(m_usage)$sum.matched |>
+  knitr::kable(digits = 3,
+               caption = "Covariate balance after 1:1 nearest-neighbor matching on baseline anxiety.")
+```
+
+```{r psm-estimate}
+matched      <- match.data(m_usage)
+m_usage_eff  <- lm(outcome ~ high_user + baseline_anx,
+                   data = matched, weights = weights)
+
+broom::tidy(m_usage_eff) |>
+  filter(term == "high_user") |>
+  select(estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+               caption = "Matched estimate of high-use vs. low-use effect on outcome, among participants with similar baseline anxiety.")
+```
+
+::: {.callout-warning icon=false}
+## What PSM Within an Experiment Identifies
+
+Matching on pre-treatment covariates removes **observed** confounders of the high-use vs. low-use comparison. But unobserved motivation, self-efficacy, and expectancy effects remain. The matched estimate is closer to causal than the naive comparison, but it is not an RCT-quality estimate.
+
+Formally, this identifies a LATE for the sub-population of low-users who were matched to comparable high-users — not the ATE for all participants. Interpret as "the effect of high engagement, for people with similar observable characteristics to high engagers," not "the effect of high engagement for everyone."
+:::
+
+---
+
+## Section 5: Threshold-Based Eligibility (RDD in Applied Research)
+
+When participants must exceed a continuous threshold on a screening measure to qualify for a treatment arm, **regression discontinuity design (RDD)** is the appropriate analysis. The continuity assumption — that potential outcomes vary smoothly across the cutoff — is often more credible in clinical settings than the selection-on-observables assumption required by propensity score methods.
+
+A common example: a mental health intervention restricted to participants scoring PHQ-9 $\geq 15$ (moderately severe depression). Participants just below 15 and just above 15 are likely similar on most characteristics; the discontinuity in treatment receipt at 15 creates local quasi-random variation.
+
+```{r rdd-sketch, eval=FALSE}
+# Requires rdrobust package
+library(rdrobust)
+rdd_out <- rdrobust(y = df$outcome, x = df$phq9, c = 15)
+summary(rdd_out)
+rdplot(y = df$outcome, x = df$phq9, c = 15,
+       title = "RDD: PHQ-9 screening cutoff at 15")
+```
+
+The `rdrobust` package implements optimal bandwidth selection, bias-corrected confidence intervals, and the McCrary density test (for manipulation of the running variable). The full treatment of RDD mechanics, bandwidth selection, and robustness checks is in Module 3 Part 4; that framework applies directly here.
+
+::: {.callout-tip}
+## RDD in Clinical and Educational Research
+
+RDD is underused in psychology and organizational research relative to economics, despite being highly credible when a threshold rule genuinely determines assignment. Common examples: academic probation cutoffs, clinical screening cutoffs (PHQ-9, GAD-7, ACE score), performance review thresholds, grant funding cutoffs. If your research setting uses a cutoff rule, seriously consider RDD before reaching for PSM.
+:::
+
+---
+
+## Section 6: Practical Decision Guide
+
+::: {.callout-tip}
+## Choosing Your Method When Randomization Is Imperfect
+
+Work through this sequence when your experimental data does not satisfy the simple randomization ideal:
+
+1. **Fully randomized, no attrition, full compliance?**
+   Standard mixed model (Modules 1–2). No quasi-experimental adjustment needed.
+
+2. **Randomized + differential attrition?**
+   IPW for attrition (this chapter, Section 3). Requires MAR assumption.
+
+3. **Randomized + noncompliance?**
+   Report ITT (always). If complier effect is of interest, add LATE via IV (Module 5 Part 8).
+
+4. **Eligibility determined by a continuous threshold?**
+   Regression discontinuity (Module 3 Part 4). Local to the threshold — do not generalize far from cutoff.
+
+5. **Pre-post design with randomized comparison group?**
+   DiD mixed model (this chapter, Section 2). Generalizes to multiple waves as event study.
+
+6. **Self-selection into sub-treatment within an experiment?**
+   PSM within treatment arm (this chapter, Section 4). Residual unobserved confounding remains.
+
+7. **Observational study with good observed confounders?**
+   PSM or IPW on covariates (Module 3 Part 6). Validity depends entirely on selection-on-observables.
+
+8. **Observational study with a credible instrument?**
+   IV or LATE (Module 3 Part 2, Module 5 Part 8). Validity depends on exclusion restriction.
+
+No method is universally best. The right method depends on the data-generating process and which assumption is most defensible given your study design.
+:::
+
+---
+
+## Section 7: The Full Course Arc
+
+This workshop has built from the ground up.
+
+**Module 1** established the mixed-effects framework: how to model data where observations are nested within units, how to decompose variance across levels, and why treating clustered data as independent inflates false positive rates. The random intercept model is not a statistical correction tacked on after the fact — it is a direct translation of the sampling structure into the model.
+
+**Module 2** showed that *how* you enter predictors matters as much as *which* predictors you include. Within-unit centering decomposes predictors into their between-unit and within-unit components, corresponding to different mechanisms operating at different levels of the hierarchy. Getting the centering wrong means estimating the wrong estimand, even with a correctly specified error structure.
+
+**Module 3** showed where the well-specified mixed model can still go wrong: omitted variables (time-invariant and time-varying), endogenous regressors, selection into the sample, regression discontinuities at thresholds, treatment effect heterogeneity, and non-random treatment assignment. Six threats; six identification strategies. Each strategy requires a different source of identifying variation and a different set of untestable assumptions.
+
+**Module 4** addressed the practicalities of longitudinal data: handling missing values without complete-case bias, and applying the Module 3 identification strategies to the panel setting where time creates both new threats and new opportunities.
+
+**Module 5** closed the loop for applied experimental researchers: what to do when the experiment is imperfect, and how to connect the quasi-experimental toolkit back to the experimental design.
+
+The unifying insight across all five modules:
+
+> Understanding your **data generating process** — who is nested in whom, what varies within units versus across units, what mechanisms connect your predictors to your outcome, and what determines who ends up in each condition — is the prerequisite for every methodological choice covered in this workshop.
+
+The nesting structure is not a nuisance to correct for with a random effect and move on. It is the scientific structure of your data. The causal question is always about a mechanism operating at a particular level of that structure, through a particular pathway, for a particular population. The method is in service of making that mechanism legible.

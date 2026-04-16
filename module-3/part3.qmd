@@ -5,62 +5,152 @@ title: "Selection Effects & Attrition"
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(ggplot2)
-set.seed(555)
+library(broom)
+library(lme4)
+library(patchwork)
+set.seed(42)
 ```
 
 # Selection Effects & Attrition
 
 ## When Your Sample is Not Your Population
 
-Even with a perfect model, if your observations are not representative of the population you care about, your conclusions may be wrong. Selection effects are the family of processes by which observations non-randomly enter or leave your dataset.
+Even with a perfectly specified model, if your observations are not representative of the population you care about, your conclusions may be wrong. Selection effects are the family of processes by which observations non-randomly enter, remain in, or leave your dataset.
 
-Selection is especially dangerous in nested and longitudinal data because the same processes that structure your data also drive who stays in it over time.
+Selection is especially dangerous in nested and longitudinal data because the same processes that structure the data — time, group membership, experimental condition — also drive who stays in it. The threats that follow apply across research contexts, but the way they manifest differs.
 
 ---
 
-## Type 1: Representativeness / Undercover Bias
+## Type 1: Representativeness Bias
 
 Your sampling frame does not cover the full population you want to generalize to.
 
-**Secondary data example:** Online review platform data. People who leave reviews are not a random sample — they felt strongly enough to write one (typically either very satisfied or very dissatisfied). Analyses generalize to "opinionated reviewers," not "all customers."
+**In longitudinal research:** Panel databases draw from specific registers (e.g., publicly traded firms, firms above an employment threshold). Private, small, or young firms are systematically absent. Trends in the observed panel may not generalize to the full firm population.
 
-**Experimental example:** Convenience samples from university subject pools (WEIRD populations — Western, Educated, Industrialized, Rich, Democratic) may not generalize to the adults whose behavior you are studying.
+**In experimental research:** Convenience samples from university subject pools (WEIRD populations — Western, Educated, Industrialized, Rich, Democratic) over-represent young, highly educated, and cognitively flexible participants. Reactions to scarcity, authority, or social norms that are measured in the lab may not generalize to broader populations.
 
 ::: {.callout-warning icon=false}
 ## Assumption: Sampling Frame Covers the Population of Interest
 
 **How to check:** Compare your sample's distributions on key variables to known population statistics. Are any groups systematically over- or under-represented?
 
-**What to do:** Acknowledge the limitation. Use stratified sampling. Apply post-stratification weights if population distributions are known.
+**What to do:** Acknowledge the limitation explicitly. Use stratified sampling or post-stratification weights if population distributions are known. Consider whether your research question and theoretical claims are appropriately scoped to your sampling frame.
 :::
 
 ---
 
-## Type 2: Self-Selection / Non-Response Bias
+## Type 2: Self-Selection and Non-Response Bias
 
 Participants choose whether to enter your study based on factors related to your variables of interest.
 
 The landmark example: the 1936 *Literary Digest* poll predicted Landon would defeat Roosevelt by a landslide, based on 2.4 million responses. Their sampling frame (telephone directories and car registration lists) over-represented wealthy Republicans. Roosevelt won in a historic landslide.
 
+**In longitudinal research:** Firms that agree to participate in a panel survey are often larger, more stable, and more administratively capable than firms that decline. If firm size and stability predict your outcome, effect estimates from the panel will not generalize to the true firm population.
+
+**In experimental research:** Participants who volunteer for a study on "decision-making and well-being" may be more introspective, more compliant, and more psychologically attuned to the constructs you measure. They are not a random draw from the population of people to whom your theory applies.
+
 ```{r selection-sim}
 n_total    <- 1000
-health_con <- rnorm(n_total, 50, 10)  # latent health consciousness
+health_con <- rnorm(n_total, 50, 10)  # latent health consciousness (unobserved)
 
-# Health-conscious people more likely to participate
+# Health-conscious people are more likely to volunteer for a health study
 p_participate <- plogis(-2 + 0.06 * health_con)
 participated  <- rbinom(n_total, 1, p_participate)
 
-# Outcome influenced by health consciousness
+# Outcome: actual health score, partly caused by health consciousness
 health_score <- 40 + 0.5 * health_con + rnorm(n_total, 0, 8)
 
 tibble(
-  Group    = c("Full population", "Self-selected sample"),
-  N        = c(n_total, sum(participated)),
+  Group = c("Full population", "Self-selected sample"),
+  N     = c(n_total, sum(participated)),
   Mean_health = c(mean(health_score),
-                   mean(health_score[participated == 1]))
+                  mean(health_score[participated == 1]))
 ) |>
-  knitr::kable(digits = 2, caption = "Self-selection inflates estimated health level")
+  knitr::kable(digits = 2,
+    caption = "Self-selection inflates estimated health level in the study sample")
 ```
+
+The self-selected sample substantially overestimates the population average health score because health-conscious people both participate more and are healthier.
+
+---
+
+### Demand Characteristics in Nested Experimental Designs
+
+Self-selection is not only about who enters the study — it also operates within the study as a behavioral process. **Demand characteristics** are a form of selection into behavior: participants selectively display responses that confirm the hypothesis they have inferred from the study design, the experimenter's demeanor, or prior experimental experience.
+
+In a standard between-subjects design, demand characteristics inflate both conditions equally and partially cancel out. But in **within-subjects (repeated-measures) designs**, participants can observe their own behavior across conditions, infer the hypothesis more easily, and respond accordingly. This is especially pernicious because it can masquerade as a real treatment effect.
+
+**How demand characteristics create bias in within-subjects designs:**
+
+Some participants are systematically more susceptible to demand — those higher in agreeableness, more experienced with experiments, or more motivated to please the experimenter. These participants inflate their responses in the treatment condition more than in the control condition. This creates a pattern that looks like a treatment × participant interaction in the data: susceptible participants show larger "effects" not because the treatment worked better for them, but because they responded more to perceived expectations.
+
+This inflated variance is absorbed by the random slope for condition, but it also biases the fixed effect estimate of the treatment itself — pulling the overall effect in the direction of the demand hypothesis.
+
+```{r demand-sim}
+n_par          <- 80
+n_trials_per   <- 6
+susceptible    <- c(rep(FALSE, 60), rep(TRUE, 20))  # 25% demand-susceptible
+
+df_demand <- expand_grid(
+  participant = 1:n_par,
+  condition   = c("control", "scarcity"),
+  trial       = 1:n_trials_per
+) |>
+  mutate(
+    demand_sus  = susceptible[participant],
+    # True scarcity effect = -3 (scarcity reduces willingness to pay via threat)
+    # Demand-susceptible participants inflate scarcity condition scores by +8
+    demand_bias = ifelse(demand_sus & condition == "scarcity", 8, 0),
+    dq          = 65 + (-3) * (condition == "scarcity") + demand_bias +
+                    rnorm(n(), 0, 5),
+    participant = factor(participant),
+    condition   = factor(condition, levels = c("control", "scarcity"))
+  )
+
+# Pooled model: mixes susceptible and non-susceptible participants
+m_pooled <- lmer(dq ~ condition + (1 | participant), data = df_demand,
+                 REML = FALSE)
+
+# Split by susceptibility to reveal the true effect vs. demand inflation
+m_non_sus <- lmer(dq ~ condition + (1 | participant),
+                  data = df_demand |> filter(!demand_sus), REML = FALSE)
+m_sus     <- lmer(dq ~ condition + (1 | participant),
+                  data = df_demand |> filter(demand_sus),  REML = FALSE)
+
+bind_rows(
+  tidy(m_pooled,  effects = "fixed") |> filter(term == "conditionscarcity") |>
+    mutate(group = "Pooled (all participants)"),
+  tidy(m_non_sus, effects = "fixed") |> filter(term == "conditionscarcity") |>
+    mutate(group = "Non-susceptible participants (true effect ≈ −3)"),
+  tidy(m_sus,     effects = "fixed") |> filter(term == "conditionscarcity") |>
+    mutate(group = "Demand-susceptible participants (inflated)")
+) |>
+  select(group, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Demand characteristics attenuate the pooled scarcity effect toward zero")
+```
+
+The pooled estimate is attenuated toward zero: the 25% of participants who inflate their scarcity-condition responses mask the true negative effect among the other 75%. The estimate for non-susceptible participants cleanly recovers the true effect of −3. The susceptible participants show near-zero or positive effects — the demand inflation swamps the true effect for them.
+
+**Practical remedies:** Within-subjects designs employ deception (concealing the true hypothesis), filler tasks (obscuring the critical conditions), post-hoc suspicion checks (screening out participants who guessed the hypothesis), and implicit measures (which are harder to consciously manipulate). In the mixed model framework, demand characteristics manifest as systematic participant × condition interactions. This is why you should always examine the random slope variance for condition: a large random slope variance in a within-subjects design is a warning sign that participants are responding heterogeneously in ways that may reflect demand rather than true effect heterogeneity.
+
+---
+
+### Hawthorne Effects and Experimenter Effects in Multi-Site Designs
+
+Participants change behavior when they know they are being observed. This **Hawthorne effect** is a between-experimenter confound in multi-experimenter or multi-site studies: some experimenters elicit stronger Hawthorne effects because of their demeanor, perceived authority, or enthusiasm for the study.
+
+**Practical implication for nested experimental data:** Experimenter is a level-2 clustering variable. If some experimenters consistently elicit stronger Hawthorne effects, their participants will show elevated treatment effects regardless of the actual manipulation. Adding experimenter random intercepts (covered in Module 5, Part 4) absorbs experimenter-level Hawthorne effects. If experimenter is not modeled, its variance inflates the treatment effect standard error and potentially biases the point estimate.
+
+The same logic applies in multi-site longitudinal studies: the site or observer conducting the repeated assessments is a clustering variable. Observer drift (systematic change in measurement practice over time) and observer effects (participants performing differently for different assessors) are level-2 and cross-level confounds, not nuisance.
+
+::: {.callout-warning icon=false}
+## Assumption: Observer Effects Are Negligible or Modeled
+
+**How to check:** Test whether experimenter / site / assessor identity predicts outcomes after controlling for treatment. A significant experimenter effect signals that Hawthorne-type confounds are operating.
+
+**What to do:** Include experimenter or site as a random effect. Pre-train experimenters to a behavioral protocol to minimize between-experimenter variation. In longitudinal studies, keep the same assessor across waves where possible.
+:::
 
 ---
 
@@ -68,23 +158,29 @@ tibble(
 
 You only observe units that survived some selection filter correlated with your outcome.
 
-**WWII aircraft:** Analysts studied bullet-hole patterns on returning planes to decide where to add armor. Abraham Wald pointed out: planes hit in the zero-hole areas never returned. Those were the critical spots to armor.
+**The canonical example:** World War II analysts studied bullet-hole patterns on returning planes to determine where to add armor. Abraham Wald pointed out that the relevant evidence came from planes that *did not return*. The areas with no bullet holes on returning planes were the critical spots — hits there were fatal. The returning planes were a survivor-selected sample.
 
-**In longitudinal research:** Studying predictors of firm success using currently existing firms excludes all firms that failed. If failure is related to your predictors, estimates are systematically optimistic.
+**In longitudinal research:** Studying predictors of firm innovation using currently existing firms excludes all firms that failed. If early failure is systematically related to your predictors (e.g., low R&D investment), estimates of those predictors are biased in the surviving sample.
+
+**In experimental research:** Analyzing only participants who completed all sessions of a multi-session experiment excludes those who dropped out. If dropout is related to the treatment (e.g., participants who find the task aversive are more likely to withdraw), the completed-cases analysis represents a survivorship-selected sample — typically the more motivated, more compliant, or less affected participants.
 
 ::: {.callout-warning icon=false}
 ## Assumption: No Survivorship Bias
 
 **How to check:** Ask whether your outcome is systematically related to the probability of appearing in your dataset. If yes, you likely have survivorship bias.
 
-**What to do:** Obtain historical data including non-survivors. Use survival analysis (Module 6, Part 3) to model time-to-exit explicitly.
+**What to do:** Obtain historical data including non-survivors. In longitudinal research, use survival analysis (Module 6, Part 3) to model time-to-exit explicitly. In experiments, report and analyze dropout patterns and compare dropouts to completers on baseline characteristics.
 :::
 
 ---
 
 ## Type 4: Attrition Bias in Longitudinal Data
 
-Participants drop out of your study non-randomly over time. This is one of the most serious threats to longitudinal research — and a direct consequence of the nested DGP of time.
+Participants drop out of your study non-randomly over time. This is one of the most serious threats to longitudinal research — and a direct consequence of the nested structure of time.
+
+**In longitudinal panel research:** High-depression individuals may withdraw from a well-being panel because participation is burdensome. High-performing firms may exit the panel because they no longer need advisory services. In both cases, later waves of the panel over-represent lower-symptom or lower-performing units.
+
+**In experimental repeated-measures research:** Participants who find the experimental task aversive, boring, or demanding are more likely to withdraw after the first session. If task aversiveness is related to the treatment (e.g., a high-cognitive-load manipulation is more exhausting for lower-capacity participants), dropout is informatively related to both condition and outcome.
 
 ```{r attrition-sim}
 n_people <- 200
@@ -95,12 +191,12 @@ treatment    <- rbinom(n_people, 1, 0.5)
 
 df_long <- expand_grid(person = 1:n_people, wave = 1:n_waves) |>
   mutate(
-    baseline  = baseline_dep[person],
-    treat     = treatment[person],
+    baseline   = baseline_dep[person],
+    treat      = treatment[person],
     depression = baseline - 5 * treat * (wave / n_waves) + rnorm(n(), 0, 4)
   )
 
-# People with HIGH depression are more likely to drop out
+# People with higher depression are more likely to drop out
 df_long <- df_long |>
   group_by(person) |>
   mutate(
@@ -114,45 +210,45 @@ complete_cases <- df_long |>
   group_by(person) |> filter(all(observed)) |> ungroup()
 
 tibble(
-  Sample = c("All (Wave 1)", "Completers only"),
-  N      = c(n_distinct(df_long$person[df_long$wave == 1]),
-              n_distinct(complete_cases$person)),
+  Sample   = c("All (Wave 1)", "Completers only"),
+  N        = c(n_distinct(df_long$person[df_long$wave == 1]),
+               n_distinct(complete_cases$person)),
   Mean_baseline_depression = c(
     mean(baseline_dep),
     mean(unique(complete_cases$baseline))
   )
 ) |>
   knitr::kable(digits = 2,
-    caption = "Attrition: completers have lower baseline depression (healthier)")
+    caption = "Attrition: completers have lower baseline depression than the full sample")
 ```
 
 ```{r attrition-effect}
-# True treatment effect = -5
+# True treatment effect = -5 (per unit of wave / n_waves)
 m_completers <- lm(depression ~ treat + wave + baseline, data = complete_cases)
 m_all        <- lm(depression ~ treat + wave + baseline,
                    data = df_long |> filter(observed))
 
 bind_rows(
-  broom::tidy(m_completers) |> filter(term == "treat") |>
-    mutate(model = "Complete cases (attrition bias)"),
-  broom::tidy(m_all) |> filter(term == "treat") |>
-    mutate(model = "All observed data")
+  tidy(m_completers) |> filter(term == "treat") |>
+    mutate(model = "Complete cases only (attrition bias)"),
+  tidy(m_all) |> filter(term == "treat") |>
+    mutate(model = "All observed data (less biased)")
 ) |>
   select(model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Attrition biases the treatment effect toward zero (true = -5)")
+    caption = "Attrition biases the treatment effect estimate (true ≈ −5 at final wave)")
 ```
 
 ::: {.callout-warning icon=false}
 ## Assumption: Dropout Mechanism is Ignorable
 
-**MCAR:** Dropout is unrelated to any variable. Very rare.
+**MCAR (Missing Completely At Random):** Dropout is unrelated to any variable — observed or unobserved. Very rare in practice.
 
-**MAR:** Dropout depends only on observed variables. If MAR holds, mixed-effects models using all available data (not just completers) give valid estimates.
+**MAR (Missing At Random):** Dropout depends only on *observed* variables. If MAR holds, mixed-effects models using all available data (not just completers) give valid estimates. This is a reasonable assumption when you have rich baseline data.
 
-**MNAR:** Dropout depends on the unobserved outcome itself. Requires sensitivity analysis or selection models (Heckman).
+**MNAR (Missing Not At Random):** Dropout depends on the unobserved outcome itself (e.g., people drop out because their depression worsened, not because of any measured variable). Requires sensitivity analysis or selection models (Heckman correction).
 
-**How to check:** Compare baseline characteristics of completers vs. dropouts. If they differ substantially, dropout is non-random.
+**How to check:** Compare baseline characteristics of completers vs. dropouts. If they differ substantially on predictors of the outcome, the dropout mechanism is non-ignorable and complete-cases analysis is biased.
 :::
 
 ---
@@ -161,10 +257,19 @@ bind_rows(
 
 The researcher removes observations non-randomly — typically based on criteria correlated with the outcome.
 
-**The key principle:** Any data deletion that is non-random creates selection bias. This includes removing "outliers" based on outcome values, excluding protocol violators after seeing results, or dropping countries/firms that seem "too different."
+**In longitudinal research:** Removing firm-year observations where productivity was "unusually low" because the firm was going through a restructuring is a form of exclusion bias if restructuring itself is the phenomenon you are studying. Excluding outlier years based on outcome values selectively removes exactly the high-variance observations that may be most informative.
+
+**In experimental research:** Removing participants who "clearly did not understand the task" based on their responses — after you have seen the data — is exclusion bias if the misunderstanding or non-compliance rate differs systematically by condition. Post-hoc exclusions that benefit the hypothesis are a particularly consequential form of researcher degrees of freedom.
+
+**The key principle:** Any data deletion that is non-random introduces selection bias. This includes:
+
+- Removing "outliers" based on outcome values
+- Excluding protocol violators after seeing results
+- Dropping units that seem "too different" from the main pattern
+- Selectively trimming conditions that inflate the standard error
 
 ::: {.callout-tip}
 ## Pre-Registration as a Defense
 
-Pre-registering exclusion criteria before data collection prevents post-hoc rationalization of exclusions that benefit your hypothesis. It does not eliminate the statistical bias, but it prevents the researcher from inadvertently introducing it.
+Pre-registering exclusion criteria before data collection prevents post-hoc rationalization of exclusions that benefit your hypothesis. It does not eliminate the *statistical* bias if exclusions are necessary, but it prevents the researcher from inadvertently introducing bias by making exclusion decisions under the influence of the results. Pre-registered exclusion criteria are also far more credible to reviewers and readers than post-hoc criteria.
 :::

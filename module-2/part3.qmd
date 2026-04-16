@@ -6,84 +6,413 @@ title: "Simpson's Paradox"
 library(tidyverse)
 library(lme4)
 library(ggplot2)
-set.seed(303)
+library(patchwork)
+set.seed(42)
 ```
 
 # Simpson's Paradox
 
 ## When the Aggregate Lies
 
-Simpson's Paradox occurs when a relationship that exists in the aggregate data *reverses* when you look within subgroups. It is not a statistical quirk — it is a direct consequence of ignoring nesting, and it is surprisingly common.
+Simpson's Paradox occurs when a relationship that exists in the aggregate data *reverses* (or dramatically changes) when you look within subgroups. It is not a statistical quirk — it is a direct consequence of ignoring nesting, and it is surprisingly common in social science data.
 
-```{r simpsons-setup}
-# Classic demonstration: grades and study time, but students vary by program
-# Hard program students study more AND have lower grades (because the program is harder)
+This chapter demonstrates Simpson's Paradox in three distinct research contexts:
+
+1. **Cross-sectional nesting** — the classic case: students nested in programs
+2. **Longitudinal panel data** — the within vs. between paradox: income and life satisfaction
+3. **Within-subjects experiments** — the stimulus confound: memory and emotional valence
+
+Each context has a different structural cause and a different remedy. Together, they establish a single diagnostic principle: **always decompose before you report**.
+
+---
+
+## Context 1: Cross-Sectional Nesting — The Classic Case
+
+### The Programs × Study Hours Example
+
+Students in harder academic programs study more AND receive lower grades — because the programs are harder, not because studying hurts. When you pool across programs, the between-program confound dominates the within-program relationship.
+
+```{r cross-sectional-sim}
 n_students  <- 200
 n_programs  <- 5
 
-program_difficulty <- c(2, 4, 6, 8, 10)   # harder programs
-program_study_avg  <- c(8, 7, 6, 5, 4)    # harder programs -> students study MORE
+program_difficulty <- c(2, 4, 6, 8, 10)   # harder programs lower average grades
+program_study_avg  <- c(8, 7, 6, 5, 4)    # harder programs, students study more
 
 students <- tibble(
   student  = 1:n_students,
   program  = rep(1:n_programs, each = n_students / n_programs),
   study    = program_study_avg[program] + rnorm(n_students, 0, 0.8),
-  grade    = 80 - 3 * program_difficulty[program] + 2 * (study - program_study_avg[program]) +
+  grade    = 80 - 3 * program_difficulty[program] +
+             2 * (study - program_study_avg[program]) +
              rnorm(n_students, 0, 3),
   program_label = factor(program, labels = paste("Program", 1:n_programs))
 )
+```
 
-# Overall relationship: NEGATIVE (studying more -> lower grades??)
-m_pooled <- lm(grade ~ study, data = students)
-
-# Within-program: POSITIVE
-m_within <- lmer(grade ~ study + (1 | program_label), data = students)
-
-p1 <- ggplot(students, aes(x = study, y = grade)) +
+```{r cross-sectional-plot}
+p_pooled <- ggplot(students, aes(x = study, y = grade)) +
   geom_point(aes(color = program_label), alpha = 0.5) +
   geom_smooth(method = "lm", color = "black", linewidth = 1.5) +
   scale_color_brewer(palette = "Set1") +
   labs(title = "Pooled: studying MORE predicts LOWER grades?!",
        x = "Study hours/week", y = "Grade", color = "Program") +
-  theme_minimal(base_size = 13)
+  theme_minimal(base_size = 12)
 
-p2 <- ggplot(students, aes(x = study, y = grade, color = program_label)) +
+p_within <- ggplot(students, aes(x = study, y = grade, color = program_label)) +
   geom_point(alpha = 0.4) +
   geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
   scale_color_brewer(palette = "Set1") +
   labs(title = "Within program: studying MORE predicts HIGHER grades",
        x = "Study hours/week", y = "Grade", color = "Program") +
-  theme_minimal(base_size = 13)
+  theme_minimal(base_size = 12)
 
-library(patchwork)
-p1 / p2
+p_pooled / p_within
 ```
 
-The pooled relationship is negative: students who study more get lower grades. That looks like studying causes harm!
+The pooled slope is negative: students who study more get lower grades. The truth: students in harder programs both study more AND earn lower grades — *because the programs are harder*. Within any given program, studying more helps. The aggregate correlation is driven entirely by the confound between program difficulty and study time.
 
-The truth: students in harder programs study more AND get lower grades — *because the programs are harder*. Within any given program, studying more helps. The aggregate correlation is driven entirely by the confound between program difficulty and study time.
+**The fix:** Use a mixed model that explicitly estimates the within-program effect:
 
-This is Simpson's Paradox, and it happens in your data.
+```{r cross-sectional-models}
+m_pooled <- lm(grade ~ study, data = students)
+m_mixed  <- lmer(grade ~ study + (1 | program_label), data = students)
 
-## Real-World Examples
+tibble(
+  Model         = c("Pooled OLS", "Mixed model (within-program)"),
+  Study_coeff   = c(coef(m_pooled)["study"],
+                    fixef(m_mixed)["study"]),
+  Direction     = c("Negative (wrong)", "Positive (correct)")
+) |>
+  knitr::kable(digits = 3,
+               caption = "Study hours coefficient: pooled vs. within-program")
+```
+
+### Real-World Examples of Cross-Sectional Simpson's Paradox
 
 **Berkeley admissions (1973):** Across departments, women were admitted at lower rates than men. Within departments, women were admitted at the same or higher rates. The paradox arose because women applied disproportionately to competitive departments.
 
 **COVID-19 mortality:** In some early analyses, countries with more advanced healthcare appeared to have higher mortality rates. Within matched patient groups (controlling for age and severity), better healthcare reduced mortality. The aggregate correlation was driven by age confounds.
 
-**Wages across demographic groups:** Total wages can fall for every group while rising in the aggregate, if people are shifting from lower-paid to higher-paid occupations (your slides show this exact example).
+**Wages across demographic groups:** Total wages can fall for every group while rising in the aggregate, if people are shifting from lower-paid to higher-paid occupations.
 
-## The Lesson for Nested Data Analysis
+---
 
-Simpson's Paradox is not rare. It is the default when:
-1. Groups differ in their average level of the predictor
-2. Groups differ in their average level of the outcome
-3. The predictor and outcome differ in sign between levels
+## Context 2: Longitudinal Panel Data — The Within vs. Between Paradox
 
-Every time you ignore nesting, you risk a Simpson's Paradox situation. The mixed-effects models in this workshop are partly a defense against this — they force you to separate within-group and between-group relationships explicitly.
+### Income and Life Satisfaction: The Easterlin Paradox
+
+Simpson's Paradox in panel data is so common it has its own name: the **Easterlin Paradox** — and it is the core motivation for the CMC/GMC decomposition covered in Module 2 Parts 1–2.
+
+At any given point in time, richer people report higher life satisfaction. The cross-sectional (between-person) correlation is strongly positive. This has been used to argue that income causes happiness — that policies increasing income will increase well-being.
+
+But when you follow the *same people* over time, earning more than usual barely predicts higher satisfaction. The within-person effect is near zero. This is the Easterlin Paradox: nations get richer over decades without becoming much happier; individuals earn more over their careers without becoming much happier.
+
+The pooled OLS regression conflates these two very different stories into a single, misleading number.
+
+### Simulation: 100 People × 8 Annual Waves
+
+```{r panel-sim}
+n_people <- 100
+n_waves  <- 8
+
+person_income_mean <- rnorm(n_people, 50, 15)  # stable between-person income level
+
+df_panel_sp <- expand_grid(person = 1:n_people, wave = 1:n_waves) |>
+  mutate(
+    person_mean  = person_income_mean[person],
+    income       = person_mean + rnorm(n(), 0, 5),       # small within-person variation
+    income_gmc   = income - mean(income),                # grand-mean centered
+    income_cmc   = income - person_mean,                 # within-person centered
+    income_mean  = person_mean - mean(person_income_mean), # person mean centered on grand mean
+    # True DGP: large between-person effect, small within-person effect
+    satisfaction = 5 + 3.0 * income_mean + 0.4 * income_cmc + rnorm(n(), 0, 2),
+    person       = factor(person)
+  )
+```
+
+```{r panel-models}
+# 1. Pooled OLS: conflates between and within
+m_pooled <- lm(satisfaction ~ income_gmc, data = df_panel_sp)
+
+# 2. Between-person: regress person means on person mean income
+person_means <- df_panel_sp |>
+  group_by(person) |>
+  summarise(
+    across(c(satisfaction, income_mean), mean),
+    .groups = "drop"
+  )
+
+m_between <- lm(satisfaction ~ income_mean, data = person_means)
+
+# 3. Within-person (CMC mixed model)
+m_within  <- lmer(satisfaction ~ income_cmc + (1 | person), data = df_panel_sp)
+
+# Summary table
+tibble(
+  Model          = c("Pooled OLS", "Between-person", "Within-person (CMC)"),
+  Income_slope   = c(coef(m_pooled)["income_gmc"],
+                     coef(m_between)["income_mean"],
+                     fixef(m_within)["income_cmc"]),
+  Interpretation = c("Blend of between and within (misleading)",
+                     "Richer people are happier (selection effect)",
+                     "Earning more than usual barely helps (causal estimate)")
+) |>
+  knitr::kable(digits = 3,
+               caption = "Income–satisfaction slope: pooled vs. decomposed")
+```
+
+### Visualizing the Easterlin Paradox
+
+```{r panel-plot}
+# Sample 25 people for visual clarity
+sampled_people <- sample(levels(df_panel_sp$person), 25)
+
+p_spaghetti <- df_panel_sp |>
+  filter(person %in% sampled_people) |>
+  ggplot(aes(x = income, y = satisfaction, group = person)) +
+  geom_line(alpha = 0.3, color = "#4393c3") +
+  geom_point(alpha = 0.2, color = "#4393c3", size = 0.8) +
+  geom_smooth(data = df_panel_sp |> filter(person %in% sampled_people),
+              aes(group = NULL), method = "lm",
+              color = "black", linewidth = 1.2, se = FALSE) +
+  labs(title = "Panel: income and life satisfaction",
+       subtitle = "Blue lines = within-person trajectories (nearly flat, \u03b2\u2248 0.4)\nBlack line = pooled OLS (follows between-person differences)",
+       x = "Income", y = "Life satisfaction") +
+  theme_minimal(base_size = 12)
+
+p_between_scatter <- person_means |>
+  ggplot(aes(x = income_mean, y = satisfaction)) +
+  geom_point(alpha = 0.6, color = "#d73027") +
+  geom_smooth(method = "lm", color = "#d73027", linewidth = 1.2) +
+  labs(title = "Between-person: richer people report higher satisfaction",
+       subtitle = paste0("Slope \u2248 ", round(coef(m_between)["income_mean"], 2),
+                         " — large, but reflects WHO is rich, not what income does"),
+       x = "Person-mean income (centered)", y = "Person-mean satisfaction") +
+  theme_minimal(base_size = 12)
+
+p_spaghetti / p_between_scatter
+```
+
+The spaghetti plot makes the paradox visible: individual trajectories over time are nearly flat (low within-person effect $\beta_W \approx 0.4$), but the scatter of person-level averages shows a strong positive slope ($\beta_B \approx 3.0$). The pooled OLS line follows the person-means, not the within-person trajectories.
+
+### Why This Is Simpson's Paradox
+
+The aggregate (pooled) relationship would suggest that policies raising income improve wellbeing substantially. But the within-person relationship reveals that once you account for who is rich versus poor, income gains do almost nothing for wellbeing.
+
+**The policy implication:** A policy that increases everyone's income by 10% does not produce the 3.0-point wellbeing gain that cross-sectional data suggests — it produces the 0.4-point gain that within-person data reveals. Ignoring nesting leads to catastrophically wrong policy predictions.
+
+### Connection to Module 2: The CMC/GMC Fix
+
+The CMC/GMC decomposition is precisely the solution:
+
+```r
+m_full <- lmer(satisfaction ~ income_cmc + income_mean + (1 | person),
+               data = df_panel_sp)
+```
+
+This model recovers both the within-person effect (`income_cmc` $\approx 0.4$) and the between-person effect (`income_mean` $\approx 3.0$) simultaneously, making the paradox explicit and the decomposition clean. This is exactly what Module 2 Parts 1 and 2 covered.
 
 ::: {.callout-important}
-## The Check
+## The Panel Data Rule
 
-Before reporting any correlation or regression coefficient from nested data, ask: **Does this relationship hold in the same direction within units as it does across units?** If not, you are reporting a Simpson's Paradox, not a real effect.
+In any longitudinal analysis, run both pooled OLS and a within-person model (fixed effects or CMC mixed model). If the coefficients differ substantially, you are in Simpson's Paradox territory. Report both. Explain which one answers your research question.
 :::
+
+---
+
+## Context 3: Within-Subjects Experiments — The Stimulus Confound
+
+### Memory, Emotional Valence, and Concrete Words
+
+Simpson's Paradox can appear even in experiments when stimuli are not properly counterbalanced — when certain conditions happen to receive stimuli that systematically differ on a key attribute.
+
+**The scenario:** A researcher tests whether *positive emotional content* improves memory recall. 50 participants each study 30 stimuli: 15 positive-valence words and 15 neutral-valence words.
+
+**The flaw:** Positive stimuli happen to be more *concrete* (higher imageability — easier to visualize: "puppy", "sunset", "garden"). Neutral stimuli are more abstract ("justice", "theory", "process"). Concreteness is a well-established predictor of memory — concrete words are better recalled regardless of valence.
+
+**The result:** Pooled across participants, positive words are better recalled. But this is entirely because they are more concrete. Within each concreteness level, valence has NO effect on recall. This is Simpson's Paradox at the stimulus level.
+
+```{r experiment-sim}
+n_par  <- 50
+n_stim <- 30
+
+par_effects  <- rnorm(n_par,  0, 5)
+stim_effects <- rnorm(n_stim, 0, 4)
+valence      <- rep(c(0, 1), times = n_stim / 2)   # 0 = neutral, 1 = positive
+concreteness <- 3 + 2 * valence + rnorm(n_stim, 0, 1)  # confound: positive = more concrete
+
+df_exp_sp <- expand_grid(participant = 1:n_par, stimulus = 1:n_stim) |>
+  mutate(
+    par_eff  = par_effects[participant],
+    stim_eff = stim_effects[stimulus],
+    val_s    = valence[stimulus],
+    conc_s   = concreteness[stimulus],
+    # True DGP: concreteness matters; valence has NO direct effect
+    recall   = 50 + par_eff + stim_eff + 2 * conc_s + rnorm(n(), 0, 3),
+    participant = factor(participant),
+    stimulus    = factor(stimulus)
+  )
+```
+
+### Fitting the Wrong and Correct Models
+
+```{r experiment-models}
+# Wrong model: ignores stimulus-level confound and stimulus random effects
+m_wrong   <- lmer(recall ~ val_s + (1 | participant),
+                  data = df_exp_sp)
+
+# Correct model: controls for concreteness + crossed stimulus RE
+m_correct <- lmer(recall ~ val_s + conc_s + (1 | participant) + (1 | stimulus),
+                  data = df_exp_sp)
+
+# Compare valence coefficients
+tidy_wrong   <- broom.mixed::tidy(m_wrong,   effects = "fixed")
+tidy_correct <- broom.mixed::tidy(m_correct, effects = "fixed")
+
+bind_rows(
+  tidy_wrong   |> filter(term == "val_s") |>
+    mutate(model = "Wrong (no concreteness, no stimulus RE)"),
+  tidy_correct |> filter(term == "val_s") |>
+    mutate(model = "Correct (concreteness + stimulus RE)")
+) |>
+  select(model, estimate, std.error, statistic, p.value) |>
+  knitr::kable(digits = 3,
+               caption = "Valence coefficient: false positive vs. null result")
+```
+
+The wrong model finds a statistically significant positive valence effect. The correct model — which includes concreteness as a covariate and crossed stimulus random effects — shows that valence has no effect. The apparent memory advantage of positive words disappears entirely once the concreteness confound is controlled.
+
+### Visualizing the Stimulus Confound
+
+```{r experiment-plot}
+stimulus_summary <- df_exp_sp |>
+  mutate(valence_label = ifelse(val_s == 1, "positive", "neutral")) |>
+  group_by(stimulus, valence_label, conc_s) |>
+  summarise(mean_recall = mean(recall), .groups = "drop")
+
+p_valence_raw <- ggplot(stimulus_summary,
+                        aes(x = valence_label, y = mean_recall,
+                            color = valence_label)) +
+  geom_jitter(width = 0.1, alpha = 0.6, size = 2) +
+  stat_summary(fun = mean, geom = "crossbar", width = 0.3, linewidth = 0.8) +
+  scale_color_manual(values = c("positive" = "#d73027", "neutral" = "#4393c3")) +
+  labs(title = "Apparent effect: positive words recalled more",
+       subtitle = "This looks like a valence effect...",
+       x = "Valence", y = "Mean recall", color = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none")
+
+p_concreteness <- ggplot(stimulus_summary,
+                         aes(x = conc_s, y = mean_recall,
+                             color = valence_label)) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
+  scale_color_manual(values = c("positive" = "#d73027", "neutral" = "#4393c3")) +
+  labs(title = "True structure: concreteness drives recall",
+       subtitle = "...but both lines have the same slope; valence just shifts concreteness",
+       x = "Concreteness (imageability)", y = "Mean recall",
+       color = "Valence") +
+  theme_minimal(base_size = 12)
+
+p_valence_raw | p_concreteness
+```
+
+The right panel is diagnostic: the two regression lines (positive and neutral) are nearly parallel — same slope for concreteness — and the gap between them narrows within each concreteness band. Positive words appear higher overall only because they occupy higher positions on the concreteness axis.
+
+### Why This Is Simpson's Paradox
+
+Within each concreteness level, positive and neutral stimuli have the same recall. But pooled across all stimuli, positive words look better because they happen to be more concrete. This is precisely the Simpson's Paradox structure: the within-group relationship (null) and the aggregate relationship (positive) point in different directions.
+
+### The Fix
+
+1. **Design solution:** Properly counterbalance stimuli across conditions — match positive and neutral words on concreteness, length, frequency, arousal, and other relevant attributes. This removes the confound at the data collection stage.
+2. **Analysis solution:** Include crossed stimulus random effects (Module 1 Part 6) and known stimulus attributes as covariates. This partials out the stimulus-level confound after the fact — but requires that the confounding attribute was measured.
+
+---
+
+## Synthesis: The Diagnosis — Always Decompose Before You Report
+
+Simpson's Paradox is not a special case. It is the predictable outcome whenever:
+
+1. The predictor varies systematically across groups
+2. The outcome varies systematically across groups
+3. The group-level and unit-level relationships point in different directions
+
+### Practical Checklist
+
+**Cross-sectional nested data:**
+
+- Compare the pooled coefficient to the within-cluster coefficient
+- If they differ in sign or by more than 50%, you have a Simpson's Paradox
+- Report the within-cluster coefficient; explain the between-cluster confound
+
+**Panel data:**
+
+- Always run both pooled OLS and a within-person model (FE or CMC)
+- Compare $\hat{\beta}_W$ vs. $\hat{\beta}_B$: if they differ substantially, decompose and report both
+- Ask: does the policy question target within-person change or between-person differences?
+
+**Within-subjects experiments:**
+
+- Include crossed stimulus random effects in all models
+- Check whether stimuli are balanced on key attributes (frequency, concreteness, arousal, length) across conditions
+- Include item-level covariates to control post-hoc stimulus confounds
+
+::: {.callout-important}
+## The Universal Check
+
+Before reporting any correlation or regression coefficient from nested data, ask: **Does this relationship hold in the same direction within units as it does across units?**
+
+If not, you are reporting a Simpson's Paradox. The CMC/GMC decomposition (Module 2) is the systematic fix.
+:::
+
+### Three-Panel Summary Visualization
+
+```{r synthesis-plot, fig.width=12, fig.height=5}
+# Panel 1: Cross-sectional Simpson
+p1 <- ggplot(students, aes(x = study, y = grade)) +
+  geom_point(aes(color = program_label), alpha = 0.4, size = 1) +
+  geom_smooth(method = "lm", color = "black", linewidth = 1.2) +
+  geom_smooth(aes(color = program_label), method = "lm",
+              se = FALSE, linewidth = 0.8) +
+  scale_color_brewer(palette = "Set1") +
+  labs(title = "1. Cross-sectional nesting",
+       subtitle = "Pooled: negative\nWithin program: positive",
+       x = "Study hours", y = "Grade", color = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "none")
+
+# Panel 2: Panel data Simpson (person-level means vs within-person)
+p2 <- ggplot(person_means, aes(x = income_mean, y = satisfaction)) +
+  geom_point(alpha = 0.5, color = "#d73027", size = 1.5) +
+  geom_smooth(method = "lm", color = "#d73027", linewidth = 1.2) +
+  labs(title = "2. Panel data (Easterlin)",
+       subtitle = paste0("Between persons: slope \u2248 ",
+                         round(coef(m_between)["income_mean"], 1),
+                         " (strong)\nWithin persons over time: slope \u2248 0.4 (weak)"),
+       x = "Person-mean income (centered)", y = "Person-mean satisfaction") +
+  theme_minimal(base_size = 11)
+
+# Panel 3: Experiment Simpson
+p3 <- ggplot(stimulus_summary,
+             aes(x = conc_s, y = mean_recall, color = valence_label)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 1.2) +
+  scale_color_manual(values = c("positive" = "#d73027", "neutral" = "#4393c3")) +
+  labs(title = "3. Within-subjects experiment",
+       subtitle = "Marginal: positive recalled more\nWithin concreteness: no valence effect",
+       x = "Concreteness", y = "Mean recall", color = "Valence") +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "bottom")
+
+p1 | p2 | p3
+```
+
+The table below summarizes the three contexts, their structural causes, and their remedies:
+
+| Context | Mechanism | Aggregate relationship | Within-unit relationship | Remedy |
+|---|---|---|---|---|
+| Cross-sectional nesting | Program difficulty confounds study–grade link | Negative (wrong) | Positive (correct) | Mixed model; within-group slope |
+| Panel data | Between-person selection confounds within-person change | Strongly positive (misleading) | Near zero (causal) | CMC decomposition; FE model |
+| Experiment | Stimulus attribute confounded with condition | Positive (false positive) | Null (correct) | Stimulus RE; covariate control |

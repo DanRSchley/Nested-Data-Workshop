@@ -6,104 +6,283 @@ title: "Instrumental Variables"
 library(tidyverse)
 library(AER)
 library(broom)
+library(ggplot2)
+library(patchwork)
 set.seed(42)
 ```
 
 # Instrumental Variables
 
-## When You Cannot Randomize
+## When Endogeneity Cannot Be Removed by Fixed Effects
 
-The gold standard for causal inference is a randomized experiment. But often you cannot randomize. An **instrument** is a variable that gives you some of the benefits of randomization without actually randomizing. It shifts X exogenously — through a channel that does not itself affect Y.
+Module 1's fixed effects model removes time-invariant confounders by exploiting within-unit variation over time. But fixed effects are not a universal cure for endogeneity. Two failure modes are especially common.
 
-## The Three Requirements
+**In longitudinal panel research**, the endogeneity can be time-varying: firms that are on an upward productivity trajectory are exactly the firms that invest in training programs. Firm fixed effects absorb stable firm quality, but they cannot absorb a time-varying quality shock that simultaneously drives training adoption and productivity. Even after demeaning, the estimate remains confounded.
+
+**In experiments**, randomization solves endogeneity for assignment — but not always for treatment receipt. Participants assigned to a wellness intervention may never attend a session. Patients randomized to a drug may not take their pills. When compliance is imperfect, the simple comparison of assigned groups underestimates the effect of actually receiving the treatment.
+
+In both cases, an **instrument** is a variable that provides exogenous variation in treatment uptake — variation that is not driven by the confounders affecting outcomes.
+
+- **Longitudinal context:** Distance from the firm's headquarters to the nearest accredited training center provides exogenous variation in training adoption. Firms close to a training center adopt at higher rates not because of their productivity trajectory but because of geography. Distance does not directly affect productivity — only training adoption does.
+
+- **Experimental context:** Random assignment to an encouragement condition (a structured protocol with reminders) provides exogenous variation in actual program completion. Whether you were randomized to encouragement does not directly reduce stress — completing the sessions does.
+
+---
+
+## The Three IV Assumptions
 
 ::: {.callout-warning icon=false}
 ## Assumption 1: Relevance
 
-**What it means:** Z must actually cause X to change. An instrument that does not predict the predictor is useless (and produces infinite standard errors).
+**What it means:** The instrument Z must actually cause the endogenous treatment X to change. An instrument that does not predict treatment is useless — it produces inflated standard errors and, when weak, can bias estimates in unpredictable directions.
 
-**How to check:** Regress X on Z (the "first stage"). The F-statistic on Z must be large — the standard rule of thumb is F > 10. Below 10, the instrument is "weak" and estimates become unreliable.
+**How to check:** Regress X on Z (the "first stage"). The F-statistic on Z must exceed 10. Below that threshold, the instrument is "weak."
+
+**Longitudinal context:** Distance to the nearest training center must meaningfully predict whether firms adopt the training program. Firms closer to a center should adopt at higher rates.
+
+**Experimental context:** Being randomized to the encouragement condition must meaningfully predict actual program completion. If the encouragement protocol is so feeble that it does not increase uptake, it cannot serve as an instrument.
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption 2: Exclusion Restriction
 
-**What it means:** Z affects Y *only through* X — not through any other path. This is the key untestable assumption. You cannot verify it from data alone — you can only argue for it from theory and domain knowledge.
+**What it means:** Z affects Y *only through* X — not through any other pathway. This is the core untestable assumption. No statistical test can verify it; it requires theoretical argument and domain knowledge.
 
-**How to scrutinize:** Trace every possible path from Z to Y. Is there any path that does not go through X?
+**How to scrutinize:** Trace every conceivable path from Z to Y that bypasses X. Each such path is a potential violation.
+
+**Longitudinal context:** Distance to a training center must not directly affect firm productivity. It should matter only because it affects whether the firm sends employees to training. A potential violation: firms near training centers may also be in denser urban areas with richer labor markets and better infrastructure — advantages that raise productivity regardless of training adoption.
+
+**Experimental context:** Random assignment to the encouragement condition must not affect stress outcomes except through whether participants completed the mindfulness sessions. A potential violation: receiving reminder emails might itself reduce stress by making participants feel supported, even if they never attend a session — a direct path from Z to Y that bypasses D.
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption 3: Independence (Exogeneity of the Instrument)
 
-**What it means:** Z is as-good-as-randomly assigned — it is not itself caused by the confounders that affect X and Y.
+**What it means:** Z is as-good-as-randomly assigned — it is not caused by the same confounders that affect X and Y.
 
-**How to check:** Verify that Z is balanced across observable pre-treatment covariates.
+**How to check:** Verify that Z is balanced across observable pre-treatment characteristics. In a natural experiment, check whether the instrument predicts baseline covariates.
+
+**Longitudinal context:** Distance from headquarters to a training center should not be correlated with firm quality or productivity drivers. Firms did not systematically choose to locate near training centers because of their underlying productivity potential. In practice: check whether baseline productivity and firm size predict distance.
+
+**Experimental context:** In a proper encouragement design, Z is genuinely randomized — independence holds by construction. The practical threat is post-randomization contamination (e.g., differential attrition by encouragement condition) or a failed randomization procedure.
 :::
 
-## Two-Stage Least Squares (TSLS)
+---
 
-**Stage 1:** Regress X on Z. Extract fitted values $\hat{X}$ — the exogenous component of X.
+## Section 3: Longitudinal IV — Training Programs and Firm Productivity
 
-**Stage 2:** Regress Y on $\hat{X}$. This is the IV causal estimate.
+### The Setup
 
-```{r tsls-example}
-n <- 800
+200 firms are observed over 6 years. The research question is whether adopting a formal employee training program increases firm productivity. The identification problem: high-performing firms are more likely to adopt training. They have the budget, the HR infrastructure, and the organizational culture that supports it. A naive OLS regression will overestimate the training effect.
 
-# Confounders: fatigue and commute stress
-fatigue        <- rnorm(n, 50, 10)
-commute_stress <- rnorm(n, 40, 8)
+Even adding firm fixed effects does not fully resolve this: if firms experiencing a positive time-varying productivity shock respond by investing in training, within-firm variation in training adoption is still confounded by this time-varying shock.
 
-# Instrument: daylight saving time shift (exogenous clock reset)
-DST_week <- rbinom(n, 1, 0.5)
+The instrument is geographic distance (in km) from the firm's headquarters to the nearest accredited training center.
 
-# Time of day: influenced by DST AND by fatigue/stress
-time_of_day <- 12 + 1.5 * DST_week - 0.1 * fatigue + rnorm(n, 0, 2)
+```{r panel-iv-setup}
+n_firms <- 200
+n_years <- 6
 
-# Variety seeking: affected by time of day AND by confounders
-# True causal effect of time_of_day = 0.4
-variety_seeking <- 3 + 0.4 * time_of_day - 0.2 * fatigue -
-                   0.15 * commute_stress + rnorm(n, 0, 3)
+firm_quality <- rnorm(n_firms, 0, 5)   # unobserved time-invariant firm quality
+distance     <- runif(n_firms, 10, 200) # km to nearest training center
 
-df_iv <- tibble(variety_seeking, time_of_day, DST_week, fatigue, commute_stress)
+df_panel <- expand_grid(firm = 1:n_firms, year = 1:n_years) |>
+  mutate(
+    fq       = firm_quality[firm],
+    dist     = distance[firm],
+    # High-quality firms and nearby firms adopt training more
+    p_train  = plogis(-0.5 + 0.3 * (fq / sd(firm_quality)) - 0.005 * dist +
+                        rnorm(n(), 0, 0.3)),
+    training     = rbinom(n(), 1, p_train),
+    # True causal effect of training = 4; firm quality also boosts productivity
+    productivity = 50 + 4 * training + 0.8 * fq + rnorm(n(), 0, 4),
+    firm     = factor(firm),
+    year     = factor(year)
+  )
+```
 
-# First stage: check instrument strength
-m_first <- lm(time_of_day ~ DST_week, data = df_iv)
-cat("First stage F-statistic:", round(summary(m_first)$fstatistic[1], 1), "\n")
+### First Stage: Instrument Relevance
 
-# Naive OLS
-m_ols <- lm(variety_seeking ~ time_of_day, data = df_iv)
+```{r panel-first-stage}
+m_first <- lm(training ~ dist, data = df_panel)
+f_stat  <- summary(m_first)$fstatistic[1]
+cat("First-stage F-statistic:", round(f_stat, 1), "\n")
+cat("(Rule of thumb: F > 10 indicates a relevant instrument)\n")
+```
 
-# IV via TSLS
-m_iv <- ivreg(variety_seeking ~ time_of_day | DST_week, data = df_iv)
+Distance is a strong negative predictor of training adoption (closer firms adopt at higher rates). F > 10 confirms the instrument is not weak.
+
+### OLS vs. IV
+
+```{r panel-ols-vs-iv}
+# Naive OLS: inflated by firm quality confound
+m_ols <- lm(productivity ~ training, data = df_panel)
+
+# IV via Two-Stage Least Squares: uses only distance-driven variation in training
+m_iv  <- ivreg(productivity ~ training | dist, data = df_panel)
 
 bind_rows(
-  tidy(m_ols) |> filter(term == "time_of_day") |> mutate(model = "OLS (biased)"),
-  tidy(m_iv)  |> filter(term == "time_of_day") |> mutate(model = "IV / TSLS")
+  tidy(m_ols) |> filter(term == "training") |>
+    mutate(model = "OLS (confounded — true = 4)"),
+  tidy(m_iv)  |> filter(term == "training") |>
+    mutate(model = "IV / TSLS (recovers true effect)")
 ) |>
   select(model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "OLS vs. IV: effect of time-of-day on variety seeking (true = 0.4)")
+    caption = "Panel IV: effect of training on firm productivity (true effect = 4)")
 ```
 
-The OLS estimate is inflated by the confounders. The IV estimate recovers the true causal effect by using only the DST-driven variation in time-of-day.
+OLS overestimates the training effect because firm quality simultaneously drives adoption and productivity. The IV estimate isolates only the exogenous, geography-driven variation in training, recovering the true causal effect of approximately 4 units.
 
-## The LATE Interpretation
+---
 
-The IV estimate is not the population-average causal effect. It is the **Local Average Treatment Effect (LATE)**: the causal effect for **compliers** — units whose treatment status actually changed because of the instrument. People unaffected by DST (those who keep the same schedule regardless) are uninformative for the IV estimate.
+## Section 4: Two-Stage Least Squares — The Mechanics
 
-This limits generalizability. Whether the LATE is the quantity you care about depends on your research question.
+TSLS makes the IV logic explicit in two regression steps.
 
-## Finding Good Instruments
+**Stage 1:** Regress the endogenous treatment X on the instrument Z (and any controls W):
+
+$$\hat{X}_i = \hat{\gamma}_0 + \hat{\gamma}_1 Z_i + \hat{\gamma}_2 W_i$$
+
+This produces fitted values $\hat{X}$ that contain only the variation in X that is driven by Z — the "clean," exogenous part of treatment uptake.
+
+**Stage 2:** Regress Y on $\hat{X}$ (and controls W):
+
+$$Y_i = \beta_0 + \beta_1 \hat{X}_i + \beta_2 W_i + \varepsilon_i$$
+
+Because $\hat{X}$ contains no endogenous variation, $\hat{\beta}_1$ is a consistent causal estimate.
+
+```{r tsls-manual}
+# Manual TSLS to show the mechanics
+# Stage 1: predict training from distance
+stage1    <- lm(training ~ dist, data = df_panel)
+df_panel  <- df_panel |> mutate(training_hat = fitted(stage1))
+
+# Stage 2: regress productivity on predicted training
+stage2    <- lm(productivity ~ training_hat, data = df_panel)
+
+cat("Manual TSLS (Stage 2 coefficient on training_hat):",
+    round(coef(stage2)["training_hat"], 3), "\n")
+cat("ivreg() coefficient (should match):",
+    round(coef(m_iv)["training"], 3), "\n")
+```
+
+::: {.callout-note icon=false}
+## Note: Standard Errors in Manual TSLS
+
+The coefficients from manual TSLS match `ivreg()`, but the standard errors do **not**. The second-stage regression uses $\hat{X}$ (a generated regressor), so residuals are computed against the wrong quantity. Always use `ivreg()` or an equivalent dedicated IV function to obtain correct standard errors.
+:::
+
+### Connection to Module 1 Fixed Effects
+
+Panel fixed effects absorb time-invariant firm-level confounders. But if training adoption responds to time-varying firm shocks, fixed effects alone are insufficient. Adding IV on top of FE handles both:
+
+$$\underbrace{\text{FE removes}}_{\substack{\text{time-invariant} \\ \text{confounders}}} \quad + \quad \underbrace{\text{IV removes}}_{\substack{\text{time-varying} \\ \text{endogeneity}}}$$
+
+```{r panel-fe-iv}
+# Panel FE-IV: year fixed effects as controls; distance as instrument
+m_fe_iv <- ivreg(productivity ~ training + year | dist + year, data = df_panel)
+cat("FE-IV estimate (training):", round(coef(m_fe_iv)["training"], 3), "\n")
+```
+
+By including year fixed effects in both stages, we account for common time trends while using distance to instrument training adoption within each year.
+
+---
+
+## Section 5: Experimental IV — Encouragement Designs and LATE
+
+In experiments, the instrument is the **random assignment** Z itself. When all participants comply, the simple comparison of assigned groups gives an unbiased causal estimate. But when compliance is imperfect, Z becomes an instrument for actual treatment receipt D.
+
+### The Wald Estimator
+
+$$\text{LATE} = \frac{\underbrace{E[Y \mid Z=1] - E[Y \mid Z=0]}_{\text{Intent-to-treat effect (ITT)}}}{\underbrace{E[D \mid Z=1] - E[D \mid Z=0]}_{\text{Compliance rate (first stage)}}}$$
+
+The **Intent-to-treat (ITT)** effect — the effect of assignment, regardless of compliance — is an unbiased estimate of the causal effect of *being assigned* to treatment. Dividing by the compliance rate scales the ITT up to recover the LATE: the causal effect of *actually receiving* treatment, among those who comply.
+
+### Compliance Classes
+
+When Z = random assignment and D = actual treatment receipt, participants fall into four latent types:
+
+| Type | D if Z = 0 | D if Z = 1 | Description |
+|-------------|------------|------------|--------------------------------------|
+| Complier | 0 | 1 | Takes treatment iff assigned — IV identifies this group |
+| Always-taker | 1 | 1 | Takes treatment regardless — uninformative |
+| Never-taker | 0 | 0 | Never takes treatment — uninformative |
+| Defier | 1 | 0 | Does the opposite of assignment — assumed absent (monotonicity) |
+
+Only **compliers** contribute to the IV estimate. LATE is the effect for compliers only.
+
+### Simulation: Online Mindfulness Intervention
+
+160 participants are randomized to encouragement (n = 80) or control (n = 80). Of those encouraged, 70% actually complete the mindfulness sessions; none in the control group can access the program. The true causal effect of *completing* the program is a 10-point stress reduction.
+
+```{r encouragement-design}
+n <- 160
+Z <- rep(c(0, 1), each = 80) # random assignment to encouragement
+
+# One-sided noncompliance: encouraged participants comply at 70%
+D <- ifelse(Z == 1, rbinom(80, 1, 0.70), 0)
+
+# True effect of completing the program = -10 points on stress scale
+stress  <- 60 - 10 * D + rnorm(n, 0, 8)
+df_exp  <- tibble(Z = factor(Z), D = factor(D), stress, id = 1:n)
+
+# Three estimators
+m_itt  <- lm(stress ~ Z, data = df_exp)         # ITT: effect of assignment
+m_at   <- lm(stress ~ D, data = df_exp)         # As-treated: biased by selection
+m_late <- ivreg(stress ~ D | Z, data = df_exp)  # LATE: IV estimate
+
+bind_rows(
+  tidy(m_itt)  |> filter(term == "Z1") |>
+    mutate(model = "ITT — effect of assignment (diluted, unbiased)"),
+  tidy(m_at)   |> filter(term == "D1") |>
+    mutate(model = "As-treated — biased by self-selection"),
+  tidy(m_late) |> filter(term == "D1") |>
+    mutate(model = "IV / LATE — true effect ≈ −10")
+) |>
+  select(model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Encouragement design: three estimators compared (true effect = −10)")
+```
+
+```{r wald-manual}
+# Manual Wald estimator: confirms IV equals ITT / compliance rate
+itt_effect <- mean(stress[Z == 1]) - mean(stress[Z == 0])
+compliance <- mean(D[Z == 1] == 1) - mean(D[Z == 0] == 1)
+wald_late  <- itt_effect / compliance
+
+cat("ITT (numerator)       :", round(itt_effect, 3), "\n")
+cat("Compliance (denominator):", round(compliance, 3), "\n")
+cat("Wald LATE             :", round(wald_late, 3), "\n")
+cat("ivreg() LATE          :", round(coef(m_late)["D1"], 3), "\n")
+```
+
+The ITT is approximately −7: diluted because only 70% of encouraged participants completed the program. The as-treated estimate is biased upward in absolute value — completers are likely more motivated than the average participant, so they would have had lower stress regardless. The IV/LATE recovers approximately −10, the true causal effect for compliers.
+
+---
+
+## Section 6: The LATE Interpretation
+
+The IV estimand is always a LATE — the causal effect for compliers only. This has concrete implications in both research contexts.
+
+**What LATE means in the longitudinal case:** The estimate applies specifically to firms that adopted training *because* they happened to be geographically close to a training center. Firms that would have adopted regardless (always-takers) or would never have adopted regardless (never-takers) are not identified. If the firms near the margin of adoption are smaller, younger, or less resourced than the typical firm in your sample, the LATE may not generalize to the broader firm population.
+
+**What LATE means in the experimental case:** The estimate applies to participants who completed the mindfulness program *because* they were encouraged — not to always-takers who would have completed it on their own initiative, and not to never-takers who would not complete it even when encouraged. If compliers are more ambivalent or less intrinsically motivated than always-takers, the LATE may understate how much the program helps self-selected completers, while overstating how much it would help never-takers if somehow compelled to participate.
+
+**Generalizability:** LATE is a valid causal estimate, but it is local. Policy conclusions drawn from LATE assume that the complier subpopulation is relevant to the policy question. When it is not — when you need to know the ATE for everyone — IV alone is insufficient.
+
+---
+
+## Section 7: Finding Good Instruments
 
 The exclusion restriction is the bottleneck. Common instrument classes in social science:
 
-| Instrument class | Example | Why valid |
-|-----------------|---------|-----------|
-| Natural experiment | Lottery assignment | Random by design |
-| Regulatory threshold | Age cutoff for program | Arbitrary threshold |
-| Geographic variation | Distance to hospital | Not chosen by individual |
-| Time-based shock | Policy change, DST | Exogenous timing |
-| Peer assignment | Random roommate assignment | Administrative randomization |
+| Instrument class | Longitudinal example | Experimental example | Why valid |
+|-----------------------|------------------------------|-------------------------------|------------------------------|
+| Geographic variation | Distance to training center | Site randomization in multi-site trials | Not chosen by individual unit |
+| Natural experiment | Weather shock on operations | Random lottery for waitlisted participants | Random by nature or design |
+| Regulatory threshold | Age cutoff for program eligibility | PHQ-9 screening cutoff (RDD–IV) | Arbitrary administrative cutoff |
+| Time-based shock | Policy change, sudden regulation | DST, seasonal variation in study timing | Exogenous timing |
+| Peer / administrative assignment | Random roommate assignment | Experimenter assignment in multi-experimenter designs | Administrative randomization |
 
-The math is easy. Finding a credible instrument — one whose exclusion restriction holds and can be argued for — requires deep domain knowledge and creative thinking about your DGP.
+The mathematics of TSLS are straightforward. Finding a credible instrument — one whose exclusion restriction can be defended from theory and whose relevance can be demonstrated empirically — requires deep domain knowledge and careful thinking about the data-generating process. A weak but credible instrument is preferable to a strong instrument with a plausible exclusion-restriction violation. The first produces inflated standard errors; the second produces biased point estimates.

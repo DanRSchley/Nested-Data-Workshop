@@ -6,28 +6,40 @@ title: "Propensity Scores & Matching"
 library(tidyverse)
 library(MatchIt)
 library(broom)
-set.seed(321)
+library(lme4)
+library(ggplot2)
+library(patchwork)
+set.seed(42)
 ```
 
 # Propensity Scores & Matching
 
-## The Observational Study Problem
+## The Problem PSM Solves
 
 You want to estimate whether participating in a corporate wellness program improves employee health, using observational HR data. Employees self-selected into the program — healthier, more motivated employees are more likely to participate. A naive comparison of participants vs. non-participants will overestimate the benefit.
 
 **Propensity score methods** reduce this bias by creating a comparison group similar to the treated group on all *observed* confounders. They work by estimating the probability that each unit received treatment — the **propensity score** — then matching or weighting on that score.
 
-## The Propensity Score
-
 $$e(X) = P(\text{Treatment} = 1 \mid X)$$
 
-The probability of receiving treatment given observed covariates. Key result (Rosenbaum & Rubin, 1983): conditioning on $e(X)$ is equivalent to conditioning on all of $X$ — you do not need to match on each covariate separately.
+Key result (Rosenbaum & Rubin, 1983): conditioning on $e(X)$ is equivalent to conditioning on all of $X$ — you do not need to match on each covariate separately.
 
-```{r propensity-setup}
+Propensity score methods appear in both settings covered in this course:
+
+- **Longitudinal/panel data**: to address non-random treatment adoption across units and time.
+- **Experimental data**: to correct for non-random attrition at follow-up, self-selected sub-treatment usage, or nonlinear pre-test relationships.
+
+---
+
+## Part A: Propensity Scores in Panel / Longitudinal Data
+
+### Simulation: Employee Wellness Program
+
+```{r ps-panel-sim}
 n <- 600
-age           <- rnorm(n, 40, 10)
-health_aware  <- rnorm(n, 50, 12)
-job_stress    <- rnorm(n, 45, 8)
+age          <- rnorm(n, 40, 10)
+health_aware <- rnorm(n, 50, 12)
+job_stress   <- rnorm(n, 45, 8)
 
 # Treatment probability driven by confounders
 p_treat   <- plogis(-4 + 0.05 * age + 0.06 * health_aware - 0.03 * job_stress)
@@ -41,10 +53,10 @@ df_ps <- tibble(age, health_aware, job_stress, treatment, health_score)
 
 m_naive <- lm(health_score ~ treatment, data = df_ps)
 cat("Naive estimate:", round(coef(m_naive)["treatment"], 2),
-    "— true effect = 5\n")
+    "  |  True effect = 5\n")
 ```
 
-## Step 1: Estimate Propensity Scores and Check Overlap
+### Step 1: Estimate Propensity Scores and Check Overlap
 
 ```{r fit-ps}
 ps_model <- glm(treatment ~ age + health_aware + job_stress,
@@ -55,9 +67,11 @@ ggplot(df_ps, aes(x = ps, fill = factor(treatment))) +
   geom_histogram(alpha = 0.6, bins = 30, position = "identity") +
   scale_fill_manual(values = c("#aec6e8", "#1e3a5f"),
                     labels = c("Control", "Treated")) +
-  labs(title = "Overlap: propensity score distributions",
-       subtitle = "Both groups must cover the same PS range for valid comparison",
-       x = "Propensity Score", y = "Count", fill = NULL) +
+  labs(
+    title = "Overlap: propensity score distributions",
+    subtitle = "Both groups must cover the same PS range for valid comparison",
+    x = "Propensity Score", y = "Count", fill = NULL
+  ) +
   theme_minimal(base_size = 13)
 ```
 
@@ -66,50 +80,249 @@ ggplot(df_ps, aes(x = ps, fill = factor(treatment))) +
 
 **What it means:** Every unit must have a propensity score strictly between 0 and 1. Units with PS near 0 or 1 have no valid comparison units — causal inference is not possible for them.
 
-**How to check:** Plot the PS distributions for treated and control groups. Trim units outside the common support region.
+**How to check:** Plot the PS distributions for treated and control groups. Trim units outside the common support region if overlap is poor at the extremes.
 :::
-
-## Step 2: Match and Check Balance
-
-```{r match-balance}
-m_out <- matchit(treatment ~ age + health_aware + job_stress,
-                 data = df_ps, method = "nearest", ratio = 1)
-
-# Balance summary
-summary(m_out)$sum.matched |>
-  knitr::kable(digits = 3,
-    caption = "Balance after nearest-neighbor matching (std. diff. should be near 0)")
-```
 
 ::: {.callout-warning icon=false}
 ## Assumption 2: No Unmeasured Confounders (Ignorability)
 
 **What it means:** Given observed covariates, treatment assignment is independent of potential outcomes. There are no unobserved variables that both predict treatment and affect the outcome.
 
-**This is the critical untestable assumption.** Propensity score methods can only control for variables you measured. Any unobserved confounder still biases the estimate.
-
-**How to scrutinize:** Conduct a sensitivity analysis (Rosenbaum bounds) asking: how large would an unmeasured confounder need to be to overturn your conclusion?
+**This is the critical untestable assumption.** Propensity score methods can only control for variables you measured. Any unobserved confounder still biases the estimate. Conduct a sensitivity analysis after matching to quantify your exposure to this risk.
 :::
 
-## Step 3: Estimate the Treatment Effect
+### Step 2: Nearest-Neighbor Matching and Balance Check
 
-```{r ate-estimate}
-matched_data <- match.data(m_out)
+```{r match-balance}
+m_out <- matchit(treatment ~ age + health_aware + job_stress,
+                 data = df_ps, method = "nearest", ratio = 1)
 
-m_matched <- lm(health_score ~ treatment + age + health_aware + job_stress,
-                data = matched_data, weights = weights)
-
-tidy(m_matched) |> filter(term == "treatment") |>
+summary(m_out)$sum.matched |>
   knitr::kable(digits = 3,
-    caption = "Matched estimate of ATE (true = 5)")
+    caption = "Balance after nearest-neighbor matching (std. diff. should be < 0.10)")
 ```
 
-## PSM vs. IPW vs. Doubly Robust
+### Step 3: PSM Treatment Effect Estimate
 
-| Method | How it works | Key advantage | Key risk |
-|--------|-------------|--------------|---------|
-| PSM | Match treated to similar controls | Intuitive; easy to check balance | Discards unmatched units |
-| IPW | Weight by inverse of propensity score | Uses all units | Extreme weights for PS near 0 or 1 |
-| Doubly robust | Combines PS model + outcome model | Consistent if *either* model is correct | Slightly more complex |
+```{r ate-psm}
+matched_data <- match.data(m_out)
 
-Doubly robust estimation provides an extra layer of protection: your estimate is consistent if *either* the propensity model or the outcome model is correctly specified — not necessarily both.
+m_psm <- lm(health_score ~ treatment + age + health_aware + job_stress,
+            data = matched_data, weights = weights)
+
+tidy(m_psm) |> filter(term == "treatment") |>
+  knitr::kable(digits = 3,
+    caption = "PSM estimate of ATT (true effect = 5)")
+```
+
+### Inverse Probability Weighting (IPW)
+
+PSM discards unmatched units, which loses information. **IPW** uses all units by reweighting observations so that the weighted sample looks like a random sample from the full population:
+
+$$w_i = \frac{D_i}{\hat{e}(X_i)} + \frac{1-D_i}{1-\hat{e}(X_i)}$$
+
+Treated units are upweighted when their treatment probability was low (they are "surprising" treated units); control units are upweighted when their treatment probability was high (they are "surprising" controls). After reweighting, covariates should be balanced between groups.
+
+```{r ipw}
+df_ps <- df_ps |>
+  mutate(
+    ipw = ifelse(treatment == 1,
+                 1 / fitted(ps_model),
+                 1 / (1 - fitted(ps_model)))
+  )
+
+m_ipw <- lm(health_score ~ treatment + age + health_aware + job_stress,
+            data = df_ps, weights = ipw)
+
+tidy(m_ipw) |> filter(term == "treatment") |>
+  knitr::kable(digits = 3,
+    caption = "IPW estimate (true effect = 5)")
+```
+
+IPW is generally preferred over PSM in panel data settings where you need all time points for each unit. Dropping unmatched observations in PSM can create unbalanced panels — some units contribute to some waves but not others — which complicates longitudinal estimation.
+
+### Dynamic Treatment in Panel Data
+
+In panel data, treatment adoption timing varies across units. The propensity score should account for *when* treatment was adopted — not just whether it was adopted.
+
+At each wave, among units not yet treated, compute the probability of adopting treatment in this wave. Match recently-adopting units to not-yet-treated units with similar adoption probabilities at the time of adoption.
+
+```{r ps-dynamic, eval=FALSE}
+# Time-varying propensity score: probability of adopting in wave w,
+# conditional on not yet having adopted
+ps_wave <- glm(
+  adopted_this_wave ~ lag_outcome + age + job_stress,
+  family = binomial,
+  data   = df_panel |> filter(wave == w, !previously_treated)
+)
+```
+
+This approach is the foundation of **marginal structural models**, which chain together wave-specific IPW weights to estimate the effect of a treatment *history* rather than a single binary treatment.
+
+### Doubly Robust Estimation
+
+Doubly robust combines a propensity score model with an outcome model. The estimate is consistent if *either* model is correctly specified — providing an extra layer of protection against misspecification.
+
+```{r doubly-robust}
+# Doubly robust: IPW weights + regression adjustment on covariates
+m_dr <- lm(health_score ~ treatment + age + health_aware + job_stress,
+           data = df_ps, weights = ipw)
+
+tidy(m_dr) |> filter(term == "treatment") |>
+  knitr::kable(digits = 3,
+    caption = "Doubly robust estimate (true effect = 5)")
+```
+
+```{r comparison-table}
+# Side-by-side comparison of all four approaches
+bind_rows(
+  tidy(m_naive) |> filter(term == "treatment") |> mutate(method = "Naive OLS"),
+  tidy(m_psm)   |> filter(term == "treatment") |> mutate(method = "PSM (ATT)"),
+  tidy(m_ipw)   |> filter(term == "treatment") |> mutate(method = "IPW (ATE)"),
+  tidy(m_dr)    |> filter(term == "treatment") |> mutate(method = "Doubly Robust")
+) |>
+  select(method, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Comparison: naive OLS vs. PSM vs. IPW vs. doubly robust (true = 5)")
+```
+
+### Rosenbaum Sensitivity Analysis
+
+After PSM, the critical question is: how large would an unmeasured confounder need to be to overturn the conclusion? The sensitivity parameter $\Gamma$ (gamma) quantifies this.
+
+- $\Gamma = 1$: no hidden bias assumed — two units with the same observed covariates have the same probability of treatment.
+- $\Gamma = 2$: an unmeasured confounder could double the odds of treatment for otherwise-identical units.
+
+A small $\Gamma$ threshold (say, $\Gamma = 1.2$) means the conclusion is fragile; a large threshold (say, $\Gamma = 3$) means the conclusion is robust to substantial unobserved confounding. The `rbounds` package implements Rosenbaum bounds for continuous and binary outcomes. Report the $\Gamma$ threshold at which the p-value crosses 0.05.
+
+---
+
+## Part B: Propensity Scores in Experimental Research
+
+Random assignment guarantees unbiased intent-to-treat estimates *at baseline*. But three situations arise in practice where propensity score methods are needed even within an experiment.
+
+### Context A: IPW for Non-Random Attrition
+
+This is the most important experimental application of IPW. Random assignment guarantees an unbiased ITT estimate at baseline — but when participants drop out at follow-up and dropout is related to the outcome, the remaining sample is no longer a random subsample. The naive estimate among completers is biased.
+
+**IPW corrects for this** by upweighting participants who were similar to drop-outs (by observed baseline characteristics) but happened to remain. The attrition propensity score is modelled as a function of baseline covariates and treatment assignment; each completer is then weighted by the inverse of their probability of remaining.
+
+```{r attrition-sim}
+n_att <- 200
+set.seed(42)
+
+treatment_att   <- rep(c(0, 1), each = 100)
+baseline_anxiety <- rnorm(n_att, 50, 10)
+
+# High anxiety + being in control group → higher dropout
+p_remain <- plogis(2 - 0.04 * baseline_anxiety + 0.4 * treatment_att)
+remained  <- rbinom(n_att, 1, p_remain)
+
+# True treatment effect = -5
+outcome <- 40 - 5 * treatment_att + 0.3 * baseline_anxiety + rnorm(n_att, 0, 6)
+
+df_att <- tibble(treatment = treatment_att, baseline_anxiety, remained, outcome)
+
+cat("Overall retention rate:", round(mean(df_att$remained) * 100, 1), "%\n")
+cat("Control retention:     ", round(mean(df_att$remained[df_att$treatment == 0]) * 100, 1), "%\n")
+cat("Treatment retention:   ", round(mean(df_att$remained[df_att$treatment == 1]) * 100, 1), "%\n")
+```
+
+```{r attrition-ipw}
+# Attrition propensity model
+ps_att    <- glm(remained ~ baseline_anxiety + treatment,
+                 family = binomial, data = df_att)
+df_att$ipw_att <- 1 / fitted(ps_att)
+
+# Complete the analysis on retained participants
+df_complete <- df_att |> filter(remained == 1)
+
+m_naive_att <- lm(outcome ~ treatment, data = df_complete)
+m_ipw_att   <- lm(outcome ~ treatment, data = df_complete,
+                  weights = df_att$ipw_att[df_att$remained == 1])
+
+bind_rows(
+  tidy(m_naive_att) |> filter(term == "treatment") |> mutate(method = "Naive (completers only)"),
+  tidy(m_ipw_att)   |> filter(term == "treatment") |> mutate(method = "IPW-corrected")
+) |>
+  select(method, estimate, std.error, p.value) |>
+  mutate(true_effect = -5) |>
+  knitr::kable(digits = 3,
+    caption = "Attrition bias: naive vs. IPW-corrected (true effect = -5)")
+```
+
+::: {.callout-tip icon=false}
+## Reporting Attrition IPW
+
+Report **both** the naive (completer-only) and IPW-corrected estimates. They answer different questions:
+
+- The naive estimate describes the treatment effect **among completers** — potentially a biased, self-selected subsample.
+- The IPW estimate approximates the intent-to-treat effect **for the full randomized sample**, including those who would have dropped out.
+
+A large discrepancy between the two signals that differential attrition is materially affecting your conclusions.
+:::
+
+```{r attrition-plot}
+# Visualize: who drops out by treatment group and anxiety level
+p_dropout <- ggplot(df_att, aes(x = baseline_anxiety,
+                                 y = remained,
+                                 color = factor(treatment))) +
+  geom_jitter(height = 0.03, alpha = 0.5, size = 1.5) +
+  geom_smooth(method = "glm",
+              method.args = list(family = binomial),
+              se = TRUE, linewidth = 1.2) +
+  scale_color_manual(values = c("#aec6e8", "#1e3a5f"),
+                     labels = c("Control", "Treatment")) +
+  labs(
+    title = "Retention probability by baseline anxiety and treatment",
+    subtitle = "High-anxiety controls are most likely to drop out — biasing naive estimate upward",
+    x = "Baseline Anxiety", y = "P(Retained at follow-up)", color = NULL
+  ) +
+  theme_minimal(base_size = 13)
+
+p_dropout
+```
+
+### Context B: PSM for Self-Selected Sub-Treatments
+
+In field experiments, random assignment gives participants *access* to an intervention, but actual usage is voluntary. Comparing high-users to non-users within the treatment arm of an experiment is an **observational comparison** — high-users likely differ systematically from non-users on motivation, baseline severity, and other factors.
+
+PSM on baseline covariates makes this comparison more credible by creating a matched non-user group similar to high-users on observed characteristics. This provides an estimate of the effect of intensive engagement, net of observable self-selection.
+
+```{r psm-subtreat, eval=FALSE}
+# Within the intervention arm: match high-users to low-users
+# on pre-randomization covariates
+m_sub <- matchit(
+  high_user ~ pre_score + age + motivation + baseline_severity,
+  data   = intervention_arm,
+  method = "nearest",
+  ratio  = 1
+)
+
+# Estimate effect of high engagement vs. low engagement
+m_usage <- lm(outcome ~ high_user + pre_score + age + motivation,
+              data = match.data(m_sub), weights = weights)
+```
+
+This design is sometimes called a **broken randomization** analysis or a within-arm observational study. The critical caveat: ignorability holds only if all determinants of usage that also affect outcomes are measured and included in the PSM model. Unmeasured motivation or severity remains a threat.
+
+### Context C: Matching on Pre-Test Score
+
+When the goal is to compare the *change* from pre to post (rather than just the post-test score), matching on the pre-test score before estimating treatment effects can be more robust than ANCOVA when the pre-test — outcome relationship is nonlinear.
+
+ANCOVA assumes a linear, homogeneous (equal across groups) relationship between the pre-test and post-test. When this assumption is violated — for instance, when very high or very low pre-test scorers change at a different rate — matching on the pre-test creates a comparison group that is directly comparable at the pre-test level, allowing nonparametric estimation of the change. This is sometimes called **pre-test matching** or **coarsened exact matching on the pre-test**.
+
+---
+
+## Reporting Checklist for PS Analyses
+
+::: {.callout-tip}
+## PS Reporting Checklist
+- [ ] Specify all covariates included in the PS model and justify their inclusion (pre-treatment only; no mediators)
+- [ ] Report overlap check (PS histogram by treatment group; note any violations of common support)
+- [ ] Report balance statistics **before AND after** matching/weighting (standardised mean difference table; target SMD < 0.10)
+- [ ] Specify estimand: ATE, ATT, or ATC? And why does it match the research question?
+- [ ] Report sensitivity analysis (Rosenbaum $\Gamma$ or E-value) to quantify vulnerability to unmeasured confounding
+- [ ] For experimental attrition IPW: report both the naive (completer-only) and IPW-corrected estimates and note any discrepancy
+- [ ] For doubly robust estimation: note which model (PS or outcome) is the primary specification and which provides the robustness guarantee
+:::
