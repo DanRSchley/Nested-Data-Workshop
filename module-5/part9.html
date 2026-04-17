@@ -885,7 +885,7 @@ window.Quarto = {
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>baseline_anx <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">50</span>, <span class="dv">10</span>)</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Attrition: higher anxiety + control → more likely to drop out</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>p_remain  <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="dv">2</span> <span class="sc">-</span> <span class="fl">0.04</span> <span class="sc">*</span> baseline_anx <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> treatment)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>p_remain  <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="fl">2.5</span> <span class="sc">-</span> <span class="fl">0.07</span> <span class="sc">*</span> baseline_anx <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> treatment)</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>remained  <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p_remain)</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># True treatment effect = -5 (treatment reduces outcome)</span></span>
@@ -896,14 +896,14 @@ window.Quarto = {
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Retention rate — control:  "</span>, <span class="fu">mean</span>(remained[treatment <span class="sc">==</span> <span class="dv">0</span>]), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Retention rate — control:   0.5 </code></pre>
+<pre><code>Retention rate — control:   0.32 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Retention rate — treatment:"</span>, <span class="fu">mean</span>(remained[treatment <span class="sc">==</span> <span class="dv">1</span>]), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Retention rate — treatment: 0.58 </code></pre>
+<pre><code>Retention rate — treatment: 0.42 </code></pre>
 </div>
 </div>
 </section>
@@ -927,7 +927,7 @@ window.Quarto = {
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>True treatment effect = -5. Naive estimate is attenuated toward zero because high-anxiety control participants (who would show the smallest benefit) dropped out. IPW recovers the true estimate by upweighting their remaining counterparts.</caption>
+<caption>True treatment effect = -5. Naive estimate is attenuated toward zero because high-anxiety control participants dropped out. IPW is consistent under MAR — it targets the true effect on average across samples; individual draws may not show monotone improvement over naive.</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">method</th>
@@ -939,15 +939,15 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Naive complete-case analysis</td>
-<td style="text-align: right;">-4.191</td>
-<td style="text-align: right;">1.138</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">-4.644</td>
+<td style="text-align: right;">1.494</td>
+<td style="text-align: right;">0.003</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">IPW-corrected analysis</td>
-<td style="text-align: right;">-4.088</td>
-<td style="text-align: right;">1.132</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">-4.399</td>
+<td style="text-align: right;">1.485</td>
+<td style="text-align: right;">0.004</td>
 </tr>
 </tbody>
 </table>

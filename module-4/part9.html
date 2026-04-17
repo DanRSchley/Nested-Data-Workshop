@@ -780,10 +780,10 @@ window.Quarto = {
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_cc, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"wave:treatment1"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(term, <span class="st">"wave.*treatment"</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">approach =</span> <span class="st">"Complete-case"</span>),</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_ac, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"wave:treatment"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(term, <span class="st">"wave.*treatment"</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">approach =</span> <span class="st">"Available-case (lmer)"</span>)</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(approach, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
@@ -805,6 +805,12 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
+<td style="text-align: left;">Complete-case</td>
+<td style="text-align: right;">4.282</td>
+<td style="text-align: right;">0.625</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">Available-case (lmer)</td>
 <td style="text-align: right;">4.897</td>
 <td style="text-align: right;">0.449</td>

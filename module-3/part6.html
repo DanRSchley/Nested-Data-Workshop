@@ -1006,7 +1006,7 @@ window.Quarto = {
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>baseline_anxiety <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_att, <span class="dv">50</span>, <span class="dv">10</span>)</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># High anxiety + being in control group → higher dropout</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>p_remain <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="dv">2</span> <span class="sc">-</span> <span class="fl">0.04</span> <span class="sc">*</span> baseline_anxiety <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> treatment_att)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>p_remain <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="fl">2.5</span> <span class="sc">-</span> <span class="fl">0.07</span> <span class="sc">*</span> baseline_anxiety <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> treatment_att)</span>
 <span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>remained  <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n_att, <span class="dv">1</span>, p_remain)</span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co"># True treatment effect = -5</span></span>
@@ -1017,21 +1017,21 @@ window.Quarto = {
 <span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Overall retention rate:"</span>, <span class="fu">round</span>(<span class="fu">mean</span>(df_att<span class="sc">$</span>remained) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>), <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Overall retention rate: 58 %</code></pre>
+<pre><code>Overall retention rate: 37 %</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Control retention:     "</span>, <span class="fu">round</span>(<span class="fu">mean</span>(df_att<span class="sc">$</span>remained[df_att<span class="sc">$</span>treatment <span class="sc">==</span> <span class="dv">0</span>]) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>), <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Control retention:      56 %</code></pre>
+<pre><code>Control retention:      26 %</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Treatment retention:   "</span>, <span class="fu">round</span>(<span class="fu">mean</span>(df_att<span class="sc">$</span>remained[df_att<span class="sc">$</span>treatment <span class="sc">==</span> <span class="dv">1</span>]) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>), <span class="st">"%</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Treatment retention:    60 %</code></pre>
+<pre><code>Treatment retention:    48 %</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -1056,11 +1056,11 @@ window.Quarto = {
 <span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(method, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
 <span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">true_effect =</span> <span class="sc">-</span><span class="dv">5</span>) <span class="sc">|&gt;</span></span>
 <span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Attrition bias: naive vs. IPW-corrected (true effect = -5)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Attrition bias: naive vs. IPW-weighted (true effect = -5). IPW is consistent under MAR — on average across samples it reduces bias; individual draws may not show monotone improvement."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Attrition bias: naive vs.&nbsp;IPW-corrected (true effect = -5)</caption>
+<caption>Attrition bias: naive vs.&nbsp;IPW-weighted (true effect = -5). IPW is consistent under MAR — on average across samples it reduces bias; individual draws may not show monotone improvement.</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">method</th>
@@ -1073,16 +1073,16 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Naive (completers only)</td>
-<td style="text-align: right;">-6.374</td>
-<td style="text-align: right;">1.072</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">-5.362</td>
+<td style="text-align: right;">1.575</td>
+<td style="text-align: right;">0.001</td>
 <td style="text-align: right;">-5</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">IPW-corrected</td>
-<td style="text-align: right;">-6.618</td>
-<td style="text-align: right;">1.063</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">-6.958</td>
+<td style="text-align: right;">1.490</td>
+<td style="text-align: right;">0.000</td>
 <td style="text-align: right;">-5</td>
 </tr>
 </tbody>

@@ -682,11 +682,11 @@ window.Quarto = {
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fq       =</span> firm_quality[firm],</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">dist     =</span> distance[firm],</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># High-quality firms and nearby firms adopt training more</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_train  =</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">0.5</span> <span class="sc">+</span> <span class="fl">0.3</span> <span class="sc">*</span> (fq <span class="sc">/</span> <span class="fu">sd</span>(firm_quality)) <span class="sc">-</span> <span class="fl">0.005</span> <span class="sc">*</span> dist <span class="sc">+</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_train  =</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">0.5</span> <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> (fq <span class="sc">/</span> <span class="fu">sd</span>(firm_quality)) <span class="sc">-</span> <span class="fl">0.010</span> <span class="sc">*</span> dist <span class="sc">+</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.3</span>)),</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">training     =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, p_train),</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True causal effect of training = 4; firm quality also boosts productivity</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">productivity =</span> <span class="dv">50</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> training <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> fq <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">productivity =</span> <span class="dv">50</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> training <span class="sc">+</span> <span class="fl">2.5</span> <span class="sc">*</span> fq <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">firm     =</span> <span class="fu">factor</span>(firm),</span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">year     =</span> <span class="fu">factor</span>(year)</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -703,7 +703,7 @@ window.Quarto = {
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"First-stage F-statistic:"</span>, <span class="fu">round</span>(f_stat, <span class="dv">1</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>First-stage F-statistic: 17.8 </code></pre>
+<pre><code>First-stage F-statistic: 61.9 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -730,15 +730,21 @@ window.Quarto = {
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_ols) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"training"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"OLS (confounded — true = 4)"</span>),</span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_iv)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"training"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"IV / TSLS (recovers true effect)"</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"IV / TSLS (consistent under exclusion restriction)"</span>)</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Panel IV: effect of training on firm productivity (true effect = 4)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Panel IV: effect of training on firm productivity (true effect = 4). OLS is biased upward by firm quality; IV is consistent but with larger SE — individual draws can deviate from truth."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Panel IV: effect of training on firm productivity (true effect = 4)</caption>
+<caption>Panel IV: effect of training on firm productivity (true effect = 4). OLS is biased upward by firm quality; IV is consistent but with larger SE — individual draws can deviate from truth.</caption>
+<colgroup>
+<col style="width: 65%">
+<col style="width: 11%">
+<col style="width: 12%">
+<col style="width: 10%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">model</th>
@@ -750,21 +756,21 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">OLS (confounded — true = 4)</td>
-<td style="text-align: right;">4.648</td>
-<td style="text-align: right;">0.354</td>
+<td style="text-align: right;">7.279</td>
+<td style="text-align: right;">0.895</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">IV / TSLS (recovers true effect)</td>
-<td style="text-align: right;">8.769</td>
-<td style="text-align: right;">3.090</td>
-<td style="text-align: right;">0.005</td>
+<td style="text-align: left;">IV / TSLS (consistent under exclusion restriction)</td>
+<td style="text-align: right;">10.110</td>
+<td style="text-align: right;">4.053</td>
+<td style="text-align: right;">0.013</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>OLS overestimates the training effect because firm quality simultaneously drives adoption and productivity. The IV estimate isolates only the exogenous, geography-driven variation in training, recovering the true causal effect of approximately 4 units.</p>
+<p>OLS overestimates the training effect because firm quality simultaneously drives adoption and productivity. IV isolates only the exogenous, geography-driven variation in training. IV is <strong>consistent</strong> — its bias shrinks to zero as <span class="math inline">\(N \to \infty\)</span> — but in any single finite sample the estimate can be above or below the truth. The larger standard error reflects this uncertainty honestly.</p>
 <hr>
 </section>
 </section>
@@ -792,7 +798,7 @@ window.Quarto = {
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">coef</span>(stage2)[<span class="st">"training_hat"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Manual TSLS (Stage 2 coefficient on training_hat): 8.769 </code></pre>
+<pre><code>Manual TSLS (Stage 2 coefficient on training_hat): 10.11 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -800,7 +806,7 @@ window.Quarto = {
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">coef</span>(m_iv)[<span class="st">"training"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>ivreg() coefficient (should match): 8.769 </code></pre>
+<pre><code>ivreg() coefficient (should match): 10.11 </code></pre>
 </div>
 </div>
 <div class="callout callout-style-default callout-note no-icon callout-titled">
@@ -828,7 +834,7 @@ window.Quarto = {
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"FE-IV estimate (training):"</span>, <span class="fu">round</span>(<span class="fu">coef</span>(m_fe_iv)[<span class="st">"training"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>FE-IV estimate (training): 8.769 </code></pre>
+<pre><code>FE-IV estimate (training): 10.11 </code></pre>
 </div>
 </div>
 <p>By including year fixed effects in both stages, we account for common time trends while using distance to instrument training adoption within each year.</p>
@@ -917,15 +923,15 @@ window.Quarto = {
 <span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_at)   <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"D1"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"As-treated — biased by self-selection"</span>),</span>
 <span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_late) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"D1"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"IV / LATE — true effect ≈ −10"</span>)</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"IV / LATE — consistent estimate for compliers"</span>)</span>
 <span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
 <span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Encouragement design: three estimators compared (true effect = −10)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Encouragement design: three estimators compared (true effect = −10). ITT is diluted; as-treated is biased; LATE is consistent but individual samples can deviate from truth due to finite-sample noise."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Encouragement design: three estimators compared (true effect = −10)</caption>
+<caption>Encouragement design: three estimators compared (true effect = −10). ITT is diluted; as-treated is biased; LATE is consistent but individual samples can deviate from truth due to finite-sample noise.</caption>
 <colgroup>
 <col style="width: 63%">
 <col style="width: 12%">
@@ -954,7 +960,7 @@ window.Quarto = {
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">IV / LATE — true effect ≈ −10</td>
+<td style="text-align: left;">IV / LATE — consistent estimate for compliers</td>
 <td style="text-align: right;">-11.267</td>
 <td style="text-align: right;">1.853</td>
 <td style="text-align: right;">0</td>
@@ -998,7 +1004,7 @@ window.Quarto = {
 <pre><code>ivreg() LATE          : -11.267 </code></pre>
 </div>
 </div>
-<p>The ITT is approximately −7: diluted because only 70% of encouraged participants completed the program. The as-treated estimate is biased upward in absolute value — completers are likely more motivated than the average participant, so they would have had lower stress regardless. The IV/LATE recovers approximately −10, the true causal effect for compliers.</p>
+<p>The ITT is approximately −7: diluted because only 70% of encouraged participants completed the program. The as-treated estimate is biased upward in absolute value — completers are likely more motivated than the average participant, so they would have had lower stress regardless. The IV/LATE is <strong>consistent</strong> under the exclusion restriction: on average across many samples it targets −10, though any single sample estimate can deviate from the truth due to sampling variability.</p>
 <hr>
 </section>
 </section>
