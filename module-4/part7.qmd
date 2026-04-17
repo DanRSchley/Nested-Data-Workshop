@@ -21,7 +21,7 @@ Every model we have used in this module so far assumes something about your outc
 
 But many longitudinal outcomes in psychology and medicine are not continuous. They are **binary** — did the person have a depressive episode this week? Did they relapse? Did they complete the task? Or they are **counts** — how many panic attacks occurred this week? How many drinks did someone consume on Monday? How many hospital visits did a patient have this year?
 
-When the DGP generates binary or count data, a linear mixed model imposes the wrong structure on that DGP. Predicted probabilities can fall outside [0, 1]. Residuals cannot be normally distributed. Parameter estimates become biased. The model is not just inefficient — it is misspecified.
+When the DGP generates binary or count data, a linear mixed model imposes a structure that does not match the outcome's constraints. Predicted probabilities can fall outside [0, 1]. Residuals cannot be normally distributed. For probability and rate interpretation — or any inference that depends on the correct scale — an LMM is the wrong tool. (LMMs can sometimes approximate mean-structure questions in balanced designs, but for constrained predictions and proper uncertainty quantification a GLMM is the appropriate primary model.)
 
 **Generalized Linear Mixed Models (GLMMs)** extend the mixed model framework to non-normal outcomes. They combine:
 

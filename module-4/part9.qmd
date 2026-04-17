@@ -173,13 +173,21 @@ Because dropout is MAR (related to baseline, which is in the model), the availab
 
 ## Step 3: Multiple Imputation
 
-Multiple Imputation (MI) is the gold standard for MAR data. The procedure has three steps:
+Multiple Imputation (MI) is a principled approach for MAR data. The procedure has three steps:
 
 1. **Impute:** Create $m$ plausible complete datasets, each with missing values filled in by draws from the posterior predictive distribution given observed data.
 2. **Analyze:** Run your analysis model on each of the $m$ complete datasets.
 3. **Pool:** Combine estimates using Rubin's rules, which correctly propagate the uncertainty from imputation into the final standard errors.
 
-For longitudinal data with person-level predictors, a practical strategy is to impute at the **person level** (one row per person, using person-level summaries) and then merge the imputed values back into the long-format data for analysis.
+::: {.callout-note icon=false}
+## A note on MI for longitudinal outcomes
+
+For repeated-measures longitudinal outcomes (where the missing data *are* the outcome at specific waves), **FIML via `lmer()` with all available observations is usually the preferred approach under MAR** — it directly maximizes the likelihood over observed data without requiring an imputation model for the outcome itself. Full multilevel MI that respects the time-series structure of the data (e.g., using `mice` with `2l.pan` or Bayesian multilevel imputation) is technically superior when auxiliary variables not in the analysis model predict missingness, but it is considerably more complex to implement correctly.
+
+The illustration below uses a **simplified person-level imputation strategy** as a didactic toy example to show the Rubin's rules pooling mechanics. It is *not* a recommended best-practice workflow for longitudinal outcomes — it imputes a person-level mean and reuses it across waves, which distorts the within-person variance and time trajectory. Use FIML (`lmer` on all observed data) or a proper multilevel MI package for applied work.
+:::
+
+For longitudinal data with person-level predictors, the didactic illustration imputes at the **person level** (one row per person, using person-level summaries) to show the pooling mechanics in a tractable form.
 
 ```{r multiple-imputation}
 # Create person-level summary for imputation

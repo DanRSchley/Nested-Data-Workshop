@@ -58,6 +58,18 @@ tibble(ICC = icc_vals, Power = power_vals) |>
 
 At ICC = 0, you have the expected power for 300 independent observations. At ICC = 0.2, power drops below 80% — you would need more observations to compensate.
 
+::: {.callout-warning icon=false}
+## Design-Effect Conversion Is an Approximation
+
+The design-effect formula `DEFF = 1 + (m − 1) × ICC` assumes equal cluster sizes and that assignment is at the cluster level. It is a useful heuristic for back-of-envelope planning, but it can mislead in several common situations:
+
+- **Unequal cluster sizes:** Power is lower than the equal-size formula predicts when cluster sizes vary substantially.
+- **Assignment below the cluster level:** In within-subjects designs (participants × stimuli), DEFF does not straightforwardly apply — you need to account for the stimulus-level random effect separately.
+- **Multiple random effects:** Three-level designs have two ICCs; collapsing to a single design effect loses information.
+
+**For decision-quality power planning** — grant applications, pre-registrations, trial designs — use simulation under your exact assignment unit, cluster structure, and analysis model (see the simulation section below). The design-effect shortcut is a starting point, not a final answer.
+:::
+
 ## Simulation-Based Power Analysis
 
 For complex nested designs, analytic formulas do not always exist. The gold standard is **simulation-based power analysis**: generate data from the assumed DGP, fit the model, check whether the effect is significant, repeat 1000 times.

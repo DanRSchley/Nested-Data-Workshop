@@ -225,20 +225,21 @@ tibble(
 ```
 
 ```{r attrition-effect}
-# True treatment effect = -5 (per unit of wave / n_waves)
-m_completers <- lm(depression ~ treat + wave + baseline, data = complete_cases)
-m_all        <- lm(depression ~ treat + wave + baseline,
+# DGP: treatment effect grows linearly with wave — true effect at final wave = -5.
+# The correct estimand is the treat × wave interaction, not a main effect of treat.
+m_completers <- lm(depression ~ treat * wave + baseline, data = complete_cases)
+m_all        <- lm(depression ~ treat * wave + baseline,
                    data = df_long |> filter(observed))
 
 bind_rows(
-  tidy(m_completers) |> filter(term == "treat") |>
+  tidy(m_completers) |> filter(term == "treat:wave") |>
     mutate(model = "Complete cases only (attrition bias)"),
-  tidy(m_all) |> filter(term == "treat") |>
+  tidy(m_all) |> filter(term == "treat:wave") |>
     mutate(model = "All observed data (less biased)")
 ) |>
   select(model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Attrition biases the treatment effect estimate (true ≈ −5 at final wave)")
+    caption = "Treatment × wave interaction: complete-case vs. available-case. True slope = −1 per wave unit (effect reaches −5 at wave 5).")
 ```
 
 ::: {.callout-warning icon=false}
