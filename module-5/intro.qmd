@@ -20,6 +20,12 @@ Judd, Westfall, & Kenny (2012, 2017) documented that this mistake is pervasive i
 
 ## What This Module Covers
 
+The module is organized into three clusters, moving from design-structure modeling through inferential planning to handling real-world experimental imperfections.
+
+---
+
+### Cluster 1 — Design Structure and Model Specification
+
 **Part 1: Crossed Random Effects in Experiments** — Why stimuli are random, what happens when you treat them as fixed, and how to fix it with crossed random effects models in `lme4`.
 
 **Part 2: Partially Nested Designs** — When one condition has nesting (e.g., treatment participants have therapists/coaches) and the other does not, standard MLM misspecifies the design. The Bauer et al. partially nested model handles this correctly.
@@ -28,4 +34,22 @@ Judd, Westfall, & Kenny (2012, 2017) documented that this mistake is pervasive i
 
 **Part 4: Multi-Site Experiments** — When the same experiment runs at multiple sites (labs, countries, platforms), sites introduce clustering. The many-labs design and how to model treatment effect heterogeneity across sites.
 
+### Cluster 2 — Planning and Inference
+
 **Part 5: Power Analysis for Nested Designs** — Why standard power formulas are wrong for nested data, the role of ICC, simulation-based power analysis, and practical sample size guidance.
+
+**Part 6: Binary and Count Outcomes in Experiments** — When experimental outcomes are binary (chose A / chose B) or counts (number of correct responses), GLMMs with the correct link function are required. Logistic and Poisson mixed models with crossed random effects for participants and stimuli.
+
+**Part 7: Effect Sizes, Reporting, and Reproducibility** — Standardized effect sizes for mixed models, $R^2$ decomposition by level, translating log-odds to probability, and pre-registration practices that make nested-data analyses credible.
+
+### Cluster 3 — Imperfect Randomization and Quasi-Experimental Fixes
+
+The final two parts form a self-contained mini-unit on what to do when randomization does not work exactly as planned.
+
+**Part 8: Non-Compliance — ITT and LATE** — When participants are randomized but not all comply with their assigned condition, the naive treatment-vs-control comparison is diluted or biased. This part covers the intent-to-treat estimand (ITT), the complier average causal effect (LATE) via instrumental variables, the Wald estimator, and the compliance typology (compliers, always-takers, never-takers).
+
+**Part 9: Quasi-Experimental Methods for Applied Researchers** — The broader toolkit for experiments with observational features: difference-in-differences for pre-post designs, IPW to correct for non-random attrition, propensity score matching within a treatment arm to estimate dose-response effects, and threshold-based eligibility (RDD). Each method maps to a specific randomization failure and provides a principled remedy.
+
+---
+
+Parts 8 and 9 together cover the full arc from "randomization was imperfect" to "here is the estimand you can credibly claim and the method to estimate it." Readers who have worked through Modules 1-5 will recognize how each quasi-experimental tool inherits from the broader mixed-model and identification framework built earlier in the workshop.

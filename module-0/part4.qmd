@@ -168,6 +168,49 @@ df_long |>
 
 This takes two minutes and saves hours of debugging later.
 
+## Experimental Long Format: Participants × Stimuli
+
+The person-day structure above is the observational prototype. In experiments, the analogous structure is **participants × stimuli (or trials)**: one row per participant-stimulus combination, with participant and stimulus identifiers at every row.
+
+```{r rm-vs-long}
+# Wide format: one row per participant, columns for each stimulus
+df_exp_wide <- tibble(
+  participant = 1:4,
+  condition   = c("control", "treatment", "control", "treatment"),
+  stim_1_rt   = c(523, 491, 548, 475),
+  stim_2_rt   = c(510, 503, 531, 482),
+  stim_3_rt   = c(498, 487, 519, 465),
+  stim_4_rt   = c(535, 510, 556, 490)
+)
+
+# Long format: one row per participant-stimulus observation
+df_exp_long <- df_exp_wide |>
+  pivot_longer(
+    cols      = starts_with("stim_"),
+    names_to  = "stimulus",
+    values_to = "rt"
+  ) |>
+  mutate(stimulus = str_remove(stimulus, "_rt"))
+
+knitr::kable(df_exp_long, caption = "Long format: 4 participants × 4 stimuli = 16 rows. Both participant and stimulus IDs appear on every row.")
+```
+
+The two identifier columns — `participant` and `stimulus` — are what allow `lme4` to fit crossed random effects: a random intercept for participants *and* a random intercept for stimuli, simultaneously. Without the long format, you cannot express this structure.
+
+::: {.callout-note icon=false}
+## Observational vs. Experimental Long Format
+
+| Feature | Observational (person-day) | Experimental (participant-stimulus) |
+|---------|---------------------------|--------------------------------------|
+| Level-1 unit | observation day | stimulus / trial |
+| Level-2 unit | person | participant |
+| Additional clustering | — | stimulus (crossed) |
+| Level-1 index | day number | stimulus ID |
+| Key model formula | `(1 \| person)` | `(1 \| participant) + (1 \| stimulus)` |
+
+Both formats follow the same rule: **one row per level-1 observation**. The difference is that experimental data often has *two* grouping factors (participants and stimuli), creating a crossed rather than nested structure.
+:::
+
 ## Looking Ahead
 
 With the conceptual foundations in place — DGP thinking, types of nesting, ICC, and data format — we are ready to start fitting models. Module 1 builds the core toolkit: fixed effects, random intercepts, and random slopes. At each step, we will be explicit about what assumption the model is making and what happens when that assumption is wrong.

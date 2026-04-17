@@ -248,6 +248,31 @@ df_firms |>
 
 In this simulated dataset, there is no strong relationship — within-group variance is roughly constant across firms. That is reassuring, but not always the case in real data.
 
+## ICC in Experimental Research: Two Sources of Non-Independence
+
+The ICC applies equally to experimental designs — but the sources of non-independence are different, and there are typically *two* of them at once.
+
+In a **within-subjects experiment**, each participant responds to multiple stimuli or conditions. Two responses from the *same participant* will be more similar than responses from different participants: this is the participant-level ICC. Two responses to the *same stimulus* (rated by different participants) will also be more similar than responses to different stimuli: this is the stimulus-level ICC.
+
+::: {.callout-note icon=false}
+## Two ICCs in a Crossed Design
+
+Consider a word recall experiment: 40 participants each see 80 words, half positive and half neutral. The outcome (recalled = 1 / not = 0) has clustering at two levels simultaneously:
+
+- **Participant ICC:** People differ in overall recall ability. A high-ability participant's responses are positively correlated with each other.
+- **Stimulus ICC:** Some words are simply more memorable. Responses to the same word across participants share variance.
+
+Ignoring *either* ICC inflates the Type I error rate for the focal treatment comparison. This is why Module 1 Part 6 introduces **crossed random effects**: `(1 | participant) + (1 | stimulus)` models both ICCs simultaneously, and the design-effect penalty compounds across both levels.
+
+```r
+# Crossed design: two ICCs
+null_crossed <- lmer(recalled ~ 1 + (1 | participant) + (1 | stimulus), data = df_exp)
+icc(null_crossed)  # returns ICCs for both grouping levels
+```
+
+In typical psycholinguistic and judgment studies, stimulus ICCs of 0.05–0.20 are common — small enough to ignore in any single study, large enough to inflate false positives systematically across a literature.
+:::
+
 ## The ICC as a Scientific Finding
 
 Throughout this workshop, we treat the ICC primarily as a diagnostic tool — something you check before deciding what model to use. But it is also a finding in its own right.

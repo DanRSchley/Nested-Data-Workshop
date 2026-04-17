@@ -18,9 +18,17 @@ Module 4 builds the toolkit for modeling change over time correctly.
 
 ## What This Module Covers
 
+The module is organized into five clusters. Each cluster addresses a distinct challenge in longitudinal data analysis, building from low-level specification decisions to causal identification.
+
+---
+
+### Cluster 1 — Dependence and Covariance Structure
+
 **Part 1: From RM-ANOVA to Mixed Models** — The repeated measures ANOVA that most psychologists learned makes a specific assumption about the covariance structure of repeated observations (compound symmetry/sphericity). We show concretely what this assumption means, why it almost always fails, and how mixed-effects models relax it.
 
 **Part 2: Covariance Structures** — The covariance matrix of your repeated observations is not just a nuisance to be controlled — it is a window into the DGP. We catalog the main structures (compound symmetry, AR(1), unstructured, Toeplitz), show what each implies about how measurements relate over time, and explain how to choose among them.
+
+### Cluster 2 — Modeling Trajectories and Change
 
 **Part 3: Growth Curve Models** — When the question is how outcomes change over time and whether trajectories differ across people, growth curve models are the right tool. We build from simple linear growth to random slopes, nonlinear trajectories, and predictors of growth.
 
@@ -29,3 +37,21 @@ Module 4 builds the toolkit for modeling change over time correctly.
 **Part 5: Autoregressive Structures** — When today's outcome predicts tomorrow's, the covariance structure is autoregressive. We explain AR(1) models, how to specify them in `nlme`, and the assumptions of stationarity.
 
 **Part 6: Cross-Lagged Panel Models** — When you want to understand the *dynamic* relationship between two variables over time — does A cause B, does B cause A, or do they mutually reinforce each other — cross-lagged panel models (and their improved version, the RI-CLPM) provide the framework.
+
+### Cluster 3 — Non-Gaussian and Event Outcomes
+
+**Part 7: Binary and Count Outcomes Over Time** — Many longitudinal outcomes are binary (relapsed / did not relapse) or counts (number of episodes per week). GLMMs extend the mixed model framework to handle these correctly using logistic and Poisson/negative-binomial families, with random effects preserving the within-person dependence structure.
+
+**Part 8: Survival Analysis** — When the outcome is *time until an event*, standard regression ignores censoring and misrepresents the DGP. Kaplan-Meier curves, Cox proportional hazards models, and frailty models handle event-time outcomes in nested data.
+
+### Cluster 4 — Missingness and Attrition
+
+**Part 9: Missing Data in Longitudinal Studies** — Attrition and intermittent missingness are nearly universal in panel data. We classify mechanisms (MCAR/MAR/MNAR), show how `lmer` handles MAR data via full-information maximum likelihood, introduce multiple imputation as a principled alternative, and cover sensitivity analysis for MNAR.
+
+### Cluster 5 — Causal Identification in Panel Settings
+
+**Part 10: Applied Identification Strategies** — The capstone. When the research question is causal — not just descriptive — panel data offer a powerful toolkit: difference-in-differences (TWFE), interrupted time series, panel instrumental variables, and time-varying propensity score matching. Each strategy maps to a specific threat from Module 3 and provides a concrete remedy in the longitudinal context.
+
+---
+
+The module closes with Part 10 as a deliberate capstone: after understanding how longitudinal data are structured, how trajectories are modeled, and how non-standard outcomes and missing data are handled, Part 10 asks the hardest question — *can we identify a causal effect?* — and provides the tools to answer it.
