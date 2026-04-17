@@ -14,10 +14,10 @@ set.seed(42)
 
 # Crossed Random Effects
 
-Pure hierarchies assume each lower-level unit belongs to exactly one higher-level unit. But many real data structures — in both experimental psychology and longitudinal panel research — have units that belong to *multiple* grouping factors simultaneously. This chapter covers two major instances of crossed random effects:
+Pure hierarchies assume each lower-level unit belongs to exactly one higher-level unit. But many real data structures — in both experimental consumer research and longitudinal panel research — have units that belong to *multiple* grouping factors simultaneously. This chapter covers two major instances of crossed random effects:
 
-1. **Within-subjects experiments**: participants × stimuli (the classic psycholinguistics problem)
-2. **Longitudinal panel data**: firms × calendar years (the economy-wide shock problem)
+1. **Within-subjects experiments**: participants × product messages (the consumer WTP problem)
+2. **Longitudinal panel data**: customers × calendar months (the spending panel problem)
 
 Both cases share the same formal structure. Both produce badly wrong standard errors when one of the crossed grouping factors is omitted.
 
@@ -25,61 +25,61 @@ Both cases share the same formal structure. Both produce badly wrong standard er
 
 ## Part A: Crossed Random Effects in Experimental Designs
 
-### The Problem with Treating Stimuli as Fixed
+### The Problem with Treating Messages as Fixed
 
-A reaction time experiment: 40 participants each respond to 80 words. Each observation belongs to one participant AND one word. Participants are not nested within words. Words are not nested within participants. Both grouping factors are fully **crossed**.
+A consumer research experiment: 40 participants each evaluate 80 pricing messages. Each observation belongs to one participant AND one message. Participants are not nested within messages. Messages are not nested within participants. Both grouping factors are fully **crossed**.
 
-If you only include a random effect for participants, you are assuming that all variance due to words is captured by the residual. But words differ systematically — some are rare and slow to process; others are frequent and easy. This word-level variance inflates your residuals and biases your standard errors.
+If you only include a random effect for participants, you are assuming that all variance due to messages is captured by the residual. But messages differ systematically — some promotional offers are more compelling due to framing quality, discount depth, or scarcity cues. This message-level variance inflates your residuals and biases your standard errors.
 
-Judd, Westfall, and Kenny (2012, 2017) showed that failing to include random effects for stimuli is one of the most widespread sources of Type I error inflation in social and cognitive psychology.
+Judd, Westfall, and Kenny (2012, 2017) showed that failing to include random effects for stimuli is one of the most widespread sources of Type I error inflation in social and cognitive psychology. The same logic applies directly to consumer research: when messages (or products, or offers) are the stimuli, they must be treated as a random factor.
 
 ### The Model
 
-For observation $y_{ps}$ from participant $p$ responding to stimulus $s$:
+For observation $y_{ps}$ from participant $p$ evaluating message $s$:
 
 $$
-Y_{ps} = \underbrace{\gamma_{00}}_{\text{grand mean}} + \underbrace{\beta_1 X_{ps}}_{\text{predictor}} + \underbrace{u_{0p}}_{\text{participant RE}} + \underbrace{w_{0s}}_{\text{stimulus RE}} + \underbrace{\varepsilon_{ps}}_{\text{residual}}
+Y_{ps} = \underbrace{\gamma_{00}}_{\text{grand mean}} + \underbrace{\beta_1 X_{ps}}_{\text{predictor}} + \underbrace{u_{0p}}_{\text{participant RE}} + \underbrace{w_{0s}}_{\text{message RE}} + \underbrace{\varepsilon_{ps}}_{\text{residual}}
 $$
 
 Where:
 
-- $u_{0p} \sim \mathcal{N}(0, \sigma^2_u)$: participant random intercepts (some people are slower overall)
-- $w_{0s} \sim \mathcal{N}(0, \sigma^2_w)$: stimulus random intercepts (some words are harder overall)
+- $u_{0p} \sim \mathcal{N}(0, \sigma^2_u)$: participant random intercepts (some people have higher baseline WTP)
+- $w_{0s} \sim \mathcal{N}(0, \sigma^2_w)$: message random intercepts (some offers are more compelling overall)
 - $\varepsilon_{ps}$: trial-level residual noise
 
 ```{r experiment-sim}
-# Simulate a lexical decision task
+# Simulate a consumer WTP study: participants × product messages
 n_participants <- 40
-n_words        <- 80
+n_messages     <- 80
 
-participant_effects <- rnorm(n_participants, 0, 50)   # people differ in baseline RT
-word_effects        <- rnorm(n_words, 0, 40)           # words differ in baseline RT
-word_frequency      <- runif(n_words, 1, 10)           # word frequency predictor
+participant_effects <- rnorm(n_participants, 0, 15)   # people differ in baseline WTP
+message_effects     <- rnorm(n_messages, 0, 12)        # messages differ in baseline WTP
+discount_depth      <- runif(n_messages, 0, 40)        # discount depth predictor (0-40%)
 
-df_ld <- expand_grid(
+df_promo <- expand_grid(
   participant = 1:n_participants,
-  word        = 1:n_words
+  message     = 1:n_messages
 ) |>
   mutate(
     participant_eff = participant_effects[participant],
-    word_eff        = word_effects[word],
-    frequency       = word_frequency[word],
-    RT              = 550 - 15 * frequency +
-                      participant_eff + word_eff +
-                      rnorm(n(), 0, 30),
+    message_eff     = message_effects[message],
+    discount_depth  = discount_depth[message],
+    wtp             = 80 + 0.8 * discount_depth +
+                      participant_eff + message_eff +
+                      rnorm(n(), 0, 15),
     participant     = factor(participant),
-    word            = factor(word)
+    message         = factor(message)
   )
 ```
 
 ```{r experiment-models}
-# Without word random effects (wrong)
-model_no_words <- lmer(RT ~ frequency + (1 | participant),
-                       data = df_ld)
+# Without message random effects (wrong)
+model_no_msgs <- lmer(wtp ~ discount_depth + (1 | participant),
+                      data = df_promo)
 
-# With word random effects (correct: crossed)
-model_crossed <- lmer(RT ~ frequency + (1 | participant) + (1 | word),
-                      data = df_ld)
+# With message random effects (correct: crossed)
+model_crossed <- lmer(wtp ~ discount_depth + (1 | participant) + (1 | message),
+                      data = df_promo)
 
 summary(model_crossed)
 ```
@@ -87,55 +87,55 @@ summary(model_crossed)
 ```{r experiment-variance}
 broom.mixed::tidy(model_crossed, effects = "ran_pars") |>
   knitr::kable(digits = 2,
-               caption = "Variance components: participants, words, and residual")
+               caption = "Variance components: participants, messages, and residual")
 ```
 
-**Reading the output:** The model decomposes variance into three sources: participant-level differences, word-level differences, and residual trial-level noise. The frequency effect is estimated after accounting for *both* sources of clustering.
+**Reading the output:** The model decomposes variance into three sources: participant-level differences in WTP, message-level differences in appeal, and residual trial-level noise. The discount effect is estimated after accounting for *both* sources of clustering.
 
-### Comparing: With and Without Word Random Effects
+### Comparing: With and Without Message Random Effects
 
 ```{r experiment-se-comparison}
-wrong_se   <- broom.mixed::tidy(model_no_words)[2, "std.error"][[1]]
+wrong_se   <- broom.mixed::tidy(model_no_msgs)[2, "std.error"][[1]]
 correct_se <- broom.mixed::tidy(model_crossed)[2, "std.error"][[1]]
 
 tibble(
-  Model        = c("Without word RE", "With word RE (crossed)"),
-  Frequency_SE = c(wrong_se, correct_se)
+  Model          = c("Without message RE", "With message RE (crossed)"),
+  Discount_SE    = c(wrong_se, correct_se)
 ) |>
   knitr::kable(digits = 3,
-    caption = "SE of frequency effect: ignoring vs. modeling word-level variance")
+    caption = "SE of discount effect: ignoring vs. modeling message-level variance")
 ```
 
-When word-level variance is ignored, the standard error for frequency is smaller — the model treats word-level variance as residual noise, artificially deflating uncertainty. This produces anti-conservative inference: *p*-values are too small.
+When message-level variance is ignored, the standard error for the discount depth effect is smaller — the model treats message-level variance as residual noise, artificially deflating uncertainty. This produces anti-conservative inference: *p*-values are too small.
 
 ### The Assumptions of Crossed Random-Effects Models
 
 ::: {.callout-warning icon=false}
-## Assumption 1: Independence of Participant and Stimulus Random Effects
+## Assumption 1: Independence of Participant and Message Random Effects
 
-**What it means:** The random effect for participant $p$ and the random effect for word $w$ are assumed to be independent. Person 7 having an unusually fast RT is not related to whether word 42 is unusually easy.
+**What it means:** The random effect for participant $p$ and the random effect for message $s$ are assumed to be independent. Person 7 having an unusually high WTP is not related to whether message 42 is unusually compelling.
 
-**How to check:** In a balanced fully-crossed design, this is usually reasonable. In unbalanced designs (not all participants see all stimuli), check whether missingness is systematic.
+**How to check:** In a balanced fully-crossed design, this is usually reasonable. In unbalanced designs (not all participants see all messages), check whether missingness is systematic — for example, whether higher-WTP participants were more likely to complete high-discount evaluations.
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption 2: Random Effects are Independent of the Predictor
 
-**What it means:** The random intercepts for participants and words should be uncorrelated with the predictors. Word frequency should not predict which words were seen by which participants — in a balanced design, it cannot.
+**What it means:** The random intercepts for participants and messages should be uncorrelated with discount depth. Discount level should not predict which messages were seen by which participants — in a balanced design, it cannot.
 
-**Why this is usually satisfied in experiments:** In a fully-crossed, counterbalanced design, every participant sees every word, so assignment is orthogonal to word characteristics. This is one reason well-designed experiments support random-effects modeling.
+**Why this is usually satisfied in experiments:** In a fully-crossed, counterbalanced design, every participant evaluates every message, so assignment is orthogonal to message characteristics. This is one reason well-designed experiments support random-effects modeling.
 :::
 
 ::: {.callout-warning icon=false}
-## Assumption 3: The Same Model Applies to All Participant–Stimulus Pairs
+## Assumption 3: The Same Model Applies to All Participant–Message Pairs
 
-**What it means:** The frequency effect is assumed to be the same for all participants unless a random slope for frequency by participants is included. If some participants are more sensitive to frequency than others, a random slope is needed.
+**What it means:** The discount depth effect is assumed to be the same for all participants unless a random slope for discount depth by participants is included. If some participants are more deal-sensitive than others — for example, high price-consciousness individuals respond more strongly to deeper discounts — a random slope is needed.
 
 **How to check:** Use likelihood ratio tests and theoretical reasoning.
 
 ```{r experiment-random-slopes}
-model_maximal <- lmer(RT ~ frequency + (frequency | participant) + (1 | word),
-                      data    = df_ld,
+model_maximal <- lmer(wtp ~ discount_depth + (discount_depth | participant) + (1 | message),
+                      data    = df_promo,
                       control = lmerControl(optimizer = "bobyqa"))
 
 anova(model_crossed, model_maximal)
@@ -150,209 +150,211 @@ Bates et al. (2015) and Matuschek et al. (2017) pushed back, arguing that maxima
 
 The current consensus: include random slopes for all within-unit manipulations (this is critical), but simplify the correlation structure or remove slopes not supported by the data if the model fails to converge.
 
+In the context of the discount experiment: if every participant evaluates every message, discount depth is a within-participant factor, and a random slope for discount depth by participant is theoretically justified. Whether participants actually vary in their discount sensitivity is an empirical question answered by the LRT above.
+
 This debate is covered in depth in Module 5.
 
 ---
 
 ## Part B: Crossed Random Effects in Longitudinal Panel Data
 
-### Handling Year Effects in Firm-Year Panels
+### Handling Month Effects in Customer Spending Panels
 
-In a standard firm-year panel dataset, every firm is observed in the same calendar years. Years are **not** nested within firms — instead, years and firms are **crossed**. Each observation belongs simultaneously to one firm AND one year.
+In a customer spending panel, every customer is observed across the same calendar months. Months are **not** nested within customers — instead, months and customers are **crossed**. Each observation belongs simultaneously to one customer AND one month.
 
 The data-generating process has two sources of clustering:
 
-1. **Firm random effects**: stable between-firm differences (some firms are always more productive — due to management quality, technology, or location)
-2. **Year random effects**: economy-wide shocks that affect **all** firms in a given year equally (interest rates, commodity prices, regulatory changes, recessions and booms)
+1. **Customer random effects**: stable between-customer differences (some customers are always higher spenders — due to income, habits, or financial behavior)
+2. **Month random effects**: seasonal patterns and economic conditions that affect **all** customers in a given month equally (year-end bonuses, holiday spending periods, macroeconomic shocks)
 
-**Why this matters — if year random effects are ignored:**
+**Why this matters — if month random effects are ignored:**
 
-- Year variance is absorbed into the residual
+- Month variance is absorbed into the residual
 - Standard errors for predictors are too small (anti-conservative)
-- Economy-wide shocks appear as noise when they are actually systematic, shared variance
+- Seasonal and economic patterns appear as noise when they are actually systematic, shared variance
 
 ### The Model
 
-For observation $Y_{ft}$ from firm $f$ in year $t$:
+For observation $Y_{ct}$ from customer $c$ in month $t$:
 
 $$
-Y_{ft} = \underbrace{\gamma_{00}}_{\text{grand mean}} + \underbrace{\beta_1 \text{Investment}_{ft}}_{\text{predictor effect}} + \underbrace{u_{0f}}_{\text{firm RE}} + \underbrace{w_{0t}}_{\text{year RE}} + \underbrace{\varepsilon_{ft}}_{\text{residual}}
+Y_{ct} = \underbrace{\gamma_{00}}_{\text{grand mean}} + \underbrace{\beta_1 \text{Promo}_{ct}}_{\text{predictor effect}} + \underbrace{u_{0c}}_{\text{customer RE}} + \underbrace{w_{0t}}_{\text{month RE}} + \underbrace{\varepsilon_{ct}}_{\text{residual}}
 $$
 
 Where:
 
-- $u_{0f} \sim \mathcal{N}(0, \sigma^2_{\text{firm}})$: firm random intercepts (persistent productivity differences)
-- $w_{0t} \sim \mathcal{N}(0, \sigma^2_{\text{year}})$: year random intercepts (economy-wide shocks)
-- $\varepsilon_{ft}$: firm-year idiosyncratic noise
+- $u_{0c} \sim \mathcal{N}(0, \sigma^2_{\text{customer}})$: customer random intercepts (persistent spending differences)
+- $w_{0t} \sim \mathcal{N}(0, \sigma^2_{\text{month}})$: month random intercepts (seasonal and economic month effects)
+- $\varepsilon_{ct}$: customer-month idiosyncratic noise
 
-The formal structure is identical to the lexical decision model — only the substantive labels change.
+The formal structure is identical to the product message model — only the substantive labels change.
 
-### Simulation: 30 Firms × 15 Annual Waves
+### Simulation: 30 Customers × 15 Monthly Waves
 
 ```{r panel-sim}
-n_firms <- 30
-n_years <- 15
+n_customers <- 30
+n_months    <- 15
 
-firm_effects <- rnorm(n_firms, 0, 6)   # between-firm productivity variance
-year_effects <- rnorm(n_years, 0, 4)   # economy-wide year shocks (not in model)
+customer_effects <- rnorm(n_customers, 0, 80)   # between-customer spending variance
+month_effects    <- rnorm(n_months, 0, 40)       # seasonal/economic month shocks
 
-df_panel <- expand_grid(firm = 1:n_firms, year = 1:n_years) |>
+df_panel <- expand_grid(customer = 1:n_customers, month = 1:n_months) |>
   mutate(
-    investment   = rnorm(n(), 50, 15),
-    productivity = 40 + 0.3 * investment +
-                   firm_effects[firm] +
-                   year_effects[year] +
-                   rnorm(n(), 0, 5),
-    firm     = factor(firm),
-    year_fac = factor(year)
+    promo_exposure = rnorm(n(), 20, 8),
+    spending       = 600 + 0.4 * promo_exposure +
+                     customer_effects[customer] +
+                     month_effects[month] +
+                     rnorm(n(), 0, 30),
+    customer       = factor(customer),
+    month_fac      = factor(month)
   )
 
 glimpse(df_panel)
 ```
 
-Notice: `year_effects` — the year-level economy-wide variation — is **not included as a predictor** in any model below. It is the hidden source of year-level clustering that the year random effect must absorb.
+Notice: `month_effects` — the month-level seasonal and economic variation — is **not included as a predictor** in any model below. It is the hidden source of month-level clustering that the month random effect must absorb.
 
 ### Fitting Three Models
 
 ```{r panel-models}
-# Model 1: Wrong — firm RE only; year variance goes into residual
-m_firm_only <- lmer(productivity ~ investment + (1 | firm),
-                    data = df_panel)
+# Model 1: Wrong — customer RE only; month variance goes into residual
+m_customer_only <- lmer(spending ~ promo_exposure + (1 | customer),
+                        data = df_panel)
 
-# Model 2: Correct — crossed RE for firm and year
-m_crossed   <- lmer(productivity ~ investment + (1 | firm) + (1 | year_fac),
-                    data = df_panel)
+# Model 2: Correct — crossed RE for customer and month
+m_crossed       <- lmer(spending ~ promo_exposure + (1 | customer) + (1 | month_fac),
+                        data = df_panel)
 
-# Model 3: Conservative alternative — year fixed effects (year as dummy variables)
-m_year_fe   <- lmer(productivity ~ investment + (1 | firm) + year_fac,
-                    data = df_panel)
+# Model 3: Conservative alternative — month fixed effects (month as dummy variables)
+m_month_fe      <- lmer(spending ~ promo_exposure + (1 | customer) + month_fac,
+                        data = df_panel)
 ```
 
 ### Variance Components: The Smoking Gun
 
 ```{r panel-variance-table}
-vc_wrong   <- broom.mixed::tidy(m_firm_only, effects = "ran_pars")
-vc_correct <- broom.mixed::tidy(m_crossed,   effects = "ran_pars")
+vc_wrong   <- broom.mixed::tidy(m_customer_only, effects = "ran_pars")
+vc_correct <- broom.mixed::tidy(m_crossed,       effects = "ran_pars")
 
 bind_rows(
-  vc_wrong   |> mutate(model = "Firm RE only (wrong)"),
+  vc_wrong   |> mutate(model = "Customer RE only (wrong)"),
   vc_correct |> mutate(model = "Crossed RE (correct)")
 ) |>
   select(model, group, term, estimate) |>
   knitr::kable(digits = 2,
-               caption = "Variance components: firm-only vs. crossed specification")
+               caption = "Variance components: customer-only vs. crossed specification")
 ```
 
-In the crossed model, variance is correctly partitioned into firm-level variance, year-level variance, and residual. In the firm-only model, the residual variance is inflated — it has absorbed both the true residual and the year-level economy shocks.
+In the crossed model, variance is correctly partitioned into customer-level variance, month-level variance, and residual. In the customer-only model, the residual variance is inflated — it has absorbed both the true residual and the month-level seasonal and economic shocks.
 
 ### The Key Diagnostic: Standard Error Comparison
 
 ```{r panel-se-comparison}
-se_wrong   <- broom.mixed::tidy(m_firm_only)[2, "std.error"][[1]]
-se_crossed <- broom.mixed::tidy(m_crossed)[2,   "std.error"][[1]]
-se_fe      <- broom.mixed::tidy(m_year_fe)[2,   "std.error"][[1]]
+se_wrong   <- broom.mixed::tidy(m_customer_only)[2, "std.error"][[1]]
+se_crossed <- broom.mixed::tidy(m_crossed)[2,     "std.error"][[1]]
+se_fe      <- broom.mixed::tidy(m_month_fe)[2,    "std.error"][[1]]
 
 tibble(
-  Model             = c("Firm RE only (wrong)",
-                         "Firm + Year RE (correct)",
-                         "Firm RE + Year FE"),
-  Investment_SE     = c(se_wrong, se_crossed, se_fe),
+  Model             = c("Customer RE only (wrong)",
+                         "Customer + Month RE (correct)",
+                         "Customer RE + Month FE"),
+  Promo_SE          = c(se_wrong, se_crossed, se_fe),
   Anti_conservative = c("Yes — too small", "Correct", "Correct")
 ) |>
   knitr::kable(digits = 4,
-               caption = "SE of investment coefficient: year effects ignored vs. modeled")
+               caption = "SE of promotional exposure coefficient: month effects ignored vs. modeled")
 ```
 
-The firm-only model understates uncertainty for the investment coefficient. When economy-wide year variance is left in the residual, the model mistakes correlated year-level noise for independent observations, producing an artificially small standard error.
+The customer-only model understates uncertainty for the promotional exposure coefficient. When seasonal and economic month variance is left in the residual, the model mistakes correlated month-level noise for independent observations, producing an artificially small standard error.
 
 ### Visualizing the Problem: Residual Heatmaps
 
-A powerful diagnostic: plot model residuals as a heatmap over the firm × year grid. Under the wrong model, economy-wide shocks create **vertical stripes** — in a bad year, all firms have negative residuals simultaneously. Under the correct model, residuals are patternless.
+A powerful diagnostic: plot model residuals as a heatmap over the customer × month grid. Under the wrong model, seasonal and economic patterns create **vertical stripes** — in a high-spending month like December, all customers have positive residuals simultaneously. Under the correct model, residuals are patternless.
 
 ```{r panel-heatmap}
 df_diag <- df_panel |>
   mutate(
-    resid_wrong   = residuals(m_firm_only),
+    resid_wrong   = residuals(m_customer_only),
     resid_correct = residuals(m_crossed)
   )
 
-p_wrong <- ggplot(df_diag, aes(x = year_fac, y = firm, fill = resid_wrong)) +
+p_wrong <- ggplot(df_diag, aes(x = month_fac, y = customer, fill = resid_wrong)) +
   geom_tile() +
   scale_fill_gradient2(low = "#2166ac", mid = "white", high = "#d73027",
                        midpoint = 0, name = "Residual") +
-  labs(title = "Wrong model (firm RE only)",
-       subtitle = "Vertical stripes = year shocks pooled into residuals",
-       x = "Year", y = "Firm") +
+  labs(title = "Wrong model (customer RE only)",
+       subtitle = "Vertical stripes = month shocks pooled into residuals",
+       x = "Month", y = "Customer") +
   theme_minimal(base_size = 12) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-p_correct <- ggplot(df_diag, aes(x = year_fac, y = firm, fill = resid_correct)) +
+p_correct <- ggplot(df_diag, aes(x = month_fac, y = customer, fill = resid_correct)) +
   geom_tile() +
   scale_fill_gradient2(low = "#2166ac", mid = "white", high = "#d73027",
                        midpoint = 0, name = "Residual") +
-  labs(title = "Correct model (firm + year RE)",
-       subtitle = "No vertical stripes — year shocks absorbed by year RE",
-       x = "Year", y = "Firm") +
+  labs(title = "Correct model (customer + month RE)",
+       subtitle = "No vertical stripes — month shocks absorbed by month RE",
+       x = "Month", y = "Customer") +
   theme_minimal(base_size = 12) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 p_wrong / p_correct
 ```
 
-The vertical stripes in the wrong model are the visual signature of an omitted crossed random effect. Each stripe represents a year in which the economy was unusually good or bad — variance that is genuinely year-level but has been misattributed to the residual.
+The vertical stripes in the wrong model are the visual signature of an omitted crossed random effect. Each stripe represents a month in which seasonal conditions or economic factors drove spending unusually high or low — variance that is genuinely month-level but has been misattributed to the residual.
 
-### Year Fixed Effects vs. Year Random Effects
+### Month Fixed Effects vs. Month Random Effects
 
-In panel data, analysts often absorb year effects using **year dummy variables** (year fixed effects) rather than a random intercept. The choice has a precise statistical interpretation:
+In panel data, analysts often absorb month effects using **month dummy variables** (month fixed effects) rather than a random intercept. The choice has a precise statistical interpretation:
 
 | Approach | When to use | Key assumption |
 |---|---|---|
-| Year random effects | Years are a random sample from a broader population of time periods | Normality of year effects; exchangeability |
-| Year fixed effects | These specific years are the complete population of interest | No distributional assumption on year effects |
-| Neither | Years have no systematic shared component | All year variance is idiosyncratic noise |
+| Month random effects | Months are a random sample from a broader population of time periods | Normality of month effects; exchangeability |
+| Month fixed effects | These specific months are the complete population of interest | No distributional assumption on month effects |
+| Neither | Months have no systematic shared component | All month variance is idiosyncratic noise |
 
-**Rule of thumb:** With $\geq 10$ years, random effects and fixed effects give similar coefficient estimates. With $< 5$ years, fixed effects are more conservative and generally preferred because there is too little information to estimate the year-level variance reliably.
+**Rule of thumb:** With $\geq 10$ months, random effects and fixed effects give similar coefficient estimates. With $< 5$ months, fixed effects are more conservative and generally preferred because there is too little information to estimate the month-level variance reliably.
 
-**Connection to Module 1 Part 1 (Fixed Effects):** Year dummies in a fixed-effects model ARE year fixed effects. The choice between fixed effects and random effects for the year dimension mirrors the general FE vs. RE choice from Part 4 — it depends on whether you want to generalize to years outside your sample.
+**Connection to Module 1 Part 1 (Fixed Effects):** Month dummies in a fixed-effects model ARE month fixed effects. The choice between fixed effects and random effects for the month dimension mirrors the general FE vs. RE choice from Part 4 — it depends on whether you want to generalize to months outside your sample.
 
 ### The Assumptions of Crossed Panel Random-Effects Models
 
 ::: {.callout-warning icon=false}
-## Assumption: Year Effects are Exchangeable
+## Assumption: Month Effects are Exchangeable
 
-**What it means:** The year random intercepts $w_{0t}$ are assumed to be i.i.d. draws from $\mathcal{N}(0, \sigma^2_{\text{year}})$. This implies no autocorrelation across years — a good year does not predict the next year will also be good.
+**What it means:** The month random intercepts $w_{0t}$ are assumed to be i.i.d. draws from $\mathcal{N}(0, \sigma^2_{\text{month}})$. This implies no autocorrelation across months — a high-spending month does not predict the next month will also be high.
 
-**When it fails:** In the presence of multi-year macroeconomic trends (sustained expansions or recessions), year effects are correlated over time. The remedy is to include a linear time trend as a fixed effect, or to model AR(1) residual structure (covered in Module 4).
+**When it fails:** In the presence of multi-month trends (sustained seasonal spending cycles, economic expansions or contractions), month effects are correlated over time. The remedy is to include a linear time trend as a fixed effect, or to model AR(1) residual structure (covered in Module 4).
 :::
 
 ::: {.callout-warning icon=false}
-## Assumption: Firm and Year Effects are Independent
+## Assumption: Customer and Month Effects are Independent
 
-**What it means:** A firm being highly productive should not predict whether it was observed during good or bad years. In observational panels with attrition (firms entering and exiting), this can fail — high-performing firms may be more likely to survive through downturns.
+**What it means:** A customer being a high spender should not predict whether they were observed during high-spending or low-spending months. In panels with attrition (customers entering and exiting), this can fail — highly engaged customers may be more likely to transact consistently across all months, while low-engagement customers may drop out during low-promotion periods.
 
-**How to check:** Examine whether firm-level characteristics (size, industry, age) are systematically different across years of entry and exit. If firms drop out preferentially during bad years, year random effects will be estimated from a selected sample.
+**How to check:** Examine whether customer-level characteristics (account age, income tier, product type) are systematically different across months of entry and exit. If customers disengage preferentially during certain seasonal periods, month random effects will be estimated from a selected sample.
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption: Crossed Effects are Independent
 
-**What it means:** The firm random effect and year random effect are assumed to be independent. This fails if certain types of firms are disproportionately observed in certain years (non-random panel composition over time).
+**What it means:** The customer random effect and month random effect are assumed to be independent. This fails if certain types of customers are disproportionately observed in certain months (non-random panel composition over time).
 
-**How to check:** Does the distribution of firm types change substantially over years in your panel? For example, if a regulatory change in year 8 causes small firms to exit the panel, the remaining firms in years 9–15 will be a selected sample. The firm and year random effects are no longer independent.
+**How to check:** Does the distribution of customer types change substantially over months in your panel? For example, if a platform promotion in month 8 attracts a new cohort of high-spending customers, the composition of the sample changes. The customer and month random effects are no longer independent.
 :::
 
 ### Experimental vs. Panel: Side-by-Side Summary
 
-| Dimension | Lexical Decision Experiment | Firm-Year Panel |
+| Dimension | Participant × Message (WTP Study) | Customer × Month (Spending Panel) |
 |---|---|---|
-| **Observation** | Participant $\times$ Word trial | Firm $\times$ Year observation |
-| **Crossed factor 1** | Participant | Firm |
-| **Crossed factor 2** | Word (stimulus) | Calendar year |
-| **RE 1 absorbs** | Baseline RT differences across people | Persistent productivity differences across firms |
-| **RE 2 absorbs** | Difficulty differences across words | Economy-wide shocks shared by all firms in a year |
-| **If RE 2 omitted** | Word variance inflates residual; frequency SE too small | Year variance inflates residual; investment SE too small |
-| **Predictor** | Word frequency | Firm investment spending |
-| **Fix** | `(1\|participant) + (1\|word)` | `(1\|firm) + (1\|year_fac)` |
+| **Observation** | Participant $\times$ Message evaluation | Customer $\times$ Month observation |
+| **Crossed factor 1** | Participant | Customer |
+| **Crossed factor 2** | Message (stimulus) | Calendar month |
+| **RE 1 absorbs** | Baseline WTP differences across people | Persistent spending differences across customers |
+| **RE 2 absorbs** | Appeal differences across messages | Seasonal and economic patterns shared by all customers in a month |
+| **If RE 2 omitted** | Message variance inflates residual; discount SE too small | Month variance inflates residual; promo exposure SE too small |
+| **Predictor** | Discount depth (%) | Promotional exposure ($) |
+| **Fix** | `(1\|participant) + (1\|message)` | `(1\|customer) + (1\|month_fac)` |
 
 ---
 

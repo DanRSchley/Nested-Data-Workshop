@@ -10,13 +10,15 @@ A well-designed randomized experiment is often treated as the gold standard for 
 
 Even the simplest between-subjects experiment has nesting baked in:
 
-- **Participants** are a sample from a population of possible participants
-- **Stimuli** (vignettes, words, products, images) are a sample from a population of possible stimuli
-- **Conditions** may be nested within experimenters, sessions, labs, or time periods
+- **Participants** are a sample from a population of possible participants, each carrying stable preferences, risk attitudes, and prior experience that shape their responses
+- **Stimuli** — product descriptions, price disclosures, policy messages, risk displays, or lottery gambles — are a sample from a population of possible stimuli, each with its own expected value, framing properties, and saliency
+- **Conditions** may be nested within advisors, coaching groups, platforms, or lab sites, introducing clustering at a level above the individual participant
 
-When stimuli are treated as fixed — as if your 20 vignettes are the only 20 that exist — the generalization to other stimuli is silent. Your p-values are too small because stimulus-level variance is being absorbed into the residual, artificially tightening standard errors.
+When stimuli are treated as fixed — as if your 20 gamble descriptions are the only 20 that exist — the generalization to other stimuli is silent. Your p-values are too small because stimulus-level variance is being absorbed into the residual, artificially tightening standard errors.
 
-Judd, Westfall, & Kenny (2012, 2017) documented that this mistake is pervasive in social psychology and leads to systematic Type I error inflation.
+*A concrete JDM example:* In a study of gain vs. loss framing, each participant sees multiple product offers (stimuli), some framed as gains and others as losses. The offers are sampled from a larger set of possible framings that vary in magnitude, probability, and domain. Ignoring stimulus-level clustering — treating each offer response as an independent observation rather than as one draw from a participant-by-stimulus interaction — inflates Type I error for the framing effect. The apparent precision of the estimate is false.
+
+Judd, Westfall, & Kenny (2012, 2017) documented that this mistake is pervasive in social psychology and leads to systematic Type I error inflation. The same critique applies directly to JDM research using repeated-stimulus designs.
 
 ## What This Module Covers
 
@@ -26,30 +28,30 @@ The module is organized into three clusters, moving from design-structure modeli
 
 ### Cluster 1 — Design Structure and Model Specification
 
-**Part 1: Crossed Random Effects in Experiments** — Why stimuli are random, what happens when you treat them as fixed, and how to fix it with crossed random effects models in `lme4`.
+**Part 1: Crossed Random Effects in Experiments** — Why stimuli are random, what happens when you treat them as fixed, and how to fix it with crossed random effects models in `lme4`. Every JDM experiment that presents multiple gambles, product messages, or policy stimuli to each participant requires this approach.
 
-**Part 2: Partially Nested Designs** — When one condition has nesting (e.g., treatment participants have therapists/coaches) and the other does not, standard MLM misspecifies the design. The Bauer et al. partially nested model handles this correctly.
+**Part 2: Partially Nested Designs** — When one condition has nesting and the other does not, standard MLM misspecifies the design. The Bauer et al. partially nested model handles this correctly. *JDM example: when one condition receives advisor-led financial coaching sessions and the other receives a self-serve information module, the treatment arm has within-group clustering by advisor that the control arm entirely lacks. Standard MLM, which assumes symmetric nesting, will misattribute advisor-level variance and produce incorrect standard errors for the treatment effect.*
 
 **Part 3: Maximal vs. Parsimonious Random Effects** — The Barr et al. (2013) vs. Matuschek et al. (2017) debate: how complex should your random effects structure be? When does complexity help and when does it hurt?
 
-**Part 4: Multi-Site Experiments** — When the same experiment runs at multiple sites (labs, countries, platforms), sites introduce clustering. The many-labs design and how to model treatment effect heterogeneity across sites.
+**Part 4: Multi-Site Experiments** — When the same experiment runs at multiple sites (labs, countries, platforms), sites introduce clustering. The many-labs design and how to model treatment effect heterogeneity across sites. *JDM example: a multi-site framing study run across five university labs and two online platforms — site-level variance in base rates of risk-taking must be modeled, and the treatment effect estimate should reflect average heterogeneity across sites rather than a single-site result.*
 
 ### Cluster 2 — Planning and Inference
 
-**Part 5: Power Analysis for Nested Designs** — Why standard power formulas are wrong for nested data, the role of ICC, simulation-based power analysis, and practical sample size guidance.
+**Part 5: Power Analysis for Nested Designs** — Why standard power formulas are wrong for nested data, the role of ICC, simulation-based power analysis, and practical sample size guidance for JDM experiments with repeated stimuli or multi-site designs.
 
-**Part 6: Binary and Count Outcomes in Experiments** — When experimental outcomes are binary (chose A / chose B) or counts (number of correct responses), GLMMs with the correct link function are required. Logistic and Poisson mixed models with crossed random effects for participants and stimuli.
+**Part 6: Binary and Count Outcomes in Experiments** — When experimental outcomes are binary (chose the risky option / chose the safe option; opted out of the default / remained enrolled) or counts (number of risky choices out of a block of ten), GLMMs with the correct link function are required. Logistic and Poisson mixed models with crossed random effects for participants and stimuli.
 
-**Part 7: Effect Sizes, Reporting, and Reproducibility** — Standardized effect sizes for mixed models, $R^2$ decomposition by level, translating log-odds to probability, and pre-registration practices that make nested-data analyses credible.
+**Part 7: Effect Sizes, Reporting, and Reproducibility** — Standardized effect sizes for mixed models, $R^2$ decomposition by level, translating log-odds to probability for binary JDM outcomes, and pre-registration practices that make nested-data analyses credible.
 
 ### Cluster 3 — Imperfect Randomization and Quasi-Experimental Fixes
 
 The final two parts form a self-contained mini-unit on what to do when randomization does not work exactly as planned.
 
-**Part 8: Non-Compliance — ITT and LATE** — When participants are randomized but not all comply with their assigned condition, the naive treatment-vs-control comparison is diluted or biased. This part covers the intent-to-treat estimand (ITT), the complier average causal effect (LATE) via instrumental variables, the Wald estimator, and the compliance typology (compliers, always-takers, never-takers).
+**Part 8: Non-Compliance — ITT and LATE** — When participants are randomized but not all comply with their assigned condition, the naive treatment-vs-control comparison is diluted or biased. This part covers the intent-to-treat estimand (ITT), the complier average causal effect (LATE) via instrumental variables, the Wald estimator, and the compliance typology (compliers, always-takers, never-takers). *JDM example: randomized assignment to a budgeting tool — some participants never activate the tool despite being assigned to the treatment condition (non-compliance). ITT = the effect of being offered the tool, averaged over compliers and non-compliers; LATE = the effect for those whose activation status changed because of the offer. The two estimands answer different questions and require different assumptions.*
 
-**Part 9: Quasi-Experimental Methods for Applied Researchers** — The broader toolkit for experiments with observational features: difference-in-differences for pre-post designs, IPW to correct for non-random attrition, propensity score matching within a treatment arm to estimate dose-response effects, and threshold-based eligibility (RDD). Each method maps to a specific randomization failure and provides a principled remedy.
+**Part 9: Quasi-Experimental Methods for Applied Researchers** — The broader toolkit for experiments with observational features. *JDM examples: DiD logic applied to a WTP pre-post design where a subset of participants received an unexpected information shock between measurement occasions; IPW to correct for non-random dropout from a repeated risky-choice study where higher-risk participants dropped out at greater rates; PSM within the treatment arm to estimate dose-response effects of financial tool engagement (comparing heavy users to light users while controlling for pre-treatment risk profiles); RDD using a credit score threshold or account balance cutoff that determines eligibility for a financial product, enabling causal inference at the margin.* Each method maps to a specific randomization failure and provides a principled remedy.
 
 ---
 
-Parts 8 and 9 together cover the full arc from "randomization was imperfect" to "here is the estimand you can credibly claim and the method to estimate it." Readers who have worked through Modules 1-5 will recognize how each quasi-experimental tool inherits from the broader mixed-model and identification framework built earlier in the workshop.
+Parts 8 and 9 together cover the full arc from "randomization was imperfect" to "here is the estimand you can credibly claim and the method to estimate it." Readers who have worked through Modules 1–5 will recognize how each quasi-experimental tool inherits from the broader mixed-model and identification framework built earlier in the workshop.

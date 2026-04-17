@@ -1,8 +1,6 @@
 ---
-title: "Overview"
+title: "Module 0: All Data is Nested"
 ---
-
-# Module 0: All Data is Nested {.unnumbered}
 
 ## The Central Claim
 
@@ -12,24 +10,191 @@ Before we learn any specific model, we need to confront a claim that sounds prov
 
 Not "some data." Not "longitudinal data" or "hierarchical organizational data." All of it.
 
-When you run a between-subjects experiment and collect one rating from each of 200 participants, your data looks flat. One row per person. No repeated measures. No groups. Standard regression seems perfectly appropriate.
+### Two Examples That Look Different But Are Not
 
-But consider where those 200 ratings actually came from. Each participant is a particular person, sampled from a larger population of possible participants. Each stimulus they responded to was drawn from a population of possible stimuli. The experiment happened on specific days, at specific times, in specific locations — all sampled from the possible moments and contexts in which you could have run the study. Your 200 ratings are not 200 independent draws from some distribution. They are 200 snapshots of a structured, layered **data-generating process**.
+**Example 1 — An incentivized risky-choice experiment.** You recruit 200 participants. Each participant makes one incentivized choice between a safe option and a risky gamble. The gamble descriptions are sampled from a larger set of 60 possible risky problems — each with different probabilities and payoffs — so each participant sees a different gamble. At first glance this looks flat: 200 rows, one per person, one response each.
 
-This framing changes how you think about analysis. The goal is not just to summarize what happened in your sample. It is to recover the process that generated it.
+But consider the structure underneath. Each participant is a particular person sampled from a population of possible decision-makers, carrying their own stable risk preferences, their own financial situation, their own affective state on the day of the study. Each gamble is a particular stimulus sampled from a population of possible risky problems, with its own expected value, variance, and framing properties. The 200 observed choices are not 200 independent draws from a single distribution. They are 200 snapshots of a process with at least two levels: the gamble level and the person level.
+
+**Example 2 — A household spending panel.** You observe 200 households making monthly spending decisions over 18 months — 3,600 rows total. Each month's decision is nested within the household's financial cycle: income shocks, recurring obligations, seasonal patterns, and the trajectory of decisions that came before. Each household has a characteristic spending level, a characteristic level of volatility, and a characteristic sensitivity to price changes.
+
+The inferential structure is identical to Example 1. Each row belongs to a higher-level unit (a person, a household) that shapes it. Rows within the same unit are more alike than rows from different units. Standard regression, which assumes all rows are independent, is wrong in the same way in both cases.
+
+### Same Logic, Different Field
+
+The nesting logic appears everywhere in JDM research, often under different names:
+
+- **Daily diary studies** ask participants to record a risky or impulsive decision each day for two weeks. Each day's entry is nested within the person — and the person's mood, financial situation, and recent decision history shape each entry.
+- **Consumer panels** track the same households purchasing across product categories over months or years. Each transaction is nested within the customer, whose stable price sensitivity and brand loyalty show up in every row.
+- **Repeated risky-choice experiments** present each participant with dozens of gamble pairs. Each response is nested within both the participant (risk preferences) and the gamble (payoff structure and framing). Both sources of variance are real and both need to be in the model.
+- **Customers nested within product messages** occur whenever a firm sends different information treatments to different customers, or whenever participants in an experiment each see multiple product descriptions. The message is a level of the data — not just a condition label.
+
+The question is not whether nesting exists — it almost always does — but which higher-level process each row belongs to and which level matters for your claim.
+
+### Why Does This Matter?
+
+Because ignoring nesting produces three kinds of errors: standard errors that are too small (inflated Type I error), estimands that conflate within-person and between-person effects, and causal language that is not supported by the design. The rest of the workshop is about diagnosing and fixing these errors.
+
+::: {.callout-note}
+## The Three-Step Lens
+
+Use this lens whenever you encounter a new dataset.
+
+**DGP:** People make decisions in contexts, under constraints, shaped by stable preferences and shifting circumstances. The data-generating process is layered: stable person-level traits, varying situation-level features, and moment-to-moment noise all contribute to each observed response.
+
+**Observable pattern:** Repeated or clustered rows are correlated. The same person's choices look more alike than different people's choices. The same gamble elicits more similar responses than different gambles. These patterns are not noise — they are information about the DGP.
+
+**Model implication:** Flat regression treats all rows as independent, which assigns all of the between-cluster similarity to the residual. This is almost always wrong. It produces standard errors that are too small, coefficients that mix levels, and inference that is not trustworthy.
+:::
+
+## A Conceptual Map of Nesting in JDM Data
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 9
+#| fig-height: 7
+
+library(ggplot2)
+library(patchwork)
+
+set.seed(123)
+
+# Panel A: Repeated risky choices within person
+n_persons_A <- 6
+n_choices_A <- 5
+df_A <- data.frame(
+  person = rep(paste0("P", 1:n_persons_A), each = n_choices_A),
+  choice_num = rep(1:n_choices_A, times = n_persons_A),
+  response = unlist(lapply(1:n_persons_A, function(i) {
+    base <- runif(1, 0.2, 0.8)
+    base + rnorm(n_choices_A, 0, 0.08)
+  }))
+)
+df_A$response <- pmin(pmax(df_A$response, 0.05), 0.95)
+
+p_A <- ggplot(df_A, aes(x = choice_num, y = response, group = person, color = person)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 2) +
+  scale_color_brewer(palette = "Set2") +
+  labs(
+    title = "A: Repeated risky choices within person",
+    x = "Choice number", y = "Risky option selected"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 10, face = "bold"))
+
+# Panel B: Consumers within regional policy regimes
+n_regions <- 3
+n_per_region <- 20
+region_centers <- data.frame(
+  region = paste0("Region ", LETTERS[1:n_regions]),
+  cx = c(0.25, 0.65, 0.45),
+  cy = c(0.7, 0.7, 0.25),
+  fill = c("#AED6F1", "#A9DFBF", "#F9E79F")
+)
+df_B <- do.call(rbind, lapply(1:n_regions, function(i) {
+  data.frame(
+    region = region_centers$region[i],
+    x = rnorm(n_per_region, region_centers$cx[i], 0.09),
+    y = rnorm(n_per_region, region_centers$cy[i], 0.09)
+  )
+}))
+
+p_B <- ggplot(df_B, aes(x = x, y = y, color = region)) +
+  geom_point(size = 2.5, alpha = 0.8) +
+  scale_color_manual(values = c("#2980B9", "#27AE60", "#D4AC0D")) +
+  labs(
+    title = "B: Consumers within regional policy regimes",
+    x = "Risk tolerance", y = "Spending level"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 10, face = "bold"))
+
+# Panel C: Participants crossed with product messages (heatmap)
+n_part <- 8
+n_msg <- 5
+df_C <- expand.grid(
+  participant = paste0("P", 1:n_part),
+  message = paste0("M", 1:n_msg)
+)
+df_C$wtp <- rnorm(nrow(df_C), 5, 1.5) +
+  rep(rnorm(n_part, 0, 0.8), each = n_msg) +
+  rep(rnorm(n_msg, 0, 0.6), times = n_part)
+
+p_C <- ggplot(df_C, aes(x = message, y = participant, fill = wtp)) +
+  geom_tile(color = "white", linewidth = 0.5) +
+  scale_fill_gradient(low = "#EBF5FB", high = "#1A5276", name = "WTP") +
+  labs(
+    title = "C: Participants crossed with product messages",
+    x = "Product message", y = "Participant"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(size = 10, face = "bold"),
+        legend.key.height = unit(0.5, "cm"))
+
+# Panel D: Spending choices within household over time
+n_hh <- 6
+n_months <- 12
+df_D <- do.call(rbind, lapply(1:n_hh, function(i) {
+  baseline <- runif(1, 800, 2000)
+  trend <- runif(1, -10, 15)
+  data.frame(
+    household = paste0("HH", i),
+    month = 1:n_months,
+    spending = baseline + trend * (1:n_months) + rnorm(n_months, 0, 60)
+  )
+}))
+
+p_D <- ggplot(df_D, aes(x = month, y = spending, group = household, color = household)) +
+  geom_line(linewidth = 0.8) +
+  scale_color_brewer(palette = "Dark2") +
+  labs(
+    title = "D: Spending choices within household over time",
+    x = "Month", y = "Monthly spending ($)"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 10, face = "bold"))
+
+(p_A | p_B) / (p_C | p_D) +
+  plot_annotation(
+    title = "All decision data are nested",
+    theme = theme(plot.title = element_text(size = 13, face = "bold", hjust = 0.5))
+  )
+```
 
 ## What This Module Covers
 
 This module lays the conceptual groundwork for everything that follows.
 
-**Part 1: The DGP Perspective** introduces the idea that data is always a partial snapshot of a larger process. We develop intuition for what a data-generating process is, why it is almost always nested, and what it means to "recapture the DGP."
+**Part 1: The DGP Perspective** — What process generated this data, and what levels does that process have? We develop intuition for what a data-generating process is, why it is almost always nested, and what it means to "recapture the DGP."
 
-**Part 2: Types of Nested Structures** catalogs the main ways that nesting appears in social science data — pure hierarchies, crossed structures, panel data, longitudinal data — and shows how each arises naturally from the way we collect information about people, organizations, time, and context.
+**Part 2: Types of Nested Structures** — Which of the four main nesting structures does my data fit, and what does each assume? Pure hierarchies, crossed structures, panel data, and longitudinal data each arise from a different relationship between observations, people, and contexts.
 
-**Part 3: Measuring Non-Independence** introduces the Intraclass Correlation Coefficient (ICC) and design effects, the two most important tools for diagnosing how badly your data violates the independence assumption. We show how even modest ICCs produce dramatic distortions in inference.
+**Part 3: Measuring Non-Independence** — How much of my variance lives at the group level? Is the independence assumption badly violated? The Intraclass Correlation Coefficient (ICC) and design effects are the core diagnostic tools. We show how even modest ICCs produce dramatic distortions in inference.
 
-**Part 4: Data Structure and Format** covers the practical side: how nested data needs to be organized (long format), what identifying variables you need, and how to read a dataset and immediately see its level structure.
+**Part 4: Data Structure and Format** — How should my dataset be structured to make the nesting visible and the analysis correct? Long format, identifying variables, and reading a dataset to see its level structure immediately.
+
+::: {.callout-tip}
+## Observational and Experimental JDM: The Same Nesting Logic
+
+| Observational JDM version | Experimental JDM version |
+|---|---|
+| Consumer spending panel: each purchase nested within customer history and market context | Risky choice experiment: each response nested within participant and gamble stimulus |
+| Household finance longitudinal study: monthly decisions nested within household trajectories | WTP elicitation across framing conditions: each response nested within person and message |
+| Policy rollout across regional markets: consumer outcomes nested within policy regime and region | Multi-site framing experiment: responses nested within participant, stimulus, and site |
+
+The modeling tools differ in detail but share the same logical foundation: every row belongs to a higher-level process, and ignoring that process produces wrong inference.
+:::
 
 ## A Note on Prerequisites
 
 This workshop assumes you understand basic linear regression: what a slope and intercept mean, how to fit a model in R, what a residual is. You do not need to have any prior exposure to multilevel modeling, mixed-effects models, or hierarchical linear models. If you have heard these terms and found them confusing, that is fine — we start from scratch.
+
+Throughout this workshop, every major concept is illustrated twice — once with observational JDM data (consumer panels, financial diaries, policy rollouts) and once with experimental JDM data (framing studies, risky-choice tasks, multi-site field experiments). The goal is that readers from both traditions recognize their own work in the examples.
+
+Module 0 gives you the vocabulary to recognize structure. Module 1 gives you the model families that represent it — from random intercepts to crossed effects to growth curves. The two modules together answer the question: what kind of data do I have, and what model does it require?

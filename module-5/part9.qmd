@@ -63,9 +63,9 @@ The standard randomized pre-post design **is** a difference-in-differences desig
 
 Recognizing this equivalence is valuable for two reasons. First, it makes explicit what the pre-post mixed model assumes (parallel trends in the absence of treatment — which randomization supports in expectation across repeated samples, though any realized sample can show chance pre-trend imbalance). Second, it gives you the full DiD toolkit: you can add multiple waves, test pre-trend balance, and use the event study framework to trace the treatment trajectory over time.
 
-### Simulation: stress management intervention
+### Simulation: information disclosure intervention
 
-We simulate 120 participants (60 per arm) measured at baseline (pre) and 8-week follow-up (post). A stress management training reduces cortisol. True DiD effect = −8 units.
+We simulate 120 participants (60 per arm) measured at baseline (pre) and 8-week follow-up (post). An information disclosure intervention (gain-framed vs. standard disclosure) is randomized. The disclosure intervention is expected to increase `risk_willingness` (gain framing increases confidence in recommended investments). True DiD effect = +8 units.
 
 ```{r did-simulate}
 n_per <- 60
@@ -75,29 +75,29 @@ df_pp <- expand_grid(
   wave        = c("pre", "post")
 ) |>
   mutate(
-    condition = ifelse(participant <= n_per, "control", "intervention"),
+    condition = ifelse(participant <= n_per, "standard", "gain_frame"),
     time_num  = as.integer(wave == "post"),
-    treat_num = as.integer(condition == "intervention"),
-    u0        = rnorm(n_per * 2, 0, 5)[participant],   # person random intercept
-    cortisol  = 25 + u0 - 1.5 * time_num - 8 * time_num * treat_num + rnorm(n(), 0, 4),
+    treat_num = as.integer(condition == "gain_frame"),
+    u0        = rnorm(n_per * 2, 0, 6)[participant],
+    risk_willingness = 45 + u0 + 1.5 * time_num + 8 * time_num * treat_num + rnorm(n(), 0, 5),
     participant = factor(participant),
     wave      = factor(wave, levels = c("pre", "post")),
-    condition = factor(condition, levels = c("control", "intervention"))
+    condition = factor(condition, levels = c("standard", "gain_frame"))
   )
 ```
 
 ### DiD mixed model
 
 ```{r did-model}
-m_did_exp <- lmer(cortisol ~ wave * condition + (1 | participant),
+m_did_exp <- lmer(risk_willingness ~ wave * condition + (1 | participant),
                   data = df_pp, REML = FALSE)
 
 broom.mixed::tidy(m_did_exp, effects = "fixed") |>
   knitr::kable(digits = 3,
-               caption = "DiD mixed model. The wave:condition interaction is the DiD estimate (target: -8).")
+               caption = "DiD mixed model. The wave:condition interaction is the DiD estimate (target: +8).")
 ```
 
-The `wavepost:conditionintervention` interaction coefficient is the DiD estimand — the differential change from pre to post in the intervention arm relative to the control arm.
+The `wavepost:conditiongain_frame` interaction coefficient is the DiD estimand — the differential change from pre to post in the gain-frame arm relative to the standard disclosure arm.
 
 ### Comparison to ANCOVA
 
@@ -105,47 +105,49 @@ ANCOVA on the wide-format outcome, controlling for the pre-test, is a common alt
 
 ```{r ancova}
 df_wide <- df_pp |>
-  select(participant, condition, wave, cortisol) |>
-  pivot_wider(names_from = wave, values_from = cortisol,
-              names_prefix = "cortisol_") |>
-  mutate(cortisol_pre_c = cortisol_pre - mean(cortisol_pre))
+  select(participant, condition, wave, risk_willingness) |>
+  pivot_wider(names_from = wave, values_from = risk_willingness,
+              names_prefix = "rw_") |>
+  mutate(rw_pre_c = rw_pre - mean(rw_pre))
 
-m_ancova <- lm(cortisol_post ~ condition + cortisol_pre_c, data = df_wide)
+m_ancova <- lm(rw_post ~ condition + rw_pre_c, data = df_wide)
 
 broom::tidy(m_ancova) |>
-  filter(term == "conditionintervention") |>
+  filter(term == "conditiongain_frame") |>
   knitr::kable(digits = 3,
                caption = "ANCOVA treatment estimate. Numerically close to DiD mixed model when pre-test is mean-centered.")
 ```
 
 The two approaches converge when the pre-test is mean-centered and the random-effect variance is estimated well. The DiD mixed model generalizes more naturally to three or more waves and produces an interpretable random-effects structure, making it preferred for longitudinal experimental designs.
 
+Recognizing this equivalence is valuable: the pre-test provides a baseline for the DiD logic, and randomization supports parallel trends in expectation.
+
 ### Event study visualization
 
 ```{r did-plot, fig.width=8, fig.height=4.5}
 summ_pp <- df_pp |>
   group_by(wave, condition) |>
-  summarise(mean_c = mean(cortisol), se_c = sd(cortisol) / sqrt(n()),
+  summarise(mean_rw = mean(risk_willingness), se_rw = sd(risk_willingness) / sqrt(n()),
             .groups = "drop")
 
-ggplot(summ_pp, aes(x = wave, y = mean_c,
+ggplot(summ_pp, aes(x = wave, y = mean_rw,
                      color = condition, group = condition)) +
   geom_line(linewidth = 1.1) +
-  geom_errorbar(aes(ymin = mean_c - 1.96 * se_c,
-                    ymax = mean_c + 1.96 * se_c), width = 0.1) +
+  geom_errorbar(aes(ymin = mean_rw - 1.96 * se_rw,
+                    ymax = mean_rw + 1.96 * se_rw), width = 0.1) +
   geom_point(size = 3.5) +
-  scale_color_manual(values = c("control" = "#aec6e8", "intervention" = "#1e3a5f")) +
+  scale_color_manual(values = c("standard" = "#aec6e8", "gain_frame" = "#1e3a5f")) +
   annotate("segment",
-           x = 2.05, xend = 2.05, y = 20.5, yend = 14.5,
+           x = 2.05, xend = 2.05, y = 47, yend = 55,
            arrow = arrow(length = unit(0.25, "cm"), ends = "both"),
            color = "#c0392b") +
-  annotate("text", x = 2.12, y = 17.5,
-           label = "DiD \u2248 \u22128", color = "#c0392b", hjust = 0, size = 3.5) +
+  annotate("text", x = 2.12, y = 51,
+           label = "DiD \u2248 +8", color = "#c0392b", hjust = 0, size = 3.5) +
   labs(
-    title    = "Pre-post cortisol by condition",
+    title    = "Pre-post risk willingness by condition",
     subtitle = "Parallel pre-period (randomization), divergent post-period (treatment)",
     x        = "Wave",
-    y        = "Mean cortisol (arbitrary units)",
+    y        = "Mean risk willingness (0\u2013100)",
     color    = "Condition"
   ) +
   theme_minimal(base_size = 13)
@@ -156,10 +158,10 @@ ggplot(summ_pp, aes(x = wave, y = mean_c,
 With baseline, mid-point, and follow-up, the time × condition interaction becomes a trajectory. Pre-baseline balance checks verify randomization; post-baseline coefficients trace how the treatment effect builds over time. This is the experimental event study:
 
 ```{r three-wave-sketch, eval=FALSE}
-# Three-wave data with months 0, 4, 8
-m_3wave <- lmer(cortisol ~ factor(month) * condition + (1 | participant),
+# Three-wave data with weeks 0, 4, 8
+m_3wave <- lmer(risk_willingness ~ factor(week) * condition + (1 | participant),
                 data = df_3wave)
-# Plot estimated coefficients for each month x condition cell
+# Plot estimated coefficients for each week x condition cell
 ```
 
 Pre-period interaction coefficients near zero confirm that randomization produced balanced groups. Post-period coefficients show whether treatment effects are immediate, delayed, or accumulating.
@@ -170,42 +172,43 @@ Pre-period interaction coefficients near zero confirm that randomization produce
 
 ### The problem
 
-Even in a fully randomized trial, attrition at follow-up can reintroduce bias. If high-anxiety control-group participants are more likely to drop out — because the study reminds them of their struggles and they disengage — then the observed control-group follow-up average is inflated (it excludes the highest-anxiety participants). The treatment appears more effective than it truly is for the full intention-to-treat sample.
+Even in a fully randomized trial, attrition at follow-up can reintroduce bias. If high-risk-averse control-group participants are more likely to drop out — because the study involves making financial decisions that feel threatening and they disengage — then the observed control-group follow-up average is deflated (it excludes the most risk-averse participants). The treatment appears less effective than it truly is for the full intention-to-treat sample, biasing the naive estimate downward.
 
 ### Simulation
 
 ```{r ipw-simulate}
-n          <- 200
-treatment  <- rep(c(0, 1), each = 100)
-baseline_anx <- rnorm(n, 50, 10)
+n_att <- 200
+set.seed(42)
 
-# Attrition: higher anxiety + control → more likely to drop out
-p_remain  <- plogis(2.5 - 0.07 * baseline_anx + 0.8 * treatment)
-remained  <- rbinom(n, 1, p_remain)
+treatment_att    <- rep(c(0, 1), each = 100)
+baseline_risk_av <- rnorm(n_att, 50, 10)   # baseline risk aversion
 
-# True treatment effect = -5 (treatment reduces outcome)
-outcome   <- 40 - 5 * treatment + 0.3 * baseline_anx + rnorm(n, 0, 6)
+# High risk aversion + control group → higher dropout
+# (risk-averse participants avoid making financial decisions in the study)
+p_remain   <- plogis(2.5 - 0.07 * baseline_risk_av + 0.8 * treatment_att)
+remained   <- rbinom(n_att, 1, p_remain)
 
-df_att <- tibble(id = 1:n, treatment, baseline_anx, remained, outcome)
+# True treatment effect = +6 (disclosure increases willingness to take recommended risk)
+outcome_att <- 45 + 6 * treatment_att - 0.3 * baseline_risk_av + rnorm(n_att, 0, 6)
 
-cat("Retention rate — control:  ", mean(remained[treatment == 0]), "\n")
-cat("Retention rate — treatment:", mean(remained[treatment == 1]), "\n")
+df_att <- tibble(treatment = treatment_att, baseline_risk_av, remained, outcome_att)
+
+cat("Retention rate — control:  ", mean(remained[treatment_att == 0]), "\n")
+cat("Retention rate — treatment:", mean(remained[treatment_att == 1]), "\n")
 ```
 
 ### IPW correction
 
-We model the probability of remaining in the study as a function of baseline anxiety and treatment, then weight complete cases by the inverse of their retention probability:
+We model the probability of remaining in the study as a function of baseline risk aversion and treatment, then weight complete cases by the inverse of their retention probability:
 
 ```{r ipw-model}
-ps_att    <- glm(remained ~ baseline_anx + treatment,
-                 family = binomial, data = df_att)
-df_att$ipw <- 1 / fitted(ps_att)
+ps_att     <- glm(remained ~ baseline_risk_av + treatment, family = binomial, data = df_att)
+df_att$ipw_att <- 1 / fitted(ps_att)
 
-df_obs <- df_att |> filter(remained == 1)
-
-m_naive_att <- lm(outcome ~ treatment, data = df_obs)
-m_ipw_att   <- lm(outcome ~ treatment, data = df_obs,
-                   weights = df_att$ipw[df_att$remained == 1])
+df_complete     <- df_att |> filter(remained == 1)
+m_naive_att     <- lm(outcome_att ~ treatment, data = df_complete)
+m_ipw_att       <- lm(outcome_att ~ treatment, data = df_complete,
+                       weights = df_att$ipw_att[df_att$remained == 1])
 ```
 
 ```{r ipw-compare, echo=FALSE}
@@ -218,41 +221,35 @@ bind_rows(
   select(method, estimate, std.error, p.value) |>
   knitr::kable(
     digits  = 3,
-    caption = "True treatment effect = -5. Naive estimate is attenuated toward zero because high-anxiety control participants dropped out. IPW is consistent under MAR — it targets the true effect on average across samples; individual draws may not show monotone improvement over naive."
+    caption = "Attrition bias: naive vs. IPW-weighted (true treatment effect = +6). High-risk-averse participants in the control group drop out more, biasing the naive estimate downward. IPW is consistent under MAR."
   )
 ```
 
 ::: {.callout-warning icon=false}
 ## IPW Assumptions for Attrition Correction
 
-IPW corrects for attrition under **Missing at Random (MAR)**: the probability of dropout depends on observed pre-treatment variables (here, baseline anxiety and treatment condition), but not on the unobserved post-treatment outcome. If dropout is driven by the unmeasured outcome itself — e.g., people drop out because they are getting worse and do not want to be measured — IPW will not fully correct the bias. Consider collecting data on dropouts via brief follow-up contacts to test the MAR assumption empirically.
+IPW corrects for attrition under **Missing at Random (MAR)**: the probability of dropout depends on observed pre-treatment variables (here, baseline risk aversion and treatment condition), but not on the unobserved post-treatment outcome. If dropout is driven by the unmeasured outcome itself — e.g., people drop out because their financial situation has worsened and they do not want to be measured — IPW will not fully correct the bias. Consider collecting data on dropouts via brief follow-up contacts to test the MAR assumption empirically.
 :::
 
 ### Visualization
 
 ```{r ipw-plot, fig.width=7, fig.height=4}
-est_df <- bind_rows(
-  broom::tidy(m_naive_att) |> filter(term == "treatment") |>
-    mutate(method = "Naive"),
-  broom::tidy(m_ipw_att) |> filter(term == "treatment") |>
-    mutate(method = "IPW corrected")
-) |>
-  mutate(method = factor(method, levels = c("Naive", "IPW corrected")))
+# Retention probability plot
+df_plot_ret <- df_att |>
+  mutate(
+    p_ret    = fitted(ps_att),
+    trt_lab  = ifelse(treatment == 1, "Treatment", "Control")
+  )
 
-ggplot(est_df, aes(x = method, y = estimate, fill = method)) +
-  geom_col(width = 0.5, alpha = 0.85) +
-  geom_errorbar(aes(ymin = estimate - 1.96 * std.error,
-                    ymax = estimate + 1.96 * std.error), width = 0.18) +
-  geom_hline(yintercept = -5, linetype = "dashed", color = "#c0392b") +
-  annotate("text", x = 2.4, y = -4.6, label = "True effect = -5",
-           color = "#c0392b", size = 3.5) +
-  scale_fill_manual(values = c("Naive" = "#e67e22", "IPW corrected" = "#1e3a5f"),
-                    guide = "none") +
+ggplot(df_plot_ret, aes(x = baseline_risk_av, y = p_ret, color = trt_lab)) +
+  geom_line(linewidth = 1.1) +
+  scale_color_manual(values = c("Control" = "#e67e22", "Treatment" = "#1e3a5f"),
+                     name = "Group") +
   labs(
-    title    = "IPW corrects attrition bias",
-    subtitle = "Naive estimate attenuated; IPW recovers true treatment effect",
-    x        = NULL,
-    y        = "Estimated treatment effect"
+    title    = "Retention probability by baseline risk aversion and treatment",
+    subtitle = "High-risk-averse controls are most likely to drop out — biasing naive estimate downward",
+    x        = "Baseline Risk Aversion",
+    y        = "P(Retained at follow-up)"
   ) +
   theme_minimal(base_size = 13)
 ```
@@ -263,49 +260,51 @@ ggplot(est_df, aes(x = method, y = estimate, fill = method)) +
 
 ### The within-experiment observational problem
 
-Random assignment creates treatment and control arms, but within the treatment arm, **engagement is voluntary**. Consider a digital health app randomized to half the sample: some participants use it daily, others open it once and forget it. Comparing high-users to low-users is an observational comparison — heavier users likely differ from lighter users on motivation, health literacy, and self-regulation, all of which are independent predictors of health outcomes.
+Random assignment creates treatment and control arms, but within the treatment arm, **engagement is voluntary**. In a financial coaching field experiment, random assignment gives participants *access* to an AI-powered savings advisor. Actual usage is voluntary — high-usage participants likely differ systematically from low-usage participants in motivation, baseline financial literacy, and financial goals.
 
 Propensity score matching on pre-treatment covariates makes this within-arm comparison more credible by constructing a control group of low-users who resembled high-users at baseline.
 
 ### Simulation and matching
 
-We work within the treatment arm of the attrition simulation and create a high-use indicator that is related to baseline anxiety:
+We work within the treatment arm of the attrition simulation and create a high-use indicator that is related to baseline risk aversion:
 
 ```{r psm-usage}
 df_treat_only <- df_att |>
   filter(treatment == 1) |>
   mutate(
-    high_user = rbinom(n(), 1, plogis(-0.5 + 0.04 * baseline_anx))
+    high_user = rbinom(n(), 1, plogis(-0.5 + 0.04 * baseline_risk_av))
   )
 
-m_usage <- matchit(
-  high_user ~ baseline_anx,
+# Within the coaching arm: match high-users to low-users
+# on pre-randomization covariates
+m_sub <- matchit(
+  high_user ~ baseline_risk_av,
   data   = df_treat_only,
   method = "nearest",
   ratio  = 1
 )
 
-summary(m_usage)$sum.matched |>
+summary(m_sub)$sum.matched |>
   knitr::kable(digits = 3,
-               caption = "Covariate balance after 1:1 nearest-neighbor matching on baseline anxiety.")
+               caption = "Covariate balance after 1:1 nearest-neighbor matching on baseline risk aversion.")
 ```
 
 ```{r psm-estimate}
-matched      <- match.data(m_usage)
-m_usage_eff  <- lm(outcome ~ high_user + baseline_anx,
+matched      <- match.data(m_sub)
+m_usage_eff  <- lm(outcome_att ~ high_user + baseline_risk_av,
                    data = matched, weights = weights)
 
 broom::tidy(m_usage_eff) |>
   filter(term == "high_user") |>
   select(estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-               caption = "Matched estimate of high-use vs. low-use effect on outcome, among participants with similar baseline anxiety.")
+               caption = "Matched estimate of high-use vs. low-use effect on savings outcome, among participants with similar baseline risk aversion.")
 ```
 
 ::: {.callout-warning icon=false}
 ## What PSM Within an Experiment Identifies
 
-Matching on pre-treatment covariates removes **observed** confounders of the high-use vs. low-use comparison. But unobserved motivation, self-efficacy, and expectancy effects remain. The matched estimate is closer to causal than the naive comparison, but it is not an RCT-quality estimate.
+Matching on pre-treatment covariates removes **observed** confounders of the high-use vs. low-use comparison. But unobserved motivation, financial self-efficacy, and expectancy effects remain. The matched estimate is closer to causal than the naive comparison, but it is not an RCT-quality estimate.
 
 Formally, this identifies the **Average Treatment effect on the Treated (ATT)** for the sub-population of high-users — the effect of high engagement among people with observable characteristics similar to those who actually engaged heavily. This is not a LATE (which is an IV estimand defined by instrument-induced compliers) and is not the ATE for all participants. Interpret as "the effect of high engagement, for people with similar observable characteristics to high engagers," not "the effect of high engagement for everyone." Crucially, this rests on a selection-on-observables assumption: all confounders of the usage–outcome relationship are measured and included in the PS model.
 :::
@@ -314,25 +313,30 @@ Formally, this identifies the **Average Treatment effect on the Treated (ATT)** 
 
 ## Section 5: Threshold-Based Eligibility (RDD in Applied Research)
 
-When participants must exceed a continuous threshold on a screening measure to qualify for a treatment arm, **regression discontinuity design (RDD)** is the appropriate analysis. The continuity assumption — that potential outcomes vary smoothly across the cutoff — is often more credible in clinical settings than the selection-on-observables assumption required by propensity score methods.
+When access to a program is determined by whether a continuous running variable crosses a threshold, **regression discontinuity design (RDD)** is the appropriate analysis. The continuity assumption — that potential outcomes vary smoothly across the cutoff — is often more credible in financial-decision settings than the selection-on-observables assumption required by propensity score methods.
 
-A common example: a mental health intervention restricted to participants scoring PHQ-9 $\geq 15$ (moderately severe depression). Participants just below 15 and just above 15 are likely similar on most characteristics; the discontinuity in treatment receipt at 15 creates local quasi-random variation.
+A common example: a platform introduces a fee waiver for customers whose account balance exceeds $1,000. Customers just below and just above the threshold are otherwise similar — the threshold creates local quasi-random variation. Similarly, subsidy eligibility cutoffs based on income or credit score thresholds produce the same discontinuity logic.
 
 ```{r rdd-sketch, eval=FALSE}
 # Requires rdrobust package
 library(rdrobust)
-rdd_out <- rdrobust(y = df$outcome, x = df$phq9, c = 15)
+
+# score_threshold: running variable (e.g., account balance in dollars)
+# eligible: indicator for whether balance >= 1000
+# outcome_rdd: e.g., monthly savings rate or financial product adoption
+
+rdd_out <- rdrobust(y = df$outcome_rdd, x = df$score_threshold, c = 1000)
 summary(rdd_out)
-rdplot(y = df$outcome, x = df$phq9, c = 15,
-       title = "RDD: PHQ-9 screening cutoff at 15")
+rdplot(y = df$outcome_rdd, x = df$score_threshold, c = 1000,
+       title = "RDD: account balance fee-waiver threshold at $1,000")
 ```
 
 The `rdrobust` package implements optimal bandwidth selection, bias-corrected confidence intervals, and the McCrary density test (for manipulation of the running variable). The full treatment of RDD mechanics, bandwidth selection, and robustness checks is in Module 3 Part 4; that framework applies directly here.
 
 ::: {.callout-tip}
-## RDD in Clinical and Educational Research
+## RDD in Financial and Consumer Behavior Research
 
-RDD is underused in psychology and organizational research relative to economics, despite being highly credible when a threshold rule genuinely determines assignment. Common examples: academic probation cutoffs, clinical screening cutoffs (PHQ-9, GAD-7, ACE score), performance review thresholds, grant funding cutoffs. If your research setting uses a cutoff rule, seriously consider RDD before reaching for PSM.
+RDD is underused in consumer behavior and financial decision research relative to economics, despite being highly credible when a threshold rule genuinely determines assignment. Common examples: credit score thresholds for product access, account balance thresholds for fee waivers or tier upgrades, subsidy eligibility cutoffs based on income, and performance review thresholds that trigger intervention. If your research setting uses a cutoff rule, seriously consider RDD before reaching for PSM.
 :::
 
 ---

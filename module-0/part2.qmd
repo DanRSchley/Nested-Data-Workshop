@@ -23,102 +23,113 @@ The key distinction is between **pure hierarchies** (units nested strictly withi
 
 The simplest nested structure: lower-level units are grouped into higher-level units, and each lower-level unit belongs to exactly one group.
 
-**Example:** Students nested within classrooms.
+**Example:** Consumers nested within retail stores.
 
-- 500 students, each in one of 25 classrooms
-- A student's test score depends partly on their own ability and partly on their classroom environment (teacher quality, class size, peer effects)
-- Observations within the same classroom are more similar to each other than to observations from different classrooms
+- Hundreds of consumers, each shopping at one of several stores
+- A consumer's purchase amount depends partly on their own spending habits and partly on the store environment (location, product mix, ambient cues)
+- Purchases within the same store are more similar to each other than to purchases from other stores
+
+Think of a rectangle divided into colored columns — each column is a store, and each dot within a column is a consumer. The columns (stores) explain part of why purchases cluster.
 
 ```{r hierarchy-diagram}
 # Simulate a two-level structure
-n_classes   <- 6
-n_students  <- 8  # per class
+n_stores             <- 6
+n_consumers_per_store <- 8
 
-class_effects <- rnorm(n_classes, 0, 5)
+store_effects <- rnorm(n_stores, 0, 15)
 
-df_school <- expand_grid(
-  classroom = 1:n_classes,
-  student   = 1:n_students
+df_stores <- expand_grid(
+  store      = 1:n_stores,
+  consumer   = 1:n_consumers_per_store
 ) |>
   mutate(
-    student_id   = row_number(),
-    class_effect = class_effects[classroom],
-    test_score   = 70 + class_effect + rnorm(n(), 0, 3),
-    classroom    = factor(classroom, labels = paste("Class", 1:n_classes))
+    consumer_id     = row_number(),
+    store_effect    = store_effects[store],
+    purchase_amount = 85 + store_effect + rnorm(n(), 0, 8),
+    store           = factor(store, labels = paste("Store", 1:n_stores))
   )
 
-ggplot(df_school, aes(x = classroom, y = test_score, color = classroom)) +
+ggplot(df_stores, aes(x = store, y = purchase_amount, color = store)) +
   geom_jitter(width = 0.15, size = 3, alpha = 0.8) +
   stat_summary(fun = mean, geom = "crossbar", width = 0.5,
                color = "black", linewidth = 0.8) +
   scale_color_brewer(palette = "Set2") +
   labs(
-    title   = "Students nested within classrooms",
-    subtitle = "Black bars = classroom means; dots = individual students",
-    x = "Classroom", y = "Test Score"
+    title    = "Consumers nested within retail stores",
+    subtitle = "Black bars = store means; dots = individual consumers",
+    x = "Store", y = "Purchase Amount ($)"
   ) +
   theme_minimal(base_size = 13) +
   theme(legend.position = "none")
 ```
 
-Notice that test scores cluster within classrooms. Students in Class 3 tend to score higher than those in Class 5, regardless of individual differences. A model that ignores classrooms treats these 48 scores as 48 independent data points. They are not — they are 6 groups of 8.
+Notice that purchase amounts cluster within stores. Some stores attract higher-spending consumers due to location, product mix, or ambient cues. Purchases within the same store are more similar to each other than to purchases from other stores. A model that ignores stores treats these 48 observations as 48 independent data points. They are not — they are 6 groups of 8.
 
-**Data format:** One row per student. You need a student ID and a classroom ID.
+**Data format:** One row per consumer visit. You need a consumer ID and a store ID.
 
 ```{r hierarchy-data, echo=FALSE}
-df_school |>
-  select(classroom, student, test_score) |>
+df_stores |>
+  select(store, consumer, purchase_amount) |>
   head(12) |>
   knitr::kable(digits = 1, caption = "First 12 rows of a two-level dataset")
 ```
+
+::: {.callout-tip}
+## Exercise
+
+Look at the store-level means in the plot above. Which store appears to have the highest average purchase amount? Now consider: what store-level factors (location quality, product assortment, store ambiance) might explain those differences? This is the between-store variance your model needs to account for.
+:::
 
 ---
 
 ## Three Levels: Nesting Within Nesting
 
-The hierarchy can extend further. Students are nested within classrooms, which are nested within schools.
+The hierarchy can extend further. Consumers are nested within stores, which are nested within retail chains or geographic regions.
 
-**Example:** Patients nested within therapists nested within clinics.
+**Example:** Purchase occasions nested within customers nested within banking platforms.
+
+Three nested boxes: the outer box is the platform, within it are customers, and within each customer are multiple occasions.
 
 Each level adds a new source of systematic variance:
-- Patients differ from each other in severity, motivation, history
-- Therapists differ in skill, approach, empathy
-- Clinics differ in resources, culture, population served
+
+- Occasions differ from each other within a customer (day of week, mood, context)
+- Customers differ in their baseline spending and financial habits
+- Banks and platforms differ in the population they serve, fees, and product mix
 
 ```{r three-level}
-n_clinics    <- 3
-n_therapists <- 4  # per clinic
-n_patients   <- 5  # per therapist
+n_banks                 <- 3
+n_customers_per_bank    <- 4
+n_occasions_per_customer <- 5
 
-clinic_effects    <- rnorm(n_clinics, 0, 6)
-therapist_effects <- rnorm(n_clinics * n_therapists, 0, 4)
+bank_effects     <- rnorm(n_banks, 0, 8)
+customer_effects <- rnorm(n_banks * n_customers_per_bank, 0, 5)
 
 df_three <- expand_grid(
-  clinic    = 1:n_clinics,
-  therapist = 1:n_therapists,
-  patient   = 1:n_patients
+  bank     = 1:n_banks,
+  customer = 1:n_customers_per_bank,
+  occasion = 1:n_occasions_per_customer
 ) |>
   mutate(
-    therapist_id   = (clinic - 1) * n_therapists + therapist,
-    clinic_eff     = clinic_effects[clinic],
-    therapist_eff  = therapist_effects[therapist_id],
-    outcome        = 50 + clinic_eff + therapist_eff + rnorm(n(), 0, 3),
-    clinic_label   = paste("Clinic", clinic),
-    therapist_label = paste0("T", therapist_id)
+    customer_id       = (bank - 1) * n_customers_per_bank + customer,
+    bank_eff          = bank_effects[bank],
+    customer_eff      = customer_effects[customer_id],
+    transaction_amount = 150 + bank_eff + customer_eff + rnorm(n(), 0, 4),
+    bank_label        = paste("Platform", bank),
+    customer_label    = paste0("C", customer_id)
   )
 
-ggplot(df_three, aes(x = therapist_label, y = outcome,
-                      color = clinic_label)) +
+ggplot(df_three, aes(x = customer_label, y = transaction_amount,
+                      color = bank_label)) +
   geom_jitter(width = 0.1, alpha = 0.7, size = 2.5) +
   stat_summary(fun = mean, geom = "point", shape = 18,
                size = 4, color = "black") +
-  facet_wrap(~ clinic_label, scales = "free_x") +
+  facet_wrap(~ bank_label, scales = "free_x") +
   scale_color_brewer(palette = "Set1") +
   labs(
-    title   = "Three-level structure: Patients within Therapists within Clinics",
-    x       = "Therapist",
-    y       = "Outcome",
-    color   = NULL
+    title  = "Three-level structure: Occasions within Customers within Platforms",
+    x      = "Customer",
+    y      = "Transaction Amount ($)",
+    color  = NULL
   ) +
   theme_minimal(base_size = 12) +
   theme(legend.position = "none")
@@ -130,7 +141,7 @@ The key diagnostic question for three-level data: **how much variance lives at e
 
 ## Panel Data: Cross-Sectional and Longitudinal
 
-**Panel data** combines the cross-sectional and time-series structures. You observe multiple units (people, firms, countries) at multiple time points.
+**Panel data** combines the cross-sectional and time-series structures. You observe multiple units (people, firms, households) at multiple time points.
 
 **Example:** Monthly spending by 50 households measured over 24 months.
 
@@ -145,8 +156,8 @@ df_panel <- expand_grid(
   month     = 1:n_months
 ) |>
   mutate(
-    baseline  = household_baseline[household],
-    spending  = baseline + 20 * (month - 12.5) / 12 + rnorm(n(), 0, 80),
+    baseline   = household_baseline[household],
+    spending   = baseline + 20 * (month - 12.5) / 12 + rnorm(n(), 0, 80),
     time_trend = month
   )
 
@@ -180,36 +191,84 @@ This means you potentially need fixed or random effects for both dimensions — 
 
 In a **crossed** structure, observations belong to multiple grouping factors that are not nested within each other.
 
-**Classic example in psychology:** Participants rate words in a lexical decision task.
+**Example from JDM research:** Participants evaluate product messages in a pricing study.
 
-- 40 participants each respond to 100 words
-- Each observation belongs to one participant AND one word
-- Participants are not nested within words, and words are not nested within participants
-- Both participant differences and word differences contribute to response time
+In a JDM experiment, 40 participants each evaluate 80 product messages. Each message is a pricing or promotional offer sampled from a larger population. The outcome is willingness to pay (WTP) in dollars.
+
+A grid: rows are participants, columns are messages. Every cell is one WTP judgment. No row is nested inside any column — they cross.
+
+- Each observation belongs to one participant AND one message
+- Participants are not nested within messages, and messages are not nested within participants
+- Both participant differences (baseline WTP, income, brand affinity) and message differences (quality of framing, scarcity cues) contribute to WTP
 
 ```{r crossed-diagram}
-# Small illustration: 4 participants × 4 words
+# Small illustration: 4 participants × 4 messages
 crossed_df <- expand_grid(
   participant = paste("P", 1:4),
-  word        = paste("W", 1:4)
+  message     = paste("M", 1:4)
 ) |>
-  mutate(RT = 500 + rnorm(16, 0, 50))
+  mutate(wtp = 50 + rnorm(16, 0, 15))
 
-ggplot(crossed_df, aes(x = word, y = participant, fill = RT)) +
+ggplot(crossed_df, aes(x = message, y = participant, fill = wtp)) +
   geom_tile(color = "white", linewidth = 2) +
-  geom_text(aes(label = round(RT)), size = 4) +
+  geom_text(aes(label = round(wtp)), size = 4) +
   scale_fill_gradient(low = "#deebf7", high = "#08519c") +
   labs(
-    title    = "Crossed structure: each participant rates each word",
-    subtitle = "Cell = response time (ms) for that participant-word combination",
-    x        = "Word",
+    title    = "Crossed structure: each participant evaluates each message",
+    subtitle = "Cell = WTP for that participant-message combination",
+    x        = "Message",
     y        = "Participant",
-    fill     = "RT (ms)"
+    fill     = "WTP ($)"
   ) +
   theme_minimal(base_size = 13)
 ```
 
-The key point: participant 1's response to word 3 is not in the same "group" as participant 2's response to word 3. Both observations share a word, but not a participant. Both share nothing else. This crossed structure requires a different model than a pure hierarchy.
+The key point: participant 1's WTP for message 3 is not in the same "group" as participant 2's WTP for message 3. Both observations share a message, but not a participant. This crossed structure requires a different model than a pure hierarchy.
+
+Now a full simulation showing the consequences of getting this wrong:
+
+```{r crossed-full-sim}
+n_participants <- 40
+n_messages     <- 80
+
+participant_effects <- rnorm(n_participants, 0, 12)   # people differ in baseline WTP
+message_effects     <- rnorm(n_messages, 0, 8)        # messages differ in baseline WTP
+message_quality     <- runif(n_messages, 1, 10)       # message quality predictor
+
+df_msgs <- expand_grid(participant = 1:n_participants, message = 1:n_messages) |>
+  mutate(
+    participant_eff = participant_effects[participant],
+    message_eff     = message_effects[message],
+    quality         = message_quality[message],
+    wtp             = 50 + 4 * quality + participant_eff + message_eff + rnorm(n(), 0, 10),
+    participant     = factor(participant),
+    message         = factor(message)
+  )
+```
+
+```{r crossed-models}
+# Without message random effects (wrong)
+model_no_msgs <- lmer(wtp ~ quality + (1 | participant),
+                      data = df_msgs)
+
+# With crossed random effects (correct)
+model_crossed <- lmer(wtp ~ quality + (1 | participant) + (1 | message),
+                      data = df_msgs)
+```
+
+```{r crossed-se-comparison}
+wrong_se   <- broom.mixed::tidy(model_no_msgs)[2, "std.error"][[1]]
+correct_se <- broom.mixed::tidy(model_crossed)[2, "std.error"][[1]]
+
+tibble(
+  Model          = c("Without message RE", "With message RE (crossed)"),
+  Quality_SE     = c(wrong_se, correct_se)
+) |>
+  knitr::kable(digits = 3,
+    caption = "SE of message quality effect: ignoring vs. modeling message-level variance")
+```
+
+Some participants have higher baseline WTP due to income, brand affinity, or general deal-seeking tendencies. Some messages are more compelling due to framing quality, scarcity cues, or discount depth. Both sources of variance must be modeled — ignoring message-level variance deflates the standard error on the quality effect, producing anti-conservative inference.
 
 ---
 
@@ -219,27 +278,27 @@ The key point: participant 1's response to word 3 is not in the same "group" as 
 
 The critical distinction:
 
-- **Repeated measures (experimental):** Each person experiences multiple conditions. The conditions are fixed (e.g., caffeine vs. placebo). The person is the random unit.
+- **Repeated measures (experimental):** Each person experiences multiple conditions. The conditions are fixed (e.g., gain frame vs. loss frame). The person is the random unit.
 - **Longitudinal data:** Each person is measured at multiple time points, and time is part of the model. Change over time is the phenomenon of interest.
 
-Both are cases of **observations nested within persons**. But they ask different questions. Repeated-measures experiments ask: "does the condition affect the outcome?" Longitudinal models ask: "how does the outcome change over time, and does it change differently for different people?"
+Both are cases of **observations nested within persons**. But they ask different questions. Repeated-measures experiments ask: "does the framing condition affect the outcome?" Longitudinal models ask: "how does the outcome change over time, and does it change differently for different people?"
 
 ```{r rm-vs-long}
-# Repeated measures
+# Repeated measures: gain vs. loss framing
 df_rm <- tibble(
   person    = rep(1:20, each = 2),
-  condition = rep(c("Placebo", "Caffeine"), 20),
-  RT        = 450 + ifelse(condition == "Caffeine", -30, 0) +
-              rnorm(40, 0, 40)
+  condition = rep(c("loss_frame", "gain_frame"), 20),
+  purchase_intention = 55 + ifelse(condition == "gain_frame", 8, 0) +
+                       rnorm(40, 0, 20)
 )
 
-p_rm <- ggplot(df_rm, aes(x = condition, y = RT,
-                            group = person, color = factor(person))) +
+p_rm <- ggplot(df_rm, aes(x = condition, y = purchase_intention,
+                           group = person, color = factor(person))) +
   geom_line(alpha = 0.5) +
   geom_point(size = 2, alpha = 0.7) +
   scale_color_viridis_d() +
-  labs(title = "Repeated measures:\n2 conditions per person",
-       x = NULL, y = "Response Time (ms)") +
+  labs(title = "Repeated measures: 2 framing conditions per person",
+       x = NULL, y = "Purchase Intention (0-100)") +
   theme_minimal(base_size = 12) +
   theme(legend.position = "none")
 
@@ -247,8 +306,8 @@ p_rm <- ggplot(df_rm, aes(x = condition, y = RT,
 df_long <- tibble(
   person = rep(1:10, each = 5),
   time   = rep(1:5, 10),
-  score  = rep(rnorm(10, 50, 8), each = 5) +  # person baseline
-           rep(rnorm(10, 2, 1), each = 5) * (rep(1:5, 10) - 3) +  # person slope
+  score  = rep(rnorm(10, 50, 8), each = 5) +
+           rep(rnorm(10, 2, 1), each = 5) * (rep(1:5, 10) - 3) +
            rnorm(50, 0, 3)
 )
 
@@ -272,11 +331,11 @@ p_rm + p_long
 
 | Structure | Example | Nesting | DGP implication |
 |-----------|---------|---------|-----------------|
-| Pure hierarchy | Students in classrooms | Strict: each unit in one group | Between-group variance is real |
-| Three-level | Patients in therapists in clinics | Nested levels | Variance at each level |
-| Panel | Countries over years | Cross-sectional + time | Unit effects and time effects |
-| Crossed | Participants × stimuli | Each unit in multiple groups | Two sources of random variance |
-| Repeated measures | Person × condition | Each person measured in each condition | Within-person correlation |
+| Pure hierarchy | Consumers within retail stores | Strict: each unit in one group | Between-group variance is real |
+| Three-level | Purchase occasions within customers within platforms | Nested levels | Variance at each level |
+| Panel | Households across months (panel) | Cross-sectional + time | Unit effects and time effects |
+| Crossed | Participants × product messages | Each unit in multiple groups | Two sources of random variance |
+| Repeated measures | Person × framing condition | Each person measured in each condition | Within-person correlation |
 | Longitudinal | Person measured over time | Observations in person | Individual trajectories |
 
 The single most common mistake is treating one of these as another. The second most common mistake is failing to ask the question at all.

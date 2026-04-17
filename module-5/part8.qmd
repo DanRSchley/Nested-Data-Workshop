@@ -29,7 +29,7 @@ set.seed(42)
 
 Random assignment guarantees unbiased **intent-to-treat (ITT)** estimates — the effect of being offered or assigned to treatment. But ITT is not always the quantity of interest.
 
-Consider a randomized exercise intervention: half the participants are assigned to a 12-week program, the other half to a waitlist control. At 12 weeks, the ITT estimate is the effect of *being assigned* to the program — but if only 65% of assigned participants actually exercised regularly, the ITT averages together the exercise effect with a zero effect for the 35% who never engaged. The ITT underestimates the effect of exercise itself for people who would comply.
+Consider a randomized budgeting tool experiment: half the participants are given access to a digital budgeting tool, the other half to a standard information email. At 3 months, the ITT estimate is the effect of *being offered* the tool — but if only 65% of offered participants actually activated it, the ITT averages together the tool's effect with a zero effect for the 35% who never engaged. The ITT underestimates the effect of the budgeting tool itself for people who would comply.
 
 This is the **compliance problem**: the treatment assigned ($Z$) diverges from the treatment received ($D$).
 
@@ -42,7 +42,7 @@ Four estimands address this situation, each answering a different question:
 | Per-protocol | Analyze only observed compliers | Biased (excludes non-compliers non-randomly) |
 | LATE via IV | Effect for compliers, using $Z$ as instrument for $D$ | Unbiased for compliers |
 
-The **as-treated** and **per-protocol** estimators are both biased for the same reason: compliers are not a random subset of assigned participants. People who follow through on an exercise intervention likely differ from non-compliers on motivation, health consciousness, schedule flexibility, and many other characteristics that also predict the outcome. Comparing them to non-compliers is an observational comparison, not a causal one.
+The **as-treated** and **per-protocol** estimators are both biased for the same reason: compliers are not a random subset of assigned participants. People who activate a budgeting tool likely differ from non-activators on financial motivation, savings goals, and prior financial literacy — all of which also predict savings outcomes. Comparing them to non-activators is an observational comparison, not a causal one.
 
 ---
 
@@ -80,7 +80,7 @@ The numerator is the ITT: the effect of assignment on the outcome. The denominat
 
 $$\text{LATE} = \frac{\text{ITT}}{\text{Compliance rate in treatment group}}$$
 
-This simplification applies whenever the control condition makes treatment practically impossible (e.g., a surgical intervention, an in-person program with no self-enroll option).
+This simplification applies whenever the control condition makes treatment practically impossible (e.g., access to the tool is gated behind a unique code given only to treatment participants).
 
 ::: {.callout-tip}
 ## Four Assumptions for LATE to Be Valid
@@ -93,27 +93,27 @@ This simplification applies whenever the control condition makes treatment pract
 
 ---
 
-## Section 4: Worked Example — Online Coaching Intervention
+## Section 4: Worked Example — Digital Budgeting Tool Experiment
 
 ### Simulation
 
-We simulate an online coaching study: 200 participants randomized 1:1. In the treatment arm, 65% complete the coaching program (one-sided noncompliance — no control participants access coaching). The true causal effect of completing the program is 12 points on an efficacy scale.
+We simulate a budgeting tool experiment: 200 participants randomized 1:1. In the treatment arm, 65% activate and use the tool (one-sided noncompliance — no control participants access the tool). The true causal effect of activating and using the tool is +8 percentage points of monthly savings rate.
 
 ```{r sim-coaching}
 n <- 200
 Z <- rep(c(0, 1), each = 100)
-D <- ifelse(Z == 1, rbinom(100, 1, 0.65), 0)   # one-sided: 65% comply
-efficacy <- 40 + 12 * D + rnorm(n, 0, 8)        # true effect for compliers = 12
+D <- ifelse(Z == 1, rbinom(100, 1, 0.65), 0)   # one-sided: 65% activate tool
+savings_rate <- 10 + 8 * D + rnorm(n, 0, 6)    # true effect for compliers = 8
 
-df_nc <- tibble(id = 1:n, Z = factor(Z), D = factor(D), efficacy)
+df_nc <- tibble(id = 1:n, Z = factor(Z), D = factor(D), savings_rate)
 ```
 
 ### Estimating all three quantities
 
 ```{r coaching-models}
-m_itt  <- lm(efficacy ~ Z,   data = df_nc)
-m_at   <- lm(efficacy ~ D,   data = df_nc)
-m_late <- ivreg(efficacy ~ D | Z, data = df_nc)
+m_itt  <- lm(savings_rate ~ Z,   data = df_nc)
+m_at   <- lm(savings_rate ~ D,   data = df_nc)
+m_late <- ivreg(savings_rate ~ D | Z, data = df_nc)
 ```
 
 ```{r coaching-table, echo=FALSE}
@@ -128,7 +128,7 @@ bind_rows(
   select(method, estimate, std.error, p.value) |>
   knitr::kable(
     digits  = 3,
-    caption = "True effect for compliers = 12. ITT is diluted by the 35% non-compliers. As-treated is biased upward (compliers are more motivated). LATE recovers the true complier effect."
+    caption = "True effect for compliers = 8. ITT is diluted by the 35% non-activators. As-treated is biased upward (activators are more motivated to save). LATE recovers the true complier effect."
   )
 ```
 
@@ -170,16 +170,16 @@ ggplot(est_df, aes(x = method, y = estimate, fill = biased)) +
   geom_errorbar(aes(ymin = estimate - 1.96 * std.error,
                     ymax = estimate + 1.96 * std.error),
                 width = 0.18) +
-  geom_hline(yintercept = 12, linetype = "dashed", color = "#c0392b", linewidth = 0.9) +
-  annotate("text", x = 3.45, y = 12.5, label = "True effect = 12",
+  geom_hline(yintercept = 8, linetype = "dashed", color = "#c0392b", linewidth = 0.9) +
+  annotate("text", x = 3.45, y = 8.5, label = "True effect = 8",
            color = "#c0392b", hjust = 1, size = 3.5) +
   scale_fill_manual(values = c("FALSE" = "#1e3a5f", "TRUE" = "#e67e22"),
                     guide = "none") +
   labs(
-    title    = "ITT, as-treated, and LATE estimates",
-    subtitle = "ITT diluted by non-compliers; as-treated biased by self-selection; LATE recovers true effect",
+    title    = "ITT, as-treated, and LATE estimates — budgeting tool experiment",
+    subtitle = "ITT diluted by non-activators; as-treated biased by self-selection; LATE recovers true effect",
     x        = NULL,
-    y        = "Estimated effect on efficacy"
+    y        = "Estimated effect on savings rate (pp)"
   ) +
   theme_minimal(base_size = 13)
 ```
@@ -195,9 +195,9 @@ Both ITT and LATE are valid causal estimands — they answer different questions
 | **ITT** | "What happens if we *offer* this program?" | Opt-in program evaluation — you offer it, some take it |
 | **LATE** | "What is the effect of *actually receiving* treatment?" | Compliance-based evaluation — effect among those who engage |
 
-**Policy example 1 — Free childcare vouchers**: A government evaluates whether to offer free childcare vouchers to low-income families. Some families will use the voucher, others will not. The policy assigns the *offer*, not the childcare itself. The ITT (effect of receiving a voucher, even if unused) is the directly relevant estimand for evaluating the voucher program — it captures the real-world effect of running the program.
+**Policy example 1 — Budgeting tool rollout**: A financial platform evaluates whether to offer a budgeting tool to customers. Some will activate it, others will not. The policy assigns the *offer*, not the tool engagement itself. The ITT (effect of receiving access, even if unused) is the directly relevant estimand for evaluating whether to expand the offer — it captures the real-world effect of deploying the tool at scale.
 
-**Policy example 2 — Cognitive behavioral therapy**: A clinical researcher wants to know whether CBT reduces depression symptoms for patients who attend sessions. The instrument is referral to a CBT provider; only some referred patients actually attend. LATE — the effect for those who attended because they were referred (compliers) — is the clinically relevant quantity. The ITT (effect of referral) captures the effect of the *system*, which is less informative about whether CBT itself works.
+**Policy example 2 — Behavioral effect of tool engagement**: A researcher wants to know whether the budgeting tool itself changes savings behavior for users who engage with it. The instrument is random assignment to access; LATE — the effect for those who activated because they were offered access — is the behaviorally relevant quantity. The ITT (effect of the offer) captures the effect of the *deployment*, which is less informative about whether the tool mechanism itself works.
 
 ::: {.callout-tip}
 ## Practical Guidance
@@ -209,7 +209,7 @@ When writing up results, report **both** ITT and LATE. The ITT is interpretable 
 
 ## Section 6: Two-Sided Noncompliance
 
-**Two-sided noncompliance** occurs when some control-group participants find the treatment on their own (always-takers, crossover). This is common in studies of freely available interventions (apps, publicly available therapies, exercise programs). The control group no longer has zero take-up.
+**Two-sided noncompliance** occurs when some control-group participants find the treatment on their own (always-takers, crossover). This is common in studies of freely available digital tools — an app that is publicly downloadable cannot be restricted to the treatment arm. The control group no longer has zero take-up.
 
 ```{r two-sided}
 n   <- 200
@@ -241,7 +241,7 @@ With 10% crossover in the control group, the effective "complier" share drops. T
 
 ## Section 7: Noncompliance in Nested Experimental Designs
 
-In multi-site experiments (students nested in classrooms, patients nested in clinics), **noncompliance can cluster at the site level**: an entire school may implement the program poorly, or an entire clinic may have low patient adherence. Treating compliance as independent across participants in the same site understates uncertainty.
+In multi-site experiments (employees nested in firms, customers nested in bank branches), **noncompliance can cluster at the site level**: in a multi-employer experiment on financial wellness tools, an entire employer site may implement the tool poorly (IT barriers, low managerial support). Treating compliance as independent across participants in the same site understates uncertainty.
 
 The remedy is cluster-robust standard errors at the site level:
 
@@ -264,10 +264,10 @@ If site-level compliance is itself of interest (e.g., "does full implementation 
 site_compliance <- df_nested |>
   filter(Z == 1) |>
   group_by(site) |>
-  summarise(compliance_rate = mean(D_numeric))
+  summarise(compliance_rate = mean(as.integer(as.character(D))))
 
 df_nested <- left_join(df_nested, site_compliance, by = "site")
-lmer(Y ~ compliance_rate + (1 | site), data = df_nested |> filter(Z == 1))
+lmer(savings_rate ~ compliance_rate + (1 | site), data = df_nested |> filter(Z == 1))
 ```
 
 This is a "dose-response" analysis at the site level and requires its own identification argument (why does compliance vary across sites independent of site characteristics?).
@@ -279,4 +279,4 @@ This is a "dose-response" analysis at the site level and requires its own identi
 
 Use the following template for APA-style reporting of ITT and LATE results:
 
-> Participants were randomly assigned to [*coaching intervention*] (*n* = 100) or waitlist control (*n* = 100). Compliance was 65% in the treatment group (one-sided noncompliance; no control participants accessed the intervention). Intent-to-treat analysis — using treatment assignment as the predictor regardless of compliance — showed a statistically significant but attenuated effect (*b* = [*ITT estimate*], *SE* = [*ITT SE*], *p* = [*p*]). To estimate the effect for participants who complied with treatment, we used instrumental variables regression (two-stage least squares) with treatment assignment as the instrument for treatment receipt. The complier average causal effect (LATE) was *b* = [*LATE estimate*], *SE* = [*LATE SE*], *p* = [*p*], consistent with a [*direction and magnitude*] effect for participants who engaged with the intervention. The first-stage *F*-statistic (*F* = [*F*]) exceeded the conventional weak-instruments threshold of 10, supporting the instrument's relevance.
+> Participants were randomly assigned to receive access to a [*digital budgeting tool*] (*n* = 100) or standard information email (*n* = 100). Compliance was 65% in the treatment group (one-sided noncompliance; no control participants accessed the tool). Intent-to-treat analysis — using treatment assignment as the predictor regardless of compliance — showed a statistically significant but attenuated effect (*b* = [*ITT estimate*], *SE* = [*ITT SE*], *p* = [*p*]). To estimate the effect for participants who complied with treatment, we used instrumental variables regression (two-stage least squares) with treatment assignment as the instrument for treatment receipt. The complier average causal effect (LATE) was *b* = [*LATE estimate*], *SE* = [*LATE SE*], *p* = [*p*], consistent with a [*direction and magnitude*] effect on savings rate for participants who activated the tool. The first-stage *F*-statistic (*F* = [*F*]) exceeded the conventional weak-instruments threshold of 10, supporting the instrument's relevance.

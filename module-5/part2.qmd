@@ -14,9 +14,9 @@ set.seed(2025)
 
 ## When Only One Condition Has Clustering
 
-Consider a psychotherapy trial. The treatment group receives group therapy: 8 clients per therapist, 15 therapists. The control group receives no treatment (waitlist) — there is no therapist and no group structure. Clients in the control condition are independent of each other.
+Consider a financial coaching field experiment. The treatment group receives group financial coaching: 8 participants per coach, 15 coaches. The control group receives a self-serve information module — there is no coach and no group structure. Participants in the control condition are independent of each other.
 
-This design is **partially nested**: the treatment condition has a natural cluster structure (clients within therapists/groups), but the control condition does not.
+This design is **partially nested**: the treatment condition has a natural cluster structure (participants within coaching groups), but the control condition does not.
 
 If you fit a standard two-level model treating all participants the same way, you either:
 1. Ignore clustering in the treatment group — deflating standard errors and inflating Type I error for the treatment effect
@@ -27,28 +27,29 @@ The **partially nested model** (Bauer, Sterba & Hallfors, 2008) handles this cor
 ## Simulating a Partially Nested Design
 
 ```{r pn-simulation}
-n_therapists <- 15
+n_coaches    <- 15
 n_per_group  <- 8
-n_control    <- n_therapists * n_per_group  # same total N
+n_control    <- n_coaches * n_per_group  # same total N = 120
 
-# Treatment group: therapist clustering (ICC ≈ 0.15)
-therapist_effects <- rnorm(n_therapists, 0, 3)
+# Treatment group: coach clustering
+coach_effects <- rnorm(n_coaches, 0, 3)  # ICC ≈ 0.15 from coach variance
 
 df_treatment <- tibble(
-  condition   = "treatment",
-  therapist   = rep(1:n_therapists, each = n_per_group),
-  client      = 1:(n_therapists * n_per_group),
-  therapist_e = rep(therapist_effects, each = n_per_group),
-  outcome     = 50 + 5 + therapist_e + rnorm(n_therapists * n_per_group, 0, 6)
+  condition   = "coaching",
+  coach       = rep(1:n_coaches, each = n_per_group),
+  participant = 1:(n_coaches * n_per_group),
+  coach_eff   = rep(coach_effects, each = n_per_group),
+  savings_increase = 5 + 5 + coach_eff + rnorm(n_coaches * n_per_group, 0, 6)
+  # baseline mean = 5, treatment adds 5, coach effect varies
 )
 
-# Control group: no clustering (independent)
+# Control group: independent participants (no coach clustering)
 df_control <- tibble(
-  condition   = "control",
-  therapist   = NA_integer_,  # no therapist
-  client      = 1:n_control + max(df_treatment$client),
-  therapist_e = 0,
-  outcome     = 50 + rnorm(n_control, 0, 6)
+  condition   = "self_serve",
+  coach       = NA_integer_,
+  participant = 1:n_control + max(df_treatment$participant),
+  coach_eff   = 0,
+  savings_increase = 5 + rnorm(n_control, 0, 6)
 )
 
 df_pn <- bind_rows(df_treatment, df_control)
@@ -56,52 +57,55 @@ df_pn <- bind_rows(df_treatment, df_control)
 
 ## The Partially Nested Model in lme4
 
-The trick: create a dummy therapist variable for control participants (unique ID for each, indicating no shared clustering) and fit a model where the random effect only applies to the treatment group.
+The trick: create a dummy coach variable for control participants (unique ID for each, indicating no shared clustering) and fit a model where the random effect only applies to the treatment group.
 
 ```{r fit-pn}
-# Assign unique "therapist" IDs to control participants
+# Assign unique cluster IDs: coaching groups for treatment, individual IDs for control
 df_pn <- df_pn |>
   mutate(
-    cluster_id = ifelse(condition == "treatment",
-                        paste0("T", therapist),
-                        paste0("C", client))  # each control is own "cluster"
+    cluster_id = ifelse(condition == "coaching",
+                        paste0("Coach", coach),
+                        paste0("Ctrl", participant))
   )
 
-# Partially nested: cluster RE only in treatment
-# Use dummy coding and interaction for the random effect
+# Partially nested: cluster RE only in coaching condition
 df_pn <- df_pn |>
-  mutate(treat_dummy = as.integer(condition == "treatment"))
+  mutate(treat_dummy = as.integer(condition == "coaching"))
 
-# Fit: allow random effect only within treatment clusters
-m_pn <- lmer(outcome ~ condition + (1 | cluster_id), data = df_pn)
+# Fit: allow random effect only within coaching clusters
+m_pn    <- lmer(savings_increase ~ condition + (1 | cluster_id), data = df_pn)
 
 # Compare to naive model (ignores all clustering)
-m_naive <- lm(outcome ~ condition, data = df_pn)
+m_naive <- lm(savings_increase ~ condition, data = df_pn)
 
 bind_rows(
-  broom::tidy(m_naive) |> filter(term == "conditiontreatment") |>
+  broom::tidy(m_naive) |> filter(term == "conditioncoaching") |>
     mutate(model = "Naive (no clustering)"),
   broom.mixed::tidy(m_pn, effects = "fixed") |>
-    filter(term == "conditiontreatment") |>
+    filter(term == "conditioncoaching") |>
     mutate(model = "Partially nested model")
 ) |>
   select(model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Partially nested model: correct SE for clustered treatment group")
+    caption = "Partially nested model: correct SE for coaching-group clustering")
 ```
+
+Participants in the coaching condition share a coach. Their savings outcomes are not independent: a particularly effective (or ineffective) coach shifts all their clients' outcomes together. Participants in the control condition have no such shared structure — each receives the same information independently.
+
+The naive model ignores this clustering in the coaching arm, producing standard errors that are too small and p-values that are too liberal. The partially nested model correctly inflates the SE for the coaching condition, where observations are non-independent, while leaving the control group's independent structure intact.
 
 ::: {.callout-warning icon=false}
 ## Assumption: Correct Identification of Which Condition is Clustered
 
-**What it means:** You must correctly specify which condition has clustering and which does not. If clustering is misattributed (e.g., you apply cluster random effects to the control group when there is none), variance components will be estimated incorrectly.
+**What it means:** You must correctly specify which condition has clustering and which does not. If clustering is misattributed (e.g., you apply cluster random effects to the self-serve control group when there is none), variance components will be estimated incorrectly.
 
-**How to check:** Draw the design. Which participants share a natural group, coach, therapist, or classroom? That condition has the nested structure.
+**How to check:** Draw the design. Which participants share a natural group, coach, or classroom? That condition has the nested structure. In this experiment, only participants in the group coaching condition share a coach — control participants each received the same self-serve materials independently.
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption: Homogeneity of Within-Cluster Variance
 
-**What it means:** The standard partially nested model assumes the residual variance is the same in the treatment and control groups (only the random effect variance differs).
+**What it means:** The standard partially nested model assumes the residual variance is the same in the coaching and self-serve groups (only the random effect variance differs).
 
-**How to check:** Compare within-group variance across conditions. If the treatment group has substantially more or less residual variance than control, allow heteroskedastic residuals.
+**How to check:** Compare within-group variance across conditions. If the coaching group has substantially more or less residual variance than the self-serve control, allow heteroskedastic residuals.
 :::

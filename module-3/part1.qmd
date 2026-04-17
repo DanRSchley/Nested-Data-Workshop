@@ -69,10 +69,10 @@ where $\delta_{ZY}$ is the effect of Z on Y (holding X constant) and $\tilde{\rh
 ```{r ovb-bias-table}
 # Bias direction table
 tibble(
-  Example         = c("Ice cream → drowning", "Advertising → sales", "Mindfulness → stress"),
-  Confounder_Z    = c("Summer heat", "Store quality", "Stable personality"),
-  `Sign Z→X`      = c("+", "+", "+"),
-  `Sign Z→Y`      = c("+", "+", "-"),
+  Example         = c("Budget tracker → savings", "Promotion → purchase", "Investment advice → returns"),
+  Confounder_Z    = c("Platform quality", "Consumer wealth", "Financial sophistication"),
+  `Sign Z→X`      = c("+", "+", "-"),
+  `Sign Z→Y`      = c("+", "+", "+"),
   `Bias direction` = c("Positive (↑ est.)", "Positive (↑ est.)", "Negative (↓ est.)")
 ) |>
   knitr::kable(caption = "OVB bias direction: multiply signs to get bias direction")
@@ -94,45 +94,57 @@ You can use this qualitatively even before collecting data: "If my estimate is a
 ```{r ovb-simulation}
 n <- 500
 
-# Example 1: Ice cream / drowning / heat
-Z_heat    <- rnorm(n, 70, 10)
-X_icecream <- 0.3 * Z_heat + rnorm(n, 0, 5)
-Y_drowning <- 0.5 * Z_heat + rnorm(n, 0, 8)  # true X effect = 0
+# Example 1: Budget tracker / savings rate / platform quality
+# Platform quality attracts more engaged users AND produces better financial outcomes
+# True effect of using the tracker = 0; it is the platform quality that matters
+Z_quality     <- rnorm(n, 50, 10)
+X_tracker     <- 0.3 * Z_quality + rnorm(n, 0, 5)
+Y_savings     <- 0.5 * Z_quality + rnorm(n, 0, 8)  # true X effect = 0
 
-m_biased_1  <- lm(Y_drowning ~ X_icecream)
-m_correct_1 <- lm(Y_drowning ~ X_icecream + Z_heat)
+m_biased_1  <- lm(Y_savings ~ X_tracker)
+m_correct_1 <- lm(Y_savings ~ X_tracker + Z_quality)
 
-# Example 2: Advertising / sales / store quality
-Z_quality   <- rnorm(n, 50, 10)
-X_ads       <- 0.4 * Z_quality + rnorm(n, 0, 8)
-Y_sales     <- 0.6 * Z_quality + 0.15 * X_ads + rnorm(n, 0, 10)
-# true X effect = 0.15; quality inflates this upward
+# Example 2: Premium promotional message exposure / purchase intention / consumer wealth
+# Wealthy consumers are targeted more AND have higher purchase intentions for premium products
+# True X effect = 0.15; wealth inflates this upward
+Z_wealth      <- rnorm(n, 50, 10)
+X_promo       <- 0.4 * Z_wealth + rnorm(n, 0, 8)
+Y_intention   <- 0.6 * Z_wealth + 0.15 * X_promo + rnorm(n, 0, 10)
 
-m_biased_2  <- lm(Y_sales ~ X_ads)
-m_correct_2 <- lm(Y_sales ~ X_ads + Z_quality)
+m_biased_2  <- lm(Y_intention ~ X_promo)
+m_correct_2 <- lm(Y_intention ~ X_promo + Z_wealth)
 
-# Example 3: Mindfulness / stress / stable personality
-Z_stability   <- rnorm(n, 50, 10)
-X_mindfulness <- 0.5 * Z_stability + rnorm(n, 0, 6)
-Y_stress      <- 80 - 0.4 * Z_stability - 2 * X_mindfulness + rnorm(n, 0, 8)
-# true X effect = -2; stability also lowers stress AND increases mindfulness → downward bias
+# Example 3: Investment advice uptake / portfolio return / financial sophistication
+# Sophisticated investors avoid advice (prefer self-directed) AND perform better
+# True X effect = +0.5 (advice genuinely helps); sophistication biases estimate downward
+Z_sophist     <- rnorm(n, 50, 10)
+X_advice      <- -0.5 * Z_sophist + rnorm(n, 0, 6)   # sophisticated investors avoid advice
+Y_returns     <- 0.4 * Z_sophist + 0.5 * X_advice + rnorm(n, 0, 8)
 
-m_biased_3  <- lm(Y_stress ~ X_mindfulness)
-m_correct_3 <- lm(Y_stress ~ X_mindfulness + Z_stability)
+m_biased_3  <- lm(Y_returns ~ X_advice)
+m_correct_3 <- lm(Y_returns ~ X_advice + Z_sophist)
 
 bind_rows(
-  tidy(m_biased_1)  |> filter(term == "X_icecream")   |> mutate(example = "Ice cream (true=0)",    model = "Omits Z"),
-  tidy(m_correct_1) |> filter(term == "X_icecream")   |> mutate(example = "Ice cream (true=0)",    model = "Includes Z"),
-  tidy(m_biased_2)  |> filter(term == "X_ads")        |> mutate(example = "Advertising (true=0.15)", model = "Omits Z"),
-  tidy(m_correct_2) |> filter(term == "X_ads")        |> mutate(example = "Advertising (true=0.15)", model = "Includes Z"),
-  tidy(m_biased_3)  |> filter(term == "X_mindfulness")|> mutate(example = "Mindfulness (true=-2)",   model = "Omits Z"),
-  tidy(m_correct_3) |> filter(term == "X_mindfulness")|> mutate(example = "Mindfulness (true=-2)",   model = "Includes Z")
+  tidy(m_biased_1)  |> filter(term == "X_tracker") |>
+    mutate(example = "Budget tracker (true=0)",       model = "Omits Z"),
+  tidy(m_correct_1) |> filter(term == "X_tracker") |>
+    mutate(example = "Budget tracker (true=0)",       model = "Includes Z"),
+  tidy(m_biased_2)  |> filter(term == "X_promo")   |>
+    mutate(example = "Promotion (true=0.15)",          model = "Omits Z"),
+  tidy(m_correct_2) |> filter(term == "X_promo")   |>
+    mutate(example = "Promotion (true=0.15)",          model = "Includes Z"),
+  tidy(m_biased_3)  |> filter(term == "X_advice")  |>
+    mutate(example = "Investment advice (true=0.5)",   model = "Omits Z"),
+  tidy(m_correct_3) |> filter(term == "X_advice")  |>
+    mutate(example = "Investment advice (true=0.5)",   model = "Includes Z")
 ) |>
   select(example, model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3, caption = "OVB across three examples: omitting Z biases estimates in predictable directions")
 ```
 
 In every case, adding the confounder pulls the estimate toward the true value. The bias direction matches the prediction from the sign table.
+
+The budget-tracking example illustrates a common error in consumer finance research: users of a platform feature (tracker) appear to save more, but the actual driver is platform quality — better platforms attract more financially engaged users who would have saved more regardless. The promotion example shows upward bias: promotions genuinely increase purchase intentions, but the naive estimate is inflated because wealth drives both targeting and intention. The investment advice example shows downward bias: advice genuinely improves portfolio returns, but financially sophisticated investors avoid advice while also outperforming — so the advice-returns correlation in cross-sectional data understates the true benefit.
 
 ::: {.callout-warning icon=false}
 ## Assumption: No Omitted Variables Correlated with Both X and Y
@@ -178,7 +190,7 @@ p_sim
 
 **Psychology example:** Social support reduces depression — but depression also causes people to withdraw from social networks. A cross-sectional regression of depression on social support picks up both directions simultaneously and gives a confounded estimate.
 
-**Marketing example:** Brand awareness drives sales, but sales revenue funds advertising that builds brand awareness. A cross-sectional regression cannot tell you whether awareness causes sales or sales cause awareness.
+The same dynamic is common in consumer markets: advertising drives sales (brand awareness → purchase), but sales revenue funds advertising (revenue → ad budget). A cross-sectional regression of sales on advertising spending cannot identify whether awareness causes purchases or revenue enables advertising. Longitudinal designs with lagged predictors are required.
 
 ::: {.callout-warning icon=false}
 ## Assumption: No Reverse Causality
@@ -245,8 +257,6 @@ tibble(
 
 **The publish-or-perish example:** Prolificacy (X) and idea quality (Y) may be uncorrelated in the full population of researchers. But publication (C) is caused by both — prolific researchers with good ideas get published. If you study *only published papers* (conditioning on C), you'll observe that prolificacy and idea quality are *negatively correlated* within the published set, even though they're unrelated in the population.
 
-**Berkson's paradox in hospitals:** Disease A (X) and disease B (Y) are unrelated in the general population. But both can lead to hospitalization (C). If you study only hospitalized patients, A and B appear negatively correlated — because having A makes it less likely you also have B to explain your hospitalization.
-
 ```{r collider-viz}
 df_col <- tibble(X = X_col, Y = Y_col, C_high = high_C)
 
@@ -266,6 +276,14 @@ p_cond <- ggplot(df_col |> filter(C_high), aes(x = X, y = Y)) +
 
 p_full + p_cond
 ```
+
+::: {.callout-tip icon=false}
+## JDM Collider: Analyzing Only Platform Engagers
+
+In a study of platform users, promotional sensitivity (X) and consumer wealth (Y) may be uncorrelated in the broader population. But both predict active platform engagement (C). If you analyze only high-engagement users — restricting your sample based on C — you introduce a spurious negative correlation between X and Y within your sample. Wealthier users who are also promo-sensitive are over-represented; the model sees this as a negative relationship between wealth and promo-sensitivity within the active user pool. This is collider bias from sample restriction, not from including C as a covariate.
+
+The same logic applies any time you analyze a selected subset: only people who purchased, only participants who completed all waves, only firms that survived.
+:::
 
 ::: {.callout-warning icon=false}
 ## Assumption: No Conditioning on Colliders
@@ -305,19 +323,19 @@ nodes_fork <- tibble(label = c("Z", "X", "Y"), x = c(2, 1, 3), y = c(2, 1, 1))
 edges_fork <- tibble(x1=c(1.8,2.2), x2=c(1.2,2.8), y1=c(1.9,1.9), y2=c(1.1,1.1),
                      color = c("#e63946","#e63946"))
 p_fork <- make_dag_panel(nodes_fork, edges_fork, "Fork (Confounder)",
-  "Z → X and Z → Y\nCreates spurious X-Y correlation\nFix: control for Z")
+  "Z → X and Z → Y\nCreates spurious X-Y correlation\nExample: financial literacy (Z) → engagement\nwith disclosure format (X) and → risky choice (Y)\nFix: control for Z")
 
 nodes_chain <- tibble(label = c("X", "M", "Y"), x = c(1, 2, 3), y = c(1, 1, 1))
 edges_chain <- tibble(x1=c(1.2,2.2), x2=c(1.8,2.8), y1=c(1,1), y2=c(1,1),
                       color = c("#1e3a5f","#1e3a5f"))
 p_chain <- make_dag_panel(nodes_chain, edges_chain, "Chain (Mediator)",
-  "X → M → Y\nM is on the causal path\nFix: do NOT control for M")
+  "X → M → Y\nM is on the causal path\nExample: default enrollment (X) → savings habit (M)\n→ long-term savings (Y)\nFix: do NOT control for M")
 
 nodes_coll <- tibble(label = c("X", "C", "Y"), x = c(1, 2, 3), y = c(1, 1, 1))
 edges_coll <- tibble(x1=c(1.2,2.8), x2=c(1.8,2.2), y1=c(1,1), y2=c(1,1),
                      color = c("#1e3a5f","#1e3a5f"))
 p_coll <- make_dag_panel(nodes_coll, edges_coll, "Collider",
-  "X → C ← Y\nCondition on C = open backdoor\nFix: do NOT control for C")
+  "X → C ← Y\nCondition on C = open backdoor\nExample: promotional sensitivity (X) →\nplatform activity (C) ← consumer wealth (Y)\nFix: do NOT control for C")
 
 p_fork + p_chain + p_coll
 ```
