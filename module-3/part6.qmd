@@ -314,6 +314,24 @@ ANCOVA assumes a linear, homogeneous (equal across groups) relationship between 
 
 ---
 
+::: {.callout-note icon=false}
+## What Propensity Score Methods Can and Cannot Do
+
+**What you can say:**
+
+- Among units with similar observed characteristics, the treatment contrast is less confounded by those characteristics.
+- The estimate approximates what you would find in a randomized study *if* all confounders were measured and correctly modeled.
+- For ATT: the effect among treated units, relative to a comparison group matched or weighted to look like the treated group on observables.
+
+**What you cannot say:**
+
+- That treatment is exogenous — unobserved confounders remain and can still dominate the result.
+- That this is equivalent to randomization — the ignorability assumption (no unmeasured confounders) is untestable.
+- That a small E-value or Γ means the result is robust — it means the *threshold* for overturning is quantified, not that confounding is absent.
+
+Propensity score methods shift the burden from "I controlled for X" to "I controlled for all confounders" — which is a judgment about the DGP, not a statistical guarantee.
+:::
+
 ## Reporting Checklist for PS Analyses
 
 ::: {.callout-tip}

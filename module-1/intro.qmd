@@ -31,6 +31,22 @@ The module builds in steps, each adding one layer of complexity while being expl
 
 **Part 6: Crossed Random Effects** covers the case where observations belong to multiple grouping factors simultaneously — the structure that arises naturally in most psychological experiments.
 
+## The Model Family at a Glance
+
+Before diving into each part, here is a map of the model family this module builds — what each step buys you, and — critically — what it still does not give you.
+
+| Problem in your data | Model move | What it buys you | What it does **not** buy you |
+|---|---|---|---|
+| Repeated observations within a unit | Random intercept | Corrects standard errors for dependence in levels | Causal identification of predictors |
+| Effect of X differs across units | Random slope | Models heterogeneity in the X–Y relationship | Does not solve confounding of X |
+| Stable unit-level confounding | Fixed effects | Removes time-invariant omitted variables | Does not remove time-varying confounding |
+| Participants *and* stimuli both sampled | Crossed random effects | Generalizes inference across both sources of sampling | Does not fix design flaws or demand effects |
+| Units nested in higher units | Three-level model | Partitions variance correctly; avoids pseudo-replication | Does not identify causal pathways across levels |
+
+: Model family overview. The last column is what drives Module 3. {tbl-colwidths="[22,20,30,28]"}
+
+The rightmost column is intentional. Every model in this module corrects a **dependence problem** — observations that are not independent. None of them, on their own, solve an **identification problem** — the question of whether your predictor is truly exogenous. That distinction is the heart of Module 3.
+
 ## Core Assumptions
 
 Every model in this module makes assumptions. We will state them explicitly at each step. For now, here is the set of assumptions that span the entire module:

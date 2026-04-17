@@ -416,3 +416,16 @@ The table below summarizes the three contexts, their structural causes, and thei
 | Cross-sectional nesting | Program difficulty confounds study–grade link | Negative (wrong) | Positive (correct) | Mixed model; within-group slope |
 | Panel data | Between-person selection confounds within-person change | Strongly positive (misleading) | Near zero (causal) | CMC decomposition; FE model |
 | Experiment | Stimulus attribute confounded with condition | Positive (false positive) | Null (correct) | Stimulus RE; covariate control |
+
+::: {.callout-tip icon=false}
+## Observational → Experimental Translation
+
+**In observational panel data:**
+The between-person and within-person slopes diverge when stable unit-level factors (personality, firm culture, socioeconomic status) drive both the predictor and the outcome. The "ecological fallacy" is comparing units when you should be comparing moments within a unit. CMC separates these two estimands.
+
+**In within-subjects experiments:**
+The between-stimulus and within-stimulus slopes diverge when stimuli vary systematically on a confound (e.g., positive words are also more concrete). Aggregating across stimuli without accounting for this confound produces a pooled slope that reflects the confound, not the experimental manipulation. The fix is the same: include the stimulus-level mean as a between-stimulus covariate alongside the within-stimulus deviation.
+
+**Same assumption, different data collection context:**
+In both cases, a single slope conflates two mechanisms. CMC/stimulus-mean centering is how you ask the data which mechanism is operating — and whether they point in the same direction.
+:::

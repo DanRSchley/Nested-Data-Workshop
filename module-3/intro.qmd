@@ -10,26 +10,40 @@ A variable only earns the label "independent" after you have done the work to es
 
 Nested data creates special entanglement problems. When people are grouped into firms, schools, neighborhoods, or time periods, the things that determine their group membership are often the same things that affect their outcomes. A person does not end up in a high-autonomy firm at random. A student does not end up in a high-quality classroom at random. A country does not adopt a policy at random.
 
-This module is about recognizing these entanglements — **endogeneity** — and learning the identification strategies that let us recover credible causal claims despite them.
+This module is about recognizing these entanglements — **endogeneity** — and developing the judgment to identify which recovery strategy is warranted. Full implementations of IV, RDD, DiD, and propensity score methods appear in Module 4 (Part 10, panel data) and Module 5 (Parts 8–9, experimental data).
 
 ## What This Module Covers
 
-**Part 1: Endogeneity** — The three sources of endogeneity in social science data: omitted variable bias, simultaneity/reverse causality, and selection. What each looks like in the DGP, and how to recognize them.
+**Part 1: Endogeneity** — The three sources of endogeneity in social science data: omitted variable bias, simultaneity/reverse causality, and selection. What each looks like in the data-generating process (DGP), and how to recognize them. DAG structures for collider bias and bad controls. The core message: correlation between your predictor and the error term means your slope is not what you think.
 
-**Part 2: Instrumental Variables** — When you cannot randomize, an instrument can do some of the work. What makes a valid instrument, the two-stage procedure, and real examples from consumer and organizational research.
+**Part 2: Instrumental Variables** — What IV identifies (LATE for compliers), the three assumptions (relevance, exclusion, independence), and why finding a valid instrument is a judgment problem rather than a statistical one. Full implementation in Module 4 Part 10 (panel setting) and Module 5 Part 8 (encouragement designs).
 
-**Part 3: Selection Effects & Attrition** — The many ways observations end up in your dataset non-randomly: representativeness failures, self-selection, survivorship, attrition in longitudinal studies, and researcher-driven exclusions.
+**Part 3: Selection Effects & Attrition** — The taxonomy of selection processes: representativeness failure, self-selection, survivorship, informative attrition, and researcher-driven exclusions. How each one corrupts the comparison group. MAR/MNAR mechanics.
 
-**Part 4: Regression Discontinuity Design** — When treatment assignment is based on a threshold, the continuity of potential outcomes around that threshold gives you a local quasi-experiment. Assumptions, tests, and worked examples.
+**Part 4: Regression Discontinuity** — What a threshold assignment rule gives you (continuity of potential outcomes around the cutoff), sharp vs. fuzzy designs, and why manipulation around the cutoff is the fatal threat. Full implementation in Module 4 Part 10.
 
-**Part 5: Difference-in-Differences** — When some units receive a treatment and others do not, and you have pre- and post-treatment observations, DiD recovers causal effects under the parallel trends assumption.
+**Part 5: Difference-in-Differences** — The parallel trends logic, what it assumes about the counterfactual, and how pre-trend tests can falsify but not verify it. The link between DiD and the pre-post experiment. Full implementation in Module 4 Part 10 (panel) and Module 5 Part 9 (experimental).
 
-**Part 6: Propensity Scores & Matching** — When treatment is observational but you can condition on all relevant confounders, matching and weighting approaches can reduce bias.
+**Part 6: Propensity Scores & Matching** — Selection on observables: what it means, what it requires, and why it is never as strong as randomization. The ATE/ATT distinction and its implications for design. Full implementation in Module 4 Part 10 and Module 5 Part 9.
 
-## The Through-Line: Identification
+::: {.callout-note icon=false}
+## Estimand Reference: What Can You Claim?
+
+| Estimand | Question answered | What it requires | Covered |
+|----------|------------------|------------------|---------|
+| **ATE** (Average Treatment Effect) | What is the average effect across *everyone*? | Randomization or full exogeneity | Module 3 Part 1 |
+| **ATT** (Average Treatment Effect on the Treated) | What is the effect for those who *received* treatment? | Selection on observables (PS) or design matching | Module 3 Part 6; M4/M5 |
+| **ITT** (Intent-to-Treat) | What is the effect of *being assigned* to treatment? | Random assignment to condition | Module 5 Part 8 |
+| **LATE** (Local Average Treatment Effect) | What is the effect for *compliers* — units whose treatment status changed due to the instrument? | Valid instrument (relevance + exclusion + independence) | Module 3 Part 2; M4/M5 |
+| **Within-unit association** | Within the same unit over time, how does X relate to Y? | Stationarity; no time-varying confounding within unit | Module 1–2; Module 4 |
+
+No claim exceeds what its design can support. Matching the estimand to the design is the central judgment of applied research.
+:::
+
+## The Through-Line: Identification as Judgment
 
 Every method in this module is an **identification strategy** — a way to isolate variation in your predictor that is (approximately) exogenous, and use only that variation to estimate the effect of interest.
 
 The math of each strategy is not the hard part. The hard part is the **judgment**: Does your instrument really satisfy the exclusion restriction? Are your parallel trends really plausible? Can you really claim you have measured all confounders?
 
-This module teaches both the tools and the judgment.
+This module teaches the diagnosis — how to recognize which threats are present in your DGP and what the logic of each recovery strategy requires. Choosing the right strategy is judgment; executing it is covered in Modules 4 and 5.
