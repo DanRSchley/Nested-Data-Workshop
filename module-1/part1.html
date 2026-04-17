@@ -1119,6 +1119,31 @@ window.Quarto = {
 <li><p><strong>They are not well suited to purely between-subjects designs.</strong> If every participant sees only one condition (between-subjects), there is no within-person variation in the predictor — FE collapses entirely to OLS. The fixed-effects logic requires that the predictor varies within units.</p></li>
 </ol>
 <hr>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What Fixed Effects Can and Cannot Do
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What you can say after a fixed-effects analysis:</strong></p>
+<ul>
+<li>Within-unit variation in X is associated with within-unit variation in Y, after removing all stable unit-level differences.</li>
+<li>Time-invariant confounders (firm quality, stable personality, neighborhood characteristics) are not driving this result.</li>
+<li>The estimate is not inflated by the kind of between-unit sorting that makes observational comparisons suspect.</li>
+</ul>
+<p><strong>What you cannot say:</strong></p>
+<ul>
+<li>That the relationship is causal — time-varying confounders (a quarterly productivity shock that simultaneously drives training adoption and output) still bias the estimate.</li>
+<li>That the between-unit relationship is the same — FE explicitly throws away between-unit variation and cannot speak to it.</li>
+<li>That your standard errors are correct if residuals within a unit are correlated over time — cluster your SEs at the unit level.</li>
+</ul>
+<p>Fixed effects are a powerful first step toward causal identification. They are not the last step.</p>
+</div>
+</div>
 </section>
 <section id="recommended-reading" class="level2" data-number="9.7">
 <h2 data-number="9.7" class="anchored" data-anchor-id="recommended-reading"><span class="header-section-number">9.7</span> Recommended Reading</h2>

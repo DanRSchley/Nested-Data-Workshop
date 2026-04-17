@@ -1166,6 +1166,31 @@ window.Quarto = {
 <p>When the goal is to compare the <em>change</em> from pre to post (rather than just the post-test score), matching on the pre-test score before estimating treatment effects can be more robust than ANCOVA when the pre-test — outcome relationship is nonlinear.</p>
 <p>ANCOVA assumes a linear, homogeneous (equal across groups) relationship between the pre-test and post-test. When this assumption is violated — for instance, when very high or very low pre-test scorers change at a different rate — matching on the pre-test creates a comparison group that is directly comparable at the pre-test level, allowing nonparametric estimation of the change. This is sometimes called <strong>pre-test matching</strong> or <strong>coarsened exact matching on the pre-test</strong>.</p>
 <hr>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What Propensity Score Methods Can and Cannot Do
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What you can say:</strong></p>
+<ul>
+<li>Among units with similar observed characteristics, the treatment contrast is less confounded by those characteristics.</li>
+<li>The estimate approximates what you would find in a randomized study <em>if</em> all confounders were measured and correctly modeled.</li>
+<li>For ATT: the effect among treated units, relative to a comparison group matched or weighted to look like the treated group on observables.</li>
+</ul>
+<p><strong>What you cannot say:</strong></p>
+<ul>
+<li>That treatment is exogenous — unobserved confounders remain and can still dominate the result.</li>
+<li>That this is equivalent to randomization — the ignorability assumption (no unmeasured confounders) is untestable.</li>
+<li>That a small E-value or Γ means the result is robust — it means the <em>threshold</em> for overturning is quantified, not that confounding is absent.</li>
+</ul>
+<p>Propensity score methods shift the burden from “I controlled for X” to “I controlled for all confounders” — which is a judgment about the DGP, not a statistical guarantee.</p>
+</div>
+</div>
 </section>
 </section>
 <section id="reporting-checklist-for-ps-analyses" class="level2" data-number="25.4">

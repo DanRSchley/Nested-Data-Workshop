@@ -487,7 +487,7 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#the-independent-variable" id="toc-the-independent-variable" class="nav-link" data-scroll-target="#the-independent-variable"><span class="header-section-number">18.1</span> The “Independent” Variable</a></li>
   <li><a href="#what-this-module-covers" id="toc-what-this-module-covers" class="nav-link" data-scroll-target="#what-this-module-covers"><span class="header-section-number">18.2</span> What This Module Covers</a></li>
-  <li><a href="#the-through-line-identification" id="toc-the-through-line-identification" class="nav-link" data-scroll-target="#the-through-line-identification"><span class="header-section-number">18.3</span> The Through-Line: Identification</a></li>
+  <li><a href="#the-through-line-identification-as-judgment" id="toc-the-through-line-identification-as-judgment" class="nav-link" data-scroll-target="#the-through-line-identification-as-judgment"><span class="header-section-number">18.3</span> The Through-Line: Identification as Judgment</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -520,22 +520,83 @@ ul.task-list li input[type="checkbox"] {
 <h2 data-number="18.1" class="anchored" data-anchor-id="the-independent-variable"><span class="header-section-number">18.1</span> The “Independent” Variable</h2>
 <p>A variable only earns the label “independent” after you have done the work to establish that it is exogenously related to your outcome. Until then, it is just a predictor — one that may be deeply entangled with other forces that also shape the outcome.</p>
 <p>Nested data creates special entanglement problems. When people are grouped into firms, schools, neighborhoods, or time periods, the things that determine their group membership are often the same things that affect their outcomes. A person does not end up in a high-autonomy firm at random. A student does not end up in a high-quality classroom at random. A country does not adopt a policy at random.</p>
-<p>This module is about recognizing these entanglements — <strong>endogeneity</strong> — and learning the identification strategies that let us recover credible causal claims despite them.</p>
+<p>This module is about recognizing these entanglements — <strong>endogeneity</strong> — and developing the judgment to identify which recovery strategy is warranted. Full implementations of IV, RDD, DiD, and propensity score methods appear in Module 4 (Part 10, panel data) and Module 5 (Parts 8–9, experimental data).</p>
 </section>
 <section id="what-this-module-covers" class="level2" data-number="18.2">
 <h2 data-number="18.2" class="anchored" data-anchor-id="what-this-module-covers"><span class="header-section-number">18.2</span> What This Module Covers</h2>
-<p><strong>Part 1: Endogeneity</strong> — The three sources of endogeneity in social science data: omitted variable bias, simultaneity/reverse causality, and selection. What each looks like in the DGP, and how to recognize them.</p>
-<p><strong>Part 2: Instrumental Variables</strong> — When you cannot randomize, an instrument can do some of the work. What makes a valid instrument, the two-stage procedure, and real examples from consumer and organizational research.</p>
-<p><strong>Part 3: Selection Effects &amp; Attrition</strong> — The many ways observations end up in your dataset non-randomly: representativeness failures, self-selection, survivorship, attrition in longitudinal studies, and researcher-driven exclusions.</p>
-<p><strong>Part 4: Regression Discontinuity Design</strong> — When treatment assignment is based on a threshold, the continuity of potential outcomes around that threshold gives you a local quasi-experiment. Assumptions, tests, and worked examples.</p>
-<p><strong>Part 5: Difference-in-Differences</strong> — When some units receive a treatment and others do not, and you have pre- and post-treatment observations, DiD recovers causal effects under the parallel trends assumption.</p>
-<p><strong>Part 6: Propensity Scores &amp; Matching</strong> — When treatment is observational but you can condition on all relevant confounders, matching and weighting approaches can reduce bias.</p>
+<p><strong>Part 1: Endogeneity</strong> — The three sources of endogeneity in social science data: omitted variable bias, simultaneity/reverse causality, and selection. What each looks like in the data-generating process (DGP), and how to recognize them. DAG structures for collider bias and bad controls. The core message: correlation between your predictor and the error term means your slope is not what you think.</p>
+<p><strong>Part 2: Instrumental Variables</strong> — What IV identifies (LATE for compliers), the three assumptions (relevance, exclusion, independence), and why finding a valid instrument is a judgment problem rather than a statistical one. Full implementation in Module 4 Part 10 (panel setting) and Module 5 Part 8 (encouragement designs).</p>
+<p><strong>Part 3: Selection Effects &amp; Attrition</strong> — The taxonomy of selection processes: representativeness failure, self-selection, survivorship, informative attrition, and researcher-driven exclusions. How each one corrupts the comparison group. MAR/MNAR mechanics.</p>
+<p><strong>Part 4: Regression Discontinuity</strong> — What a threshold assignment rule gives you (continuity of potential outcomes around the cutoff), sharp vs.&nbsp;fuzzy designs, and why manipulation around the cutoff is the fatal threat. Full implementation in Module 4 Part 10.</p>
+<p><strong>Part 5: Difference-in-Differences</strong> — The parallel trends logic, what it assumes about the counterfactual, and how pre-trend tests can falsify but not verify it. The link between DiD and the pre-post experiment. Full implementation in Module 4 Part 10 (panel) and Module 5 Part 9 (experimental).</p>
+<p><strong>Part 6: Propensity Scores &amp; Matching</strong> — Selection on observables: what it means, what it requires, and why it is never as strong as randomization. The ATE/ATT distinction and its implications for design. Full implementation in Module 4 Part 10 and Module 5 Part 9.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Estimand Reference: What Can You Claim?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 32%">
+<col style="width: 32%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Estimand</th>
+<th>Question answered</th>
+<th>What it requires</th>
+<th>Covered</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>ATE</strong> (Average Treatment Effect)</td>
+<td>What is the average effect across <em>everyone</em>?</td>
+<td>Randomization or full exogeneity</td>
+<td>Module 3 Part 1</td>
+</tr>
+<tr class="even">
+<td><strong>ATT</strong> (Average Treatment Effect on the Treated)</td>
+<td>What is the effect for those who <em>received</em> treatment?</td>
+<td>Selection on observables (PS) or design matching</td>
+<td>Module 3 Part 6; M4/M5</td>
+</tr>
+<tr class="odd">
+<td><strong>ITT</strong> (Intent-to-Treat)</td>
+<td>What is the effect of <em>being assigned</em> to treatment?</td>
+<td>Random assignment to condition</td>
+<td>Module 5 Part 8</td>
+</tr>
+<tr class="even">
+<td><strong>LATE</strong> (Local Average Treatment Effect)</td>
+<td>What is the effect for <em>compliers</em> — units whose treatment status changed due to the instrument?</td>
+<td>Valid instrument (relevance + exclusion + independence)</td>
+<td>Module 3 Part 2; M4/M5</td>
+</tr>
+<tr class="odd">
+<td><strong>Within-unit association</strong></td>
+<td>Within the same unit over time, how does X relate to Y?</td>
+<td>Stationarity; no time-varying confounding within unit</td>
+<td>Module 1–2; Module 4</td>
+</tr>
+</tbody>
+</table>
+<p>No claim exceeds what its design can support. Matching the estimand to the design is the central judgment of applied research.</p>
+</div>
+</div>
 </section>
-<section id="the-through-line-identification" class="level2" data-number="18.3">
-<h2 data-number="18.3" class="anchored" data-anchor-id="the-through-line-identification"><span class="header-section-number">18.3</span> The Through-Line: Identification</h2>
+<section id="the-through-line-identification-as-judgment" class="level2" data-number="18.3">
+<h2 data-number="18.3" class="anchored" data-anchor-id="the-through-line-identification-as-judgment"><span class="header-section-number">18.3</span> The Through-Line: Identification as Judgment</h2>
 <p>Every method in this module is an <strong>identification strategy</strong> — a way to isolate variation in your predictor that is (approximately) exogenous, and use only that variation to estimate the effect of interest.</p>
 <p>The math of each strategy is not the hard part. The hard part is the <strong>judgment</strong>: Does your instrument really satisfy the exclusion restriction? Are your parallel trends really plausible? Can you really claim you have measured all confounders?</p>
-<p>This module teaches both the tools and the judgment.</p>
+<p>This module teaches the diagnosis — how to recognize which threats are present in your DGP and what the logic of each recovery strategy requires. Choosing the right strategy is judgment; executing it is covered in Modules 4 and 5.</p>
 
 
 </section>

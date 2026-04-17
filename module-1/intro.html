@@ -487,7 +487,8 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#the-toolkit" id="toc-the-toolkit" class="nav-link" data-scroll-target="#the-toolkit"><span class="header-section-number">7.1</span> The Toolkit</a></li>
   <li><a href="#how-this-module-is-organized" id="toc-how-this-module-is-organized" class="nav-link" data-scroll-target="#how-this-module-is-organized"><span class="header-section-number">7.2</span> How This Module is Organized</a></li>
-  <li><a href="#core-assumptions" id="toc-core-assumptions" class="nav-link" data-scroll-target="#core-assumptions"><span class="header-section-number">7.3</span> Core Assumptions</a></li>
+  <li><a href="#the-model-family-at-a-glance" id="toc-the-model-family-at-a-glance" class="nav-link" data-scroll-target="#the-model-family-at-a-glance"><span class="header-section-number">7.3</span> The Model Family at a Glance</a></li>
+  <li><a href="#core-assumptions" id="toc-core-assumptions" class="nav-link" data-scroll-target="#core-assumptions"><span class="header-section-number">7.4</span> Core Assumptions</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -536,8 +537,62 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>Part 5: Three-Level Structures</strong> extends the framework to three levels of nesting and introduces the challenge of variance decomposition across levels.</p>
 <p><strong>Part 6: Crossed Random Effects</strong> covers the case where observations belong to multiple grouping factors simultaneously — the structure that arises naturally in most psychological experiments.</p>
 </section>
-<section id="core-assumptions" class="level2" data-number="7.3">
-<h2 data-number="7.3" class="anchored" data-anchor-id="core-assumptions"><span class="header-section-number">7.3</span> Core Assumptions</h2>
+<section id="the-model-family-at-a-glance" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="the-model-family-at-a-glance"><span class="header-section-number">7.3</span> The Model Family at a Glance</h2>
+<p>Before diving into each part, here is a map of the model family this module builds — what each step buys you, and — critically — what it still does not give you.</p>
+<table class="caption-top table">
+<caption>Model family overview. The last column is what drives Module 3.</caption>
+<colgroup>
+<col style="width: 22%">
+<col style="width: 20%">
+<col style="width: 30%">
+<col style="width: 28%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Problem in your data</th>
+<th>Model move</th>
+<th>What it buys you</th>
+<th>What it does <strong>not</strong> buy you</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Repeated observations within a unit</td>
+<td>Random intercept</td>
+<td>Corrects standard errors for dependence in levels</td>
+<td>Causal identification of predictors</td>
+</tr>
+<tr class="even">
+<td>Effect of X differs across units</td>
+<td>Random slope</td>
+<td>Models heterogeneity in the X–Y relationship</td>
+<td>Does not solve confounding of X</td>
+</tr>
+<tr class="odd">
+<td>Stable unit-level confounding</td>
+<td>Fixed effects</td>
+<td>Removes time-invariant omitted variables</td>
+<td>Does not remove time-varying confounding</td>
+</tr>
+<tr class="even">
+<td>Participants <em>and</em> stimuli both sampled</td>
+<td>Crossed random effects</td>
+<td>Generalizes inference across both sources of sampling</td>
+<td>Does not fix design flaws or demand effects</td>
+</tr>
+<tr class="odd">
+<td>Units nested in higher units</td>
+<td>Three-level model</td>
+<td>Partitions variance correctly; avoids pseudo-replication</td>
+<td>Does not identify causal pathways across levels</td>
+</tr>
+</tbody>
+</table>
+<p>The rightmost column is intentional. Every model in this module corrects a <strong>dependence problem</strong> — observations that are not independent. None of them, on their own, solve an <strong>identification problem</strong> — the question of whether your predictor is truly exogenous. That distinction is the heart of Module 3.</p>
+</section>
+<section id="core-assumptions" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="core-assumptions"><span class="header-section-number">7.4</span> Core Assumptions</h2>
 <p>Every model in this module makes assumptions. We will state them explicitly at each step. For now, here is the set of assumptions that span the entire module:</p>
 <div class="callout callout-style-default callout-important no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
