@@ -93,6 +93,7 @@ ANCOVA on the wide-format outcome, controlling for the pre-test, is a common alt
 
 ```{r ancova}
 df_wide <- df_pp |>
+  select(participant, condition, wave, cortisol) |>
   pivot_wider(names_from = wave, values_from = cortisol,
               names_prefix = "cortisol_") |>
   mutate(cortisol_pre_c = cortisol_pre - mean(cortisol_pre))
