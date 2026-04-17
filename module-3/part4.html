@@ -108,6 +108,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -406,6 +435,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -420,49 +455,61 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
   </div>
 </li>
       </ul>
@@ -470,59 +517,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
- <span class="menu-text">Module 6: Extended Toolkit</span></a>
+ <span class="menu-text">Appendices</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-6/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-6/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Binary Outcomes (Logistic MLM)</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-6/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Count Outcomes (Poisson MLM)</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-6/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Survival Analysis</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-6/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Missing Data in Nested Contexts</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-6/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Effect Sizes &amp; Reporting</span></span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
- <span class="menu-text">Appendices</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../about.html" class="sidebar-item-text sidebar-link">
@@ -550,11 +550,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#regression-discontinuity-design" id="toc-regression-discontinuity-design" class="nav-link active" data-scroll-target="#regression-discontinuity-design"><span class="header-section-number">23</span> Regression Discontinuity Design</a>
   <ul class="collapse">
   <li><a href="#the-threshold-as-a-quasi-experiment" id="toc-the-threshold-as-a-quasi-experiment" class="nav-link" data-scroll-target="#the-threshold-as-a-quasi-experiment"><span class="header-section-number">23.1</span> The Threshold as a Quasi-Experiment</a></li>
-  <li><a href="#the-core-assumption" id="toc-the-core-assumption" class="nav-link" data-scroll-target="#the-core-assumption"><span class="header-section-number">23.2</span> The Core Assumption</a></li>
-  <li><a href="#a-worked-example" id="toc-a-worked-example" class="nav-link" data-scroll-target="#a-worked-example"><span class="header-section-number">23.3</span> A Worked Example</a></li>
-  <li><a href="#the-density-test" id="toc-the-density-test" class="nav-link" data-scroll-target="#the-density-test"><span class="header-section-number">23.4</span> The Density Test</a></li>
-  <li><a href="#falsification-tests" id="toc-falsification-tests" class="nav-link" data-scroll-target="#falsification-tests"><span class="header-section-number">23.5</span> Falsification Tests</a></li>
-  <li><a href="#bandwidth-sensitivity" id="toc-bandwidth-sensitivity" class="nav-link" data-scroll-target="#bandwidth-sensitivity"><span class="header-section-number">23.6</span> Bandwidth Sensitivity</a></li>
+  <li><a href="#part-a-rdd-in-longitudinal-research" id="toc-part-a-rdd-in-longitudinal-research" class="nav-link" data-scroll-target="#part-a-rdd-in-longitudinal-research"><span class="header-section-number">23.2</span> Part A: RDD in Longitudinal Research</a>
+  <ul class="collapse">
+  <li><a href="#sharp-rdd-test-scores-and-earnings" id="toc-sharp-rdd-test-scores-and-earnings" class="nav-link" data-scroll-target="#sharp-rdd-test-scores-and-earnings"><span class="header-section-number">23.2.1</span> Sharp RDD: Test Scores and Earnings</a></li>
+  <li><a href="#the-density-test" id="toc-the-density-test" class="nav-link" data-scroll-target="#the-density-test"><span class="header-section-number">23.2.2</span> The Density Test</a></li>
+  <li><a href="#falsification-tests" id="toc-falsification-tests" class="nav-link" data-scroll-target="#falsification-tests"><span class="header-section-number">23.2.3</span> Falsification Tests</a></li>
+  <li><a href="#bandwidth-sensitivity" id="toc-bandwidth-sensitivity" class="nav-link" data-scroll-target="#bandwidth-sensitivity"><span class="header-section-number">23.2.4</span> Bandwidth Sensitivity</a></li>
+  <li><a href="#interrupted-time-series-as-temporal-rdd" id="toc-interrupted-time-series-as-temporal-rdd" class="nav-link" data-scroll-target="#interrupted-time-series-as-temporal-rdd"><span class="header-section-number">23.2.5</span> Interrupted Time Series as Temporal RDD</a></li>
+  </ul></li>
+  <li><a href="#part-b-rdd-in-experimental-research" id="toc-part-b-rdd-in-experimental-research" class="nav-link" data-scroll-target="#part-b-rdd-in-experimental-research"><span class="header-section-number">23.3</span> Part B: RDD in Experimental Research</a>
+  <ul class="collapse">
+  <li><a href="#clinical-trial-with-phq-9-screening-cutoff" id="toc-clinical-trial-with-phq-9-screening-cutoff" class="nav-link" data-scroll-target="#clinical-trial-with-phq-9-screening-cutoff"><span class="header-section-number">23.3.1</span> Clinical Trial with PHQ-9 Screening Cutoff</a></li>
+  <li><a href="#density-test-did-participants-game-their-phq-9-score" id="toc-density-test-did-participants-game-their-phq-9-score" class="nav-link" data-scroll-target="#density-test-did-participants-game-their-phq-9-score"><span class="header-section-number">23.3.2</span> Density Test: Did Participants Game Their PHQ-9 Score?</a></li>
+  <li><a href="#falsification-test-no-jump-in-pre-treatment-covariates" id="toc-falsification-test-no-jump-in-pre-treatment-covariates" class="nav-link" data-scroll-target="#falsification-test-no-jump-in-pre-treatment-covariates"><span class="header-section-number">23.3.3</span> Falsification Test: No Jump in Pre-Treatment Covariates</a></li>
+  <li><a href="#the-late-interpretation-for-clinical-rdd" id="toc-the-late-interpretation-for-clinical-rdd" class="nav-link" data-scroll-target="#the-late-interpretation-for-clinical-rdd"><span class="header-section-number">23.3.4</span> The LATE Interpretation for Clinical RDD</a></li>
+  </ul></li>
+  <li><a href="#summary-rdd-across-contexts" id="toc-summary-rdd-across-contexts" class="nav-link" data-scroll-target="#summary-rdd-across-contexts"><span class="header-section-number">23.4</span> Summary: RDD Across Contexts</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -585,12 +596,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="23"><span class="header-section-number">23</span> Regression Discontinuity Design</h1>
 <section id="the-threshold-as-a-quasi-experiment" class="level2" data-number="23.1">
 <h2 data-number="23.1" class="anchored" data-anchor-id="the-threshold-as-a-quasi-experiment"><span class="header-section-number">23.1</span> The Threshold as a Quasi-Experiment</h2>
-<p>Suppose college admission is partly determined by a test score cutoff: applicants above 70 are admitted, those below are not. People just below 70 and just above 70 are otherwise very similar — nearly identical test scores, similar backgrounds, similar demographics. The only thing separating them is whether they fell above or below an arbitrary threshold.</p>
-<p>This <strong>discontinuity in treatment assignment</strong>, driven by a continuous <strong>running variable</strong>, is the foundation of Regression Discontinuity Design (RDD).</p>
-<p>The key insight: <strong>right at the threshold, treatment is as-good-as-randomly assigned</strong>, because small differences in the running variable near the cutoff are essentially random noise in the DGP.</p>
+<p>Regression Discontinuity Design (RDD) exploits a rule: treatment is assigned when a continuous <strong>running variable</strong> crosses a known threshold. Observations just below and just above the threshold are nearly identical in every respect except treatment status — because small differences in the running variable near the cutoff are essentially random noise in the data-generating process.</p>
+<p><strong>The key insight:</strong> Right at the threshold, treatment is as-good-as-randomly assigned. The jump in outcomes at the cutoff is the causal effect of treatment for units near the threshold.</p>
+<p>RDD appears in two distinct forms across the research contexts this course covers. In <strong>longitudinal research</strong>, the running variable is often time itself (Interrupted Time Series) or a cumulative score that triggers a policy intervention. In <strong>experimental research</strong>, the running variable is often a continuous eligibility screening score, and the cutoff determines who qualifies for a treatment arm.</p>
+<hr>
 </section>
-<section id="the-core-assumption" class="level2" data-number="23.2">
-<h2 data-number="23.2" class="anchored" data-anchor-id="the-core-assumption"><span class="header-section-number">23.2</span> The Core Assumption</h2>
+<section id="part-a-rdd-in-longitudinal-research" class="level2" data-number="23.2">
+<h2 data-number="23.2" class="anchored" data-anchor-id="part-a-rdd-in-longitudinal-research"><span class="header-section-number">23.2</span> Part A: RDD in Longitudinal Research</h2>
+<section id="sharp-rdd-test-scores-and-earnings" class="level3" data-number="23.2.1">
+<h3 data-number="23.2.1" class="anchored" data-anchor-id="sharp-rdd-test-scores-and-earnings"><span class="header-section-number">23.2.1</span> Sharp RDD: Test Scores and Earnings</h3>
+<p>The canonical cross-sectional RDD uses a test score cutoff to assign college admission. Applicants above the cutoff are admitted; those below are not. Applicants just below and just above an arbitrary threshold are otherwise nearly identical.</p>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -601,14 +616,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> In the absence of treatment, the expected outcome must be a continuous function of the running variable at the cutoff. The only reason outcomes should jump at the threshold is the treatment.</p>
-<p><strong>Why it fails:</strong> - <strong>Sorting/manipulation:</strong> If people can manipulate their running variable to cross the threshold (retaking tests, strategic reporting), those just above and just below are not comparable. - <strong>Other policies at the same cutoff:</strong> If another treatment also kicks in at exactly the same threshold, you cannot separate the effects. - <strong>Anticipation:</strong> If people change behavior in anticipation of crossing the threshold.</p>
-<p><strong>How to check:</strong> McCrary density test — a spike in the running variable just above the cutoff indicates manipulation.</p>
+<p><strong>What it means:</strong> In the absence of treatment, the expected outcome must be a continuous function of the running variable at the cutoff. The only reason outcomes should jump at the threshold is the treatment itself.</p>
+<p><strong>Why it fails:</strong></p>
+<ul>
+<li><strong>Sorting/manipulation:</strong> If people can manipulate their running variable to cross the threshold (retaking tests, strategic score reporting), those just above and just below are no longer comparable.</li>
+<li><strong>Other policies at the same cutoff:</strong> If a second treatment also activates at exactly the same threshold, you cannot separate the effects.</li>
+<li><strong>Anticipation effects:</strong> If people change behavior in anticipation of crossing the threshold (e.g., firms change investment plans because they know a regulatory threshold is approaching).</li>
+</ul>
+<p><strong>How to check:</strong> McCrary density test — a spike in the density of the running variable just above the cutoff indicates manipulation/sorting.</p>
 </div>
 </div>
-</section>
-<section id="a-worked-example" class="level2" data-number="23.3">
-<h2 data-number="23.3" class="anchored" data-anchor-id="a-worked-example"><span class="header-section-number">23.3</span> A Worked Example</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -623,15 +640,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_rdd, <span class="fu">aes</span>(<span class="at">x =</span> test_score, <span class="at">y =</span> earnings, <span class="at">color =</span> <span class="fu">factor</span>(admitted))) <span class="sc">+</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">formula =</span> y <span class="sc">~</span> <span class="fu">poly</span>(x, <span class="dv">2</span>), <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#aec6e8"</span>, <span class="st">"#1e3a5f"</span>),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Not admitted"</span>, <span class="st">"Admitted"</span>)) <span class="sc">+</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"RDD: earnings vs. test score"</span>,</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Jump at the dashed cutoff = causal effect of admission"</span>,</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Test Score (centered at cutoff)"</span>, <span class="at">y =</span> <span class="st">"Earnings"</span>,</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">formula =</span> y <span class="sc">~</span> <span class="fu">poly</span>(x, <span class="dv">2</span>), <span class="at">se =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>              <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>             <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#aec6e8"</span>, <span class="st">"#1e3a5f"</span>),</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Not admitted"</span>, <span class="st">"Admitted"</span>)) <span class="sc">+</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"RDD: earnings vs. test score"</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Jump at the dashed cutoff = causal effect of admission"</span>,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Test Score (centered at cutoff)"</span>, <span class="at">y =</span> <span class="st">"Earnings"</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -672,20 +691,21 @@ Unique Obs.                     515          485
 =====================================================================</code></pre>
 </div>
 </div>
-<p><code>rdrobust</code> uses local polynomial regression with an automatically selected optimal bandwidth.</p>
+<p><code>rdrobust</code> uses local polynomial regression with an automatically selected optimal bandwidth. The estimated jump at the cutoff recovers the true causal effect of approximately 8 earnings units.</p>
 </section>
-<section id="the-density-test" class="level2" data-number="23.4">
-<h2 data-number="23.4" class="anchored" data-anchor-id="the-density-test"><span class="header-section-number">23.4</span> The Density Test</h2>
+<section id="the-density-test" class="level3" data-number="23.2.2">
+<h3 data-number="23.2.2" class="anchored" data-anchor-id="the-density-test"><span class="header-section-number">23.2.2</span> The Density Test</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_rdd, <span class="fu">aes</span>(<span class="at">x =</span> test_score)) <span class="sc">+</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">40</span>, <span class="at">fill =</span> <span class="st">"#1e3a5f"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Density test: check for manipulation at the cutoff"</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"A spike just right of the dashed line = sorting violation"</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Test Score (centered at cutoff)"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Density test: check for manipulation at the cutoff"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"A spike just right of the dashed line = sorting violation"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Test Score (centered at cutoff)"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -695,10 +715,11 @@ Unique Obs.                     515          485
 </div>
 </div>
 </div>
+<p>The distribution is smooth through the cutoff — no evidence of sorting. In real test-score data, a spike just above the cutoff would indicate that applicants near the threshold are retaking tests or that administrators are rounding scores upward.</p>
 </section>
-<section id="falsification-tests" class="level2" data-number="23.5">
-<h2 data-number="23.5" class="anchored" data-anchor-id="falsification-tests"><span class="header-section-number">23.5</span> Falsification Tests</h2>
-<p>Run the RDD on <strong>pre-treatment covariates</strong> (age, gender, family income). These cannot be caused by the treatment. A jump at the threshold in a covariate means something else is discontinuous there — a serious threat to validity.</p>
+<section id="falsification-tests" class="level3" data-number="23.2.3">
+<h3 data-number="23.2.3" class="anchored" data-anchor-id="falsification-tests"><span class="header-section-number">23.2.3</span> Falsification Tests</h3>
+<p>Run the RDD on <strong>pre-treatment covariates</strong> (age, family income, gender). These variables cannot be caused by the treatment. A jump at the threshold in a covariate means something else is discontinuous there — a serious threat to validity.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -712,9 +733,9 @@ Unique Obs.                     515          485
 </div>
 </div>
 </section>
-<section id="bandwidth-sensitivity" class="level2" data-number="23.6">
-<h2 data-number="23.6" class="anchored" data-anchor-id="bandwidth-sensitivity"><span class="header-section-number">23.6</span> Bandwidth Sensitivity</h2>
-<p>The estimate should be stable as you vary the bandwidth around the default. Dramatic changes signal dependence on functional form.</p>
+<section id="bandwidth-sensitivity" class="level3" data-number="23.2.4">
+<h3 data-number="23.2.4" class="anchored" data-anchor-id="bandwidth-sensitivity"><span class="header-section-number">23.2.4</span> Bandwidth Sensitivity</h3>
+<p>The estimate should be stable as you vary the bandwidth around the default. Dramatic changes signal dependence on functional form assumptions.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -727,7 +748,7 @@ Unique Obs.                     515          485
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">8</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>) <span class="sc">+</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Bandwidth sensitivity (red = true effect)"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Bandwidth sensitivity (red dashed = true effect = 8)"</span>,</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Bandwidth"</span>, <span class="at">y =</span> <span class="st">"Estimated Discontinuity"</span>) <span class="sc">+</span></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
@@ -739,6 +760,332 @@ Unique Obs.                     515          485
 </div>
 </div>
 </div>
+<hr>
+</section>
+<section id="interrupted-time-series-as-temporal-rdd" class="level3" data-number="23.2.5">
+<h3 data-number="23.2.5" class="anchored" data-anchor-id="interrupted-time-series-as-temporal-rdd"><span class="header-section-number">23.2.5</span> Interrupted Time Series as Temporal RDD</h3>
+<p>A special form of RDD uses <strong>time</strong> as the running variable. When a policy takes effect at a known date, observations before that date serve as “control” and observations after as “treated.” The continuity assumption becomes: absent the policy, the pre-existing time trend would have continued smoothly through the policy date.</p>
+<p>This design is called an <strong>Interrupted Time Series (ITS)</strong> and is especially valuable in longitudinal panel data where a policy is applied to all units simultaneously.</p>
+<p>The ITS model separates three distinct quantities:</p>
+<p><span class="math display">\[Y_t = \underbrace{\beta_0 + \beta_1 t}_{\text{pre-policy trend}} + \underbrace{\beta_2 D_t}_{\text{level jump at policy date}} + \underbrace{\beta_3 (t - c) D_t}_{\text{post-policy slope change}} + \varepsilon_t\]</span></p>
+<ul>
+<li><span class="math inline">\(\beta_1\)</span>: the pre-policy trend (the counterfactual slope — what would have continued)</li>
+<li><span class="math inline">\(\beta_2\)</span>: the immediate level jump at the policy date (the “intercept shift”)</li>
+<li><span class="math inline">\(\beta_3\)</span>: the change in slope after the policy (whether the policy altered the trajectory)</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>n_stores <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>n_months <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>store_eff <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_stores, <span class="dv">0</span>, <span class="dv">6</span>)  <span class="co"># store-level random intercepts</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>df_its <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">store =</span> <span class="dv">1</span><span class="sc">:</span>n_stores, <span class="at">month =</span> <span class="dv">1</span><span class="sc">:</span>n_months) <span class="sc">|&gt;</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">post    =</span> <span class="fu">as.integer</span>(month <span class="sc">&gt;=</span> <span class="dv">16</span>),          <span class="co"># policy starts at month 16</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">t_post  =</span> <span class="fu">pmax</span>(month <span class="sc">-</span> <span class="dv">15</span>, <span class="dv">0</span>),              <span class="co"># time since policy, 0 pre-policy</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">store_u =</span> store_eff[store],</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True: level jump = +5, slope change = +0.3/month</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">sales   =</span> <span class="dv">60</span> <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> month <span class="sc">+</span> <span class="dv">5</span> <span class="sc">*</span> post <span class="sc">+</span> <span class="fl">0.3</span> <span class="sc">*</span> t_post <span class="sc">+</span> store_u <span class="sc">+</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">store   =</span> <span class="fu">factor</span>(store)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>m_its <span class="ot">&lt;-</span> <span class="fu">lmer</span>(sales <span class="sc">~</span> month <span class="sc">+</span> post <span class="sc">+</span> t_post <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> store), <span class="at">data =</span> df_its,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>              <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m_its)<span class="sc">$</span>coefficients <span class="sc">|&gt;</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_to_column</span>(<span class="st">"term"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"month"</span>, <span class="st">"post"</span>, <span class="st">"t_post"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">estimate =</span> Estimate, <span class="at">std.error =</span> <span class="st">`</span><span class="at">Std. Error</span><span class="st">`</span>, <span class="at">t =</span> <span class="st">`</span><span class="at">t value</span><span class="st">`</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), \(x) <span class="fu">round</span>(x, <span class="dv">3</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"ITS model: pre-trend, level jump (post), and slope change (t_post)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>ITS model: pre-trend, level jump (post), and slope change (t_post)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">term</th>
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">std.error</th>
+<th style="text-align: right;">t</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">month</td>
+<td style="text-align: right;">0.819</td>
+<td style="text-align: right;">0.055</td>
+<td style="text-align: right;">14.940</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">post</td>
+<td style="text-align: right;">4.952</td>
+<td style="text-align: right;">0.672</td>
+<td style="text-align: right;">7.371</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">t_post</td>
+<td style="text-align: right;">0.293</td>
+<td style="text-align: right;">0.077</td>
+<td style="text-align: right;">3.781</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregate to store-average for plotting</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df_its_agg <span class="ot">&lt;-</span> df_its <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(month, post) <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">sales =</span> <span class="fu">mean</span>(sales), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Predicted line from model (using population-level prediction, no store RE)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>coefs <span class="ot">&lt;-</span> <span class="fu">fixef</span>(m_its)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>df_pred <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">month =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">post   =</span> <span class="fu">as.integer</span>(month <span class="sc">&gt;=</span> <span class="dv">16</span>),</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">t_post =</span> <span class="fu">pmax</span>(month <span class="sc">-</span> <span class="dv">15</span>, <span class="dv">0</span>),</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred   =</span> coefs[<span class="st">"(Intercept)"</span>] <span class="sc">+</span> coefs[<span class="st">"month"</span>] <span class="sc">*</span> month <span class="sc">+</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>               coefs[<span class="st">"post"</span>] <span class="sc">*</span> post <span class="sc">+</span> coefs[<span class="st">"t_post"</span>] <span class="sc">*</span> t_post</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> df_its_agg, <span class="fu">aes</span>(<span class="at">x =</span> month, <span class="at">y =</span> sales, <span class="at">color =</span> <span class="fu">factor</span>(post)),</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>             <span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> df_pred, <span class="fu">aes</span>(<span class="at">x =</span> month, <span class="at">y =</span> pred), <span class="at">linewidth =</span> <span class="fl">1.2</span>,</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fl">15.5</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>,</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>             <span class="at">linewidth =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">16.5</span>, <span class="at">y =</span> <span class="dv">72</span>, <span class="at">label =</span> <span class="fu">expression</span>(beta[<span class="dv">2</span>] <span class="sc">~</span> <span class="st">"(level jump)"</span>),</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>           <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">22</span>, <span class="at">y =</span> <span class="dv">84</span>, <span class="at">label =</span> <span class="fu">expression</span>(beta[<span class="dv">3</span>] <span class="sc">~</span> <span class="st">"(slope change)"</span>),</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>           <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"#555555"</span>, <span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#aec6e8"</span>, <span class="st">"#1e3a5f"</span>),</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Pre-policy"</span>, <span class="st">"Post-policy"</span>)) <span class="sc">+</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Interrupted Time Series: pricing policy at month 16"</span>,</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Month"</span>, <span class="at">y =</span> <span class="st">"Mean Sales"</span>, <span class="at">color =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part4_files/figure-html/its-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li><span class="math inline">\(\hat{\beta}_2 \approx 5\)</span>: The policy caused an immediate, step-change increase in sales at implementation.</li>
+<li><span class="math inline">\(\hat{\beta}_3 \approx 0.3\)</span>: The policy also increased the monthly sales growth rate by 0.3 units per month compared to the pre-policy trend.</li>
+<li><span class="math inline">\(\hat{\beta}_1 \approx 0.8\)</span>: The counterfactual — in the absence of the policy, sales would have continued rising by 0.8 units per month.</li>
+</ul>
+<p>The ITS design cannot rule out other events that happened exactly at month 16. The strongest threats are contemporaneous shocks (another policy, a market event) that coincide precisely with the policy date.</p>
+<p><strong>The density-test equivalent for ITS:</strong> Check for unusual clustering of observations just before the policy implementation date. Firms that anticipate a pricing policy may accelerate purchases or delay inventory, creating a temporary spike in the outcome in periods 14–15. Plot the distribution of the outcome in the 3–4 periods immediately before implementation and compare to the pre-trend expectation.</p>
+<hr>
+</section>
+</section>
+<section id="part-b-rdd-in-experimental-research" class="level2" data-number="23.3">
+<h2 data-number="23.3" class="anchored" data-anchor-id="part-b-rdd-in-experimental-research"><span class="header-section-number">23.3</span> Part B: RDD in Experimental Research</h2>
+<p>RDD logic appears in experiments when eligibility for treatment is determined by crossing a continuous screening threshold. Unlike the observational RDD — where the cutoff is an exogenous administrative rule — the experimental RDD uses the cutoff to create a natural comparison group within a clinical or intervention study.</p>
+<section id="clinical-trial-with-phq-9-screening-cutoff" class="level3" data-number="23.3.1">
+<h3 data-number="23.3.1" class="anchored" data-anchor-id="clinical-trial-with-phq-9-screening-cutoff"><span class="header-section-number">23.3.1</span> Clinical Trial with PHQ-9 Screening Cutoff</h3>
+<p>In a depression intervention trial, participants who score ≥ 15 on the PHQ-9 depression screening instrument are eligible for the treatment arm; those scoring below 15 are placed on a waitlist (active control). This creates a regression discontinuity: participants just above and just below the cutoff of 15 are nearly identical in all respects except treatment assignment.</p>
+<p>The PHQ-9 RDD is a <strong>sharp RDD</strong> if the cutoff is strictly enforced (everyone scoring ≥ 15 receives treatment; no one below 15 does). It becomes a <strong>fuzzy RDD</strong> if clinician judgment overrides the score — some below-15 participants receive treatment based on clinical discretion, and some above-15 participants decline. In the fuzzy case, the cutoff is an instrument for treatment receipt (not a deterministic assignment rule), and the estimand is a LATE — just as in the IV framework.</p>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Assumption: Sharp vs.&nbsp;Fuzzy Cutoff
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Sharp RDD:</strong> Treatment is deterministically assigned by the cutoff — everyone above the threshold is treated, no one below is. The discontinuity directly identifies the treatment effect for units near the cutoff.</p>
+<p><strong>Fuzzy RDD:</strong> The cutoff changes the <em>probability</em> of treatment receipt — some above-threshold participants do not receive treatment (refusal, clinical override), some below-threshold participants do (clinician discretion). Fuzzy RDD gives a LATE via IV: the cutoff serves as an instrument for treatment receipt. Use <code>rdrobust(..., fuzzy = treatment_received)</code> for fuzzy designs.</p>
+<p>The key diagnostic: check the first stage — does crossing the cutoff produce a large, discontinuous jump in the <em>probability</em> of treatment receipt?</p>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>n     <span class="ot">&lt;-</span> <span class="dv">600</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>phq9  <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">runif</span>(n, <span class="dv">0</span>, <span class="dv">27</span>))  <span class="co"># PHQ-9 scores from 0 to 27</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>treated <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(phq9 <span class="sc">&gt;=</span> <span class="dv">15</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># True causal effect for participants near threshold = 6 points improvement</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># on Hamilton Depression Rating Scale (HDRS; lower = less depressed)</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>hdrs <span class="ot">&lt;-</span> <span class="dv">12</span> <span class="sc">-</span> <span class="fl">0.15</span> <span class="sc">*</span> phq9 <span class="sc">+</span> <span class="dv">6</span> <span class="sc">*</span> treated <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">4</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>df_clinical <span class="ot">&lt;-</span> <span class="fu">tibble</span>(phq9, treated, hdrs)</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>rdd_clinical <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y =</span> df_clinical<span class="sc">$</span>hdrs, <span class="at">x =</span> df_clinical<span class="sc">$</span>phq9, <span class="at">c =</span> <span class="dv">15</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rdd_clinical)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Sharp RD estimates using local polynomial regression.
+
+Number of Obs.                  600
+BW type                       mserd
+Kernel                   Triangular
+VCE method                       NN
+
+Number of Obs.                  335          265
+Eff. Number of Obs.              77          107
+Order est. (p)                    1            1
+Order bias  (q)                   2            2
+BW est. (h)                   4.211        4.211
+BW bias (b)                   8.002        8.002
+rho (h/b)                     0.526        0.526
+Unique Obs.                      15           13
+
+=====================================================================
+                   Point    Robust Inference
+                Estimate         z     P&gt;|z|      [ 95% C.I. ]       
+---------------------------------------------------------------------
+     RD Effect     7.820     5.283     0.000     [5.292 , 11.535]    
+=====================================================================</code></pre>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_clinical, <span class="fu">aes</span>(<span class="at">x =</span> phq9, <span class="at">y =</span> hdrs, <span class="at">color =</span> <span class="fu">factor</span>(treated))) <span class="sc">+</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">formula =</span> y <span class="sc">~</span> x, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">linewidth =</span> <span class="fl">1.3</span>) <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">15</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">linewidth =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#aec6e8"</span>, <span class="st">"#1e3a5f"</span>),</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Waitlist (PHQ-9 &lt; 15)"</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                                <span class="st">"Treated (PHQ-9 ≥ 15)"</span>)) <span class="sc">+</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"RDD: depression intervention at PHQ-9 cutoff = 15"</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Jump at the cutoff = causal effect of treatment for participants near 15"</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"PHQ-9 Screening Score"</span>, <span class="at">y =</span> <span class="st">"HDRS Outcome Score"</span>,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part4_files/figure-html/clinical-rdd-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="density-test-did-participants-game-their-phq-9-score" class="level3" data-number="23.3.2">
+<h3 data-number="23.3.2" class="anchored" data-anchor-id="density-test-did-participants-game-their-phq-9-score"><span class="header-section-number">23.3.2</span> Density Test: Did Participants Game Their PHQ-9 Score?</h3>
+<p>If participants believe that scoring ≥ 15 gives them access to a desirable treatment, they might inflate their self-reported PHQ-9 responses to qualify. A spike in the density just above 15 indicates this gaming behavior — a sorting violation that makes those just above and just below the threshold non-comparable.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_clinical, <span class="fu">aes</span>(<span class="at">x =</span> phq9)) <span class="sc">+</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">28</span>, <span class="at">fill =</span> <span class="st">"#1e3a5f"</span>, <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">15</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Density test: PHQ-9 score distribution"</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"A spike just above 15 (red dashed) = participants inflating scores to qualify"</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"PHQ-9 Score"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part4_files/figure-html/clinical-density-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In this simulation there is no spike — the distribution is smooth through the cutoff, consistent with the continuity assumption.</p>
+</section>
+<section id="falsification-test-no-jump-in-pre-treatment-covariates" class="level3" data-number="23.3.3">
+<h3 data-number="23.3.3" class="anchored" data-anchor-id="falsification-test-no-jump-in-pre-treatment-covariates"><span class="header-section-number">23.3.3</span> Falsification Test: No Jump in Pre-Treatment Covariates</h3>
+<p>Run the RDD on age — a pre-treatment covariate that cannot be caused by depression treatment eligibility. A discontinuity in age at PHQ-9 = 15 would indicate that something other than depression severity drives the threshold, undermining the identification assumption.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df_clinical <span class="ot">&lt;-</span> df_clinical <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> <span class="dv">35</span> <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">10</span>))</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>fake_clinical <span class="ot">&lt;-</span> <span class="fu">rdrobust</span>(<span class="at">y =</span> df_clinical<span class="sc">$</span>age, <span class="at">x =</span> df_clinical<span class="sc">$</span>phq9, <span class="at">c =</span> <span class="dv">15</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Jump in age at PHQ-9 = 15 (should be ~0):"</span>,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(fake_clinical<span class="sc">$</span>coef[<span class="dv">1</span>], <span class="dv">3</span>),</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"| p ="</span>, <span class="fu">round</span>(fake_clinical<span class="sc">$</span>pv[<span class="dv">1</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Jump in age at PHQ-9 = 15 (should be ~0): 1.535 | p = 0.763 </code></pre>
+</div>
+</div>
+</section>
+<section id="the-late-interpretation-for-clinical-rdd" class="level3" data-number="23.3.4">
+<h3 data-number="23.3.4" class="anchored" data-anchor-id="the-late-interpretation-for-clinical-rdd"><span class="header-section-number">23.3.4</span> The LATE Interpretation for Clinical RDD</h3>
+<p>Like all RDD estimates, this is a <strong>Local Average Treatment Effect</strong> for participants near the PHQ-9 = 15 cutoff. The treatment effect for severely depressed patients (PHQ-9 &gt; 25) may be very different — and RDD cannot speak to it, because those patients are far from the threshold. Similarly, participants with PHQ-9 scores of 5–10 (mild symptoms) are far below the cutoff; the treatment effect there is entirely unidentified by this design.</p>
+<p><strong>The clinical implication:</strong> The RDD estimate is most credible precisely where the clinical evidence is most contested — the moderate-severity range near the threshold. It cannot adjudicate whether the treatment would work better for the most severely depressed, who are already likely to receive treatment through other channels.</p>
+<hr>
+</section>
+</section>
+<section id="summary-rdd-across-contexts" class="level2" data-number="23.4">
+<h2 data-number="23.4" class="anchored" data-anchor-id="summary-rdd-across-contexts"><span class="header-section-number">23.4</span> Summary: RDD Across Contexts</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Cross-sectional / Observational RDD</th>
+<th>Interrupted Time Series</th>
+<th>Experimental Screening RDD</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Running variable</td>
+<td>Continuous score (test, age, income)</td>
+<td>Time (months, quarters)</td>
+<td>Continuous screening instrument</td>
+</tr>
+<tr class="even">
+<td>Threshold</td>
+<td>Administrative cutoff</td>
+<td>Policy date</td>
+<td>Eligibility cutoff</td>
+</tr>
+<tr class="odd">
+<td>Treatment</td>
+<td>Program / policy eligibility</td>
+<td>Pre vs.&nbsp;post policy</td>
+<td>Treatment arm entry</td>
+</tr>
+<tr class="even">
+<td>Density test</td>
+<td>Spike in score near cutoff</td>
+<td>Unusual clustering before policy date</td>
+<td>Spike in screening score near cutoff</td>
+</tr>
+<tr class="odd">
+<td>Continuity assumption</td>
+<td>No sorting on unobservables</td>
+<td>No confounding events at policy date</td>
+<td>No gaming of screening score</td>
+</tr>
+<tr class="even">
+<td>LATE for…</td>
+<td>Units near score threshold</td>
+<td>All units at the policy date</td>
+<td>Participants near screening cutoff</td>
+</tr>
+</tbody>
+</table>
+<p>RDD is most credible when the threshold is truly arbitrary from the unit’s perspective, when the running variable cannot be precisely manipulated, and when the bandwidth is narrow enough that treated and control units are genuinely comparable. The narrower the bandwidth, the more credible the local randomization — but also the smaller the sample and the larger the standard errors.</p>
 
 
 </section>

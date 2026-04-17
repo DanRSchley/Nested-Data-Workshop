@@ -108,6 +108,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -406,6 +435,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -420,49 +455,61 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+ <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+ <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+ <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+ <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+ <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+ <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+ <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+ <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
   </div>
 </li>
       </ul>
@@ -470,59 +517,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
- <span class="menu-text">Module 6: Extended Toolkit</span></a>
+ <span class="menu-text">Appendices</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-6/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-6/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Binary Outcomes (Logistic MLM)</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-6/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Count Outcomes (Poisson MLM)</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-6/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">46</span>&nbsp; <span class="chapter-title">Survival Analysis</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-6/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">47</span>&nbsp; <span class="chapter-title">Missing Data in Nested Contexts</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-6/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">48</span>&nbsp; <span class="chapter-title">Effect Sizes &amp; Reporting</span></span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
- <span class="menu-text">Appendices</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../about.html" class="sidebar-item-text sidebar-link">
@@ -550,8 +550,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#simpsons-paradox" id="toc-simpsons-paradox" class="nav-link active" data-scroll-target="#simpsons-paradox"><span class="header-section-number">18</span> Simpson’s Paradox</a>
   <ul class="collapse">
   <li><a href="#when-the-aggregate-lies" id="toc-when-the-aggregate-lies" class="nav-link" data-scroll-target="#when-the-aggregate-lies"><span class="header-section-number">18.1</span> When the Aggregate Lies</a></li>
-  <li><a href="#real-world-examples" id="toc-real-world-examples" class="nav-link" data-scroll-target="#real-world-examples"><span class="header-section-number">18.2</span> Real-World Examples</a></li>
-  <li><a href="#the-lesson-for-nested-data-analysis" id="toc-the-lesson-for-nested-data-analysis" class="nav-link" data-scroll-target="#the-lesson-for-nested-data-analysis"><span class="header-section-number">18.3</span> The Lesson for Nested Data Analysis</a></li>
+  <li><a href="#context-1-cross-sectional-nesting-the-classic-case" id="toc-context-1-cross-sectional-nesting-the-classic-case" class="nav-link" data-scroll-target="#context-1-cross-sectional-nesting-the-classic-case"><span class="header-section-number">18.2</span> Context 1: Cross-Sectional Nesting — The Classic Case</a>
+  <ul class="collapse">
+  <li><a href="#the-programs-study-hours-example" id="toc-the-programs-study-hours-example" class="nav-link" data-scroll-target="#the-programs-study-hours-example"><span class="header-section-number">18.2.1</span> The Programs × Study Hours Example</a></li>
+  <li><a href="#real-world-examples-of-cross-sectional-simpsons-paradox" id="toc-real-world-examples-of-cross-sectional-simpsons-paradox" class="nav-link" data-scroll-target="#real-world-examples-of-cross-sectional-simpsons-paradox"><span class="header-section-number">18.2.2</span> Real-World Examples of Cross-Sectional Simpson’s Paradox</a></li>
+  </ul></li>
+  <li><a href="#context-2-longitudinal-panel-data-the-within-vs.-between-paradox" id="toc-context-2-longitudinal-panel-data-the-within-vs.-between-paradox" class="nav-link" data-scroll-target="#context-2-longitudinal-panel-data-the-within-vs.-between-paradox"><span class="header-section-number">18.3</span> Context 2: Longitudinal Panel Data — The Within vs.&nbsp;Between Paradox</a>
+  <ul class="collapse">
+  <li><a href="#income-and-life-satisfaction-the-easterlin-paradox" id="toc-income-and-life-satisfaction-the-easterlin-paradox" class="nav-link" data-scroll-target="#income-and-life-satisfaction-the-easterlin-paradox"><span class="header-section-number">18.3.1</span> Income and Life Satisfaction: The Easterlin Paradox</a></li>
+  <li><a href="#simulation-100-people-8-annual-waves" id="toc-simulation-100-people-8-annual-waves" class="nav-link" data-scroll-target="#simulation-100-people-8-annual-waves"><span class="header-section-number">18.3.2</span> Simulation: 100 People × 8 Annual Waves</a></li>
+  <li><a href="#visualizing-the-easterlin-paradox" id="toc-visualizing-the-easterlin-paradox" class="nav-link" data-scroll-target="#visualizing-the-easterlin-paradox"><span class="header-section-number">18.3.3</span> Visualizing the Easterlin Paradox</a></li>
+  <li><a href="#why-this-is-simpsons-paradox" id="toc-why-this-is-simpsons-paradox" class="nav-link" data-scroll-target="#why-this-is-simpsons-paradox"><span class="header-section-number">18.3.4</span> Why This Is Simpson’s Paradox</a></li>
+  <li><a href="#connection-to-module-2-the-cmcgmc-fix" id="toc-connection-to-module-2-the-cmcgmc-fix" class="nav-link" data-scroll-target="#connection-to-module-2-the-cmcgmc-fix"><span class="header-section-number">18.3.5</span> Connection to Module 2: The CMC/GMC Fix</a></li>
+  </ul></li>
+  <li><a href="#context-3-within-subjects-experiments-the-stimulus-confound" id="toc-context-3-within-subjects-experiments-the-stimulus-confound" class="nav-link" data-scroll-target="#context-3-within-subjects-experiments-the-stimulus-confound"><span class="header-section-number">18.4</span> Context 3: Within-Subjects Experiments — The Stimulus Confound</a>
+  <ul class="collapse">
+  <li><a href="#memory-emotional-valence-and-concrete-words" id="toc-memory-emotional-valence-and-concrete-words" class="nav-link" data-scroll-target="#memory-emotional-valence-and-concrete-words"><span class="header-section-number">18.4.1</span> Memory, Emotional Valence, and Concrete Words</a></li>
+  <li><a href="#fitting-the-wrong-and-correct-models" id="toc-fitting-the-wrong-and-correct-models" class="nav-link" data-scroll-target="#fitting-the-wrong-and-correct-models"><span class="header-section-number">18.4.2</span> Fitting the Wrong and Correct Models</a></li>
+  <li><a href="#visualizing-the-stimulus-confound" id="toc-visualizing-the-stimulus-confound" class="nav-link" data-scroll-target="#visualizing-the-stimulus-confound"><span class="header-section-number">18.4.3</span> Visualizing the Stimulus Confound</a></li>
+  <li><a href="#why-this-is-simpsons-paradox-1" id="toc-why-this-is-simpsons-paradox-1" class="nav-link" data-scroll-target="#why-this-is-simpsons-paradox-1"><span class="header-section-number">18.4.4</span> Why This Is Simpson’s Paradox</a></li>
+  <li><a href="#the-fix" id="toc-the-fix" class="nav-link" data-scroll-target="#the-fix"><span class="header-section-number">18.4.5</span> The Fix</a></li>
+  </ul></li>
+  <li><a href="#synthesis-the-diagnosis-always-decompose-before-you-report" id="toc-synthesis-the-diagnosis-always-decompose-before-you-report" class="nav-link" data-scroll-target="#synthesis-the-diagnosis-always-decompose-before-you-report"><span class="header-section-number">18.5</span> Synthesis: The Diagnosis — Always Decompose Before You Report</a>
+  <ul class="collapse">
+  <li><a href="#practical-checklist" id="toc-practical-checklist" class="nav-link" data-scroll-target="#practical-checklist"><span class="header-section-number">18.5.1</span> Practical Checklist</a></li>
+  <li><a href="#three-panel-summary-visualization" id="toc-three-panel-summary-visualization" class="nav-link" data-scroll-target="#three-panel-summary-visualization"><span class="header-section-number">18.5.2</span> Three-Panel Summary Visualization</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -582,89 +606,585 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="18"><span class="header-section-number">18</span> Simpson’s Paradox</h1>
 <section id="when-the-aggregate-lies" class="level2" data-number="18.1">
 <h2 data-number="18.1" class="anchored" data-anchor-id="when-the-aggregate-lies"><span class="header-section-number">18.1</span> When the Aggregate Lies</h2>
-<p>Simpson’s Paradox occurs when a relationship that exists in the aggregate data <em>reverses</em> when you look within subgroups. It is not a statistical quirk — it is a direct consequence of ignoring nesting, and it is surprisingly common.</p>
+<p>Simpson’s Paradox occurs when a relationship that exists in the aggregate data <em>reverses</em> (or dramatically changes) when you look within subgroups. It is not a statistical quirk — it is a direct consequence of ignoring nesting, and it is surprisingly common in social science data.</p>
+<p>This chapter demonstrates Simpson’s Paradox in three distinct research contexts:</p>
+<ol type="1">
+<li><strong>Cross-sectional nesting</strong> — the classic case: students nested in programs</li>
+<li><strong>Longitudinal panel data</strong> — the within vs.&nbsp;between paradox: income and life satisfaction</li>
+<li><strong>Within-subjects experiments</strong> — the stimulus confound: memory and emotional valence</li>
+</ol>
+<p>Each context has a different structural cause and a different remedy. Together, they establish a single diagnostic principle: <strong>always decompose before you report</strong>.</p>
+<hr>
+</section>
+<section id="context-1-cross-sectional-nesting-the-classic-case" class="level2" data-number="18.2">
+<h2 data-number="18.2" class="anchored" data-anchor-id="context-1-cross-sectional-nesting-the-classic-case"><span class="header-section-number">18.2</span> Context 1: Cross-Sectional Nesting — The Classic Case</h2>
+<section id="the-programs-study-hours-example" class="level3" data-number="18.2.1">
+<h3 data-number="18.2.1" class="anchored" data-anchor-id="the-programs-study-hours-example"><span class="header-section-number">18.2.1</span> The Programs × Study Hours Example</h3>
+<p>Students in harder academic programs study more AND receive lower grades — because the programs are harder, not because studying hurts. When you pool across programs, the between-program confound dominates the within-program relationship.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Classic demonstration: grades and study time, but students vary by program</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Hard program students study more AND have lower grades (because the program is harder)</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n_students  <span class="ot">&lt;-</span> <span class="dv">200</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>n_programs  <span class="ot">&lt;-</span> <span class="dv">5</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>program_difficulty <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">10</span>)   <span class="co"># harder programs</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>program_study_avg  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">7</span>, <span class="dv">6</span>, <span class="dv">5</span>, <span class="dv">4</span>)    <span class="co"># harder programs -&gt; students study MORE</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>students <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">student  =</span> <span class="dv">1</span><span class="sc">:</span>n_students,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">program  =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_programs, <span class="at">each =</span> n_students <span class="sc">/</span> n_programs),</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">study    =</span> program_study_avg[program] <span class="sc">+</span> <span class="fu">rnorm</span>(n_students, <span class="dv">0</span>, <span class="fl">0.8</span>),</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">grade    =</span> <span class="dv">80</span> <span class="sc">-</span> <span class="dv">3</span> <span class="sc">*</span> program_difficulty[program] <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> (study <span class="sc">-</span> program_study_avg[program]) <span class="sc">+</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>             <span class="fu">rnorm</span>(n_students, <span class="dv">0</span>, <span class="dv">3</span>),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">program_label =</span> <span class="fu">factor</span>(program, <span class="at">labels =</span> <span class="fu">paste</span>(<span class="st">"Program"</span>, <span class="dv">1</span><span class="sc">:</span>n_programs))</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Overall relationship: NEGATIVE (studying more -&gt; lower grades??)</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>m_pooled <span class="ot">&lt;-</span> <span class="fu">lm</span>(grade <span class="sc">~</span> study, <span class="at">data =</span> students)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Within-program: POSITIVE</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>m_within <span class="ot">&lt;-</span> <span class="fu">lmer</span>(grade <span class="sc">~</span> study <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> program_label), <span class="at">data =</span> students)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(students, <span class="fu">aes</span>(<span class="at">x =</span> study, <span class="at">y =</span> grade)) <span class="sc">+</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> program_label), <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>) <span class="sc">+</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Pooled: studying MORE predicts LOWER grades?!"</span>,</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Study hours/week"</span>, <span class="at">y =</span> <span class="st">"Grade"</span>, <span class="at">color =</span> <span class="st">"Program"</span>) <span class="sc">+</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(students, <span class="fu">aes</span>(<span class="at">x =</span> study, <span class="at">y =</span> grade, <span class="at">color =</span> program_label)) <span class="sc">+</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>) <span class="sc">+</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Within program: studying MORE predicts HIGHER grades"</span>,</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Study hours/week"</span>, <span class="at">y =</span> <span class="st">"Grade"</span>, <span class="at">color =</span> <span class="st">"Program"</span>) <span class="sc">+</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">/</span> p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_students  <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_programs  <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>program_difficulty <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">10</span>)   <span class="co"># harder programs lower average grades</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>program_study_avg  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">7</span>, <span class="dv">6</span>, <span class="dv">5</span>, <span class="dv">4</span>)    <span class="co"># harder programs, students study more</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>students <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">student  =</span> <span class="dv">1</span><span class="sc">:</span>n_students,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">program  =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_programs, <span class="at">each =</span> n_students <span class="sc">/</span> n_programs),</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">study    =</span> program_study_avg[program] <span class="sc">+</span> <span class="fu">rnorm</span>(n_students, <span class="dv">0</span>, <span class="fl">0.8</span>),</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">grade    =</span> <span class="dv">80</span> <span class="sc">-</span> <span class="dv">3</span> <span class="sc">*</span> program_difficulty[program] <span class="sc">+</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>             <span class="dv">2</span> <span class="sc">*</span> (study <span class="sc">-</span> program_study_avg[program]) <span class="sc">+</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>             <span class="fu">rnorm</span>(n_students, <span class="dv">0</span>, <span class="dv">3</span>),</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">program_label =</span> <span class="fu">factor</span>(program, <span class="at">labels =</span> <span class="fu">paste</span>(<span class="st">"Program"</span>, <span class="dv">1</span><span class="sc">:</span>n_programs))</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>p_pooled <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(students, <span class="fu">aes</span>(<span class="at">x =</span> study, <span class="at">y =</span> grade)) <span class="sc">+</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> program_label), <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>) <span class="sc">+</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Pooled: studying MORE predicts LOWER grades?!"</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Study hours/week"</span>, <span class="at">y =</span> <span class="st">"Grade"</span>, <span class="at">color =</span> <span class="st">"Program"</span>) <span class="sc">+</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>p_within <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(students, <span class="fu">aes</span>(<span class="at">x =</span> study, <span class="at">y =</span> grade, <span class="at">color =</span> program_label)) <span class="sc">+</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>) <span class="sc">+</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Within program: studying MORE predicts HIGHER grades"</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Study hours/week"</span>, <span class="at">y =</span> <span class="st">"Grade"</span>, <span class="at">color =</span> <span class="st">"Program"</span>) <span class="sc">+</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>p_pooled <span class="sc">/</span> p_within</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="part3_files/figure-html/simpsons-setup-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="part3_files/figure-html/cross-sectional-plot-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>The pooled relationship is negative: students who study more get lower grades. That looks like studying causes harm!</p>
-<p>The truth: students in harder programs study more AND get lower grades — <em>because the programs are harder</em>. Within any given program, studying more helps. The aggregate correlation is driven entirely by the confound between program difficulty and study time.</p>
-<p>This is Simpson’s Paradox, and it happens in your data.</p>
+<p>The pooled slope is negative: students who study more get lower grades. The truth: students in harder programs both study more AND earn lower grades — <em>because the programs are harder</em>. Within any given program, studying more helps. The aggregate correlation is driven entirely by the confound between program difficulty and study time.</p>
+<p><strong>The fix:</strong> Use a mixed model that explicitly estimates the within-program effect:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>m_pooled <span class="ot">&lt;-</span> <span class="fu">lm</span>(grade <span class="sc">~</span> study, <span class="at">data =</span> students)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>m_mixed  <span class="ot">&lt;-</span> <span class="fu">lmer</span>(grade <span class="sc">~</span> study <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> program_label), <span class="at">data =</span> students)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model         =</span> <span class="fu">c</span>(<span class="st">"Pooled OLS"</span>, <span class="st">"Mixed model (within-program)"</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Study_coeff   =</span> <span class="fu">c</span>(<span class="fu">coef</span>(m_pooled)[<span class="st">"study"</span>],</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">fixef</span>(m_mixed)[<span class="st">"study"</span>]),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Direction     =</span> <span class="fu">c</span>(<span class="st">"Negative (wrong)"</span>, <span class="st">"Positive (correct)"</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">caption =</span> <span class="st">"Study hours coefficient: pooled vs. within-program"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Study hours coefficient: pooled vs.&nbsp;within-program</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">Study_coeff</th>
+<th style="text-align: left;">Direction</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Pooled OLS</td>
+<td style="text-align: right;">4.889</td>
+<td style="text-align: left;">Negative (wrong)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Mixed model (within-program)</td>
+<td style="text-align: right;">1.745</td>
+<td style="text-align: left;">Positive (correct)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </section>
-<section id="real-world-examples" class="level2" data-number="18.2">
-<h2 data-number="18.2" class="anchored" data-anchor-id="real-world-examples"><span class="header-section-number">18.2</span> Real-World Examples</h2>
+<section id="real-world-examples-of-cross-sectional-simpsons-paradox" class="level3" data-number="18.2.2">
+<h3 data-number="18.2.2" class="anchored" data-anchor-id="real-world-examples-of-cross-sectional-simpsons-paradox"><span class="header-section-number">18.2.2</span> Real-World Examples of Cross-Sectional Simpson’s Paradox</h3>
 <p><strong>Berkeley admissions (1973):</strong> Across departments, women were admitted at lower rates than men. Within departments, women were admitted at the same or higher rates. The paradox arose because women applied disproportionately to competitive departments.</p>
 <p><strong>COVID-19 mortality:</strong> In some early analyses, countries with more advanced healthcare appeared to have higher mortality rates. Within matched patient groups (controlling for age and severity), better healthcare reduced mortality. The aggregate correlation was driven by age confounds.</p>
-<p><strong>Wages across demographic groups:</strong> Total wages can fall for every group while rising in the aggregate, if people are shifting from lower-paid to higher-paid occupations (your slides show this exact example).</p>
+<p><strong>Wages across demographic groups:</strong> Total wages can fall for every group while rising in the aggregate, if people are shifting from lower-paid to higher-paid occupations.</p>
+<hr>
 </section>
-<section id="the-lesson-for-nested-data-analysis" class="level2" data-number="18.3">
-<h2 data-number="18.3" class="anchored" data-anchor-id="the-lesson-for-nested-data-analysis"><span class="header-section-number">18.3</span> The Lesson for Nested Data Analysis</h2>
-<p>Simpson’s Paradox is not rare. It is the default when: 1. Groups differ in their average level of the predictor 2. Groups differ in their average level of the outcome 3. The predictor and outcome differ in sign between levels</p>
-<p>Every time you ignore nesting, you risk a Simpson’s Paradox situation. The mixed-effects models in this workshop are partly a defense against this — they force you to separate within-group and between-group relationships explicitly.</p>
+</section>
+<section id="context-2-longitudinal-panel-data-the-within-vs.-between-paradox" class="level2" data-number="18.3">
+<h2 data-number="18.3" class="anchored" data-anchor-id="context-2-longitudinal-panel-data-the-within-vs.-between-paradox"><span class="header-section-number">18.3</span> Context 2: Longitudinal Panel Data — The Within vs.&nbsp;Between Paradox</h2>
+<section id="income-and-life-satisfaction-the-easterlin-paradox" class="level3" data-number="18.3.1">
+<h3 data-number="18.3.1" class="anchored" data-anchor-id="income-and-life-satisfaction-the-easterlin-paradox"><span class="header-section-number">18.3.1</span> Income and Life Satisfaction: The Easterlin Paradox</h3>
+<p>Simpson’s Paradox in panel data is so common it has its own name: the <strong>Easterlin Paradox</strong> — and it is the core motivation for the CMC/GMC decomposition covered in Module 2 Parts 1–2.</p>
+<p>At any given point in time, richer people report higher life satisfaction. The cross-sectional (between-person) correlation is strongly positive. This has been used to argue that income causes happiness — that policies increasing income will increase well-being.</p>
+<p>But when you follow the <em>same people</em> over time, earning more than usual barely predicts higher satisfaction. The within-person effect is near zero. This is the Easterlin Paradox: nations get richer over decades without becoming much happier; individuals earn more over their careers without becoming much happier.</p>
+<p>The pooled OLS regression conflates these two very different stories into a single, misleading number.</p>
+</section>
+<section id="simulation-100-people-8-annual-waves" class="level3" data-number="18.3.2">
+<h3 data-number="18.3.2" class="anchored" data-anchor-id="simulation-100-people-8-annual-waves"><span class="header-section-number">18.3.2</span> Simulation: 100 People × 8 Annual Waves</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>n_people <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>n_waves  <span class="ot">&lt;-</span> <span class="dv">8</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>person_income_mean <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="dv">50</span>, <span class="dv">15</span>)  <span class="co"># stable between-person income level</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>df_panel_sp <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people, <span class="at">wave =</span> <span class="dv">1</span><span class="sc">:</span>n_waves) <span class="sc">|&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">person_mean  =</span> person_income_mean[person],</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">income       =</span> person_mean <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),       <span class="co"># small within-person variation</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">income_gmc   =</span> income <span class="sc">-</span> <span class="fu">mean</span>(income),                <span class="co"># grand-mean centered</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">income_cmc   =</span> income <span class="sc">-</span> person_mean,                 <span class="co"># within-person centered</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">income_mean  =</span> person_mean <span class="sc">-</span> <span class="fu">mean</span>(person_income_mean), <span class="co"># person mean centered on grand mean</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True DGP: large between-person effect, small within-person effect</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">satisfaction =</span> <span class="dv">5</span> <span class="sc">+</span> <span class="fl">3.0</span> <span class="sc">*</span> income_mean <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> income_cmc <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">2</span>),</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">person       =</span> <span class="fu">factor</span>(person)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Pooled OLS: conflates between and within</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>m_pooled <span class="ot">&lt;-</span> <span class="fu">lm</span>(satisfaction <span class="sc">~</span> income_gmc, <span class="at">data =</span> df_panel_sp)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Between-person: regress person means on person mean income</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>person_means <span class="ot">&lt;-</span> df_panel_sp <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">across</span>(<span class="fu">c</span>(satisfaction, income_mean), mean),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>m_between <span class="ot">&lt;-</span> <span class="fu">lm</span>(satisfaction <span class="sc">~</span> income_mean, <span class="at">data =</span> person_means)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Within-person (CMC mixed model)</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>m_within  <span class="ot">&lt;-</span> <span class="fu">lmer</span>(satisfaction <span class="sc">~</span> income_cmc <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_panel_sp)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary table</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model          =</span> <span class="fu">c</span>(<span class="st">"Pooled OLS"</span>, <span class="st">"Between-person"</span>, <span class="st">"Within-person (CMC)"</span>),</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">Income_slope   =</span> <span class="fu">c</span>(<span class="fu">coef</span>(m_pooled)[<span class="st">"income_gmc"</span>],</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">coef</span>(m_between)[<span class="st">"income_mean"</span>],</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">fixef</span>(m_within)[<span class="st">"income_cmc"</span>]),</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">Interpretation =</span> <span class="fu">c</span>(<span class="st">"Blend of between and within (misleading)"</span>,</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"Richer people are happier (selection effect)"</span>,</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"Earning more than usual barely helps (causal estimate)"</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>               <span class="at">caption =</span> <span class="st">"Income–satisfaction slope: pooled vs. decomposed"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Income–satisfaction slope: pooled vs.&nbsp;decomposed</caption>
+<colgroup>
+<col style="width: 22%">
+<col style="width: 14%">
+<col style="width: 62%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">Income_slope</th>
+<th style="text-align: left;">Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Pooled OLS</td>
+<td style="text-align: right;">2.764</td>
+<td style="text-align: left;">Blend of between and within (misleading)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Between-person</td>
+<td style="text-align: right;">2.988</td>
+<td style="text-align: left;">Richer people are happier (selection effect)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Within-person (CMC)</td>
+<td style="text-align: right;">0.402</td>
+<td style="text-align: left;">Earning more than usual barely helps (causal estimate)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="visualizing-the-easterlin-paradox" class="level3" data-number="18.3.3">
+<h3 data-number="18.3.3" class="anchored" data-anchor-id="visualizing-the-easterlin-paradox"><span class="header-section-number">18.3.3</span> Visualizing the Easterlin Paradox</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample 25 people for visual clarity</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>sampled_people <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">levels</span>(df_panel_sp<span class="sc">$</span>person), <span class="dv">25</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>p_spaghetti <span class="ot">&lt;-</span> df_panel_sp <span class="sc">|&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(person <span class="sc">%in%</span> sampled_people) <span class="sc">|&gt;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> income, <span class="at">y =</span> satisfaction, <span class="at">group =</span> person)) <span class="sc">+</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"#4393c3"</span>) <span class="sc">+</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="st">"#4393c3"</span>, <span class="at">size =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">data =</span> df_panel_sp <span class="sc">|&gt;</span> <span class="fu">filter</span>(person <span class="sc">%in%</span> sampled_people),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>              <span class="fu">aes</span>(<span class="at">group =</span> <span class="cn">NULL</span>), <span class="at">method =</span> <span class="st">"lm"</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>              <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Panel: income and life satisfaction"</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Blue lines = within-person trajectories (nearly flat, \u03b2\u2248 0.4)</span><span class="sc">\n</span><span class="st">Black line = pooled OLS (follows between-person differences)"</span>,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Income"</span>, <span class="at">y =</span> <span class="st">"Life satisfaction"</span>) <span class="sc">+</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>p_between_scatter <span class="ot">&lt;-</span> person_means <span class="sc">|&gt;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> income_mean, <span class="at">y =</span> satisfaction)) <span class="sc">+</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">color =</span> <span class="st">"#d73027"</span>) <span class="sc">+</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"#d73027"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Between-person: richer people report higher satisfaction"</span>,</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"Slope \u2248 "</span>, <span class="fu">round</span>(<span class="fu">coef</span>(m_between)[<span class="st">"income_mean"</span>], <span class="dv">2</span>),</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>                         <span class="st">" — large, but reflects WHO is rich, not what income does"</span>),</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Person-mean income (centered)"</span>, <span class="at">y =</span> <span class="st">"Person-mean satisfaction"</span>) <span class="sc">+</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>p_spaghetti <span class="sc">/</span> p_between_scatter</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part3_files/figure-html/panel-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The spaghetti plot makes the paradox visible: individual trajectories over time are nearly flat (low within-person effect <span class="math inline">\(\beta_W \approx 0.4\)</span>), but the scatter of person-level averages shows a strong positive slope (<span class="math inline">\(\beta_B \approx 3.0\)</span>). The pooled OLS line follows the person-means, not the within-person trajectories.</p>
+</section>
+<section id="why-this-is-simpsons-paradox" class="level3" data-number="18.3.4">
+<h3 data-number="18.3.4" class="anchored" data-anchor-id="why-this-is-simpsons-paradox"><span class="header-section-number">18.3.4</span> Why This Is Simpson’s Paradox</h3>
+<p>The aggregate (pooled) relationship would suggest that policies raising income improve wellbeing substantially. But the within-person relationship reveals that once you account for who is rich versus poor, income gains do almost nothing for wellbeing.</p>
+<p><strong>The policy implication:</strong> A policy that increases everyone’s income by 10% does not produce the 3.0-point wellbeing gain that cross-sectional data suggests — it produces the 0.4-point gain that within-person data reveals. Ignoring nesting leads to catastrophically wrong policy predictions.</p>
+</section>
+<section id="connection-to-module-2-the-cmcgmc-fix" class="level3" data-number="18.3.5">
+<h3 data-number="18.3.5" class="anchored" data-anchor-id="connection-to-module-2-the-cmcgmc-fix"><span class="header-section-number">18.3.5</span> Connection to Module 2: The CMC/GMC Fix</h3>
+<p>The CMC/GMC decomposition is precisely the solution:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>m_full <span class="ot">&lt;-</span> <span class="fu">lmer</span>(satisfaction <span class="sc">~</span> income_cmc <span class="sc">+</span> income_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person),</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> df_panel_sp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This model recovers both the within-person effect (<code>income_cmc</code> <span class="math inline">\(\approx 0.4\)</span>) and the between-person effect (<code>income_mean</code> <span class="math inline">\(\approx 3.0\)</span>) simultaneously, making the paradox explicit and the decomposition clean. This is exactly what Module 2 Parts 1 and 2 covered.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Important</span>The Check
+<span class="screen-reader-only">Important</span>The Panel Data Rule
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Before reporting any correlation or regression coefficient from nested data, ask: <strong>Does this relationship hold in the same direction within units as it does across units?</strong> If not, you are reporting a Simpson’s Paradox, not a real effect.</p>
+<p>In any longitudinal analysis, run both pooled OLS and a within-person model (fixed effects or CMC mixed model). If the coefficients differ substantially, you are in Simpson’s Paradox territory. Report both. Explain which one answers your research question.</p>
 </div>
 </div>
+<hr>
+</section>
+</section>
+<section id="context-3-within-subjects-experiments-the-stimulus-confound" class="level2" data-number="18.4">
+<h2 data-number="18.4" class="anchored" data-anchor-id="context-3-within-subjects-experiments-the-stimulus-confound"><span class="header-section-number">18.4</span> Context 3: Within-Subjects Experiments — The Stimulus Confound</h2>
+<section id="memory-emotional-valence-and-concrete-words" class="level3" data-number="18.4.1">
+<h3 data-number="18.4.1" class="anchored" data-anchor-id="memory-emotional-valence-and-concrete-words"><span class="header-section-number">18.4.1</span> Memory, Emotional Valence, and Concrete Words</h3>
+<p>Simpson’s Paradox can appear even in experiments when stimuli are not properly counterbalanced — when certain conditions happen to receive stimuli that systematically differ on a key attribute.</p>
+<p><strong>The scenario:</strong> A researcher tests whether <em>positive emotional content</em> improves memory recall. 50 participants each study 30 stimuli: 15 positive-valence words and 15 neutral-valence words.</p>
+<p><strong>The flaw:</strong> Positive stimuli happen to be more <em>concrete</em> (higher imageability — easier to visualize: “puppy”, “sunset”, “garden”). Neutral stimuli are more abstract (“justice”, “theory”, “process”). Concreteness is a well-established predictor of memory — concrete words are better recalled regardless of valence.</p>
+<p><strong>The result:</strong> Pooled across participants, positive words are better recalled. But this is entirely because they are more concrete. Within each concreteness level, valence has NO effect on recall. This is Simpson’s Paradox at the stimulus level.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>n_par  <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>n_stim <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>par_effects  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_par,  <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>stim_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_stim, <span class="dv">0</span>, <span class="dv">4</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>valence      <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">times =</span> n_stim <span class="sc">/</span> <span class="dv">2</span>)   <span class="co"># 0 = neutral, 1 = positive</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>concreteness <span class="ot">&lt;-</span> <span class="dv">3</span> <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> valence <span class="sc">+</span> <span class="fu">rnorm</span>(n_stim, <span class="dv">0</span>, <span class="dv">1</span>)  <span class="co"># confound: positive = more concrete</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>df_exp_sp <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_par, <span class="at">stimulus =</span> <span class="dv">1</span><span class="sc">:</span>n_stim) <span class="sc">|&gt;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">par_eff  =</span> par_effects[participant],</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">stim_eff =</span> stim_effects[stimulus],</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">val_s    =</span> valence[stimulus],</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">conc_s   =</span> concreteness[stimulus],</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True DGP: concreteness matters; valence has NO direct effect</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">recall   =</span> <span class="dv">50</span> <span class="sc">+</span> par_eff <span class="sc">+</span> stim_eff <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> conc_s <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">3</span>),</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant =</span> <span class="fu">factor</span>(participant),</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">stimulus    =</span> <span class="fu">factor</span>(stimulus)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="fitting-the-wrong-and-correct-models" class="level3" data-number="18.4.2">
+<h3 data-number="18.4.2" class="anchored" data-anchor-id="fitting-the-wrong-and-correct-models"><span class="header-section-number">18.4.2</span> Fitting the Wrong and Correct Models</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Wrong model: ignores stimulus-level confound and stimulus random effects</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>m_wrong   <span class="ot">&lt;-</span> <span class="fu">lmer</span>(recall <span class="sc">~</span> val_s <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> df_exp_sp)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Correct model: controls for concreteness + crossed stimulus RE</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>m_correct <span class="ot">&lt;-</span> <span class="fu">lmer</span>(recall <span class="sc">~</span> val_s <span class="sc">+</span> conc_s <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> stimulus),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> df_exp_sp)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare valence coefficients</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>tidy_wrong   <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_wrong,   <span class="at">effects =</span> <span class="st">"fixed"</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>tidy_correct <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_correct, <span class="at">effects =</span> <span class="st">"fixed"</span>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  tidy_wrong   <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"val_s"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Wrong (no concreteness, no stimulus RE)"</span>),</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  tidy_correct <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"val_s"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Correct (concreteness + stimulus RE)"</span>)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, statistic) <span class="sc">|&gt;</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>               <span class="at">caption =</span> <span class="st">"Valence coefficient: false positive vs. null result (statistic = t-value)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Valence coefficient: false positive vs.&nbsp;null result (statistic = t-value)</caption>
+<colgroup>
+<col style="width: 57%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">model</th>
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">std.error</th>
+<th style="text-align: right;">statistic</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Wrong (no concreteness, no stimulus RE)</td>
+<td style="text-align: right;">1.813</td>
+<td style="text-align: right;">0.304</td>
+<td style="text-align: right;">5.958</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Correct (concreteness + stimulus RE)</td>
+<td style="text-align: right;">-1.946</td>
+<td style="text-align: right;">2.015</td>
+<td style="text-align: right;">-0.966</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The wrong model finds a statistically significant positive valence effect. The correct model — which includes concreteness as a covariate and crossed stimulus random effects — shows that valence has no effect. The apparent memory advantage of positive words disappears entirely once the concreteness confound is controlled.</p>
+</section>
+<section id="visualizing-the-stimulus-confound" class="level3" data-number="18.4.3">
+<h3 data-number="18.4.3" class="anchored" data-anchor-id="visualizing-the-stimulus-confound"><span class="header-section-number">18.4.3</span> Visualizing the Stimulus Confound</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>stimulus_summary <span class="ot">&lt;-</span> df_exp_sp <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">valence_label =</span> <span class="fu">ifelse</span>(val_s <span class="sc">==</span> <span class="dv">1</span>, <span class="st">"positive"</span>, <span class="st">"neutral"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(stimulus, valence_label, conc_s) <span class="sc">|&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_recall =</span> <span class="fu">mean</span>(recall), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>p_valence_raw <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(stimulus_summary,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">aes</span>(<span class="at">x =</span> valence_label, <span class="at">y =</span> mean_recall,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>                            <span class="at">color =</span> valence_label)) <span class="sc">+</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"crossbar"</span>, <span class="at">width =</span> <span class="fl">0.3</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"positive"</span> <span class="ot">=</span> <span class="st">"#d73027"</span>, <span class="st">"neutral"</span> <span class="ot">=</span> <span class="st">"#4393c3"</span>)) <span class="sc">+</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Apparent effect: positive words recalled more"</span>,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"This looks like a valence effect..."</span>,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Valence"</span>, <span class="at">y =</span> <span class="st">"Mean recall"</span>, <span class="at">color =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>p_concreteness <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(stimulus_summary,</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">aes</span>(<span class="at">x =</span> conc_s, <span class="at">y =</span> mean_recall,</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>                             <span class="at">color =</span> valence_label)) <span class="sc">+</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"positive"</span> <span class="ot">=</span> <span class="st">"#d73027"</span>, <span class="st">"neutral"</span> <span class="ot">=</span> <span class="st">"#4393c3"</span>)) <span class="sc">+</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"True structure: concreteness drives recall"</span>,</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"...but both lines have the same slope; valence just shifts concreteness"</span>,</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Concreteness (imageability)"</span>, <span class="at">y =</span> <span class="st">"Mean recall"</span>,</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>       <span class="at">color =</span> <span class="st">"Valence"</span>) <span class="sc">+</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>p_valence_raw <span class="sc">|</span> p_concreteness</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part3_files/figure-html/experiment-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The right panel is diagnostic: the two regression lines (positive and neutral) are nearly parallel — same slope for concreteness — and the gap between them narrows within each concreteness band. Positive words appear higher overall only because they occupy higher positions on the concreteness axis.</p>
+</section>
+<section id="why-this-is-simpsons-paradox-1" class="level3" data-number="18.4.4">
+<h3 data-number="18.4.4" class="anchored" data-anchor-id="why-this-is-simpsons-paradox-1"><span class="header-section-number">18.4.4</span> Why This Is Simpson’s Paradox</h3>
+<p>Within each concreteness level, positive and neutral stimuli have the same recall. But pooled across all stimuli, positive words look better because they happen to be more concrete. This is precisely the Simpson’s Paradox structure: the within-group relationship (null) and the aggregate relationship (positive) point in different directions.</p>
+</section>
+<section id="the-fix" class="level3" data-number="18.4.5">
+<h3 data-number="18.4.5" class="anchored" data-anchor-id="the-fix"><span class="header-section-number">18.4.5</span> The Fix</h3>
+<ol type="1">
+<li><strong>Design solution:</strong> Properly counterbalance stimuli across conditions — match positive and neutral words on concreteness, length, frequency, arousal, and other relevant attributes. This removes the confound at the data collection stage.</li>
+<li><strong>Analysis solution:</strong> Include crossed stimulus random effects (Module 1 Part 6) and known stimulus attributes as covariates. This partials out the stimulus-level confound after the fact — but requires that the confounding attribute was measured.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="synthesis-the-diagnosis-always-decompose-before-you-report" class="level2" data-number="18.5">
+<h2 data-number="18.5" class="anchored" data-anchor-id="synthesis-the-diagnosis-always-decompose-before-you-report"><span class="header-section-number">18.5</span> Synthesis: The Diagnosis — Always Decompose Before You Report</h2>
+<p>Simpson’s Paradox is not a special case. It is the predictable outcome whenever:</p>
+<ol type="1">
+<li>The predictor varies systematically across groups</li>
+<li>The outcome varies systematically across groups</li>
+<li>The group-level and unit-level relationships point in different directions</li>
+</ol>
+<section id="practical-checklist" class="level3" data-number="18.5.1">
+<h3 data-number="18.5.1" class="anchored" data-anchor-id="practical-checklist"><span class="header-section-number">18.5.1</span> Practical Checklist</h3>
+<p><strong>Cross-sectional nested data:</strong></p>
+<ul>
+<li>Compare the pooled coefficient to the within-cluster coefficient</li>
+<li>If they differ in sign or by more than 50%, you have a Simpson’s Paradox</li>
+<li>Report the within-cluster coefficient; explain the between-cluster confound</li>
+</ul>
+<p><strong>Panel data:</strong></p>
+<ul>
+<li>Always run both pooled OLS and a within-person model (FE or CMC)</li>
+<li>Compare <span class="math inline">\(\hat{\beta}_W\)</span> vs.&nbsp;<span class="math inline">\(\hat{\beta}_B\)</span>: if they differ substantially, decompose and report both</li>
+<li>Ask: does the policy question target within-person change or between-person differences?</li>
+</ul>
+<p><strong>Within-subjects experiments:</strong></p>
+<ul>
+<li>Include crossed stimulus random effects in all models</li>
+<li>Check whether stimuli are balanced on key attributes (frequency, concreteness, arousal, length) across conditions</li>
+<li>Include item-level covariates to control post-hoc stimulus confounds</li>
+</ul>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The Universal Check
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Before reporting any correlation or regression coefficient from nested data, ask: <strong>Does this relationship hold in the same direction within units as it does across units?</strong></p>
+<p>If not, you are reporting a Simpson’s Paradox. The CMC/GMC decomposition (Module 2) is the systematic fix.</p>
+</div>
+</div>
+</section>
+<section id="three-panel-summary-visualization" class="level3" data-number="18.5.2">
+<h3 data-number="18.5.2" class="anchored" data-anchor-id="three-panel-summary-visualization"><span class="header-section-number">18.5.2</span> Three-Panel Summary Visualization</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Panel 1: Cross-sectional Simpson</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(students, <span class="fu">aes</span>(<span class="at">x =</span> study, <span class="at">y =</span> grade)) <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> program_label), <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">color =</span> program_label), <span class="at">method =</span> <span class="st">"lm"</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>) <span class="sc">+</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"1. Cross-sectional nesting"</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Pooled: negative</span><span class="sc">\n</span><span class="st">Within program: positive"</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Study hours"</span>, <span class="at">y =</span> <span class="st">"Grade"</span>, <span class="at">color =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Panel 2: Panel data Simpson (person-level means vs within-person)</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(person_means, <span class="fu">aes</span>(<span class="at">x =</span> income_mean, <span class="at">y =</span> satisfaction)) <span class="sc">+</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">color =</span> <span class="st">"#d73027"</span>, <span class="at">size =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"#d73027"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"2. Panel data (Easterlin)"</span>,</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"Between persons: slope \u2248 "</span>,</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">round</span>(<span class="fu">coef</span>(m_between)[<span class="st">"income_mean"</span>], <span class="dv">1</span>),</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>                         <span class="st">" (strong)</span><span class="sc">\n</span><span class="st">Within persons over time: slope \u2248 0.4 (weak)"</span>),</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Person-mean income (centered)"</span>, <span class="at">y =</span> <span class="st">"Person-mean satisfaction"</span>) <span class="sc">+</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>)</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Panel 3: Experiment Simpson</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(stimulus_summary,</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">x =</span> conc_s, <span class="at">y =</span> mean_recall, <span class="at">color =</span> valence_label)) <span class="sc">+</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">size =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"positive"</span> <span class="ot">=</span> <span class="st">"#d73027"</span>, <span class="st">"neutral"</span> <span class="ot">=</span> <span class="st">"#4393c3"</span>)) <span class="sc">+</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"3. Within-subjects experiment"</span>,</span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Marginal: positive recalled more</span><span class="sc">\n</span><span class="st">Within concreteness: no valence effect"</span>,</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Concreteness"</span>, <span class="at">y =</span> <span class="st">"Mean recall"</span>, <span class="at">color =</span> <span class="st">"Valence"</span>) <span class="sc">+</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">|</span> p2 <span class="sc">|</span> p3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part3_files/figure-html/synthesis-plot-1.png" class="img-fluid figure-img" width="1152"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The table below summarizes the three contexts, their structural causes, and their remedies:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Context</th>
+<th>Mechanism</th>
+<th>Aggregate relationship</th>
+<th>Within-unit relationship</th>
+<th>Remedy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cross-sectional nesting</td>
+<td>Program difficulty confounds study–grade link</td>
+<td>Negative (wrong)</td>
+<td>Positive (correct)</td>
+<td>Mixed model; within-group slope</td>
+</tr>
+<tr class="even">
+<td>Panel data</td>
+<td>Between-person selection confounds within-person change</td>
+<td>Strongly positive (misleading)</td>
+<td>Near zero (causal)</td>
+<td>CMC decomposition; FE model</td>
+</tr>
+<tr class="odd">
+<td>Experiment</td>
+<td>Stimulus attribute confounded with condition</td>
+<td>Positive (false positive)</td>
+<td>Null (correct)</td>
+<td>Stimulus RE; covariate control</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
 </section>
 </section>
 
