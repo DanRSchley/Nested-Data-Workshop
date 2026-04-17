@@ -73,6 +73,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -486,7 +515,12 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#module-5-experimental-designs-with-nesting" id="toc-module-5-experimental-designs-with-nesting" class="nav-link active" data-scroll-target="#module-5-experimental-designs-with-nesting">Module 5: Experimental Designs with Nesting</a>
   <ul class="collapse">
   <li><a href="#experiments-are-not-flat" id="toc-experiments-are-not-flat" class="nav-link" data-scroll-target="#experiments-are-not-flat"><span class="header-section-number">36.1</span> Experiments Are Not Flat</a></li>
-  <li><a href="#what-this-module-covers" id="toc-what-this-module-covers" class="nav-link" data-scroll-target="#what-this-module-covers"><span class="header-section-number">36.2</span> What This Module Covers</a></li>
+  <li><a href="#what-this-module-covers" id="toc-what-this-module-covers" class="nav-link" data-scroll-target="#what-this-module-covers"><span class="header-section-number">36.2</span> What This Module Covers</a>
+  <ul class="collapse">
+  <li><a href="#cluster-1-design-structure-and-model-specification" id="toc-cluster-1-design-structure-and-model-specification" class="nav-link" data-scroll-target="#cluster-1-design-structure-and-model-specification"><span class="header-section-number">36.2.1</span> Cluster 1 — Design Structure and Model Specification</a></li>
+  <li><a href="#cluster-2-planning-and-inference" id="toc-cluster-2-planning-and-inference" class="nav-link" data-scroll-target="#cluster-2-planning-and-inference"><span class="header-section-number">36.2.2</span> Cluster 2 — Planning and Inference</a></li>
+  <li><a href="#cluster-3-imperfect-randomization-and-quasi-experimental-fixes" id="toc-cluster-3-imperfect-randomization-and-quasi-experimental-fixes" class="nav-link" data-scroll-target="#cluster-3-imperfect-randomization-and-quasi-experimental-fixes"><span class="header-section-number">36.2.3</span> Cluster 3 — Imperfect Randomization and Quasi-Experimental Fixes</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -529,13 +563,31 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="what-this-module-covers" class="level2" data-number="36.2">
 <h2 data-number="36.2" class="anchored" data-anchor-id="what-this-module-covers"><span class="header-section-number">36.2</span> What This Module Covers</h2>
+<p>The module is organized into three clusters, moving from design-structure modeling through inferential planning to handling real-world experimental imperfections.</p>
+<hr>
+<section id="cluster-1-design-structure-and-model-specification" class="level3" data-number="36.2.1">
+<h3 data-number="36.2.1" class="anchored" data-anchor-id="cluster-1-design-structure-and-model-specification"><span class="header-section-number">36.2.1</span> Cluster 1 — Design Structure and Model Specification</h3>
 <p><strong>Part 1: Crossed Random Effects in Experiments</strong> — Why stimuli are random, what happens when you treat them as fixed, and how to fix it with crossed random effects models in <code>lme4</code>.</p>
 <p><strong>Part 2: Partially Nested Designs</strong> — When one condition has nesting (e.g., treatment participants have therapists/coaches) and the other does not, standard MLM misspecifies the design. The Bauer et al.&nbsp;partially nested model handles this correctly.</p>
 <p><strong>Part 3: Maximal vs.&nbsp;Parsimonious Random Effects</strong> — The Barr et al.&nbsp;(2013) vs.&nbsp;Matuschek et al.&nbsp;(2017) debate: how complex should your random effects structure be? When does complexity help and when does it hurt?</p>
 <p><strong>Part 4: Multi-Site Experiments</strong> — When the same experiment runs at multiple sites (labs, countries, platforms), sites introduce clustering. The many-labs design and how to model treatment effect heterogeneity across sites.</p>
+</section>
+<section id="cluster-2-planning-and-inference" class="level3" data-number="36.2.2">
+<h3 data-number="36.2.2" class="anchored" data-anchor-id="cluster-2-planning-and-inference"><span class="header-section-number">36.2.2</span> Cluster 2 — Planning and Inference</h3>
 <p><strong>Part 5: Power Analysis for Nested Designs</strong> — Why standard power formulas are wrong for nested data, the role of ICC, simulation-based power analysis, and practical sample size guidance.</p>
+<p><strong>Part 6: Binary and Count Outcomes in Experiments</strong> — When experimental outcomes are binary (chose A / chose B) or counts (number of correct responses), GLMMs with the correct link function are required. Logistic and Poisson mixed models with crossed random effects for participants and stimuli.</p>
+<p><strong>Part 7: Effect Sizes, Reporting, and Reproducibility</strong> — Standardized effect sizes for mixed models, <span class="math inline">\(R^2\)</span> decomposition by level, translating log-odds to probability, and pre-registration practices that make nested-data analyses credible.</p>
+</section>
+<section id="cluster-3-imperfect-randomization-and-quasi-experimental-fixes" class="level3" data-number="36.2.3">
+<h3 data-number="36.2.3" class="anchored" data-anchor-id="cluster-3-imperfect-randomization-and-quasi-experimental-fixes"><span class="header-section-number">36.2.3</span> Cluster 3 — Imperfect Randomization and Quasi-Experimental Fixes</h3>
+<p>The final two parts form a self-contained mini-unit on what to do when randomization does not work exactly as planned.</p>
+<p><strong>Part 8: Non-Compliance — ITT and LATE</strong> — When participants are randomized but not all comply with their assigned condition, the naive treatment-vs-control comparison is diluted or biased. This part covers the intent-to-treat estimand (ITT), the complier average causal effect (LATE) via instrumental variables, the Wald estimator, and the compliance typology (compliers, always-takers, never-takers).</p>
+<p><strong>Part 9: Quasi-Experimental Methods for Applied Researchers</strong> — The broader toolkit for experiments with observational features: difference-in-differences for pre-post designs, IPW to correct for non-random attrition, propensity score matching within a treatment arm to estimate dose-response effects, and threshold-based eligibility (RDD). Each method maps to a specific randomization failure and provides a principled remedy.</p>
+<hr>
+<p>Parts 8 and 9 together cover the full arc from “randomization was imperfect” to “here is the estimand you can credibly claim and the method to estimate it.” Readers who have worked through Modules 1-5 will recognize how each quasi-experimental tool inherits from the broader mixed-model and identification framework built earlier in the workshop.</p>
 
 
+</section>
 </section>
 </section>
 

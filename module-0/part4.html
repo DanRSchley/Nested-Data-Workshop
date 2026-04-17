@@ -527,7 +527,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#level-1-vs.-level-2-variables" id="toc-level-1-vs.-level-2-variables" class="nav-link" data-scroll-target="#level-1-vs.-level-2-variables"><span class="header-section-number">7.5</span> Level-1 vs.&nbsp;Level-2 Variables</a></li>
   <li><a href="#a-note-on-balanced-vs.-unbalanced-data" id="toc-a-note-on-balanced-vs.-unbalanced-data" class="nav-link" data-scroll-target="#a-note-on-balanced-vs.-unbalanced-data"><span class="header-section-number">7.6</span> A Note on Balanced vs.&nbsp;Unbalanced Data</a></li>
   <li><a href="#diagnosing-your-data-structure" id="toc-diagnosing-your-data-structure" class="nav-link" data-scroll-target="#diagnosing-your-data-structure"><span class="header-section-number">7.7</span> Diagnosing Your Data Structure</a></li>
-  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead"><span class="header-section-number">7.8</span> Looking Ahead</a></li>
+  <li><a href="#experimental-long-format-participants-stimuli" id="toc-experimental-long-format-participants-stimuli" class="nav-link" data-scroll-target="#experimental-long-format-participants-stimuli"><span class="header-section-number">7.8</span> Experimental Long Format: Participants × Stimuli</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead"><span class="header-section-number">7.9</span> Looking Ahead</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -1203,8 +1204,203 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>This takes two minutes and saves hours of debugging later.</p>
 </section>
-<section id="looking-ahead" class="level2" data-number="7.8">
-<h2 data-number="7.8" class="anchored" data-anchor-id="looking-ahead"><span class="header-section-number">7.8</span> Looking Ahead</h2>
+<section id="experimental-long-format-participants-stimuli" class="level2" data-number="7.8">
+<h2 data-number="7.8" class="anchored" data-anchor-id="experimental-long-format-participants-stimuli"><span class="header-section-number">7.8</span> Experimental Long Format: Participants × Stimuli</h2>
+<p>The person-day structure above is the observational prototype. In experiments, the analogous structure is <strong>participants × stimuli (or trials)</strong>: one row per participant-stimulus combination, with participant and stimulus identifiers at every row.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Wide format: one row per participant, columns for each stimulus</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>df_exp_wide <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition   =</span> <span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"treatment"</span>, <span class="st">"control"</span>, <span class="st">"treatment"</span>),</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">stim_1_rt   =</span> <span class="fu">c</span>(<span class="dv">523</span>, <span class="dv">491</span>, <span class="dv">548</span>, <span class="dv">475</span>),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">stim_2_rt   =</span> <span class="fu">c</span>(<span class="dv">510</span>, <span class="dv">503</span>, <span class="dv">531</span>, <span class="dv">482</span>),</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">stim_3_rt   =</span> <span class="fu">c</span>(<span class="dv">498</span>, <span class="dv">487</span>, <span class="dv">519</span>, <span class="dv">465</span>),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">stim_4_rt   =</span> <span class="fu">c</span>(<span class="dv">535</span>, <span class="dv">510</span>, <span class="dv">556</span>, <span class="dv">490</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Long format: one row per participant-stimulus observation</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>df_exp_long <span class="ot">&lt;-</span> df_exp_wide <span class="sc">|&gt;</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols      =</span> <span class="fu">starts_with</span>(<span class="st">"stim_"</span>),</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to  =</span> <span class="st">"stimulus"</span>,</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"rt"</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">stimulus =</span> <span class="fu">str_remove</span>(stimulus, <span class="st">"_rt"</span>))</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(df_exp_long, <span class="at">caption =</span> <span class="st">"Long format: 4 participants × 4 stimuli = 16 rows. Both participant and stimulus IDs appear on every row."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Long format: 4 participants × 4 stimuli = 16 rows. Both participant and stimulus IDs appear on every row.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">participant</th>
+<th style="text-align: left;">condition</th>
+<th style="text-align: left;">stimulus</th>
+<th style="text-align: right;">rt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">control</td>
+<td style="text-align: left;">stim_1</td>
+<td style="text-align: right;">523</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">control</td>
+<td style="text-align: left;">stim_2</td>
+<td style="text-align: right;">510</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">control</td>
+<td style="text-align: left;">stim_3</td>
+<td style="text-align: right;">498</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">control</td>
+<td style="text-align: left;">stim_4</td>
+<td style="text-align: right;">535</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">treatment</td>
+<td style="text-align: left;">stim_1</td>
+<td style="text-align: right;">491</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">treatment</td>
+<td style="text-align: left;">stim_2</td>
+<td style="text-align: right;">503</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">treatment</td>
+<td style="text-align: left;">stim_3</td>
+<td style="text-align: right;">487</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">treatment</td>
+<td style="text-align: left;">stim_4</td>
+<td style="text-align: right;">510</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">control</td>
+<td style="text-align: left;">stim_1</td>
+<td style="text-align: right;">548</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">control</td>
+<td style="text-align: left;">stim_2</td>
+<td style="text-align: right;">531</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">control</td>
+<td style="text-align: left;">stim_3</td>
+<td style="text-align: right;">519</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">control</td>
+<td style="text-align: left;">stim_4</td>
+<td style="text-align: right;">556</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">treatment</td>
+<td style="text-align: left;">stim_1</td>
+<td style="text-align: right;">475</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">treatment</td>
+<td style="text-align: left;">stim_2</td>
+<td style="text-align: right;">482</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">treatment</td>
+<td style="text-align: left;">stim_3</td>
+<td style="text-align: right;">465</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">treatment</td>
+<td style="text-align: left;">stim_4</td>
+<td style="text-align: right;">490</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The two identifier columns — <code>participant</code> and <code>stimulus</code> — are what allow <code>lme4</code> to fit crossed random effects: a random intercept for participants <em>and</em> a random intercept for stimuli, simultaneously. Without the long format, you cannot express this structure.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Observational vs.&nbsp;Experimental Long Format
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 36%">
+<col style="width: 51%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>Observational (person-day)</th>
+<th>Experimental (participant-stimulus)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Level-1 unit</td>
+<td>observation day</td>
+<td>stimulus / trial</td>
+</tr>
+<tr class="even">
+<td>Level-2 unit</td>
+<td>person</td>
+<td>participant</td>
+</tr>
+<tr class="odd">
+<td>Additional clustering</td>
+<td>—</td>
+<td>stimulus (crossed)</td>
+</tr>
+<tr class="even">
+<td>Level-1 index</td>
+<td>day number</td>
+<td>stimulus ID</td>
+</tr>
+<tr class="odd">
+<td>Key model formula</td>
+<td><code>(1 \| person)</code></td>
+<td><code>(1 \| participant) + (1 \| stimulus)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Both formats follow the same rule: <strong>one row per level-1 observation</strong>. The difference is that experimental data often has <em>two</em> grouping factors (participants and stimuli), creating a crossed rather than nested structure.</p>
+</div>
+</div>
+</section>
+<section id="looking-ahead" class="level2" data-number="7.9">
+<h2 data-number="7.9" class="anchored" data-anchor-id="looking-ahead"><span class="header-section-number">7.9</span> Looking Ahead</h2>
 <p>With the conceptual foundations in place — DGP thinking, types of nesting, ICC, and data format — we are ready to start fitting models. Module 1 builds the core toolkit: fixed effects, random intercepts, and random slopes. At each step, we will be explicit about what assumption the model is making and what happens when that assumption is wrong.</p>
 
 

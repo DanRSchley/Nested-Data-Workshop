@@ -554,7 +554,8 @@ window.Quarto = {
   <li><a href="#how-to-compute-the-icc-in-r" id="toc-how-to-compute-the-icc-in-r" class="nav-link" data-scroll-target="#how-to-compute-the-icc-in-r"><span class="header-section-number">6.3</span> How to Compute the ICC in R</a></li>
   <li><a href="#why-even-a-small-icc-is-a-big-problem" id="toc-why-even-a-small-icc-is-a-big-problem" class="nav-link" data-scroll-target="#why-even-a-small-icc-is-a-big-problem"><span class="header-section-number">6.4</span> Why Even a Small ICC is a Big Problem</a></li>
   <li><a href="#assumptions-of-the-icc" id="toc-assumptions-of-the-icc" class="nav-link" data-scroll-target="#assumptions-of-the-icc"><span class="header-section-number">6.5</span> Assumptions of the ICC</a></li>
-  <li><a href="#the-icc-as-a-scientific-finding" id="toc-the-icc-as-a-scientific-finding" class="nav-link" data-scroll-target="#the-icc-as-a-scientific-finding"><span class="header-section-number">6.6</span> The ICC as a Scientific Finding</a></li>
+  <li><a href="#icc-in-experimental-research-two-sources-of-non-independence" id="toc-icc-in-experimental-research-two-sources-of-non-independence" class="nav-link" data-scroll-target="#icc-in-experimental-research-two-sources-of-non-independence"><span class="header-section-number">6.6</span> ICC in Experimental Research: Two Sources of Non-Independence</a></li>
+  <li><a href="#the-icc-as-a-scientific-finding" id="toc-the-icc-as-a-scientific-finding" class="nav-link" data-scroll-target="#the-icc-as-a-scientific-finding"><span class="header-section-number">6.7</span> The ICC as a Scientific Finding</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -945,8 +946,35 @@ Fixed effects:
 </div>
 <p>In this simulated dataset, there is no strong relationship — within-group variance is roughly constant across firms. That is reassuring, but not always the case in real data.</p>
 </section>
-<section id="the-icc-as-a-scientific-finding" class="level2" data-number="6.6">
-<h2 data-number="6.6" class="anchored" data-anchor-id="the-icc-as-a-scientific-finding"><span class="header-section-number">6.6</span> The ICC as a Scientific Finding</h2>
+<section id="icc-in-experimental-research-two-sources-of-non-independence" class="level2" data-number="6.6">
+<h2 data-number="6.6" class="anchored" data-anchor-id="icc-in-experimental-research-two-sources-of-non-independence"><span class="header-section-number">6.6</span> ICC in Experimental Research: Two Sources of Non-Independence</h2>
+<p>The ICC applies equally to experimental designs — but the sources of non-independence are different, and there are typically <em>two</em> of them at once.</p>
+<p>In a <strong>within-subjects experiment</strong>, each participant responds to multiple stimuli or conditions. Two responses from the <em>same participant</em> will be more similar than responses from different participants: this is the participant-level ICC. Two responses to the <em>same stimulus</em> (rated by different participants) will also be more similar than responses to different stimuli: this is the stimulus-level ICC.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Two ICCs in a Crossed Design
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider a word recall experiment: 40 participants each see 80 words, half positive and half neutral. The outcome (recalled = 1 / not = 0) has clustering at two levels simultaneously:</p>
+<ul>
+<li><strong>Participant ICC:</strong> People differ in overall recall ability. A high-ability participant’s responses are positively correlated with each other.</li>
+<li><strong>Stimulus ICC:</strong> Some words are simply more memorable. Responses to the same word across participants share variance.</li>
+</ul>
+<p>Ignoring <em>either</em> ICC inflates the Type I error rate for the focal treatment comparison. This is why Module 1 Part 6 introduces <strong>crossed random effects</strong>: <code>(1 | participant) + (1 | stimulus)</code> models both ICCs simultaneously, and the design-effect penalty compounds across both levels.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crossed design: two ICCs</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>null_crossed <span class="ot">&lt;-</span> <span class="fu">lmer</span>(recalled <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> stimulus), <span class="at">data =</span> df_exp)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">icc</span>(null_crossed)  <span class="co"># returns ICCs for both grouping levels</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>In typical psycholinguistic and judgment studies, stimulus ICCs of 0.05–0.20 are common — small enough to ignore in any single study, large enough to inflate false positives systematically across a literature.</p>
+</div>
+</div>
+</section>
+<section id="the-icc-as-a-scientific-finding" class="level2" data-number="6.7">
+<h2 data-number="6.7" class="anchored" data-anchor-id="the-icc-as-a-scientific-finding"><span class="header-section-number">6.7</span> The ICC as a Scientific Finding</h2>
 <p>Throughout this workshop, we treat the ICC primarily as a diagnostic tool — something you check before deciding what model to use. But it is also a finding in its own right.</p>
 <p>If your outcome is job satisfaction and the ICC across firms is 0.30, that means 30% of the variance in job satisfaction is explained simply by <em>which firm</em> someone works for. That is a substantive result. It tells you that organizational-level factors — culture, management, pay structure — explain nearly a third of the variation in how people feel about their work. That is worth reporting, and worth investigating.</p>
 <p>The decomposition of variance across levels is one of the most underutilized findings in social science research.</p>

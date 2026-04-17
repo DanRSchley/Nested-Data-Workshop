@@ -486,7 +486,14 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#module-4-longitudinal-data-change" id="toc-module-4-longitudinal-data-change" class="nav-link active" data-scroll-target="#module-4-longitudinal-data-change">Module 4: Longitudinal Data &amp; Change</a>
   <ul class="collapse">
   <li><a href="#time-is-the-ultimate-nesting-variable" id="toc-time-is-the-ultimate-nesting-variable" class="nav-link" data-scroll-target="#time-is-the-ultimate-nesting-variable"><span class="header-section-number">25.1</span> Time is the Ultimate Nesting Variable</a></li>
-  <li><a href="#what-this-module-covers" id="toc-what-this-module-covers" class="nav-link" data-scroll-target="#what-this-module-covers"><span class="header-section-number">25.2</span> What This Module Covers</a></li>
+  <li><a href="#what-this-module-covers" id="toc-what-this-module-covers" class="nav-link" data-scroll-target="#what-this-module-covers"><span class="header-section-number">25.2</span> What This Module Covers</a>
+  <ul class="collapse">
+  <li><a href="#cluster-1-dependence-and-covariance-structure" id="toc-cluster-1-dependence-and-covariance-structure" class="nav-link" data-scroll-target="#cluster-1-dependence-and-covariance-structure"><span class="header-section-number">25.2.1</span> Cluster 1 — Dependence and Covariance Structure</a></li>
+  <li><a href="#cluster-2-modeling-trajectories-and-change" id="toc-cluster-2-modeling-trajectories-and-change" class="nav-link" data-scroll-target="#cluster-2-modeling-trajectories-and-change"><span class="header-section-number">25.2.2</span> Cluster 2 — Modeling Trajectories and Change</a></li>
+  <li><a href="#cluster-3-non-gaussian-and-event-outcomes" id="toc-cluster-3-non-gaussian-and-event-outcomes" class="nav-link" data-scroll-target="#cluster-3-non-gaussian-and-event-outcomes"><span class="header-section-number">25.2.3</span> Cluster 3 — Non-Gaussian and Event Outcomes</a></li>
+  <li><a href="#cluster-4-missingness-and-attrition" id="toc-cluster-4-missingness-and-attrition" class="nav-link" data-scroll-target="#cluster-4-missingness-and-attrition"><span class="header-section-number">25.2.4</span> Cluster 4 — Missingness and Attrition</a></li>
+  <li><a href="#cluster-5-causal-identification-in-panel-settings" id="toc-cluster-5-causal-identification-in-panel-settings" class="nav-link" data-scroll-target="#cluster-5-causal-identification-in-panel-settings"><span class="header-section-number">25.2.5</span> Cluster 5 — Causal Identification in Panel Settings</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -527,14 +534,37 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="what-this-module-covers" class="level2" data-number="25.2">
 <h2 data-number="25.2" class="anchored" data-anchor-id="what-this-module-covers"><span class="header-section-number">25.2</span> What This Module Covers</h2>
+<p>The module is organized into five clusters. Each cluster addresses a distinct challenge in longitudinal data analysis, building from low-level specification decisions to causal identification.</p>
+<hr>
+<section id="cluster-1-dependence-and-covariance-structure" class="level3" data-number="25.2.1">
+<h3 data-number="25.2.1" class="anchored" data-anchor-id="cluster-1-dependence-and-covariance-structure"><span class="header-section-number">25.2.1</span> Cluster 1 — Dependence and Covariance Structure</h3>
 <p><strong>Part 1: From RM-ANOVA to Mixed Models</strong> — The repeated measures ANOVA that most psychologists learned makes a specific assumption about the covariance structure of repeated observations (compound symmetry/sphericity). We show concretely what this assumption means, why it almost always fails, and how mixed-effects models relax it.</p>
 <p><strong>Part 2: Covariance Structures</strong> — The covariance matrix of your repeated observations is not just a nuisance to be controlled — it is a window into the DGP. We catalog the main structures (compound symmetry, AR(1), unstructured, Toeplitz), show what each implies about how measurements relate over time, and explain how to choose among them.</p>
+</section>
+<section id="cluster-2-modeling-trajectories-and-change" class="level3" data-number="25.2.2">
+<h3 data-number="25.2.2" class="anchored" data-anchor-id="cluster-2-modeling-trajectories-and-change"><span class="header-section-number">25.2.2</span> Cluster 2 — Modeling Trajectories and Change</h3>
 <p><strong>Part 3: Growth Curve Models</strong> — When the question is how outcomes change over time and whether trajectories differ across people, growth curve models are the right tool. We build from simple linear growth to random slopes, nonlinear trajectories, and predictors of growth.</p>
 <p><strong>Part 4: Latent Growth Curve Models in SEM</strong> — The same growth curve model can be estimated in a structural equation modeling (SEM) framework. We show the connection, explain when the SEM approach adds value (modeling measurement error, multiple growth processes), and demonstrate the equivalence using <code>lavaan</code>.</p>
 <p><strong>Part 5: Autoregressive Structures</strong> — When today’s outcome predicts tomorrow’s, the covariance structure is autoregressive. We explain AR(1) models, how to specify them in <code>nlme</code>, and the assumptions of stationarity.</p>
 <p><strong>Part 6: Cross-Lagged Panel Models</strong> — When you want to understand the <em>dynamic</em> relationship between two variables over time — does A cause B, does B cause A, or do they mutually reinforce each other — cross-lagged panel models (and their improved version, the RI-CLPM) provide the framework.</p>
+</section>
+<section id="cluster-3-non-gaussian-and-event-outcomes" class="level3" data-number="25.2.3">
+<h3 data-number="25.2.3" class="anchored" data-anchor-id="cluster-3-non-gaussian-and-event-outcomes"><span class="header-section-number">25.2.3</span> Cluster 3 — Non-Gaussian and Event Outcomes</h3>
+<p><strong>Part 7: Binary and Count Outcomes Over Time</strong> — Many longitudinal outcomes are binary (relapsed / did not relapse) or counts (number of episodes per week). GLMMs extend the mixed model framework to handle these correctly using logistic and Poisson/negative-binomial families, with random effects preserving the within-person dependence structure.</p>
+<p><strong>Part 8: Survival Analysis</strong> — When the outcome is <em>time until an event</em>, standard regression ignores censoring and misrepresents the DGP. Kaplan-Meier curves, Cox proportional hazards models, and frailty models handle event-time outcomes in nested data.</p>
+</section>
+<section id="cluster-4-missingness-and-attrition" class="level3" data-number="25.2.4">
+<h3 data-number="25.2.4" class="anchored" data-anchor-id="cluster-4-missingness-and-attrition"><span class="header-section-number">25.2.4</span> Cluster 4 — Missingness and Attrition</h3>
+<p><strong>Part 9: Missing Data in Longitudinal Studies</strong> — Attrition and intermittent missingness are nearly universal in panel data. We classify mechanisms (MCAR/MAR/MNAR), show how <code>lmer</code> handles MAR data via full-information maximum likelihood, introduce multiple imputation as a principled alternative, and cover sensitivity analysis for MNAR.</p>
+</section>
+<section id="cluster-5-causal-identification-in-panel-settings" class="level3" data-number="25.2.5">
+<h3 data-number="25.2.5" class="anchored" data-anchor-id="cluster-5-causal-identification-in-panel-settings"><span class="header-section-number">25.2.5</span> Cluster 5 — Causal Identification in Panel Settings</h3>
+<p><strong>Part 10: Applied Identification Strategies</strong> — The capstone. When the research question is causal — not just descriptive — panel data offer a powerful toolkit: difference-in-differences (TWFE), interrupted time series, panel instrumental variables, and time-varying propensity score matching. Each strategy maps to a specific threat from Module 3 and provides a concrete remedy in the longitudinal context.</p>
+<hr>
+<p>The module closes with Part 10 as a deliberate capstone: after understanding how longitudinal data are structured, how trajectories are modeled, and how non-standard outcomes and missing data are handled, Part 10 asks the hardest question — <em>can we identify a causal effect?</em> — and provides the tools to answer it.</p>
 
 
+</section>
 </section>
 </section>
 
