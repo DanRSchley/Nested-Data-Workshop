@@ -168,7 +168,7 @@ treatment  <- rep(c(0, 1), each = 100)
 baseline_anx <- rnorm(n, 50, 10)
 
 # Attrition: higher anxiety + control → more likely to drop out
-p_remain  <- plogis(2 - 0.04 * baseline_anx + 0.4 * treatment)
+p_remain  <- plogis(2.5 - 0.07 * baseline_anx + 0.8 * treatment)
 remained  <- rbinom(n, 1, p_remain)
 
 # True treatment effect = -5 (treatment reduces outcome)
@@ -206,7 +206,7 @@ bind_rows(
   select(method, estimate, std.error, p.value) |>
   knitr::kable(
     digits  = 3,
-    caption = "True treatment effect = -5. Naive estimate is attenuated toward zero because high-anxiety control participants (who would show the smallest benefit) dropped out. IPW recovers the true estimate by upweighting their remaining counterparts."
+    caption = "True treatment effect = -5. Naive estimate is attenuated toward zero because high-anxiety control participants dropped out. IPW is consistent under MAR — it targets the true effect on average across samples; individual draws may not show monotone improvement over naive."
   )
 ```
 

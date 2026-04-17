@@ -215,7 +215,7 @@ treatment_att   <- rep(c(0, 1), each = 100)
 baseline_anxiety <- rnorm(n_att, 50, 10)
 
 # High anxiety + being in control group → higher dropout
-p_remain <- plogis(2 - 0.04 * baseline_anxiety + 0.4 * treatment_att)
+p_remain <- plogis(2.5 - 0.07 * baseline_anxiety + 0.8 * treatment_att)
 remained  <- rbinom(n_att, 1, p_remain)
 
 # True treatment effect = -5
@@ -248,7 +248,7 @@ bind_rows(
   select(method, estimate, std.error, p.value) |>
   mutate(true_effect = -5) |>
   knitr::kable(digits = 3,
-    caption = "Attrition bias: naive vs. IPW-corrected (true effect = -5)")
+    caption = "Attrition bias: naive vs. IPW-weighted (true effect = -5). IPW is consistent under MAR — on average across samples it reduces bias; individual draws may not show monotone improvement.")
 ```
 
 ::: {.callout-tip icon=false}

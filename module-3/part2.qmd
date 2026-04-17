@@ -91,11 +91,11 @@ df_panel <- expand_grid(firm = 1:n_firms, year = 1:n_years) |>
     fq       = firm_quality[firm],
     dist     = distance[firm],
     # High-quality firms and nearby firms adopt training more
-    p_train  = plogis(-0.5 + 0.3 * (fq / sd(firm_quality)) - 0.005 * dist +
+    p_train  = plogis(-0.5 + 0.4 * (fq / sd(firm_quality)) - 0.010 * dist +
                         rnorm(n(), 0, 0.3)),
     training     = rbinom(n(), 1, p_train),
     # True causal effect of training = 4; firm quality also boosts productivity
-    productivity = 50 + 4 * training + 0.8 * fq + rnorm(n(), 0, 4),
+    productivity = 50 + 4 * training + 2.5 * fq + rnorm(n(), 0, 4),
     firm     = factor(firm),
     year     = factor(year)
   )
@@ -125,14 +125,14 @@ bind_rows(
   tidy(m_ols) |> filter(term == "training") |>
     mutate(model = "OLS (confounded — true = 4)"),
   tidy(m_iv)  |> filter(term == "training") |>
-    mutate(model = "IV / TSLS (recovers true effect)")
+    mutate(model = "IV / TSLS (consistent under exclusion restriction)")
 ) |>
   select(model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Panel IV: effect of training on firm productivity (true effect = 4)")
+    caption = "Panel IV: effect of training on firm productivity (true effect = 4). OLS is biased upward by firm quality; IV is consistent but with larger SE — individual draws can deviate from truth.")
 ```
 
-OLS overestimates the training effect because firm quality simultaneously drives adoption and productivity. The IV estimate isolates only the exogenous, geography-driven variation in training, recovering the true causal effect of approximately 4 units.
+OLS overestimates the training effect because firm quality simultaneously drives adoption and productivity. IV isolates only the exogenous, geography-driven variation in training. IV is **consistent** — its bias shrinks to zero as $N \to \infty$ — but in any single finite sample the estimate can be above or below the truth. The larger standard error reflects this uncertainty honestly.
 
 ---
 
@@ -238,11 +238,11 @@ bind_rows(
   tidy(m_at)   |> filter(term == "D1") |>
     mutate(model = "As-treated — biased by self-selection"),
   tidy(m_late) |> filter(term == "D1") |>
-    mutate(model = "IV / LATE — true effect ≈ −10")
+    mutate(model = "IV / LATE — consistent estimate for compliers")
 ) |>
   select(model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Encouragement design: three estimators compared (true effect = −10)")
+    caption = "Encouragement design: three estimators compared (true effect = −10). ITT is diluted; as-treated is biased; LATE is consistent but individual samples can deviate from truth due to finite-sample noise.")
 ```
 
 ```{r wald-manual}
@@ -257,7 +257,7 @@ cat("Wald LATE             :", round(wald_late, 3), "\n")
 cat("ivreg() LATE          :", round(coef(m_late)["D1"], 3), "\n")
 ```
 
-The ITT is approximately −7: diluted because only 70% of encouraged participants completed the program. The as-treated estimate is biased upward in absolute value — completers are likely more motivated than the average participant, so they would have had lower stress regardless. The IV/LATE recovers approximately −10, the true causal effect for compliers.
+The ITT is approximately −7: diluted because only 70% of encouraged participants completed the program. The as-treated estimate is biased upward in absolute value — completers are likely more motivated than the average participant, so they would have had lower stress regardless. The IV/LATE is **consistent** under the exclusion restriction: on average across many samples it targets −10, though any single sample estimate can deviate from the truth due to sampling variability.
 
 ---
 

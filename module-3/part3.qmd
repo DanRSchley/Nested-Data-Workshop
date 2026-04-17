@@ -233,13 +233,13 @@ m_all        <- lm(depression ~ treat * wave + baseline,
 
 bind_rows(
   tidy(m_completers) |> filter(term == "treat:wave") |>
-    mutate(model = "Complete cases only (attrition bias)"),
+    mutate(model = "Complete cases only"),
   tidy(m_all) |> filter(term == "treat:wave") |>
-    mutate(model = "All observed data (less biased)")
+    mutate(model = "All observed data (available-case)")
 ) |>
   select(model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Treatment × wave interaction: complete-case vs. available-case. True slope = −1 per wave unit (effect reaches −5 at wave 5).")
+    caption = "Treatment × wave interaction: complete-case vs. available-case. True slope = −1 per wave unit (reaches −5 at wave 5). On average across samples, available-case lmer is less biased under MAR — individual draws may vary.")
 ```
 
 ::: {.callout-warning icon=false}

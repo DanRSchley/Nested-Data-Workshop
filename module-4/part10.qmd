@@ -106,7 +106,7 @@ tibble(
   `Std. Error`     = c(NA, naive_se, clust_se, NA)
 ) |>
   knitr::kable(digits = 3,
-               caption = "All three approaches recover the true ATT ≈ 10. Clustered SEs exceed naive SEs because productivity shocks are correlated within firms over time.")
+               caption = "All three approaches target the true ATT ≈ 10. Clustered SEs account for within-firm correlation of productivity shocks over time; they may be larger or smaller than naive SEs depending on the dependence structure.")
 ```
 
 ::: {.callout-warning icon=false}
@@ -281,11 +281,13 @@ tax_incentive <- rnorm(10, 0, 2)[industry]         # industry-level component
 df_piv <- expand_grid(firm = 1:n_f, year = 1:n_y) |>
   mutate(
     fq      = firm_q[firm],
+    # Time-varying quality shock: firm FE removes fq mean, but NOT this shock
+    fq_tv   = fq + rnorm(n(), 0, 3),
     tax_inc = tax_incentive[firm] + rnorm(n(), 0, 0.5),  # firm-year realization
-    # R&D: endogenous — high-quality firms invest more
-    rd      = 20 + 2 * fq + 3 * tax_inc + rnorm(n(), 0, 5),
-    # Patents: causal effect of R&D = 0.5; also depends on quality
-    patents = 5 + 0.5 * rd + 1.5 * fq + rnorm(n(), 0, 3),
+    # R&D: endogenous — high-quality firm-years invest more (time-varying confound)
+    rd      = 20 + 2 * fq_tv + 3 * tax_inc + rnorm(n(), 0, 5),
+    # Patents: causal effect of R&D = 0.5; also depends on time-varying quality
+    patents = 5 + 0.5 * rd + 1.5 * fq_tv + rnorm(n(), 0, 3),
     firm    = factor(firm),
     year    = factor(year)
   )
@@ -319,7 +321,7 @@ tibble(
   `True value` = 0.5
 ) |>
   knitr::kable(digits = 4,
-               caption = "OLS + FE overestimates the R&D effect because time-varying firm quality (fq) remains a confounder. IV recovers the true coefficient of 0.5.")
+               caption = "OLS + FE is biased by time-varying firm quality (fq_tv), which firm fixed effects cannot remove. IV is consistent under the exclusion restriction; single-sample estimates may deviate from the true 0.5 due to finite-sample noise.")
 ```
 
 ::: {.callout-warning icon=false}

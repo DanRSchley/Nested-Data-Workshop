@@ -154,10 +154,10 @@ m_ac <- lmer(Y_obs ~ wave * treatment + (1 | person), data = df_obs)
 
 bind_rows(
   broom.mixed::tidy(m_cc, effects = "fixed") |>
-    filter(term == "wave:treatment1") |>
+    filter(stringr::str_detect(term, "wave.*treatment")) |>
     mutate(approach = "Complete-case"),
   broom.mixed::tidy(m_ac, effects = "fixed") |>
-    filter(term == "wave:treatment") |>
+    filter(stringr::str_detect(term, "wave.*treatment")) |>
     mutate(approach = "Available-case (lmer)")
 ) |>
   select(approach, estimate, std.error, p.value) |>
