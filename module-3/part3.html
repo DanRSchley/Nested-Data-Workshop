@@ -854,24 +854,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># True treatment effect = -5 (per unit of wave / n_waves)</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>m_completers <span class="ot">&lt;-</span> <span class="fu">lm</span>(depression <span class="sc">~</span> treat <span class="sc">+</span> wave <span class="sc">+</span> baseline, <span class="at">data =</span> complete_cases)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>m_all        <span class="ot">&lt;-</span> <span class="fu">lm</span>(depression <span class="sc">~</span> treat <span class="sc">+</span> wave <span class="sc">+</span> baseline,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> df_long <span class="sc">|&gt;</span> <span class="fu">filter</span>(observed))</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_completers) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"treat"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Complete cases only (attrition bias)"</span>),</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_all) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"treat"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"All observed data (less biased)"</span>)</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Attrition biases the treatment effect estimate (true ≈ −5 at final wave)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># DGP: treatment effect grows linearly with wave — true effect at final wave = -5.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The correct estimand is the treat × wave interaction, not a main effect of treat.</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>m_completers <span class="ot">&lt;-</span> <span class="fu">lm</span>(depression <span class="sc">~</span> treat <span class="sc">*</span> wave <span class="sc">+</span> baseline, <span class="at">data =</span> complete_cases)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>m_all        <span class="ot">&lt;-</span> <span class="fu">lm</span>(depression <span class="sc">~</span> treat <span class="sc">*</span> wave <span class="sc">+</span> baseline,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> df_long <span class="sc">|&gt;</span> <span class="fu">filter</span>(observed))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_completers) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"treat:wave"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Complete cases only (attrition bias)"</span>),</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_all) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"treat:wave"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"All observed data (less biased)"</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Treatment × wave interaction: complete-case vs. available-case. True slope = −1 per wave unit (effect reaches −5 at wave 5)."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Attrition biases the treatment effect estimate (true ≈ −5 at final wave)</caption>
+<caption>Treatment × wave interaction: complete-case vs.&nbsp;available-case. True slope = −1 per wave unit (effect reaches −5 at wave 5).</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">model</th>
@@ -883,15 +884,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Complete cases only (attrition bias)</td>
-<td style="text-align: right;">-1.799</td>
-<td style="text-align: right;">0.550</td>
-<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">-0.962</td>
+<td style="text-align: right;">0.384</td>
+<td style="text-align: right;">0.013</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">All observed data (less biased)</td>
-<td style="text-align: right;">-1.651</td>
-<td style="text-align: right;">0.356</td>
-<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">-0.722</td>
+<td style="text-align: right;">0.269</td>
+<td style="text-align: right;">0.007</td>
 </tr>
 </tbody>
 </table>

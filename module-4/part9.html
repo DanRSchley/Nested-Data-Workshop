@@ -819,13 +819,27 @@ window.Quarto = {
 </section>
 <section id="step-3-multiple-imputation" class="level2" data-number="35.5">
 <h2 data-number="35.5" class="anchored" data-anchor-id="step-3-multiple-imputation"><span class="header-section-number">35.5</span> Step 3: Multiple Imputation</h2>
-<p>Multiple Imputation (MI) is the gold standard for MAR data. The procedure has three steps:</p>
+<p>Multiple Imputation (MI) is a principled approach for MAR data. The procedure has three steps:</p>
 <ol type="1">
 <li><strong>Impute:</strong> Create <span class="math inline">\(m\)</span> plausible complete datasets, each with missing values filled in by draws from the posterior predictive distribution given observed data.</li>
 <li><strong>Analyze:</strong> Run your analysis model on each of the <span class="math inline">\(m\)</span> complete datasets.</li>
 <li><strong>Pool:</strong> Combine estimates using Rubin’s rules, which correctly propagate the uncertainty from imputation into the final standard errors.</li>
 </ol>
-<p>For longitudinal data with person-level predictors, a practical strategy is to impute at the <strong>person level</strong> (one row per person, using person-level summaries) and then merge the imputed values back into the long-format data for analysis.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>A note on MI for longitudinal outcomes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For repeated-measures longitudinal outcomes (where the missing data <em>are</em> the outcome at specific waves), <strong>FIML via <code>lmer()</code> with all available observations is usually the preferred approach under MAR</strong> — it directly maximizes the likelihood over observed data without requiring an imputation model for the outcome itself. Full multilevel MI that respects the time-series structure of the data (e.g., using <code>mice</code> with <code>2l.pan</code> or Bayesian multilevel imputation) is technically superior when auxiliary variables not in the analysis model predict missingness, but it is considerably more complex to implement correctly.</p>
+<p>The illustration below uses a <strong>simplified person-level imputation strategy</strong> as a didactic toy example to show the Rubin’s rules pooling mechanics. It is <em>not</em> a recommended best-practice workflow for longitudinal outcomes — it imputes a person-level mean and reuses it across waves, which distorts the within-person variance and time trajectory. Use FIML (<code>lmer</code> on all observed data) or a proper multilevel MI package for applied work.</p>
+</div>
+</div>
+<p>For longitudinal data with person-level predictors, the didactic illustration imputes at the <strong>person level</strong> (one row per person, using person-level summaries) to show the pooling mechanics in a tractable form.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>

@@ -662,7 +662,7 @@ window.Quarto = {
 <li>Two time points: baseline and follow-up (the “pre vs.&nbsp;post” dimension of DiD)</li>
 <li>The DiD estimand: <span class="math inline">\((\bar{Y}^{\text{post}}_{\text{int}} - \bar{Y}^{\text{pre}}_{\text{int}}) - (\bar{Y}^{\text{post}}_{\text{ctrl}} - \bar{Y}^{\text{pre}}_{\text{ctrl}})\)</span></li>
 </ul>
-<p>Recognizing this equivalence is valuable for two reasons. First, it makes explicit what the pre-post mixed model assumes (parallel trends in the absence of treatment — which randomization guarantees in expectation). Second, it gives you the full DiD toolkit: you can add multiple waves, test pre-trend balance, and use the event study framework to trace the treatment trajectory over time.</p>
+<p>Recognizing this equivalence is valuable for two reasons. First, it makes explicit what the pre-post mixed model assumes (parallel trends in the absence of treatment — which randomization supports in expectation across repeated samples, though any realized sample can show chance pre-trend imbalance). Second, it gives you the full DiD toolkit: you can add multiple waves, test pre-trend balance, and use the event study framework to trace the treatment trajectory over time.</p>
 </section>
 <section id="simulation-stress-management-intervention" class="level3" data-number="45.2.2">
 <h3 data-number="45.2.2" class="anchored" data-anchor-id="simulation-stress-management-intervention"><span class="header-section-number">45.2.2</span> Simulation: stress management intervention</h3>
@@ -1132,7 +1132,7 @@ window.Quarto = {
 </div>
 <div class="callout-body-container callout-body">
 <p>Matching on pre-treatment covariates removes <strong>observed</strong> confounders of the high-use vs.&nbsp;low-use comparison. But unobserved motivation, self-efficacy, and expectancy effects remain. The matched estimate is closer to causal than the naive comparison, but it is not an RCT-quality estimate.</p>
-<p>Formally, this identifies a LATE for the sub-population of low-users who were matched to comparable high-users — not the ATE for all participants. Interpret as “the effect of high engagement, for people with similar observable characteristics to high engagers,” not “the effect of high engagement for everyone.”</p>
+<p>Formally, this identifies the <strong>Average Treatment effect on the Treated (ATT)</strong> for the sub-population of high-users — the effect of high engagement among people with observable characteristics similar to those who actually engaged heavily. This is not a LATE (which is an IV estimand defined by instrument-induced compliers) and is not the ATE for all participants. Interpret as “the effect of high engagement, for people with similar observable characteristics to high engagers,” not “the effect of high engagement for everyone.” Crucially, this rests on a selection-on-observables assumption: all confounders of the usage–outcome relationship are measured and included in the PS model.</p>
 </div>
 </div>
 <hr>
