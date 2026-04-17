@@ -196,7 +196,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -631,10 +631,10 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bias direction table</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Example         =</span> <span class="fu">c</span>(<span class="st">"Ice cream → drowning"</span>, <span class="st">"Advertising → sales"</span>, <span class="st">"Mindfulness → stress"</span>),</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Confounder_Z    =</span> <span class="fu">c</span>(<span class="st">"Summer heat"</span>, <span class="st">"Store quality"</span>, <span class="st">"Stable personality"</span>),</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Sign Z→X</span><span class="st">`</span>      <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"+"</span>, <span class="st">"+"</span>, <span class="st">"+"</span>),</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Sign Z→Y</span><span class="st">`</span>      <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"+"</span>, <span class="st">"+"</span>, <span class="st">"-"</span>),</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Example         =</span> <span class="fu">c</span>(<span class="st">"Budget tracker → savings"</span>, <span class="st">"Promotion → purchase"</span>, <span class="st">"Investment advice → returns"</span>),</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Confounder_Z    =</span> <span class="fu">c</span>(<span class="st">"Platform quality"</span>, <span class="st">"Consumer wealth"</span>, <span class="st">"Financial sophistication"</span>),</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Sign Z→X</span><span class="st">`</span>      <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"+"</span>, <span class="st">"+"</span>, <span class="st">"-"</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Sign Z→Y</span><span class="st">`</span>      <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"+"</span>, <span class="st">"+"</span>, <span class="st">"+"</span>),</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Bias direction</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"Positive (↑ est.)"</span>, <span class="st">"Positive (↑ est.)"</span>, <span class="st">"Negative (↓ est.)"</span>)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"OVB bias direction: multiply signs to get bias direction"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -643,11 +643,11 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <table class="caption-top table table-sm table-striped small">
 <caption>OVB bias direction: multiply signs to get bias direction</caption>
 <colgroup>
-<col style="width: 27%">
-<col style="width: 24%">
-<col style="width: 11%">
-<col style="width: 11%">
-<col style="width: 23%">
+<col style="width: 31%">
+<col style="width: 28%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 20%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -660,24 +660,24 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Ice cream → drowning</td>
-<td style="text-align: left;">Summer heat</td>
+<td style="text-align: left;">Budget tracker → savings</td>
+<td style="text-align: left;">Platform quality</td>
 <td style="text-align: left;">+</td>
 <td style="text-align: left;">+</td>
 <td style="text-align: left;">Positive (↑ est.)</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Advertising → sales</td>
-<td style="text-align: left;">Store quality</td>
+<td style="text-align: left;">Promotion → purchase</td>
+<td style="text-align: left;">Consumer wealth</td>
 <td style="text-align: left;">+</td>
 <td style="text-align: left;">+</td>
 <td style="text-align: left;">Positive (↑ est.)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Mindfulness → stress</td>
-<td style="text-align: left;">Stable personality</td>
-<td style="text-align: left;">+</td>
+<td style="text-align: left;">Investment advice → returns</td>
+<td style="text-align: left;">Financial sophistication</td>
 <td style="text-align: left;">-</td>
+<td style="text-align: left;">+</td>
 <td style="text-align: left;">Negative (↓ est.)</td>
 </tr>
 </tbody>
@@ -706,46 +706,63 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">500</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Example 1: Ice cream / drowning / heat</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>Z_heat    <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">70</span>, <span class="dv">10</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>X_icecream <span class="ot">&lt;-</span> <span class="fl">0.3</span> <span class="sc">*</span> Z_heat <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>Y_drowning <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">*</span> Z_heat <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">8</span>)  <span class="co"># true X effect = 0</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>m_biased_1  <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_drowning <span class="sc">~</span> X_icecream)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>m_correct_1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_drowning <span class="sc">~</span> X_icecream <span class="sc">+</span> Z_heat)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Example 2: Advertising / sales / store quality</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>Z_quality   <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">50</span>, <span class="dv">10</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>X_ads       <span class="ot">&lt;-</span> <span class="fl">0.4</span> <span class="sc">*</span> Z_quality <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">8</span>)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>Y_sales     <span class="ot">&lt;-</span> <span class="fl">0.6</span> <span class="sc">*</span> Z_quality <span class="sc">+</span> <span class="fl">0.15</span> <span class="sc">*</span> X_ads <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">10</span>)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># true X effect = 0.15; quality inflates this upward</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>m_biased_2  <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_sales <span class="sc">~</span> X_ads)</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>m_correct_2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_sales <span class="sc">~</span> X_ads <span class="sc">+</span> Z_quality)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Example 1: Budget tracker / savings rate / platform quality</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Platform quality attracts more engaged users AND produces better financial outcomes</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># True effect of using the tracker = 0; it is the platform quality that matters</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>Z_quality     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">50</span>, <span class="dv">10</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>X_tracker     <span class="ot">&lt;-</span> <span class="fl">0.3</span> <span class="sc">*</span> Z_quality <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>Y_savings     <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">*</span> Z_quality <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">8</span>)  <span class="co"># true X effect = 0</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>m_biased_1  <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_savings <span class="sc">~</span> X_tracker)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>m_correct_1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_savings <span class="sc">~</span> X_tracker <span class="sc">+</span> Z_quality)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Example 2: Premium promotional message exposure / purchase intention / consumer wealth</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Wealthy consumers are targeted more AND have higher purchase intentions for premium products</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># True X effect = 0.15; wealth inflates this upward</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>Z_wealth      <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">50</span>, <span class="dv">10</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>X_promo       <span class="ot">&lt;-</span> <span class="fl">0.4</span> <span class="sc">*</span> Z_wealth <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">8</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>Y_intention   <span class="ot">&lt;-</span> <span class="fl">0.6</span> <span class="sc">*</span> Z_wealth <span class="sc">+</span> <span class="fl">0.15</span> <span class="sc">*</span> X_promo <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">10</span>)</span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Example 3: Mindfulness / stress / stable personality</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>Z_stability   <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">50</span>, <span class="dv">10</span>)</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>X_mindfulness <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">*</span> Z_stability <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">6</span>)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>Y_stress      <span class="ot">&lt;-</span> <span class="dv">80</span> <span class="sc">-</span> <span class="fl">0.4</span> <span class="sc">*</span> Z_stability <span class="sc">-</span> <span class="dv">2</span> <span class="sc">*</span> X_mindfulness <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">8</span>)</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># true X effect = -2; stability also lowers stress AND increases mindfulness → downward bias</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>m_biased_3  <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_stress <span class="sc">~</span> X_mindfulness)</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>m_correct_3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_stress <span class="sc">~</span> X_mindfulness <span class="sc">+</span> Z_stability)</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_biased_1)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"X_icecream"</span>)   <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">example =</span> <span class="st">"Ice cream (true=0)"</span>,    <span class="at">model =</span> <span class="st">"Omits Z"</span>),</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_correct_1) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"X_icecream"</span>)   <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">example =</span> <span class="st">"Ice cream (true=0)"</span>,    <span class="at">model =</span> <span class="st">"Includes Z"</span>),</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_biased_2)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"X_ads"</span>)        <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">example =</span> <span class="st">"Advertising (true=0.15)"</span>, <span class="at">model =</span> <span class="st">"Omits Z"</span>),</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_correct_2) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"X_ads"</span>)        <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">example =</span> <span class="st">"Advertising (true=0.15)"</span>, <span class="at">model =</span> <span class="st">"Includes Z"</span>),</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_biased_3)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"X_mindfulness"</span>)<span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">example =</span> <span class="st">"Mindfulness (true=-2)"</span>,   <span class="at">model =</span> <span class="st">"Omits Z"</span>),</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_correct_3) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"X_mindfulness"</span>)<span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">example =</span> <span class="st">"Mindfulness (true=-2)"</span>,   <span class="at">model =</span> <span class="st">"Includes Z"</span>)</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(example, model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"OVB across three examples: omitting Z biases estimates in predictable directions"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>m_biased_2  <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_intention <span class="sc">~</span> X_promo)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>m_correct_2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_intention <span class="sc">~</span> X_promo <span class="sc">+</span> Z_wealth)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Example 3: Investment advice uptake / portfolio return / financial sophistication</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Sophisticated investors avoid advice (prefer self-directed) AND perform better</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># True X effect = +0.5 (advice genuinely helps); sophistication biases estimate downward</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>Z_sophist     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">50</span>, <span class="dv">10</span>)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>X_advice      <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">0.5</span> <span class="sc">*</span> Z_sophist <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">6</span>)   <span class="co"># sophisticated investors avoid advice</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>Y_returns     <span class="ot">&lt;-</span> <span class="fl">0.4</span> <span class="sc">*</span> Z_sophist <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> X_advice <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">8</span>)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>m_biased_3  <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_returns <span class="sc">~</span> X_advice)</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>m_correct_3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_returns <span class="sc">~</span> X_advice <span class="sc">+</span> Z_sophist)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_biased_1)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"X_tracker"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">example =</span> <span class="st">"Budget tracker (true=0)"</span>,       <span class="at">model =</span> <span class="st">"Omits Z"</span>),</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_correct_1) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"X_tracker"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">example =</span> <span class="st">"Budget tracker (true=0)"</span>,       <span class="at">model =</span> <span class="st">"Includes Z"</span>),</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_biased_2)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"X_promo"</span>)   <span class="sc">|&gt;</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">example =</span> <span class="st">"Promotion (true=0.15)"</span>,          <span class="at">model =</span> <span class="st">"Omits Z"</span>),</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_correct_2) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"X_promo"</span>)   <span class="sc">|&gt;</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">example =</span> <span class="st">"Promotion (true=0.15)"</span>,          <span class="at">model =</span> <span class="st">"Includes Z"</span>),</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_biased_3)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"X_advice"</span>)  <span class="sc">|&gt;</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">example =</span> <span class="st">"Investment advice (true=0.5)"</span>,   <span class="at">model =</span> <span class="st">"Omits Z"</span>),</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_correct_3) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"X_advice"</span>)  <span class="sc">|&gt;</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">example =</span> <span class="st">"Investment advice (true=0.5)"</span>,   <span class="at">model =</span> <span class="st">"Includes Z"</span>)</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(example, model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"OVB across three examples: omitting Z biases estimates in predictable directions"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <caption>OVB across three examples: omitting Z biases estimates in predictable directions</caption>
+<colgroup>
+<col style="width: 43%">
+<col style="width: 16%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 11%">
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">example</th>
@@ -757,44 +774,44 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Ice cream (true=0)</td>
+<td style="text-align: left;">Budget tracker (true=0)</td>
 <td style="text-align: left;">Omits Z</td>
 <td style="text-align: right;">0.543</td>
 <td style="text-align: right;">0.067</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Ice cream (true=0)</td>
+<td style="text-align: left;">Budget tracker (true=0)</td>
 <td style="text-align: left;">Includes Z</td>
 <td style="text-align: right;">-0.052</td>
 <td style="text-align: right;">0.070</td>
 <td style="text-align: right;">0.457</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Advertising (true=0.15)</td>
+<td style="text-align: left;">Promotion (true=0.15)</td>
 <td style="text-align: left;">Omits Z</td>
 <td style="text-align: right;">0.398</td>
 <td style="text-align: right;">0.052</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Advertising (true=0.15)</td>
+<td style="text-align: left;">Promotion (true=0.15)</td>
 <td style="text-align: left;">Includes Z</td>
 <td style="text-align: right;">0.130</td>
 <td style="text-align: right;">0.053</td>
 <td style="text-align: right;">0.014</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Mindfulness (true=-2)</td>
+<td style="text-align: left;">Investment advice (true=0.5)</td>
 <td style="text-align: left;">Omits Z</td>
-<td style="text-align: right;">-2.302</td>
-<td style="text-align: right;">0.048</td>
+<td style="text-align: right;">0.206</td>
+<td style="text-align: right;">0.051</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Mindfulness (true=-2)</td>
+<td style="text-align: left;">Investment advice (true=0.5)</td>
 <td style="text-align: left;">Includes Z</td>
-<td style="text-align: right;">-1.947</td>
+<td style="text-align: right;">0.553</td>
 <td style="text-align: right;">0.060</td>
 <td style="text-align: right;">0.000</td>
 </tr>
@@ -803,6 +820,7 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 </div>
 </div>
 <p>In every case, adding the confounder pulls the estimate toward the true value. The bias direction matches the prediction from the sign table.</p>
+<p>The budget-tracking example illustrates a common error in consumer finance research: users of a platform feature (tracker) appear to save more, but the actual driver is platform quality — better platforms attract more financially engaged users who would have saved more regardless. The promotion example shows upward bias: promotions genuinely increase purchase intentions, but the naive estimate is inflated because wealth drives both targeting and intention. The investment advice example shows downward bias: advice genuinely improves portfolio returns, but financially sophisticated investors avoid advice while also outperforming — so the advice-returns correlation in cross-sectional data understates the true benefit.</p>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -860,7 +878,7 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 </div>
 </div>
 <p><strong>Psychology example:</strong> Social support reduces depression — but depression also causes people to withdraw from social networks. A cross-sectional regression of depression on social support picks up both directions simultaneously and gives a confounded estimate.</p>
-<p><strong>Marketing example:</strong> Brand awareness drives sales, but sales revenue funds advertising that builds brand awareness. A cross-sectional regression cannot tell you whether awareness causes sales or sales cause awareness.</p>
+<p>The same dynamic is common in consumer markets: advertising drives sales (brand awareness → purchase), but sales revenue funds advertising (revenue → ad budget). A cross-sectional regression of sales on advertising spending cannot identify whether awareness causes purchases or revenue enables advertising. Longitudinal designs with lagged predictors are required.</p>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -950,7 +968,6 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 </div>
 </div>
 <p><strong>The publish-or-perish example:</strong> Prolificacy (X) and idea quality (Y) may be uncorrelated in the full population of researchers. But publication (C) is caused by both — prolific researchers with good ideas get published. If you study <em>only published papers</em> (conditioning on C), you’ll observe that prolificacy and idea quality are <em>negatively correlated</em> within the published set, even though they’re unrelated in the population.</p>
-<p><strong>Berkson’s paradox in hospitals:</strong> Disease A (X) and disease B (Y) are unrelated in the general population. But both can lead to hospitalization (C). If you study only hospitalized patients, A and B appear negatively correlated — because having A makes it less likely you also have B to explain your hospitalization.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -978,6 +995,20 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <p><img src="part1_files/figure-html/collider-viz-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>JDM Collider: Analyzing Only Platform Engagers
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In a study of platform users, promotional sensitivity (X) and consumer wealth (Y) may be uncorrelated in the broader population. But both predict active platform engagement (C). If you analyze only high-engagement users — restricting your sample based on C — you introduce a spurious negative correlation between X and Y within your sample. Wealthier users who are also promo-sensitive are over-represented; the model sees this as a negative relationship between wealth and promo-sensitivity within the active user pool. This is collider bias from sample restriction, not from including C as a covariate.</p>
+<p>The same logic applies any time you analyze a selected subset: only people who purchased, only participants who completed all waves, only firms that survived.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -1025,19 +1056,19 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>edges_fork <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x1=</span><span class="fu">c</span>(<span class="fl">1.8</span>,<span class="fl">2.2</span>), <span class="at">x2=</span><span class="fu">c</span>(<span class="fl">1.2</span>,<span class="fl">2.8</span>), <span class="at">y1=</span><span class="fu">c</span>(<span class="fl">1.9</span>,<span class="fl">1.9</span>), <span class="at">y2=</span><span class="fu">c</span>(<span class="fl">1.1</span>,<span class="fl">1.1</span>),</span>
 <span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>                     <span class="at">color =</span> <span class="fu">c</span>(<span class="st">"#e63946"</span>,<span class="st">"#e63946"</span>))</span>
 <span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>p_fork <span class="ot">&lt;-</span> <span class="fu">make_dag_panel</span>(nodes_fork, edges_fork, <span class="st">"Fork (Confounder)"</span>,</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Z → X and Z → Y</span><span class="sc">\n</span><span class="st">Creates spurious X-Y correlation</span><span class="sc">\n</span><span class="st">Fix: control for Z"</span>)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Z → X and Z → Y</span><span class="sc">\n</span><span class="st">Creates spurious X-Y correlation</span><span class="sc">\n</span><span class="st">Example: financial literacy (Z) → engagement</span><span class="sc">\n</span><span class="st">with disclosure format (X) and → risky choice (Y)</span><span class="sc">\n</span><span class="st">Fix: control for Z"</span>)</span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>nodes_chain <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">label =</span> <span class="fu">c</span>(<span class="st">"X"</span>, <span class="st">"M"</span>, <span class="st">"Y"</span>), <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
 <span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>edges_chain <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x1=</span><span class="fu">c</span>(<span class="fl">1.2</span>,<span class="fl">2.2</span>), <span class="at">x2=</span><span class="fu">c</span>(<span class="fl">1.8</span>,<span class="fl">2.8</span>), <span class="at">y1=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">y2=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),</span>
 <span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>                      <span class="at">color =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>,<span class="st">"#1e3a5f"</span>))</span>
 <span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>p_chain <span class="ot">&lt;-</span> <span class="fu">make_dag_panel</span>(nodes_chain, edges_chain, <span class="st">"Chain (Mediator)"</span>,</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="st">"X → M → Y</span><span class="sc">\n</span><span class="st">M is on the causal path</span><span class="sc">\n</span><span class="st">Fix: do NOT control for M"</span>)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="st">"X → M → Y</span><span class="sc">\n</span><span class="st">M is on the causal path</span><span class="sc">\n</span><span class="st">Example: default enrollment (X) → savings habit (M)</span><span class="sc">\n</span><span class="st">→ long-term savings (Y)</span><span class="sc">\n</span><span class="st">Fix: do NOT control for M"</span>)</span>
 <span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>nodes_coll <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">label =</span> <span class="fu">c</span>(<span class="st">"X"</span>, <span class="st">"C"</span>, <span class="st">"Y"</span>), <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
 <span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>edges_coll <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x1=</span><span class="fu">c</span>(<span class="fl">1.2</span>,<span class="fl">2.8</span>), <span class="at">x2=</span><span class="fu">c</span>(<span class="fl">1.8</span>,<span class="fl">2.2</span>), <span class="at">y1=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">y2=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),</span>
 <span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>                     <span class="at">color =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>,<span class="st">"#1e3a5f"</span>))</span>
 <span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>p_coll <span class="ot">&lt;-</span> <span class="fu">make_dag_panel</span>(nodes_coll, edges_coll, <span class="st">"Collider"</span>,</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="st">"X → C ← Y</span><span class="sc">\n</span><span class="st">Condition on C = open backdoor</span><span class="sc">\n</span><span class="st">Fix: do NOT control for C"</span>)</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="st">"X → C ← Y</span><span class="sc">\n</span><span class="st">Condition on C = open backdoor</span><span class="sc">\n</span><span class="st">Example: promotional sensitivity (X) →</span><span class="sc">\n</span><span class="st">platform activity (C) ← consumer wealth (Y)</span><span class="sc">\n</span><span class="st">Fix: do NOT control for C"</span>)</span>
 <span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>p_fork <span class="sc">+</span> p_chain <span class="sc">+</span> p_coll</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>

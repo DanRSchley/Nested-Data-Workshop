@@ -167,7 +167,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -564,41 +564,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="pure-hierarchy-one-nesting-level" class="level2" data-number="5.2">
 <h2 data-number="5.2" class="anchored" data-anchor-id="pure-hierarchy-one-nesting-level"><span class="header-section-number">5.2</span> Pure Hierarchy: One Nesting Level</h2>
 <p>The simplest nested structure: lower-level units are grouped into higher-level units, and each lower-level unit belongs to exactly one group.</p>
-<p><strong>Example:</strong> Students nested within classrooms.</p>
+<p><strong>Example:</strong> Consumers nested within retail stores.</p>
 <ul>
-<li>500 students, each in one of 25 classrooms</li>
-<li>A student’s test score depends partly on their own ability and partly on their classroom environment (teacher quality, class size, peer effects)</li>
-<li>Observations within the same classroom are more similar to each other than to observations from different classrooms</li>
+<li>Hundreds of consumers, each shopping at one of several stores</li>
+<li>A consumer’s purchase amount depends partly on their own spending habits and partly on the store environment (location, product mix, ambient cues)</li>
+<li>Purchases within the same store are more similar to each other than to purchases from other stores</li>
 </ul>
+<p>Think of a rectangle divided into colored columns — each column is a store, and each dot within a column is a consumer. The columns (stores) explain part of why purchases cluster.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate a two-level structure</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_classes   <span class="ot">&lt;-</span> <span class="dv">6</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n_students  <span class="ot">&lt;-</span> <span class="dv">8</span>  <span class="co"># per class</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_stores             <span class="ot">&lt;-</span> <span class="dv">6</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n_consumers_per_store <span class="ot">&lt;-</span> <span class="dv">8</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>class_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_classes, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>store_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_stores, <span class="dv">0</span>, <span class="dv">15</span>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df_school <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">classroom =</span> <span class="dv">1</span><span class="sc">:</span>n_classes,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">student   =</span> <span class="dv">1</span><span class="sc">:</span>n_students</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df_stores <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">store      =</span> <span class="dv">1</span><span class="sc">:</span>n_stores,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">consumer   =</span> <span class="dv">1</span><span class="sc">:</span>n_consumers_per_store</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">student_id   =</span> <span class="fu">row_number</span>(),</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">class_effect =</span> class_effects[classroom],</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">test_score   =</span> <span class="dv">70</span> <span class="sc">+</span> class_effect <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">3</span>),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">classroom    =</span> <span class="fu">factor</span>(classroom, <span class="at">labels =</span> <span class="fu">paste</span>(<span class="st">"Class"</span>, <span class="dv">1</span><span class="sc">:</span>n_classes))</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">consumer_id     =</span> <span class="fu">row_number</span>(),</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">store_effect    =</span> store_effects[store],</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">purchase_amount =</span> <span class="dv">85</span> <span class="sc">+</span> store_effect <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">8</span>),</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">store           =</span> <span class="fu">factor</span>(store, <span class="at">labels =</span> <span class="fu">paste</span>(<span class="st">"Store"</span>, <span class="dv">1</span><span class="sc">:</span>n_stores))</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_school, <span class="fu">aes</span>(<span class="at">x =</span> classroom, <span class="at">y =</span> test_score, <span class="at">color =</span> classroom)) <span class="sc">+</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_stores, <span class="fu">aes</span>(<span class="at">x =</span> store, <span class="at">y =</span> purchase_amount, <span class="at">color =</span> store)) <span class="sc">+</span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.15</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"crossbar"</span>, <span class="at">width =</span> <span class="fl">0.5</span>,</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>               <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set2"</span>) <span class="sc">+</span></span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title   =</span> <span class="st">"Students nested within classrooms"</span>,</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Black bars = classroom means; dots = individual students"</span>,</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Classroom"</span>, <span class="at">y =</span> <span class="st">"Test Score"</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Consumers nested within retail stores"</span>,</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Black bars = store means; dots = individual consumers"</span>,</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Store"</span>, <span class="at">y =</span> <span class="st">"Purchase Amount ($)"</span></span>
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -611,127 +612,146 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Notice that test scores cluster within classrooms. Students in Class 3 tend to score higher than those in Class 5, regardless of individual differences. A model that ignores classrooms treats these 48 scores as 48 independent data points. They are not — they are 6 groups of 8.</p>
-<p><strong>Data format:</strong> One row per student. You need a student ID and a classroom ID.</p>
+<p>Notice that purchase amounts cluster within stores. Some stores attract higher-spending consumers due to location, product mix, or ambient cues. Purchases within the same store are more similar to each other than to purchases from other stores. A model that ignores stores treats these 48 observations as 48 independent data points. They are not — they are 6 groups of 8.</p>
+<p><strong>Data format:</strong> One row per consumer visit. You need a consumer ID and a store ID.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <caption>First 12 rows of a two-level dataset</caption>
 <thead>
 <tr class="header">
-<th style="text-align: left;">classroom</th>
-<th style="text-align: right;">student</th>
-<th style="text-align: right;">test_score</th>
+<th style="text-align: left;">store</th>
+<th style="text-align: right;">consumer</th>
+<th style="text-align: right;">purchase_amount</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Class 1</td>
+<td style="text-align: left;">Store 1</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">68.6</td>
+<td style="text-align: right;">80.3</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Class 1</td>
+<td style="text-align: left;">Store 1</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">63.4</td>
+<td style="text-align: right;">66.5</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Class 1</td>
+<td style="text-align: left;">Store 1</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">65.1</td>
+<td style="text-align: right;">71.1</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Class 1</td>
+<td style="text-align: left;">Store 1</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">65.9</td>
+<td style="text-align: right;">73.0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Class 1</td>
+<td style="text-align: left;">Store 1</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">70.9</td>
+<td style="text-align: right;">86.4</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Class 1</td>
+<td style="text-align: left;">Store 1</td>
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">68.3</td>
+<td style="text-align: right;">79.5</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Class 1</td>
+<td style="text-align: left;">Store 1</td>
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">68.4</td>
+<td style="text-align: right;">79.8</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Class 1</td>
+<td style="text-align: left;">Store 1</td>
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">67.5</td>
+<td style="text-align: right;">77.5</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Class 2</td>
+<td style="text-align: left;">Store 2</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">67.2</td>
+<td style="text-align: right;">77.1</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Class 2</td>
+<td style="text-align: left;">Store 2</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">74.2</td>
+<td style="text-align: right;">95.8</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Class 2</td>
+<td style="text-align: left;">Store 2</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">70.3</td>
+<td style="text-align: right;">85.5</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Class 2</td>
+<td style="text-align: left;">Store 2</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">62.9</td>
+<td style="text-align: right;">65.8</td>
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Exercise
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Look at the store-level means in the plot above. Which store appears to have the highest average purchase amount? Now consider: what store-level factors (location quality, product assortment, store ambiance) might explain those differences? This is the between-store variance your model needs to account for.</p>
 </div>
 </div>
 <hr>
 </section>
 <section id="three-levels-nesting-within-nesting" class="level2" data-number="5.3">
 <h2 data-number="5.3" class="anchored" data-anchor-id="three-levels-nesting-within-nesting"><span class="header-section-number">5.3</span> Three Levels: Nesting Within Nesting</h2>
-<p>The hierarchy can extend further. Students are nested within classrooms, which are nested within schools.</p>
-<p><strong>Example:</strong> Patients nested within therapists nested within clinics.</p>
-<p>Each level adds a new source of systematic variance: - Patients differ from each other in severity, motivation, history - Therapists differ in skill, approach, empathy - Clinics differ in resources, culture, population served</p>
+<p>The hierarchy can extend further. Consumers are nested within stores, which are nested within retail chains or geographic regions.</p>
+<p><strong>Example:</strong> Purchase occasions nested within customers nested within banking platforms.</p>
+<p>Three nested boxes: the outer box is the platform, within it are customers, and within each customer are multiple occasions.</p>
+<p>Each level adds a new source of systematic variance:</p>
+<ul>
+<li>Occasions differ from each other within a customer (day of week, mood, context)</li>
+<li>Customers differ in their baseline spending and financial habits</li>
+<li>Banks and platforms differ in the population they serve, fees, and product mix</li>
+</ul>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n_clinics    <span class="ot">&lt;-</span> <span class="dv">3</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n_therapists <span class="ot">&lt;-</span> <span class="dv">4</span>  <span class="co"># per clinic</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>n_patients   <span class="ot">&lt;-</span> <span class="dv">5</span>  <span class="co"># per therapist</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n_banks                 <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n_customers_per_bank    <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>n_occasions_per_customer <span class="ot">&lt;-</span> <span class="dv">5</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>clinic_effects    <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_clinics, <span class="dv">0</span>, <span class="dv">6</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>therapist_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_clinics <span class="sc">*</span> n_therapists, <span class="dv">0</span>, <span class="dv">4</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>bank_effects     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_banks, <span class="dv">0</span>, <span class="dv">8</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>customer_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_banks <span class="sc">*</span> n_customers_per_bank, <span class="dv">0</span>, <span class="dv">5</span>)</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>df_three <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">clinic    =</span> <span class="dv">1</span><span class="sc">:</span>n_clinics,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">therapist =</span> <span class="dv">1</span><span class="sc">:</span>n_therapists,</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">patient   =</span> <span class="dv">1</span><span class="sc">:</span>n_patients</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">bank     =</span> <span class="dv">1</span><span class="sc">:</span>n_banks,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">customer =</span> <span class="dv">1</span><span class="sc">:</span>n_customers_per_bank,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">occasion =</span> <span class="dv">1</span><span class="sc">:</span>n_occasions_per_customer</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">therapist_id   =</span> (clinic <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> n_therapists <span class="sc">+</span> therapist,</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">clinic_eff     =</span> clinic_effects[clinic],</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">therapist_eff  =</span> therapist_effects[therapist_id],</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">outcome        =</span> <span class="dv">50</span> <span class="sc">+</span> clinic_eff <span class="sc">+</span> therapist_eff <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">3</span>),</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">clinic_label   =</span> <span class="fu">paste</span>(<span class="st">"Clinic"</span>, clinic),</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">therapist_label =</span> <span class="fu">paste0</span>(<span class="st">"T"</span>, therapist_id)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">customer_id       =</span> (bank <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> n_customers_per_bank <span class="sc">+</span> customer,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">bank_eff          =</span> bank_effects[bank],</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">customer_eff      =</span> customer_effects[customer_id],</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">transaction_amount =</span> <span class="dv">150</span> <span class="sc">+</span> bank_eff <span class="sc">+</span> customer_eff <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">bank_label        =</span> <span class="fu">paste</span>(<span class="st">"Platform"</span>, bank),</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">customer_label    =</span> <span class="fu">paste0</span>(<span class="st">"C"</span>, customer_id)</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_three, <span class="fu">aes</span>(<span class="at">x =</span> therapist_label, <span class="at">y =</span> outcome,</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>                      <span class="at">color =</span> clinic_label)) <span class="sc">+</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_three, <span class="fu">aes</span>(<span class="at">x =</span> customer_label, <span class="at">y =</span> transaction_amount,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>                      <span class="at">color =</span> bank_label)) <span class="sc">+</span></span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"point"</span>, <span class="at">shape =</span> <span class="dv">18</span>,</span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>               <span class="at">size =</span> <span class="dv">4</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> clinic_label, <span class="at">scales =</span> <span class="st">"free_x"</span>) <span class="sc">+</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> bank_label, <span class="at">scales =</span> <span class="st">"free_x"</span>) <span class="sc">+</span></span>
 <span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>) <span class="sc">+</span></span>
 <span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">title   =</span> <span class="st">"Three-level structure: Patients within Therapists within Clinics"</span>,</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">x       =</span> <span class="st">"Therapist"</span>,</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">y       =</span> <span class="st">"Outcome"</span>,</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">color   =</span> <span class="cn">NULL</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">title  =</span> <span class="st">"Three-level structure: Occasions within Customers within Platforms"</span>,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">x      =</span> <span class="st">"Customer"</span>,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">y      =</span> <span class="st">"Transaction Amount ($)"</span>,</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">color  =</span> <span class="cn">NULL</span></span>
 <span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
 <span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -749,7 +769,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="panel-data-cross-sectional-and-longitudinal" class="level2" data-number="5.4">
 <h2 data-number="5.4" class="anchored" data-anchor-id="panel-data-cross-sectional-and-longitudinal"><span class="header-section-number">5.4</span> Panel Data: Cross-Sectional and Longitudinal</h2>
-<p><strong>Panel data</strong> combines the cross-sectional and time-series structures. You observe multiple units (people, firms, countries) at multiple time points.</p>
+<p><strong>Panel data</strong> combines the cross-sectional and time-series structures. You observe multiple units (people, firms, households) at multiple time points.</p>
 <p><strong>Example:</strong> Monthly spending by 50 households measured over 24 months.</p>
 <div class="cell">
 <details class="code-fold">
@@ -764,8 +784,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">month     =</span> <span class="dv">1</span><span class="sc">:</span>n_months</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">baseline  =</span> household_baseline[household],</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">spending  =</span> baseline <span class="sc">+</span> <span class="dv">20</span> <span class="sc">*</span> (month <span class="sc">-</span> <span class="fl">12.5</span>) <span class="sc">/</span> <span class="dv">12</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">80</span>),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">baseline   =</span> household_baseline[household],</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">spending   =</span> baseline <span class="sc">+</span> <span class="dv">20</span> <span class="sc">*</span> (month <span class="sc">-</span> <span class="fl">12.5</span>) <span class="sc">/</span> <span class="dv">12</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">80</span>),</span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">time_trend =</span> month</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
@@ -801,33 +821,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="crossed-random-effects" class="level2" data-number="5.5">
 <h2 data-number="5.5" class="anchored" data-anchor-id="crossed-random-effects"><span class="header-section-number">5.5</span> Crossed Random Effects</h2>
 <p>In a <strong>crossed</strong> structure, observations belong to multiple grouping factors that are not nested within each other.</p>
-<p><strong>Classic example in psychology:</strong> Participants rate words in a lexical decision task.</p>
+<p><strong>Example from JDM research:</strong> Participants evaluate product messages in a pricing study.</p>
+<p>In a JDM experiment, 40 participants each evaluate 80 product messages. Each message is a pricing or promotional offer sampled from a larger population. The outcome is willingness to pay (WTP) in dollars.</p>
+<p>A grid: rows are participants, columns are messages. Every cell is one WTP judgment. No row is nested inside any column — they cross.</p>
 <ul>
-<li>40 participants each respond to 100 words</li>
-<li>Each observation belongs to one participant AND one word</li>
-<li>Participants are not nested within words, and words are not nested within participants</li>
-<li>Both participant differences and word differences contribute to response time</li>
+<li>Each observation belongs to one participant AND one message</li>
+<li>Participants are not nested within messages, and messages are not nested within participants</li>
+<li>Both participant differences (baseline WTP, income, brand affinity) and message differences (quality of framing, scarcity cues) contribute to WTP</li>
 </ul>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Small illustration: 4 participants × 4 words</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Small illustration: 4 participants × 4 messages</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>crossed_df <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="fu">paste</span>(<span class="st">"P"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>),</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">word        =</span> <span class="fu">paste</span>(<span class="st">"W"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">message     =</span> <span class="fu">paste</span>(<span class="st">"M"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>)</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">RT =</span> <span class="dv">500</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">16</span>, <span class="dv">0</span>, <span class="dv">50</span>))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">wtp =</span> <span class="dv">50</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">16</span>, <span class="dv">0</span>, <span class="dv">15</span>))</span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(crossed_df, <span class="fu">aes</span>(<span class="at">x =</span> word, <span class="at">y =</span> participant, <span class="at">fill =</span> RT)) <span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(crossed_df, <span class="fu">aes</span>(<span class="at">x =</span> message, <span class="at">y =</span> participant, <span class="at">fill =</span> wtp)) <span class="sc">+</span></span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">round</span>(RT)), <span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">round</span>(wtp)), <span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"#deebf7"</span>, <span class="at">high =</span> <span class="st">"#08519c"</span>) <span class="sc">+</span></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Crossed structure: each participant rates each word"</span>,</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Cell = response time (ms) for that participant-word combination"</span>,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Word"</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Crossed structure: each participant evaluates each message"</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Cell = WTP for that participant-message combination"</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Message"</span>,</span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Participant"</span>,</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill     =</span> <span class="st">"RT (ms)"</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill     =</span> <span class="st">"WTP ($)"</span></span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
@@ -839,7 +860,77 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>The key point: participant 1’s response to word 3 is not in the same “group” as participant 2’s response to word 3. Both observations share a word, but not a participant. Both share nothing else. This crossed structure requires a different model than a pure hierarchy.</p>
+<p>The key point: participant 1’s WTP for message 3 is not in the same “group” as participant 2’s WTP for message 3. Both observations share a message, but not a participant. This crossed structure requires a different model than a pure hierarchy.</p>
+<p>Now a full simulation showing the consequences of getting this wrong:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n_participants <span class="ot">&lt;-</span> <span class="dv">40</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>n_messages     <span class="ot">&lt;-</span> <span class="dv">80</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>participant_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">0</span>, <span class="dv">12</span>)   <span class="co"># people differ in baseline WTP</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>message_effects     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_messages, <span class="dv">0</span>, <span class="dv">8</span>)        <span class="co"># messages differ in baseline WTP</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>message_quality     <span class="ot">&lt;-</span> <span class="fu">runif</span>(n_messages, <span class="dv">1</span>, <span class="dv">10</span>)       <span class="co"># message quality predictor</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>df_msgs <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_participants, <span class="at">message =</span> <span class="dv">1</span><span class="sc">:</span>n_messages) <span class="sc">|&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant_eff =</span> participant_effects[participant],</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">message_eff     =</span> message_effects[message],</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">quality         =</span> message_quality[message],</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">wtp             =</span> <span class="dv">50</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> quality <span class="sc">+</span> participant_eff <span class="sc">+</span> message_eff <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">10</span>),</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant     =</span> <span class="fu">factor</span>(participant),</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">message         =</span> <span class="fu">factor</span>(message)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Without message random effects (wrong)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>model_no_msgs <span class="ot">&lt;-</span> <span class="fu">lmer</span>(wtp <span class="sc">~</span> quality <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> df_msgs)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># With crossed random effects (correct)</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>model_crossed <span class="ot">&lt;-</span> <span class="fu">lmer</span>(wtp <span class="sc">~</span> quality <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> message),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> df_msgs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>wrong_se   <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_no_msgs)[<span class="dv">2</span>, <span class="st">"std.error"</span>][[<span class="dv">1</span>]]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>correct_se <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_crossed)[<span class="dv">2</span>, <span class="st">"std.error"</span>][[<span class="dv">1</span>]]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model          =</span> <span class="fu">c</span>(<span class="st">"Without message RE"</span>, <span class="st">"With message RE (crossed)"</span>),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Quality_SE     =</span> <span class="fu">c</span>(wrong_se, correct_se)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"SE of message quality effect: ignoring vs. modeling message-level variance"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>SE of message quality effect: ignoring vs.&nbsp;modeling message-level variance</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">Quality_SE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Without message RE</td>
+<td style="text-align: right;">0.083</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">With message RE (crossed)</td>
+<td style="text-align: right;">0.332</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Some participants have higher baseline WTP due to income, brand affinity, or general deal-seeking tendencies. Some messages are more compelling due to framing quality, scarcity cues, or discount depth. Both sources of variance must be modeled — ignoring message-level variance deflates the standard error on the quality effect, producing anti-conservative inference.</p>
 <hr>
 </section>
 <section id="repeated-measures-and-longitudinal-data" class="level2" data-number="5.6">
@@ -847,52 +938,52 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>Repeated measures</strong> means the same unit is measured multiple times — on the same variable, under different conditions, at different time points, or both.</p>
 <p>The critical distinction:</p>
 <ul>
-<li><strong>Repeated measures (experimental):</strong> Each person experiences multiple conditions. The conditions are fixed (e.g., caffeine vs.&nbsp;placebo). The person is the random unit.</li>
+<li><strong>Repeated measures (experimental):</strong> Each person experiences multiple conditions. The conditions are fixed (e.g., gain frame vs.&nbsp;loss frame). The person is the random unit.</li>
 <li><strong>Longitudinal data:</strong> Each person is measured at multiple time points, and time is part of the model. Change over time is the phenomenon of interest.</li>
 </ul>
-<p>Both are cases of <strong>observations nested within persons</strong>. But they ask different questions. Repeated-measures experiments ask: “does the condition affect the outcome?” Longitudinal models ask: “how does the outcome change over time, and does it change differently for different people?”</p>
+<p>Both are cases of <strong>observations nested within persons</strong>. But they ask different questions. Repeated-measures experiments ask: “does the framing condition affect the outcome?” Longitudinal models ask: “how does the outcome change over time, and does it change differently for different people?”</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Repeated measures</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df_rm <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">person    =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">each =</span> <span class="dv">2</span>),</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Placebo"</span>, <span class="st">"Caffeine"</span>), <span class="dv">20</span>),</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">RT        =</span> <span class="dv">450</span> <span class="sc">+</span> <span class="fu">ifelse</span>(condition <span class="sc">==</span> <span class="st">"Caffeine"</span>, <span class="sc">-</span><span class="dv">30</span>, <span class="dv">0</span>) <span class="sc">+</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>              <span class="fu">rnorm</span>(<span class="dv">40</span>, <span class="dv">0</span>, <span class="dv">40</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>p_rm <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_rm, <span class="fu">aes</span>(<span class="at">x =</span> condition, <span class="at">y =</span> RT,</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                            <span class="at">group =</span> person, <span class="at">color =</span> <span class="fu">factor</span>(person))) <span class="sc">+</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>() <span class="sc">+</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Repeated measures:</span><span class="sc">\n</span><span class="st">2 conditions per person"</span>,</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Response Time (ms)"</span>) <span class="sc">+</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Longitudinal</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">person =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="at">each =</span> <span class="dv">5</span>),</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">time   =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">10</span>),</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">score  =</span> <span class="fu">rep</span>(<span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">50</span>, <span class="dv">8</span>), <span class="at">each =</span> <span class="dv">5</span>) <span class="sc">+</span>  <span class="co"># person baseline</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>           <span class="fu">rep</span>(<span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">2</span>, <span class="dv">1</span>), <span class="at">each =</span> <span class="dv">5</span>) <span class="sc">*</span> (<span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">10</span>) <span class="sc">-</span> <span class="dv">3</span>) <span class="sc">+</span>  <span class="co"># person slope</span></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>           <span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="dv">0</span>, <span class="dv">3</span>)</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>p_long <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_long, <span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> score,</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>                               <span class="at">group =</span> person, <span class="at">color =</span> <span class="fu">factor</span>(person))) <span class="sc">+</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>() <span class="sc">+</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Longitudinal:</span><span class="sc">\n</span><span class="st">5 time points per person"</span>,</span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Time"</span>, <span class="at">y =</span> <span class="st">"Score"</span>) <span class="sc">+</span></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>p_rm <span class="sc">+</span> p_long</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Repeated measures: gain vs. loss framing</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df_rm <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">person    =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">each =</span> <span class="dv">2</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"loss_frame"</span>, <span class="st">"gain_frame"</span>), <span class="dv">20</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">purchase_intention =</span> <span class="dv">55</span> <span class="sc">+</span> <span class="fu">ifelse</span>(condition <span class="sc">==</span> <span class="st">"gain_frame"</span>, <span class="dv">8</span>, <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">rnorm</span>(<span class="dv">40</span>, <span class="dv">0</span>, <span class="dv">20</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>p_rm <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_rm, <span class="fu">aes</span>(<span class="at">x =</span> condition, <span class="at">y =</span> purchase_intention,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">group =</span> person, <span class="at">color =</span> <span class="fu">factor</span>(person))) <span class="sc">+</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>() <span class="sc">+</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Repeated measures: 2 framing conditions per person"</span>,</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Purchase Intention (0-100)"</span>) <span class="sc">+</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Longitudinal</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">person =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="at">each =</span> <span class="dv">5</span>),</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">time   =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">10</span>),</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">score  =</span> <span class="fu">rep</span>(<span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">50</span>, <span class="dv">8</span>), <span class="at">each =</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>           <span class="fu">rep</span>(<span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">2</span>, <span class="dv">1</span>), <span class="at">each =</span> <span class="dv">5</span>) <span class="sc">*</span> (<span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">10</span>) <span class="sc">-</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>           <span class="fu">rnorm</span>(<span class="dv">50</span>, <span class="dv">0</span>, <span class="dv">3</span>)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>p_long <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_long, <span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> score,</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>                               <span class="at">group =</span> person, <span class="at">color =</span> <span class="fu">factor</span>(person))) <span class="sc">+</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>() <span class="sc">+</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Longitudinal:</span><span class="sc">\n</span><span class="st">5 time points per person"</span>,</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Time"</span>, <span class="at">y =</span> <span class="st">"Score"</span>) <span class="sc">+</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>p_rm <span class="sc">+</span> p_long</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -924,31 +1015,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>Pure hierarchy</td>
-<td>Students in classrooms</td>
+<td>Consumers within retail stores</td>
 <td>Strict: each unit in one group</td>
 <td>Between-group variance is real</td>
 </tr>
 <tr class="even">
 <td>Three-level</td>
-<td>Patients in therapists in clinics</td>
+<td>Purchase occasions within customers within platforms</td>
 <td>Nested levels</td>
 <td>Variance at each level</td>
 </tr>
 <tr class="odd">
 <td>Panel</td>
-<td>Countries over years</td>
+<td>Households across months (panel)</td>
 <td>Cross-sectional + time</td>
 <td>Unit effects and time effects</td>
 </tr>
 <tr class="even">
 <td>Crossed</td>
-<td>Participants × stimuli</td>
+<td>Participants × product messages</td>
 <td>Each unit in multiple groups</td>
 <td>Two sources of random variance</td>
 </tr>
 <tr class="odd">
 <td>Repeated measures</td>
-<td>Person × condition</td>
+<td>Person × framing condition</td>
 <td>Each person measured in each condition</td>
 <td>Within-person correlation</td>
 </tr>

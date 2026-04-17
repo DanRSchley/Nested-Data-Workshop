@@ -167,7 +167,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -591,59 +591,61 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The landmark example: the 1936 <em>Literary Digest</em> poll predicted Landon would defeat Roosevelt by a landslide, based on 2.4 million responses. Their sampling frame (telephone directories and car registration lists) over-represented wealthy Republicans. Roosevelt won in a historic landslide.</p>
 <p><strong>In longitudinal research:</strong> Firms that agree to participate in a panel survey are often larger, more stable, and more administratively capable than firms that decline. If firm size and stability predict your outcome, effect estimates from the panel will not generalize to the true firm population.</p>
 <p><strong>In experimental research:</strong> Participants who volunteer for a study on “decision-making and well-being” may be more introspective, more compliant, and more psychologically attuned to the constructs you measure. They are not a random draw from the population of people to whom your theory applies.</p>
+<p>Financial well-being studies are especially vulnerable to self-selection. Financially sophisticated individuals are more likely to enroll — they know what the study is about, find it interesting, and have positive associations with financial topics. Because sophistication also predicts better financial outcomes, the study sample systematically overestimates the population-level financial health.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_total    <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>health_con <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_total, <span class="dv">50</span>, <span class="dv">10</span>)  <span class="co"># latent health consciousness (unobserved)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>fin_sophist <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_total, <span class="dv">50</span>, <span class="dv">10</span>)  <span class="co"># latent financial sophistication (unobserved)</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Health-conscious people are more likely to volunteer for a health study</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>p_participate <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">+</span> <span class="fl">0.06</span> <span class="sc">*</span> health_con)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Financially sophisticated people are more likely to volunteer for a finance study</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>p_participate <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">+</span> <span class="fl">0.06</span> <span class="sc">*</span> fin_sophist)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>participated  <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n_total, <span class="dv">1</span>, p_participate)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Outcome: actual health score, partly caused by health consciousness</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>health_score <span class="ot">&lt;-</span> <span class="dv">40</span> <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> health_con <span class="sc">+</span> <span class="fu">rnorm</span>(n_total, <span class="dv">0</span>, <span class="dv">8</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Outcome: monthly savings rate, partly caused by financial sophistication</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>savings_rate <span class="ot">&lt;-</span> <span class="dv">10</span> <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> fin_sophist <span class="sc">+</span> <span class="fu">rnorm</span>(n_total, <span class="dv">0</span>, <span class="dv">8</span>)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">Group =</span> <span class="fu">c</span>(<span class="st">"Full population"</span>, <span class="st">"Self-selected sample"</span>),</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">N     =</span> <span class="fu">c</span>(n_total, <span class="fu">sum</span>(participated)),</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mean_health =</span> <span class="fu">c</span>(<span class="fu">mean</span>(health_score),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">mean</span>(health_score[participated <span class="sc">==</span> <span class="dv">1</span>]))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mean_savings_rate =</span> <span class="fu">c</span>(<span class="fu">mean</span>(savings_rate),</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">mean</span>(savings_rate[participated <span class="sc">==</span> <span class="dv">1</span>]))</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">2</span>,</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Self-selection inflates estimated health level in the study sample"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Self-selection inflates estimated savings rate in the study sample"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Self-selection inflates estimated health level in the study sample</caption>
+<caption>Self-selection inflates estimated savings rate in the study sample</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Group</th>
 <th style="text-align: right;">N</th>
-<th style="text-align: right;">Mean_health</th>
+<th style="text-align: right;">Mean_savings_rate</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Full population</td>
 <td style="text-align: right;">1000</td>
-<td style="text-align: right;">65.05</td>
+<td style="text-align: right;">35.05</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Self-selected sample</td>
 <td style="text-align: right;">702</td>
-<td style="text-align: right;">65.87</td>
+<td style="text-align: right;">35.87</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>The self-selected sample substantially overestimates the population average health score because health-conscious people both participate more and are healthier.</p>
+<p>The self-selected sample substantially overestimates the population average savings rate because financially sophisticated people both participate more and save more.</p>
 <hr>
 <section id="demand-characteristics-in-nested-experimental-designs" class="level3" data-number="22.3.1">
 <h3 data-number="22.3.1" class="anchored" data-anchor-id="demand-characteristics-in-nested-experimental-designs"><span class="header-section-number">22.3.1</span> Demand Characteristics in Nested Experimental Designs</h3>
 <p>Self-selection is not only about who enters the study — it also operates within the study as a behavioral process. <strong>Demand characteristics</strong> are a form of selection into behavior: participants selectively display responses that confirm the hypothesis they have inferred from the study design, the experimenter’s demeanor, or prior experimental experience.</p>
 <p>In a standard between-subjects design, demand characteristics inflate both conditions equally and partially cancel out. But in <strong>within-subjects (repeated-measures) designs</strong>, participants can observe their own behavior across conditions, infer the hypothesis more easily, and respond accordingly. This is especially pernicious because it can masquerade as a real treatment effect.</p>
+<p>In JDM research, within-subjects designs are especially common — participants make repeated choices under gain framing, loss framing, scarcity cues, abundance cues, or different disclosure formats. The hypothesis is often obvious to participants (“they want me to choose the safe option” or “this study is about whether scarcity changes my behavior”). Demand-susceptible participants systematically inflate or suppress their responses in the expected direction.</p>
 <p><strong>How demand characteristics create bias in within-subjects designs:</strong></p>
 <p>Some participants are systematically more susceptible to demand — those higher in agreeableness, more experienced with experiments, or more motivated to please the experimenter. These participants inflate their responses in the treatment condition more than in the control condition. This creates a pattern that looks like a treatment × participant interaction in the data: susceptible participants show larger “effects” not because the treatment worked better for them, but because they responded more to perceived expectations.</p>
 <p>This inflated variance is absorbed by the random slope for condition, but it also biases the fixed effect estimate of the treatment itself — pulling the overall effect in the direction of the demand hypothesis.</p>
@@ -662,22 +664,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">demand_sus  =</span> susceptible[participant],</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True scarcity effect = -3 (scarcity reduces willingness to pay via threat)</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Demand-susceptible participants inflate scarcity condition scores by +8</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Demand-susceptible participants inflate scarcity condition WTP by +8</span></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">demand_bias =</span> <span class="fu">ifelse</span>(demand_sus <span class="sc">&amp;</span> condition <span class="sc">==</span> <span class="st">"scarcity"</span>, <span class="dv">8</span>, <span class="dv">0</span>),</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">dq          =</span> <span class="dv">65</span> <span class="sc">+</span> (<span class="sc">-</span><span class="dv">3</span>) <span class="sc">*</span> (condition <span class="sc">==</span> <span class="st">"scarcity"</span>) <span class="sc">+</span> demand_bias <span class="sc">+</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">wtp         =</span> <span class="dv">70</span> <span class="sc">+</span> (<span class="sc">-</span><span class="dv">3</span>) <span class="sc">*</span> (condition <span class="sc">==</span> <span class="st">"scarcity"</span>) <span class="sc">+</span> demand_bias <span class="sc">+</span></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),</span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant =</span> <span class="fu">factor</span>(participant),</span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">condition   =</span> <span class="fu">factor</span>(condition, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"scarcity"</span>))</span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Pooled model: mixes susceptible and non-susceptible participants</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>m_pooled <span class="ot">&lt;-</span> <span class="fu">lmer</span>(dq <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant), <span class="at">data =</span> df_demand,</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>m_pooled <span class="ot">&lt;-</span> <span class="fu">lmer</span>(wtp <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant), <span class="at">data =</span> df_demand,</span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>                 <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Split by susceptibility to reveal the true effect vs. demand inflation</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>m_non_sus <span class="ot">&lt;-</span> <span class="fu">lmer</span>(dq <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>m_non_sus <span class="ot">&lt;-</span> <span class="fu">lmer</span>(wtp <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
 <span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> df_demand <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span>demand_sus), <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>m_sus     <span class="ot">&lt;-</span> <span class="fu">lmer</span>(dq <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>m_sus     <span class="ot">&lt;-</span> <span class="fu">lmer</span>(wtp <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
 <span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data =</span> df_demand <span class="sc">|&gt;</span> <span class="fu">filter</span>(demand_sus),  <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
@@ -733,12 +735,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>The pooled estimate is attenuated toward zero: the 25% of participants who inflate their scarcity-condition responses mask the true negative effect among the other 75%. The estimate for non-susceptible participants cleanly recovers the true effect of −3. The susceptible participants show near-zero or positive effects — the demand inflation swamps the true effect for them.</p>
+<p>This is especially important in pricing and WTP studies. If participants in the scarcity condition are trying to appear “rational” or “prudent” by moderating their stated WTP, the pooled estimate will understate the true scarcity effect among non-susceptible participants. Suspicion checks and implicit behavioral measures (e.g., actual purchase decisions rather than stated intentions) reduce this threat.</p>
 <p><strong>Practical remedies:</strong> Within-subjects designs employ deception (concealing the true hypothesis), filler tasks (obscuring the critical conditions), post-hoc suspicion checks (screening out participants who guessed the hypothesis), and implicit measures (which are harder to consciously manipulate). In the mixed model framework, demand characteristics manifest as systematic participant × condition interactions. This is why you should always examine the random slope variance for condition: a large random slope variance in a within-subjects design is a warning sign that participants are responding heterogeneously in ways that may reflect demand rather than true effect heterogeneity.</p>
 <hr>
 </section>
 <section id="hawthorne-effects-and-experimenter-effects-in-multi-site-designs" class="level3" data-number="22.3.2">
 <h3 data-number="22.3.2" class="anchored" data-anchor-id="hawthorne-effects-and-experimenter-effects-in-multi-site-designs"><span class="header-section-number">22.3.2</span> Hawthorne Effects and Experimenter Effects in Multi-Site Designs</h3>
-<p>Participants change behavior when they know they are being observed. This <strong>Hawthorne effect</strong> is a between-experimenter confound in multi-experimenter or multi-site studies: some experimenters elicit stronger Hawthorne effects because of their demeanor, perceived authority, or enthusiasm for the study.</p>
+<p>In financial decision research, participants who know they are being monitored may become more price-conscious, more risk-averse, or more “responsible” in their choices. A consumer tracked in a spending diary study may spend differently than they normally would — especially in categories they consider socially undesirable (impulse purchases, luxury goods, vices). This behavioral change due to monitoring inflates the apparent effect of any intervention delivered during the monitoring period.</p>
+<p>This <strong>Hawthorne effect</strong> is a between-experimenter confound in multi-experimenter or multi-site studies: some experimenters elicit stronger Hawthorne effects because of their demeanor, perceived authority, or enthusiasm for the study.</p>
 <p><strong>Practical implication for nested experimental data:</strong> Experimenter is a level-2 clustering variable. If some experimenters consistently elicit stronger Hawthorne effects, their participants will show elevated treatment effects regardless of the actual manipulation. Adding experimenter random intercepts (covered in Module 5, Part 4) absorbs experimenter-level Hawthorne effects. If experimenter is not modeled, its variance inflates the treatment effect standard error and potentially biases the point estimate.</p>
 <p>The same logic applies in multi-site longitudinal studies: the site or observer conducting the repeated assessments is a clustering variable. Observer drift (systematic change in measurement practice over time) and observer effects (participants performing differently for different assessors) are level-2 and cross-level confounds, not nuisance.</p>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -783,7 +787,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="type-4-attrition-bias-in-longitudinal-data" class="level2" data-number="22.5">
 <h2 data-number="22.5" class="anchored" data-anchor-id="type-4-attrition-bias-in-longitudinal-data"><span class="header-section-number">22.5</span> Type 4: Attrition Bias in Longitudinal Data</h2>
 <p>Participants drop out of your study non-randomly over time. This is one of the most serious threats to longitudinal research — and a direct consequence of the nested structure of time.</p>
-<p><strong>In longitudinal panel research:</strong> High-depression individuals may withdraw from a well-being panel because participation is burdensome. High-performing firms may exit the panel because they no longer need advisory services. In both cases, later waves of the panel over-represent lower-symptom or lower-performing units.</p>
+<p><strong>In longitudinal panel research:</strong> Participants in a financial diary study facing higher financial distress may withdraw because tracking spending is burdensome and emotionally aversive when finances are under stress. High-performing firms may exit the panel because they no longer need advisory services. In both cases, later waves of the panel over-represent lower-distress or higher-performing units.</p>
 <p><strong>In experimental repeated-measures research:</strong> Participants who find the experimental task aversive, boring, or demanding are more likely to withdraw after the first session. If task aversiveness is related to the treatment (e.g., a high-cognitive-load manipulation is more exhausting for lower-capacity participants), dropout is informatively related to both condition and outcome.</p>
 <div class="cell">
 <details class="code-fold">
@@ -791,61 +795,63 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>n_people <span class="ot">&lt;-</span> <span class="dv">200</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>n_waves  <span class="ot">&lt;-</span> <span class="dv">5</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>baseline_dep <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="dv">50</span>, <span class="dv">10</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>treatment    <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n_people, <span class="dv">1</span>, <span class="fl">0.5</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>fin_distress <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="dv">50</span>, <span class="dv">10</span>)  <span class="co"># higher = more financially stressed</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>treatment    <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n_people, <span class="dv">1</span>, <span class="fl">0.5</span>) <span class="co"># treatment = received budgeting intervention</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people, <span class="at">wave =</span> <span class="dv">1</span><span class="sc">:</span>n_waves) <span class="sc">|&gt;</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">baseline   =</span> baseline_dep[person],</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">treat      =</span> treatment[person],</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">depression =</span> baseline <span class="sc">-</span> <span class="dv">5</span> <span class="sc">*</span> treat <span class="sc">*</span> (wave <span class="sc">/</span> n_waves) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># People with higher depression are more likely to drop out</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> df_long <span class="sc">|&gt;</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">drop_risk   =</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="dv">3</span> <span class="sc">+</span> <span class="fl">0.04</span> <span class="sc">*</span> <span class="fu">mean</span>(depression)),</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">dropped_out =</span> <span class="fu">cummax</span>(<span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, drop_risk)),</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">observed    =</span> dropped_out <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span> wave <span class="sc">==</span> <span class="dv">1</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>complete_cases <span class="ot">&lt;-</span> df_long <span class="sc">|&gt;</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="fu">all</span>(observed)) <span class="sc">|&gt;</span> <span class="fu">ungroup</span>()</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sample   =</span> <span class="fu">c</span>(<span class="st">"All (Wave 1)"</span>, <span class="st">"Completers only"</span>),</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">N        =</span> <span class="fu">c</span>(<span class="fu">n_distinct</span>(df_long<span class="sc">$</span>person[df_long<span class="sc">$</span>wave <span class="sc">==</span> <span class="dv">1</span>]),</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>               <span class="fu">n_distinct</span>(complete_cases<span class="sc">$</span>person)),</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mean_baseline_depression =</span> <span class="fu">c</span>(</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(baseline_dep),</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">unique</span>(complete_cases<span class="sc">$</span>baseline))</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">2</span>,</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Attrition: completers have lower baseline depression than the full sample"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">baseline  =</span> fin_distress[person],</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">treat     =</span> treatment[person],</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Higher distress → lower baseline savings; treatment slowly increases savings over time</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True treatment-wave slope = 3/5 = 0.6 per wave</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">savings_pct =</span> <span class="dv">20</span> <span class="sc">-</span> <span class="fl">0.3</span> <span class="sc">*</span> baseline <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> treat <span class="sc">*</span> (wave <span class="sc">/</span> n_waves) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># People with lower savings (more distressed) are more likely to drop out</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> df_long <span class="sc">|&gt;</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">drop_risk   =</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="dv">3</span> <span class="sc">-</span> <span class="fl">0.04</span> <span class="sc">*</span> <span class="fu">mean</span>(savings_pct)),</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">dropped_out =</span> <span class="fu">cummax</span>(<span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, drop_risk)),</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">observed    =</span> dropped_out <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span> wave <span class="sc">==</span> <span class="dv">1</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>complete_cases <span class="ot">&lt;-</span> df_long <span class="sc">|&gt;</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="fu">all</span>(observed)) <span class="sc">|&gt;</span> <span class="fu">ungroup</span>()</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sample   =</span> <span class="fu">c</span>(<span class="st">"All (Wave 1)"</span>, <span class="st">"Completers only"</span>),</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">N        =</span> <span class="fu">c</span>(<span class="fu">n_distinct</span>(df_long<span class="sc">$</span>person[df_long<span class="sc">$</span>wave <span class="sc">==</span> <span class="dv">1</span>]),</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>               <span class="fu">n_distinct</span>(complete_cases<span class="sc">$</span>person)),</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">Mean_baseline_savings =</span> <span class="fu">c</span>(</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="dv">20</span> <span class="sc">-</span> <span class="fl">0.3</span> <span class="sc">*</span> fin_distress),</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">unique</span>(<span class="dv">20</span> <span class="sc">-</span> <span class="fl">0.3</span> <span class="sc">*</span> complete_cases<span class="sc">$</span>baseline))</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Attrition: completers have higher baseline savings rate than the full sample"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Attrition: completers have lower baseline depression than the full sample</caption>
+<caption>Attrition: completers have higher baseline savings rate than the full sample</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Sample</th>
 <th style="text-align: right;">N</th>
-<th style="text-align: right;">Mean_baseline_depression</th>
+<th style="text-align: right;">Mean_baseline_savings</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">All (Wave 1)</td>
 <td style="text-align: right;">200</td>
-<td style="text-align: right;">49.90</td>
+<td style="text-align: right;">5.03</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Completers only</td>
-<td style="text-align: right;">43</td>
-<td style="text-align: right;">45.95</td>
+<td style="text-align: right;">157</td>
+<td style="text-align: right;">5.34</td>
 </tr>
 </tbody>
 </table>
@@ -854,10 +860,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># DGP: treatment effect grows linearly with wave — true effect at final wave = -5.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># DGP: treatment effect grows linearly with wave — true treatment × wave slope = 0.6.</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The correct estimand is the treat × wave interaction, not a main effect of treat.</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>m_completers <span class="ot">&lt;-</span> <span class="fu">lm</span>(depression <span class="sc">~</span> treat <span class="sc">*</span> wave <span class="sc">+</span> baseline, <span class="at">data =</span> complete_cases)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>m_all        <span class="ot">&lt;-</span> <span class="fu">lm</span>(depression <span class="sc">~</span> treat <span class="sc">*</span> wave <span class="sc">+</span> baseline,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>m_completers <span class="ot">&lt;-</span> <span class="fu">lm</span>(savings_pct <span class="sc">~</span> treat <span class="sc">*</span> wave <span class="sc">+</span> baseline, <span class="at">data =</span> complete_cases)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>m_all        <span class="ot">&lt;-</span> <span class="fu">lm</span>(savings_pct <span class="sc">~</span> treat <span class="sc">*</span> wave <span class="sc">+</span> baseline,</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> df_long <span class="sc">|&gt;</span> <span class="fu">filter</span>(observed))</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
@@ -868,11 +874,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Treatment × wave interaction: complete-case vs. available-case. True slope = −1 per wave unit (reaches −5 at wave 5). On average across samples, available-case lmer is less biased under MAR — individual draws may vary."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Treatment × wave interaction: complete-case vs. available-case. True slope = +0.6 per wave unit (reaches +3 at wave 5). On average across samples, available-case analysis is less biased under MAR — individual draws may vary."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Treatment × wave interaction: complete-case vs.&nbsp;available-case. True slope = −1 per wave unit (reaches −5 at wave 5). On average across samples, available-case lmer is less biased under MAR — individual draws may vary.</caption>
+<caption>Treatment × wave interaction: complete-case vs.&nbsp;available-case. True slope = +0.6 per wave unit (reaches +3 at wave 5). On average across samples, available-case analysis is less biased under MAR — individual draws may vary.</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">model</th>
@@ -884,15 +890,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Complete cases only</td>
-<td style="text-align: right;">-0.962</td>
-<td style="text-align: right;">0.384</td>
-<td style="text-align: right;">0.013</td>
+<td style="text-align: right;">0.706</td>
+<td style="text-align: right;">0.203</td>
+<td style="text-align: right;">0.001</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">All observed data (available-case)</td>
-<td style="text-align: right;">-0.722</td>
-<td style="text-align: right;">0.269</td>
-<td style="text-align: right;">0.007</td>
+<td style="text-align: right;">0.681</td>
+<td style="text-align: right;">0.193</td>
+<td style="text-align: right;">0.000</td>
 </tr>
 </tbody>
 </table>
@@ -910,7 +916,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="callout-body-container callout-body">
 <p><strong>MCAR (Missing Completely At Random):</strong> Dropout is unrelated to any variable — observed or unobserved. Very rare in practice.</p>
 <p><strong>MAR (Missing At Random):</strong> Dropout depends only on <em>observed</em> variables. If MAR holds, mixed-effects models using all available data (not just completers) give valid estimates. This is a reasonable assumption when you have rich baseline data.</p>
-<p><strong>MNAR (Missing Not At Random):</strong> Dropout depends on the unobserved outcome itself (e.g., people drop out because their depression worsened, not because of any measured variable). Requires sensitivity analysis or selection models (Heckman correction).</p>
+<p><strong>MNAR (Missing Not At Random):</strong> Dropout depends on the unobserved outcome itself (e.g., people drop out because their savings situation worsened, not because of any measured variable). Requires sensitivity analysis or selection models (Heckman correction).</p>
 <p><strong>How to check:</strong> Compare baseline characteristics of completers vs.&nbsp;dropouts. If they differ substantially on predictors of the outcome, the dropout mechanism is non-ignorable and complete-cases analysis is biased.</p>
 </div>
 </div>

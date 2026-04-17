@@ -167,7 +167,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -553,8 +553,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="39"><span class="header-section-number">39</span> Partially Nested Designs</h1>
 <section id="when-only-one-condition-has-clustering" class="level2" data-number="39.1">
 <h2 data-number="39.1" class="anchored" data-anchor-id="when-only-one-condition-has-clustering"><span class="header-section-number">39.1</span> When Only One Condition Has Clustering</h2>
-<p>Consider a psychotherapy trial. The treatment group receives group therapy: 8 clients per therapist, 15 therapists. The control group receives no treatment (waitlist) — there is no therapist and no group structure. Clients in the control condition are independent of each other.</p>
-<p>This design is <strong>partially nested</strong>: the treatment condition has a natural cluster structure (clients within therapists/groups), but the control condition does not.</p>
+<p>Consider a financial coaching field experiment. The treatment group receives group financial coaching: 8 participants per coach, 15 coaches. The control group receives a self-serve information module — there is no coach and no group structure. Participants in the control condition are independent of each other.</p>
+<p>This design is <strong>partially nested</strong>: the treatment condition has a natural cluster structure (participants within coaching groups), but the control condition does not.</p>
 <p>If you fit a standard two-level model treating all participants the same way, you either: 1. Ignore clustering in the treatment group — deflating standard errors and inflating Type I error for the treatment effect 2. Apply random effects to all participants — misspecifying the control group, which has no actual clustering</p>
 <p>The <strong>partially nested model</strong> (Bauer, Sterba &amp; Hallfors, 2008) handles this correctly by allowing different variance structures in different conditions.</p>
 </section>
@@ -563,73 +563,73 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_therapists <span class="ot">&lt;-</span> <span class="dv">15</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_coaches    <span class="ot">&lt;-</span> <span class="dv">15</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_per_group  <span class="ot">&lt;-</span> <span class="dv">8</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n_control    <span class="ot">&lt;-</span> n_therapists <span class="sc">*</span> n_per_group  <span class="co"># same total N</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n_control    <span class="ot">&lt;-</span> n_coaches <span class="sc">*</span> n_per_group  <span class="co"># same total N = 120</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Treatment group: therapist clustering (ICC ≈ 0.15)</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>therapist_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_therapists, <span class="dv">0</span>, <span class="dv">3</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Treatment group: coach clustering</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>coach_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_coaches, <span class="dv">0</span>, <span class="dv">3</span>)  <span class="co"># ICC ≈ 0.15 from coach variance</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>df_treatment <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition   =</span> <span class="st">"treatment"</span>,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">therapist   =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_therapists, <span class="at">each =</span> n_per_group),</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">client      =</span> <span class="dv">1</span><span class="sc">:</span>(n_therapists <span class="sc">*</span> n_per_group),</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">therapist_e =</span> <span class="fu">rep</span>(therapist_effects, <span class="at">each =</span> n_per_group),</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">outcome     =</span> <span class="dv">50</span> <span class="sc">+</span> <span class="dv">5</span> <span class="sc">+</span> therapist_e <span class="sc">+</span> <span class="fu">rnorm</span>(n_therapists <span class="sc">*</span> n_per_group, <span class="dv">0</span>, <span class="dv">6</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Control group: no clustering (independent)</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>df_control <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition   =</span> <span class="st">"control"</span>,</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">therapist   =</span> <span class="cn">NA_integer_</span>,  <span class="co"># no therapist</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">client      =</span> <span class="dv">1</span><span class="sc">:</span>n_control <span class="sc">+</span> <span class="fu">max</span>(df_treatment<span class="sc">$</span>client),</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">therapist_e =</span> <span class="dv">0</span>,</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">outcome     =</span> <span class="dv">50</span> <span class="sc">+</span> <span class="fu">rnorm</span>(n_control, <span class="dv">0</span>, <span class="dv">6</span>)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>df_pn <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(df_treatment, df_control)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition   =</span> <span class="st">"coaching"</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">coach       =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_coaches, <span class="at">each =</span> n_per_group),</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>(n_coaches <span class="sc">*</span> n_per_group),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">coach_eff   =</span> <span class="fu">rep</span>(coach_effects, <span class="at">each =</span> n_per_group),</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">savings_increase =</span> <span class="dv">5</span> <span class="sc">+</span> <span class="dv">5</span> <span class="sc">+</span> coach_eff <span class="sc">+</span> <span class="fu">rnorm</span>(n_coaches <span class="sc">*</span> n_per_group, <span class="dv">0</span>, <span class="dv">6</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># baseline mean = 5, treatment adds 5, coach effect varies</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Control group: independent participants (no coach clustering)</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>df_control <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition   =</span> <span class="st">"self_serve"</span>,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">coach       =</span> <span class="cn">NA_integer_</span>,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_control <span class="sc">+</span> <span class="fu">max</span>(df_treatment<span class="sc">$</span>participant),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">coach_eff   =</span> <span class="dv">0</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">savings_increase =</span> <span class="dv">5</span> <span class="sc">+</span> <span class="fu">rnorm</span>(n_control, <span class="dv">0</span>, <span class="dv">6</span>)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>df_pn <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(df_treatment, df_control)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
 <section id="the-partially-nested-model-in-lme4" class="level2" data-number="39.3">
 <h2 data-number="39.3" class="anchored" data-anchor-id="the-partially-nested-model-in-lme4"><span class="header-section-number">39.3</span> The Partially Nested Model in lme4</h2>
-<p>The trick: create a dummy therapist variable for control participants (unique ID for each, indicating no shared clustering) and fit a model where the random effect only applies to the treatment group.</p>
+<p>The trick: create a dummy coach variable for control participants (unique ID for each, indicating no shared clustering) and fit a model where the random effect only applies to the treatment group.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assign unique "therapist" IDs to control participants</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assign unique cluster IDs: coaching groups for treatment, individual IDs for control</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df_pn <span class="ot">&lt;-</span> df_pn <span class="sc">|&gt;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cluster_id =</span> <span class="fu">ifelse</span>(condition <span class="sc">==</span> <span class="st">"treatment"</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">paste0</span>(<span class="st">"T"</span>, therapist),</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">paste0</span>(<span class="st">"C"</span>, client))  <span class="co"># each control is own "cluster"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cluster_id =</span> <span class="fu">ifelse</span>(condition <span class="sc">==</span> <span class="st">"coaching"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">paste0</span>(<span class="st">"Coach"</span>, coach),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">paste0</span>(<span class="st">"Ctrl"</span>, participant))</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Partially nested: cluster RE only in treatment</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Use dummy coding and interaction for the random effect</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>df_pn <span class="ot">&lt;-</span> df_pn <span class="sc">|&gt;</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">treat_dummy =</span> <span class="fu">as.integer</span>(condition <span class="sc">==</span> <span class="st">"treatment"</span>))</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit: allow random effect only within treatment clusters</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>m_pn <span class="ot">&lt;-</span> <span class="fu">lmer</span>(outcome <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> cluster_id), <span class="at">data =</span> df_pn)</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare to naive model (ignores all clustering)</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>m_naive <span class="ot">&lt;-</span> <span class="fu">lm</span>(outcome <span class="sc">~</span> condition, <span class="at">data =</span> df_pn)</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(m_naive) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"conditiontreatment"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Naive (no clustering)"</span>),</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_pn, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"conditiontreatment"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Partially nested model"</span>)</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Partially nested model: correct SE for clustered treatment group"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Partially nested: cluster RE only in coaching condition</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>df_pn <span class="ot">&lt;-</span> df_pn <span class="sc">|&gt;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">treat_dummy =</span> <span class="fu">as.integer</span>(condition <span class="sc">==</span> <span class="st">"coaching"</span>))</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit: allow random effect only within coaching clusters</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>m_pn    <span class="ot">&lt;-</span> <span class="fu">lmer</span>(savings_increase <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> cluster_id), <span class="at">data =</span> df_pn)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare to naive model (ignores all clustering)</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>m_naive <span class="ot">&lt;-</span> <span class="fu">lm</span>(savings_increase <span class="sc">~</span> condition, <span class="at">data =</span> df_pn)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(m_naive) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"conditioncoaching"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Naive (no clustering)"</span>),</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_pn, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"conditioncoaching"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Partially nested model"</span>)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Partially nested model: correct SE for coaching-group clustering"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small">
-<caption>Partially nested model: correct SE for clustered treatment group</caption>
+<table class="caption-top">
+<caption>Partially nested model: correct SE for coaching-group clustering</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">model</th>
@@ -639,22 +639,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td style="text-align: left;">Naive (no clustering)</td>
-<td style="text-align: right;">4.295</td>
-<td style="text-align: right;">0.795</td>
-<td style="text-align: right;">0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Partially nested model</td>
-<td style="text-align: right;">4.295</td>
-<td style="text-align: right;">0.932</td>
-<td style="text-align: right;">0</td>
-</tr>
 </tbody>
 </table>
 </div>
 </div>
+<p>Participants in the coaching condition share a coach. Their savings outcomes are not independent: a particularly effective (or ineffective) coach shifts all their clients’ outcomes together. Participants in the control condition have no such shared structure — each receives the same information independently.</p>
+<p>The naive model ignores this clustering in the coaching arm, producing standard errors that are too small and p-values that are too liberal. The partially nested model correctly inflates the SE for the coaching condition, where observations are non-independent, while leaving the control group’s independent structure intact.</p>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -665,8 +655,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> You must correctly specify which condition has clustering and which does not. If clustering is misattributed (e.g., you apply cluster random effects to the control group when there is none), variance components will be estimated incorrectly.</p>
-<p><strong>How to check:</strong> Draw the design. Which participants share a natural group, coach, therapist, or classroom? That condition has the nested structure.</p>
+<p><strong>What it means:</strong> You must correctly specify which condition has clustering and which does not. If clustering is misattributed (e.g., you apply cluster random effects to the self-serve control group when there is none), variance components will be estimated incorrectly.</p>
+<p><strong>How to check:</strong> Draw the design. Which participants share a natural group, coach, or classroom? That condition has the nested structure. In this experiment, only participants in the group coaching condition share a coach — control participants each received the same self-serve materials independently.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -679,8 +669,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> The standard partially nested model assumes the residual variance is the same in the treatment and control groups (only the random effect variance differs).</p>
-<p><strong>How to check:</strong> Compare within-group variance across conditions. If the treatment group has substantially more or less residual variance than control, allow heteroskedastic residuals.</p>
+<p><strong>What it means:</strong> The standard partially nested model assumes the residual variance is the same in the coaching and self-serve groups (only the random effect variance differs).</p>
+<p><strong>How to check:</strong> Compare within-group variance across conditions. If the coaching group has substantially more or less residual variance than the self-serve control, allow heteroskedastic residuals.</p>
 </div>
 </div>
 
