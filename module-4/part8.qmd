@@ -13,183 +13,232 @@ set.seed(2024)
 
 # Survival Analysis for Longitudinal Events
 
+::: {.callout-note icon=false}
+## The Event Timing Question
+
+> **What is the outcome here?** Not a score that changes over time — an event. A customer churns. A borrower defaults. A household makes its first purchase after product acquisition. The scientific question is not "how did the score change?" but "how long until the event happened, and what predicts the rate at which it happens?"
+>
+> **What makes this different from regression?** Two things: censoring (not everyone experiences the event during the observation window) and time-varying hazard (the rate of the event changes over time). Standard regression cannot handle either correctly.
+>
+> **What does survival analysis do?** It models the hazard — the instantaneous rate of the event at each moment, conditional on having survived to that point — while correctly accounting for censored observations.
+:::
+
 ## When the Outcome Is Time-to-Event
 
-Many longitudinal outcomes of interest are not scores that change over time — they are **events**: relapse, remission, dropout, divorce, promotion, death. The scientific question is not "how did the score change?" but "how long until the event happened, and what predicts the rate at which it happens?"
+Many JDM outcomes of interest are not continuous scores but **events with timing**:
 
-**Survival analysis** (also called event history analysis or time-to-event analysis) is the appropriate framework for these outcomes. It addresses three features that distinguish event data from ordinary repeated measures:
+- A customer **churns** from a financial app — leaves the platform
+- A borrower **defaults** on their first late payment
+- A household **opts out** of a default enrollment they were automatically placed in
+- A consumer makes their **first purchase** after receiving a marketing offer
+- A subscriber **cancels** automatic fee renewal
 
-1. **Censoring.** Not every person experiences the event during the study window. Someone who has not relapsed by the end of the study contributed real information — they survived at least that long — but you do not know when (or whether) they eventually relapsed. Discarding them would introduce selection bias. Treating them as non-events would distort the rate estimates.
+For each of these, the scientific question concerns *when* the event happens and what speeds or slows the rate. Standard regression applied to the event indicator (event = 1/0) ignores timing entirely. Standard regression applied to the elapsed time until the event ignores **censoring** — participants who have not yet experienced the event by the end of the study. Discarding them as "incomplete data" would introduce systematic bias (the longer-surviving, more loyal customers would vanish from the analysis).
 
-2. **Non-constant hazard.** The risk of an event is not constant over time. Depression relapse is highest in the first months after remission. Divorce peaks around the 7-year mark. Survival models estimate a **hazard function** — the instantaneous rate of the event at each time point, conditional on having survived to that point.
+Survival analysis handles both: it models the hazard function over time while correctly incorporating information from participants who have not yet churned, defaulted, or opted out.
 
-3. **Nesting.** When participants are nested in clinics, teams, or therapists, standard survival models assume independence that is violated. Frailty models extend survival analysis to handle clustering, exactly as random intercepts extend regression.
+### What Survival Data Look Like: Censoring in Practice
+
+The diagram below shows why standard regression fails for time-to-event outcomes. Each row is a customer. Some churn at a known time (red ✕). Others are still active when the study ends, or leave for reasons unrelated to churn — these are **censored** (grey dot). Dropping censored customers would systematically remove the most loyal users and overstate churn rates. Survival analysis retains them, using their partial observation: the fact that they survived *at least* as long as they were observed.
+
+```{r censoring-diagram, echo=FALSE, fig.width=9, fig.height=3.8, message=FALSE, warning=FALSE}
+df_cens <- tibble(
+  id    = 1:10,
+  label = paste0("Customer ", LETTERS[1:10]),
+  end   = c(22, 180, 65, 95, 110, 42, 180, 88, 140, 55),
+  type  = c("Churned",   "Active at end", "Churned",  "Withdrew early",
+            "Churned",   "Churned",       "Active at end", "Churned",
+            "Withdrew early", "Churned")
+)
+
+df_cens <- df_cens |>
+  mutate(
+    label = fct_reorder(label, id, .desc = TRUE),
+    color_grp = case_when(
+      type == "Churned"          ~ "Churned (event observed)",
+      type == "Active at end"    ~ "Censored: still active day 180",
+      type == "Withdrew early"   ~ "Censored: withdrew early"
+    )
+  )
+
+ggplot(df_cens, aes(y = label)) +
+  geom_segment(aes(x = 0, xend = end, yend = label, color = color_grp),
+               linewidth = 4.5, lineend = "round", alpha = 0.72) +
+  geom_point(data = df_cens |> filter(type == "Churned"),
+             aes(x = end), shape = 4, size = 4.5, stroke = 2.2,
+             color = "#c0392b") +
+  geom_point(data = df_cens |> filter(type != "Churned"),
+             aes(x = end), shape = 16, size = 4, color = "#555555") +
+  geom_vline(xintercept = 180, linetype = "dashed", color = "#888888",
+             linewidth = 0.8) +
+  annotate("text", x = 182, y = 0.55,
+           label = "Study end\n(day 180)", hjust = 0, size = 2.9,
+           color = "#888888") +
+  scale_x_continuous(limits = c(0, 215),
+                     breaks = seq(0, 180, 30)) +
+  scale_color_manual(
+    values = c("Churned (event observed)"       = "#e63946",
+               "Censored: still active day 180" = "#1e3a5f",
+               "Censored: withdrew early"       = "#aaaaaa"),
+    name = NULL
+  ) +
+  labs(
+    title    = "Censoring: what we observe and what we don't",
+    subtitle = "\u2715 = churn event observed     \u25cf = censored (event not yet happened or lost to follow-up)",
+    x        = "Days since account opening",
+    y        = NULL
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position  = "bottom",
+        panel.grid.minor = element_blank())
+```
+
+Customers B and G survive the full 180 days — they contribute positive information about surviving through day 180 without implying they never churn. Customers D and I withdrew early for unrelated reasons — they contribute positive information through their last observed day. Excluding either group would remove the most persistent users and produce a biased estimate of the survival function.
 
 ---
 
-## The Hazard Function and Survival Function
-
-The two central quantities in survival analysis are mathematically related:
+## The Hazard and Survival Functions
 
 **The survival function** $S(t)$ gives the probability of surviving (not experiencing the event) past time $t$:
-
 $$S(t) = P(T > t)$$
 
 **The hazard function** $h(t)$ gives the instantaneous rate of the event at time $t$, given survival to that point:
-
 $$h(t) = \lim_{\Delta t \to 0} \frac{P(t \leq T < t + \Delta t \mid T \geq t)}{\Delta t}$$
 
 They are linked by:
-
 $$S(t) = \exp\left(-\int_0^t h(u)\, du\right)$$
 
-A high hazard at time $t$ means the event is likely to occur around that time for people who have survived. Survival curves fall steeply when hazards are high.
+**JDM intuitions:**
+
+- **Churn hazard**: typically highest in the first weeks after account opening (buyer's remorse / friction with the app), then declining as engaged users settle in — a decreasing hazard.
+- **Default hazard**: may increase over time as debt accumulates and financial stress compounds — an increasing hazard.
+- **First purchase hazard**: may peak a few days after an offer arrives (immediate response window), then decay as the offer recedes from attention — a non-monotone hazard.
 
 ---
 
 ## Step 1: The Kaplan-Meier Estimator
 
-The Kaplan-Meier (KM) estimator is the standard nonparametric estimate of the survival function. It makes no assumptions about the shape of the hazard function and handles censoring correctly.
+The Kaplan-Meier (KM) estimator is the nonparametric estimate of the survival function. It makes no assumptions about the shape of the hazard and handles censoring correctly.
 
-### Simulating Time-to-Relapse Data
+### Simulating Time-to-Churn Data
 
-We simulate 120 patients in a depression remission study. Half receive a maintenance therapy; half receive standard care. We track time-to-relapse (in weeks) over a 52-week follow-up. Patients who have not relapsed by week 52 are censored.
+We simulate 120 customers: 60 assigned to a standard onboarding flow, 60 to an enhanced onboarding with a personalized savings goal feature. We track days until app churn over a 180-day observation window. Customers who have not churned by day 180 are censored.
 
 ```{r simulate-survival}
-n_patients <- 120
-treatment  <- rep(c(0, 1), each = n_patients / 2)
+n_customers <- 120
+condition   <- rep(c(0, 1), each = 60)   # 0 = standard, 1 = enhanced onboarding
 
-# True relapse times: exponential with treatment-dependent rate
-set.seed(2024)
-rate_control  <- 0.025  # average relapse ~40 weeks
-rate_treatment <- 0.012  # treatment roughly halves the rate
+# True churn times: exponential with condition-dependent rate
+rate_standard <- 0.012  # average churn ~83 days
+rate_enhanced <- 0.006  # enhanced roughly halves churn rate
 
-relapse_time <- ifelse(
-  treatment == 0,
-  rexp(n_patients, rate = rate_control),
-  rexp(n_patients, rate = rate_treatment)
+churn_time <- ifelse(
+  condition == 0,
+  rexp(n_customers, rate = rate_standard),
+  rexp(n_customers, rate = rate_enhanced)
 )
 
-# Censoring at week 52
-follow_up  <- 52
-event_time <- pmin(relapse_time, follow_up)
-event      <- as.integer(relapse_time <= follow_up)
+# Censoring at day 180
+follow_up  <- 180
+event_time <- pmin(churn_time, follow_up)
+event      <- as.integer(churn_time <= follow_up)   # 1 = churned, 0 = censored
 
 df_surv <- tibble(
-  patient   = 1:n_patients,
-  time      = event_time,
-  event     = event,
-  treatment = factor(treatment, labels = c("Standard care", "Maintenance therapy"))
+  customer  = 1:n_customers,
+  days      = event_time,
+  churned   = event,
+  condition = factor(condition, labels = c("Standard onboarding", "Enhanced onboarding"))
 )
 
-# Quick summary
 df_surv |>
-  group_by(treatment) |>
+  group_by(condition) |>
   summarise(
-    n_events  = sum(event),
-    n_censored = sum(1 - event),
-    median_time = median(time[event == 1]),
-    .groups = "drop"
+    n_churned    = sum(churned),
+    n_retained   = sum(1 - churned),
+    median_days  = median(days[churned == 1]),
+    .groups      = "drop"
   ) |>
-  knitr::kable(caption = "Event summary by treatment group")
+  knitr::kable(caption = "Churn summary by onboarding condition")
 ```
 
-### Fitting and Plotting the Kaplan-Meier Curve
+### Kaplan-Meier Survival Curve
 
-```{r km-fit}
-km_fit <- survfit(
-  Surv(time, event) ~ treatment,
-  data = df_surv
-)
+```{r km-fit, fig.width=8, fig.height=4.5}
+km_fit <- survfit(Surv(days, churned) ~ condition, data = df_surv)
 
-# Base R version for reproducibility
 plot_data <- broom::tidy(km_fit)
 
 ggplot(plot_data, aes(x = time, y = estimate, color = strata, fill = strata)) +
   geom_step(linewidth = 1.2) +
   geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.15, color = NA) +
   scale_color_manual(
-    values = c("#1e3a5f", "#e63946"),
-    labels = c("Standard care", "Maintenance therapy")
+    values = c("#1e3a5f", "#2d6a4f"),
+    labels = c("Standard onboarding", "Enhanced onboarding"),
+    name   = NULL
   ) +
   scale_fill_manual(
-    values = c("#1e3a5f", "#e63946"),
-    labels = c("Standard care", "Maintenance therapy")
+    values = c("#1e3a5f", "#2d6a4f"),
+    labels = c("Standard onboarding", "Enhanced onboarding"),
+    name   = NULL
   ) +
   scale_y_continuous(limits = c(0, 1), labels = scales::percent_format()) +
   labs(
-    title    = "Kaplan-Meier survival curves: time to depression relapse",
-    subtitle = "Shaded bands = 95% confidence intervals. Steps at each event time.",
-    x = "Weeks since remission",
-    y = "Probability of remaining relapse-free",
-    color = "Group", fill = "Group"
+    title    = "Kaplan-Meier survival curves: time to app churn",
+    subtitle = "Shaded = 95% CI. Steps at each churn event. Customers not yet churned are censored at day 180.",
+    x        = "Days since account opening",
+    y        = "P(still active on platform)"
   ) +
   theme_minimal(base_size = 13)
 ```
 
-### Reading the KM Curve
-
-The KM curve starts at $S(0) = 1$ and steps down at each event time. The **median survival time** is the time at which the curve crosses 0.50 — half the group has relapsed by that point.
-
-Censored observations appear as tick marks on the curve (here suppressed for clarity). Patients who are censored contribute their partial information: they reduce the "at risk" count at later times without contributing a step down in the survival curve.
+The KM curve starts at $S(0) = 1$ (everyone active) and steps down at each churn event. The **median survival time** is the day at which the curve crosses 0.50 — half the customers in that condition have churned by that point. Censored customers (still active at day 180) contribute their partial information: they reduce the "at risk" count at later times without contributing a step down.
 
 ---
 
 ## Step 2: The Log-Rank Test
 
-The log-rank test compares survival curves between groups without assuming a parametric shape. It tests $H_0: S_1(t) = S_2(t)$ for all $t$.
-
 ```{r log-rank}
-logrank_test <- survdiff(Surv(time, event) ~ treatment, data = df_surv)
+logrank_test <- survdiff(Surv(days, churned) ~ condition, data = df_surv)
 logrank_test
 ```
 
-The log-rank test is most powerful when the hazard ratio between groups is approximately constant over time (proportional hazards assumption). If the curves cross — one group has higher early hazard, the other higher late hazard — the log-rank test loses power and may be misleading.
+The log-rank test compares survival curves between conditions without assuming a parametric shape. It is most powerful when the hazard ratio between conditions is approximately constant over time — the proportional hazards assumption.
 
 ---
 
 ## Step 3: The Cox Proportional Hazards Model
 
-The Cox model is the standard regression tool for survival outcomes. It models the **hazard** as a function of covariates without specifying the shape of the baseline hazard:
+The Cox model is the standard regression tool for survival outcomes:
 
-$$h(t \mid X_j) = \underbrace{h_0(t)}_{\substack{\text{baseline hazard} \\ \text{(unspecified)}}} \cdot \underbrace{\exp(\beta_1 X_{1j} + \beta_2 X_{2j} + \cdots)}_{\substack{\text{multiplicative predictor} \\ \text{effect on hazard rate}}}$$
+$$h(t \mid X_j) = \underbrace{h_0(t)}_{\substack{\text{baseline hazard} \\ \text{(unspecified)}}} \cdot \exp(\beta_1 X_{1j} + \beta_2 X_{2j} + \cdots)$$
 
-- $h_0(t)$ is the **baseline hazard** — the hazard for someone with all covariates at zero. Its shape is left completely unspecified (this is why Cox is called "semi-parametric").
-- Each $\exp(\beta_k)$ is a **hazard ratio**: the multiplicative factor by which the hazard changes for a one-unit increase in $X_k$, holding other covariates constant.
-- A hazard ratio of 0.5 means the event rate is halved at every time point.
+Each $\exp(\beta_k)$ is a **hazard ratio**: the multiplicative factor by which the instantaneous churn rate changes for a one-unit increase in $X_k$.
 
-### Fitting the Cox Model
+- HR = 0.5: the treatment halves the churn rate at every time point
+- HR = 1.0: no effect on the churn rate
+- HR = 2.0: the predictor doubles the churn rate
 
 ```{r cox-fit}
-cox_model <- coxph(
-  Surv(time, event) ~ treatment,
-  data = df_surv
-)
+cox_model <- coxph(Surv(days, churned) ~ condition, data = df_surv)
 
 broom::tidy(cox_model, exponentiate = TRUE, conf.int = TRUE) |>
   select(term, estimate, conf.low, conf.high, p.value) |>
   knitr::kable(
     digits = 3,
-    caption = "Cox model: hazard ratios. HR < 1 means lower hazard (better prognosis) in treatment group."
+    caption = "Cox model: hazard ratio for enhanced vs. standard onboarding. HR < 1 means lower churn rate."
   )
 ```
 
-The treatment hazard ratio tells you: at any given week, what is the ratio of the relapse rate in the maintenance therapy group to the standard care group? A hazard ratio of ~0.5 means the maintenance therapy cuts the instantaneous relapse rate in half at every time point — which is what we simulated.
-
 ### The Proportional Hazards Assumption
 
-The Cox model assumes the hazard ratio is **constant over time** — the curves diverge proportionally. If the treatment effect fades over time (hazard ratio drifts toward 1.0 at later weeks), the model is misspecified.
+The Cox model assumes the hazard ratio between conditions is **constant over time**. If the enhanced onboarding's protective effect fades after month 3 (customers disengage with their savings goal), the curves would converge in later periods — violating proportional hazards.
 
-```{r ph-test}
+```{r ph-test, fig.width=7, fig.height=4}
 cox_test <- cox.zph(cox_model)
 cox_test
 
-# Schoenfeld residual plot
 ggplot(
-  data.frame(
-    time     = cox_test$time,
-    residual = cox_test$y[, 1]
-  ),
+  data.frame(time = cox_test$time, residual = cox_test$y[, 1]),
   aes(x = time, y = residual)
 ) +
   geom_point(alpha = 0.4, color = "#1e3a5f") +
@@ -197,97 +246,104 @@ ggplot(
   geom_hline(yintercept = 0, linetype = "dashed") +
   labs(
     title    = "Schoenfeld residuals: testing proportional hazards",
-    subtitle = "A flat loess line supports proportional hazards; a trend suggests time-varying effect",
-    x = "Time", y = "Schoenfeld residual"
+    subtitle = "Flat loess line supports PH. Trend suggests time-varying hazard ratio.",
+    x = "Days since account opening",
+    y = "Schoenfeld residual"
   ) +
   theme_minimal(base_size = 13)
 ```
 
-A non-significant global test (`cox.zph`) and a flat Schoenfeld residual plot both support the proportional hazards assumption. If the assumption is violated, you can add time-by-covariate interaction terms (`tt()` in the `survival` package) or stratify by the violating variable.
-
 ---
 
-## Step 4: Frailty Models — Handling Clustered Survival Data
+## Step 4: Frailty Models — Handling Clustered Churn Data
 
-When participants are nested in groups (patients within hospitals, employees within teams), standard Cox models assume independence between observations. This assumption is violated in clustered data. The analogue of a random intercept in survival analysis is a **frailty** — a latent multiplicative factor that shifts the hazard up or down for everyone in a cluster.
+When customers are nested in contexts — bank branches, geographic regions, or platform versions — standard Cox models assume independence that is violated. Customers from the same branch may churn for similar branch-level reasons (local economic shock, branch closure, manager change). The survival analogue of a random intercept is a **frailty** — a latent multiplicative factor that shifts the churn hazard up or down for everyone in a cluster.
 
-The frailty model:
+$$h_{ij}(t) = h_0(t) \cdot \exp(\beta X_{ij}) \cdot Z_j, \quad Z_j \sim \text{Gamma}(1, \theta)$$
 
-$$h_{ij}(t) = h_0(t) \cdot \exp(\beta X_{ij}) \cdot \underbrace{Z_j}_{\substack{\text{cluster frailty} \\ Z_j \sim \text{Gamma}(1, \theta)}}$$
-
-$Z_j$ is the frailty for cluster $j$. If $Z_j > 1$, all patients in that cluster have higher hazard (frailty variance $\theta$ captures how much clusters differ).
-
-### Simulating Clustered Survival Data
+$Z_j$ is the frailty for branch $j$. If $Z_j > 1$, all customers in that branch have higher churn risk — perhaps because local economic conditions make financial management more stressful for everyone there.
 
 ```{r simulate-clustered-survival}
-n_hospitals  <- 15
-n_per_hosp   <- 8  # patients per hospital
-n_total      <- n_hospitals * n_per_hosp
+n_branches   <- 15
+n_per_branch <- 8
+n_total      <- n_branches * n_per_branch
 
-hospital     <- rep(1:n_hospitals, each = n_per_hosp)
-treatment_h  <- rep(rep(c(0, 1), each = n_per_hosp / 2), n_hospitals)
+branch       <- rep(1:n_branches, each = n_per_branch)
+condition_b  <- rep(rep(c(0, 1), each = n_per_branch / 2), n_branches)
 
-# Hospital-level frailty (Gamma distributed, mean=1)
-hospital_frailty <- rgamma(n_hospitals, shape = 2, rate = 2)  # var = 0.5
+# Branch-level frailty (some branches have structurally higher churn)
+branch_frailty <- rgamma(n_branches, shape = 2, rate = 2)  # variance = 0.5
 
-# Patient-level times
-base_rate   <- 0.02
-indiv_time  <- rexp(
+base_rate   <- 0.010
+churn_time_b <- rexp(
   n_total,
-  rate = base_rate * hospital_frailty[hospital] * exp(-0.5 * treatment_h)
+  rate = base_rate * branch_frailty[branch] * exp(0.5 * (1 - condition_b))
 )
 
-event_frailty <- as.integer(indiv_time <= follow_up)
-time_frailty  <- pmin(indiv_time, follow_up)
-
 df_frailty <- tibble(
-  patient    = 1:n_total,
-  hospital   = factor(hospital),
-  time       = time_frailty,
-  event      = event_frailty,
-  treatment  = factor(treatment_h, labels = c("Control", "Treatment"))
+  customer  = 1:n_total,
+  branch    = factor(branch),
+  days      = pmin(churn_time_b, follow_up),
+  churned   = as.integer(churn_time_b <= follow_up),
+  condition = factor(condition_b, labels = c("Standard", "Enhanced"))
 )
 ```
 
-### Fitting the Frailty Model
-
 ```{r frailty-fit}
 cox_frailty <- coxph(
-  Surv(time, event) ~ treatment + frailty(hospital, distribution = "gamma"),
+  Surv(days, churned) ~ condition + frailty(branch, distribution = "gamma"),
   data = df_frailty
 )
 
 summary(cox_frailty)
 ```
 
-The frailty variance estimate tells you how much hospitals differ in their baseline hazard. Large frailty variance means the hospital you are treated at matters a great deal for your prognosis — independent of treatment. This is the survival analogue of a large ICC in a linear mixed model.
+The frailty variance estimate tells you how much branches differ in their baseline churn hazard. Large frailty variance means the branch you are a customer of matters a great deal for your churn risk — independent of the onboarding condition. This is the survival analogue of a large ICC.
 
 ---
 
-## Assumptions Summary
+## Assumptions
 
 ::: {.callout-warning icon=false}
 ## Assumption: Non-Informative Censoring
 
-Censoring must be **independent** of the event process. If sicker patients are more likely to drop out (informative censoring), survival estimates will be biased upward — the sample becomes increasingly healthy as patients are lost, making the event appear rarer than it is.
+**Plain-language meaning:** Censoring must be **independent of the event process**. Customers who are censored (still active at the end of the observation window) must not systematically differ in their imminent churn risk from those who have not yet been censored.
 
-**How to check:** Compare baseline characteristics between censored and uncensored patients. If they differ systematically, consider sensitivity analyses (e.g., worst-case imputation) or inverse-probability-of-censoring weighting.
+**What the model is assuming away:** Any relationship between the *reason* for censoring and the *rate* of the event. If customers who are about to churn disengage from the app before formally churning — becoming inactive but not yet counted as churned — they are effectively informatively censored.
+
+**JDM example:** If financially distressed customers frequently delete the app before their account officially lapses (a soft churn that precedes the hard churn event), the observed churn times underrepresent the actual churning rate. Customers with high churn risk are leaving the observation window early for risk-related reasons.
+
+**Experimental analog:** In a lab study of time-to-abandonment of a financial task, participants who give up before completing it but whose abandonment does not trigger the "event" (task abandonment) are informatively censored.
+
+**What a skeptical reviewer might say:** "Why would customers who are about to churn be equally likely to remain in your observation window as customers who are loyal? If pre-churn disengagement precedes formal churn, your censoring is informative."
+
+**Observable warning sign:** Censored customers show systematically lower engagement metrics or different baseline characteristics than event-experiencing customers — suggesting informative censoring.
+
+**What to check:** Compare baseline characteristics (account age, engagement score, demographics) between censored and churned customers. If they differ substantially, consider sensitivity analyses or inverse-probability-of-censoring weighting (IPCW).
+
+**What claim survives if the assumption is doubtful:** The KM estimates and Cox HRs are biased (usually toward underestimating the true event rate). The direction of treatment effects is usually preserved but magnitudes are unreliable.
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption: Proportional Hazards (Cox Model Only)
 
-The Cox model requires the hazard ratio between groups to be constant over time. If treatment effects fade or accelerate, the proportional hazards assumption is violated.
+**Plain-language meaning:** The hazard ratio between conditions is constant over time. The enhanced onboarding's protective effect at day 30 is the same multiplier as at day 120.
 
-**How to check:** Run `cox.zph()`. If significant, plot Schoenfeld residuals. Solutions: add time-by-treatment interaction, stratify by the violating variable, or use an accelerated failure time (AFT) model, which makes a different structural assumption (time ratios rather than hazard ratios).
+**What the model is assuming away:** Time-varying treatment effects — for example, an onboarding boost that fades after initial engagement, or a default enrollment whose effect builds as habits solidify.
+
+**JDM example:** A personalized savings goal feature may prevent early churn (when customers are still learning the app) but have weaker effects later once the novelty fades. The hazard ratio would drift toward 1 over time, violating PH.
+
+**What a skeptical reviewer might say:** "Why should the effect of enhanced onboarding on churn be a fixed multiplier at all time points? Surely the benefit is concentrated in the first weeks when onboarding is salient."
+
+**What to check:** `cox.zph()` test and Schoenfeld residual plot. If violated, add a time-by-treatment interaction (`tt()` in `survival`) or stratify the baseline hazard by condition.
 :::
 
 ::: {.callout-warning icon=false}
-## Assumption: Correct Functional Form (Parametric Models)
+## Assumption: Correct Frailty Distribution
 
-If you use a parametric survival model (exponential, Weibull, log-normal), you are asserting a specific shape for the baseline hazard. These models are more efficient than Cox when the assumption is correct but badly misspecified when it is wrong.
+**Plain-language meaning:** The frailty model assumes branch-level random effects follow a Gamma distribution (the standard choice). If the actual distribution of branch-level churn propensity is very different — heavily skewed or multimodal — the Gamma frailty may not fit well.
 
-**How to check:** Plot the KM curve and compare it visually to the parametric fit. The log-cumulative hazard plot can distinguish Weibull from exponential shapes.
+**What to check:** Examine residuals from the frailty model. Compare fitted and observed survival curves within branches. For robustness, consider log-normal frailty as an alternative (available in `coxme` or `frailtyEM`).
 :::
 
 ---
@@ -297,9 +353,26 @@ If you use a parametric survival model (exponential, Weibull, log-normal), you a
 | Goal | Method | Package |
 |------|---------|---------|
 | Describe survival curves nonparametrically | Kaplan-Meier | `survival::survfit()` |
-| Compare two groups | Log-rank test | `survival::survdiff()` |
+| Compare two conditions | Log-rank test | `survival::survdiff()` |
 | Regression with covariates | Cox proportional hazards | `survival::coxph()` |
 | Test proportional hazards | Schoenfeld test | `survival::cox.zph()` |
-| Handle clustered/nested data | Frailty model | `survival::coxph(frailty(...))` |
+| Handle nested/clustered data | Frailty model | `survival::coxph(frailty(...))` |
+| Time-varying treatment effects | Time-interaction Cox | `survival::tt()` |
 | Visualize survival curves | KM plots, forest plots | `survminer` |
-| Parametric models | Weibull, log-normal, etc. | `survival::survreg()` |
+
+---
+
+## Reviewer Challenge
+
+::: {.callout-tip}
+## What a Reviewer Would Ask
+
+**Challenge 1:** "You defined churn as account closure — but isn't disengagement (stopping app use) the more behaviorally relevant event, and it would be much harder to define?"
+This is a latent event timing problem. Formally measured churn is a discrete, observable event; meaningful disengagement happens earlier and more continuously. Sensitivity analyses using alternative event definitions (e.g., 30-day inactivity vs. formal account closure) help assess whether conclusions depend on the event definition.
+
+**Challenge 2:** "Your observation window is 180 days, but many customers are still active at the end. Doesn't that mean you can't actually estimate median survival for the enhanced condition?"
+Correct — if the KM curve does not cross 0.50 within the observation window, the median is undefined from the data. Report the 25th percentile survival time (the day by which 25% of customers have churned) instead, or report survival probabilities at specific time points (e.g., "60% of enhanced customers were still active at day 120").
+
+**Challenge 3:** "The frailty variance estimate is large — does that mean your treatment effect is confounded with branch-level variation?"
+Not confounded, but attenuated. The frailty absorbs between-branch variance that would otherwise inflate residual variance. The treatment effect (HR) is estimated *conditional on* branch frailty — it represents the within-branch contrast, which is the more precise and causally interpretable estimate. A large frailty variance is an argument for the frailty model, not against it.
+:::

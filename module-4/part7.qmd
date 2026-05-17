@@ -19,7 +19,7 @@ set.seed(2024)
 
 Every model we have used in this module so far assumes something about your outcome: that the true data-generating process (DGP) produces values that, after accounting for predictors and random effects, are normally distributed. That assumption is perfectly reasonable for outcomes like stress scores, reaction times, or cognitive performance — values that can in principle be any real number.
 
-But many longitudinal outcomes in psychology and medicine are not continuous. They are **binary** — did the person have a depressive episode this week? Did they relapse? Did they complete the task? Or they are **counts** — how many panic attacks occurred this week? How many drinks did someone consume on Monday? How many hospital visits did a patient have this year?
+But many longitudinal outcomes in consumer behavior and financial research are not continuous. They are **binary** — did the customer make a purchase this week? Did they make a late payment this month? Did they adopt the recommended savings allocation? Or they are **counts** — how many times did a customer open the app this week? How many transactions did they make? How many overdraft events occurred this month?
 
 When the DGP generates binary or count data, a linear mixed model imposes a structure that does not match the outcome's constraints. Predicted probabilities can fall outside [0, 1]. Residuals cannot be normally distributed. For probability and rate interpretation — or any inference that depends on the correct scale — an LMM is the wrong tool. (LMMs can sometimes approximate mean-structure questions in balanced designs, but for constrained predictions and proper uncertainty quantification a GLMM is the appropriate primary model.)
 
@@ -30,6 +30,75 @@ When the DGP generates binary or count data, a linear mixed model imposes a stru
 3. A **distributional family** that matches the DGP
 
 The longitudinal setting makes GLMMs especially important, because tracking people over time almost guarantees you will encounter binary events and count outcomes alongside the usual continuous measures.
+
+### Why Not Just Use a Linear Mixed Model?
+
+The chart below shows what happens when you fit a linear mixed model to a binary outcome versus a logistic mixed model. Both models are fit to the same data: 60 customers, binary purchase outcome, one predictor (loyalty program × baseline purchase tendency). The problem is immediate: the linear model produces **predicted probabilities below 0** for customers with low baseline purchase tendency, and potentially above 1 for customers with high tendency and program membership. These are impossible predicted probabilities — and they make confidence intervals and counterfactual predictions meaningless.
+
+```{r lm-vs-glmm-illustration, echo=FALSE, fig.width=10, fig.height=4.2, message=FALSE, warning=FALSE}
+set.seed(99)
+n_ill  <- 200
+x_pred <- rnorm(n_ill, 0, 1.2)   # purchase tendency (centered)
+treat  <- rep(c(0, 1), each = n_ill / 2)
+prob   <- plogis(-0.3 + 0.8 * x_pred + 0.6 * treat)
+y_bin  <- rbinom(n_ill, 1, prob)
+
+df_ill <- tibble(x_pred, treat = factor(treat, labels = c("Control", "Loyalty program")),
+                 y_bin)
+
+# Fit LMM (linear probability model) and GLMM
+m_lm   <- lm(y_bin ~ x_pred * treat, data = df_ill)
+m_glm  <- glm(y_bin ~ x_pred * treat, data = df_ill, family = binomial)
+
+df_pred <- expand_grid(
+  x_pred = seq(-3, 3, length.out = 100),
+  treat  = factor(c("Control", "Loyalty program"))
+) |>
+  mutate(
+    pred_lm  = predict(m_lm,  newdata = tibble(x_pred, treat)),
+    pred_glm = predict(m_glm, newdata = tibble(x_pred, treat), type = "response")
+  )
+
+# LMM predictions panel
+p_lm <- ggplot() +
+  geom_point(data = df_ill, aes(x = x_pred, y = y_bin, color = treat),
+             alpha = 0.3, size = 1.3) +
+  geom_line(data = df_pred, aes(x = x_pred, y = pred_lm, color = treat),
+            linewidth = 1.2) +
+  geom_hline(yintercept = c(0, 1), linetype = "dashed", color = "#e63946",
+             linewidth = 0.9) +
+  annotate("rect", xmin = -3.2, xmax = -0.8, ymin = -0.25, ymax = -0.01,
+           fill = "#fee8e8", alpha = 0.7) +
+  annotate("text", x = -2.0, y = -0.15, label = "Impossible:\nprediction < 0",
+           size = 2.6, color = "#c0392b", hjust = 0.5) +
+  scale_color_manual(values = c("#aec6e8", "#1e3a5f"), name = NULL) +
+  scale_y_continuous(limits = c(-0.30, 1.30),
+                     breaks = c(0, 0.25, 0.5, 0.75, 1)) +
+  labs(title    = "(A) Linear model (LPM): predictions outside [0, 1]",
+       subtitle = "Red dashed lines = valid probability bounds. Shaded region = impossible predictions.",
+       x = "Purchase tendency (centered)", y = "Predicted probability") +
+  theme_minimal(base_size = 11)
+
+# GLMM predictions panel
+p_glm <- ggplot() +
+  geom_point(data = df_ill, aes(x = x_pred, y = y_bin, color = treat),
+             alpha = 0.3, size = 1.3) +
+  geom_line(data = df_pred, aes(x = x_pred, y = pred_glm, color = treat),
+            linewidth = 1.2) +
+  geom_hline(yintercept = c(0, 1), linetype = "dashed", color = "#2d6a4f",
+             linewidth = 0.9) +
+  scale_color_manual(values = c("#aec6e8", "#1e3a5f"), name = NULL) +
+  scale_y_continuous(limits = c(-0.30, 1.30),
+                     breaks = c(0, 0.25, 0.5, 0.75, 1)) +
+  labs(title    = "(B) Logistic model (GLMM): predictions stay within [0, 1]",
+       subtitle = "S-curve keeps all predictions in the valid range. Odds ratio interpretation applies.",
+       x = "Purchase tendency (centered)", y = "Predicted probability") +
+  theme_minimal(base_size = 11)
+
+p_lm + p_glm
+```
+
+The linear model is sometimes used as a "linear probability model" in economics — it gives approximately correct marginal effects near the center of the distribution. But in longitudinal research with repeated measures, the out-of-bounds predictions propagate through the random effects structure, distorting the variance partitioning and making ICC and $\tau^2$ estimates meaningless. The logistic GLMM is the correct choice whenever the outcome is binary.
 
 ---
 
@@ -49,16 +118,17 @@ where:
 
 This is exactly the linear mixed model, but with a logit link function wrapping the left-hand side.
 
-### Simulating a Longitudinal Intervention Study
+### Simulating a Longitudinal Loyalty Experiment
 
-We simulate 60 participants tracked over 6 weeks. Half are randomly assigned to a treatment that halves the odds of having a depressive episode each week. The outcome is binary: whether the participant had at least one depressive episode that week.
+We simulate 60 customers tracked over 6 weeks. Half are randomly enrolled in a loyalty reward program. The outcome is binary: whether the customer made at least one purchase that week. The loyalty program is expected to roughly double the weekly purchase odds.
 
 ```{r simulate-binary}
-n_people    <- 60
-n_weeks     <- 6
-treatment   <- rep(c(0, 1), each = n_people / 2)
+n_people  <- 60
+n_weeks   <- 6
+treatment <- rep(c(0, 1), each = n_people / 2)
 
-# Person-level random intercepts (on log-odds scale)
+# Person-level random intercepts (on log-odds scale) — some customers are
+# habitual shoppers, others rarely purchase regardless of program
 u0 <- rnorm(n_people, 0, 0.8)
 
 df_binary <- expand_grid(
@@ -68,27 +138,27 @@ df_binary <- expand_grid(
   mutate(
     treatment = treatment[person],
     u0        = u0[person],
-    # True log-odds: intercept + time trend + treatment effect + random intercept
-    log_odds  = -0.5 + u0 - 0.1 * week - 0.7 * treatment,
+    # True log-odds: intercept + loyalty program effect + habituation over time + RE
+    log_odds  = -0.5 + u0 + 0.7 * treatment - 0.05 * week,
     prob      = plogis(log_odds),
-    episode   = rbinom(n(), 1, prob),
+    purchased = rbinom(n(), 1, prob),
     person    = factor(person),
-    treatment = factor(treatment, labels = c("Control", "Treatment"))
+    treatment = factor(treatment, labels = c("Control", "Loyalty program"))
   )
 
-# Quick look at observed proportions by week and treatment
+# Observed purchase rates by week and treatment group
 df_binary |>
   group_by(week, treatment) |>
-  summarise(prop_episode = mean(episode), .groups = "drop") |>
-  ggplot(aes(x = week, y = prop_episode, color = treatment, group = treatment)) +
+  summarise(prop_purchase = mean(purchased), .groups = "drop") |>
+  ggplot(aes(x = week, y = prop_purchase, color = treatment, group = treatment)) +
   geom_line(linewidth = 1.2) +
   geom_point(size = 3) +
   scale_color_manual(values = c("#1e3a5f", "#e63946")) +
   scale_y_continuous(limits = c(0, 1), labels = scales::percent_format()) +
   labs(
-    title = "Proportion with depressive episode each week",
+    title = "Weekly purchase rate by loyalty program enrollment",
     subtitle = "Observed proportions by treatment group",
-    x = "Week", y = "Proportion with episode", color = "Group"
+    x = "Week", y = "Proportion making a purchase", color = "Group"
   ) +
   theme_minimal(base_size = 13)
 ```
@@ -97,7 +167,7 @@ df_binary |>
 
 ```{r fit-glmer-binary}
 m_binary <- glmer(
-  episode ~ week * treatment + (1 | person),
+  purchased ~ week * treatment + (1 | person),
   data   = df_binary,
   family = binomial
 )
@@ -113,10 +183,10 @@ Fixed effects come out on the **log-odds scale**. To interpret them as odds rati
 broom.mixed::tidy(m_binary, effects = "fixed", exponentiate = TRUE, conf.int = TRUE) |>
   select(term, estimate, conf.low, conf.high, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Fixed effects as odds ratios (exponentiated log-odds)")
+    caption = "Fixed effects as odds ratios: loyalty program increases purchase odds")
 ```
 
-The **treatment odds ratio** tells you: among people at the same week and with the same random intercept, how does the odds of an episode in the treatment group compare to the control group? If OR = 0.50, treatment halves the odds — which is what we simulated.
+The **treatment odds ratio** tells you: among customers at the same week and with the same random intercept (same baseline purchase tendency), how does the odds of purchasing in the loyalty program group compare to the control group? If OR = 2.0, the program doubles the odds of a purchase — which is approximately what we simulated.
 
 ### Marginal Predicted Probabilities
 
@@ -129,9 +199,9 @@ plot(preds_binary) +
   scale_color_manual(values = c("#1e3a5f", "#e63946")) +
   scale_fill_manual(values  = c("#1e3a5f", "#e63946")) +
   labs(
-    title    = "Marginal predicted probability of a depressive episode",
-    subtitle = "Averaging over individual differences (marginal effect)",
-    x = "Week", y = "Predicted probability", color = "Group", fill = "Group"
+    title    = "Marginal predicted weekly purchase probability",
+    subtitle = "Averaging over individual purchase tendencies (marginal effect)",
+    x = "Week", y = "Predicted purchase probability", color = "Group", fill = "Group"
   ) +
   theme_minimal(base_size = 13)
 ```
@@ -184,41 +254,43 @@ The log link ensures predicted counts are always positive. Exponentiating fixed 
 
 ### Simulating Longitudinal Count Data
 
-We simulate 80 patients tracked over 8 clinic visits. The count outcome is the number of pain flares per week between visits.
+We simulate 80 customers tracked over 8 weeks. The count outcome is the number of times they open a budgeting app each week. Half are randomly assigned to a push-notification feature that encourages regular check-ins. The treatment is expected to approximately double weekly app opens — the true log rate ratio is $\exp(0.5) \approx 1.65$.
 
 ```{r simulate-counts}
-n_patients  <- 80
-n_visits    <- 8
-treatment_c <- rep(c(0, 1), each = n_patients / 2)
+n_customers <- 80
+n_weeks_c   <- 8
+treatment_c <- rep(c(0, 1), each = n_customers / 2)
 
-u0_count <- rnorm(n_patients, 0, 0.5)
+# Customer-level random intercepts on log-count scale
+# Some customers are habitual checkers; others rarely open the app
+u0_count <- rnorm(n_customers, 0, 0.5)
 
 df_count <- expand_grid(
-  patient = 1:n_patients,
-  visit   = 1:n_visits
+  customer = 1:n_customers,
+  week     = 1:n_weeks_c
 ) |>
   mutate(
-    treatment = treatment_c[patient],
-    u0        = u0_count[patient],
-    log_mu    = 1.8 + u0 - 0.08 * visit - 0.5 * treatment,
-    mu        = exp(log_mu),
-    flares    = rpois(n(), mu),
-    patient   = factor(patient),
-    treatment = factor(treatment, labels = c("Control", "Treatment"))
+    treatment  = treatment_c[customer],
+    u0         = u0_count[customer],
+    log_mu     = 0.8 + u0 + 0.5 * treatment - 0.04 * week,
+    mu         = exp(log_mu),
+    app_opens  = rpois(n(), mu),
+    customer   = factor(customer),
+    treatment  = factor(treatment, labels = c("Control", "Push notifications"))
   )
 
-# Observed mean counts by visit and treatment
+# Observed mean app opens by week and treatment
 df_count |>
-  group_by(visit, treatment) |>
-  summarise(mean_flares = mean(flares), .groups = "drop") |>
-  ggplot(aes(x = visit, y = mean_flares, color = treatment, group = treatment)) +
+  group_by(week, treatment) |>
+  summarise(mean_opens = mean(app_opens), .groups = "drop") |>
+  ggplot(aes(x = week, y = mean_opens, color = treatment, group = treatment)) +
   geom_line(linewidth = 1.2) +
   geom_point(size = 3) +
   scale_color_manual(values = c("#1e3a5f", "#e63946")) +
   labs(
-    title    = "Mean pain flares per week, by clinic visit",
+    title    = "Mean weekly app opens by push-notification enrollment",
     subtitle = "Observed means by treatment group",
-    x = "Visit number", y = "Mean weekly flares", color = "Group"
+    x = "Week", y = "Mean weekly app opens", color = "Group"
   ) +
   theme_minimal(base_size = 13)
 ```
@@ -227,7 +299,7 @@ df_count |>
 
 ```{r fit-poisson}
 m_poisson <- glmmTMB(
-  flares ~ visit + treatment + (1 | patient),
+  app_opens ~ week + treatment + (1 | customer),
   data   = df_count,
   family = poisson
 )
@@ -261,7 +333,7 @@ When $\theta \to \infty$, the negative binomial reduces to Poisson. Smaller $\th
 
 ```{r fit-negbin}
 m_negbin <- glmmTMB(
-  flares ~ visit + treatment + (1 | patient),
+  app_opens ~ week + treatment + (1 | customer),
   data   = df_count,
   family = nbinom2
 )
@@ -270,42 +342,42 @@ summary(m_negbin)
 
 # Compare AIC
 AIC(m_poisson, m_negbin) |>
-  knitr::kable(caption = "Model comparison: Poisson vs. Negative Binomial")
+  knitr::kable(caption = "Model comparison: Poisson vs. Negative Binomial for app opens")
 ```
 
-### Predicted Count Trajectories
+### Predicted App-Open Trajectories
 
 ```{r count-predictions}
-preds_count <- ggpredict(m_negbin, terms = c("visit", "treatment"), type = "fixed")
+preds_count <- ggpredict(m_negbin, terms = c("week", "treatment"), type = "fixed")
 
 plot(preds_count) +
   scale_color_manual(values = c("#1e3a5f", "#e63946")) +
   scale_fill_manual(values  = c("#1e3a5f", "#e63946")) +
   labs(
-    title    = "Predicted pain flares per week over clinic visits",
+    title    = "Predicted weekly app opens over time",
     subtitle = "Marginal predictions from negative binomial mixed model",
-    x = "Visit", y = "Predicted flares", color = "Group", fill = "Group"
+    x = "Week", y = "Predicted app opens", color = "Group", fill = "Group"
   ) +
   theme_minimal(base_size = 13)
 ```
 
 ### What About Zero-Inflation?
 
-In many longitudinal count outcomes, there are far more zeros than a Poisson or negative binomial distribution would predict. For example, in a study of alcohol use, many people on many days consume zero drinks. A standard count model will underfit these zeros and overfit the positive counts.
+In many longitudinal count outcomes, there are far more zeros than a Poisson or negative binomial distribution would predict. For example, in an app engagement study, a meaningful share of enrolled users never open the app at all — they are structural zeros. A standard count model will underfit these zeros and overfit the counts from active users.
 
 `glmmTMB` handles this cleanly with a **zero-inflation component**:
 
 ```r
 # Zero-inflated negative binomial (not run — for illustration)
 m_zinb <- glmmTMB(
-  flares ~ visit + treatment + (1 | patient),
+  app_opens ~ week + treatment + (1 | customer),
   ziformula = ~1,        # intercept-only zero-inflation model
   family    = nbinom2,
   data      = df_count
 )
 ```
 
-The zero-inflation formula `ziformula` models the probability that an observation comes from the "always zero" process (e.g., someone who never drinks) rather than the count-generating process. You can make this a function of predictors too.
+The zero-inflation formula `ziformula` models the probability that an observation comes from the "always zero" process (e.g., a customer who enrolled but never opened the app at all) rather than the count-generating process. You can make this a function of predictors — for instance, the zero-inflation probability might itself depend on whether the customer was in the push-notification group.
 
 :::{.callout-warning icon=false}
 **Assumption: Correct distributional family**
@@ -327,11 +399,11 @@ The key insight is that GLMMs are not a special case of mixed models — they ar
 
 GLMMs respect the DGP:
 
-| Outcome type | DGP generates | Appropriate model | Link function | Exponentiate for |
+| Outcome type | JDM example | Appropriate model | Link function | Exponentiate for |
 |---|---|---|---|---|
-| 0/1 event | Binary Bernoulli trials | `glmer(..., family = binomial)` | logit | Odds ratios |
-| Counts (no overdispersion) | Poisson process | `glmmTMB(..., family = poisson)` | log | Rate ratios |
-| Counts (overdispersed) | Negative binomial process | `glmmTMB(..., family = nbinom2)` | log | Rate ratios |
-| Counts (excess zeros) | Zero-inflated process | `glmmTMB(..., ziformula = ~1, family = nbinom2)` | log | Rate ratios |
+| 0/1 event | Made a purchase this week | `glmer(..., family = binomial)` | logit | Odds ratios |
+| Counts (no overdispersion) | App opens per week (low variance) | `glmmTMB(..., family = poisson)` | log | Rate ratios |
+| Counts (overdispersed) | Transactions per month (bursty) | `glmmTMB(..., family = nbinom2)` | log | Rate ratios |
+| Counts (excess zeros) | Overdraft events (many zero months) | `glmmTMB(..., ziformula = ~1, family = nbinom2)` | log | Rate ratios |
 
 In every case, the random effects structure stays exactly as it would be in a linear mixed model: participants are nested within themselves across time, and the random intercept (or random slope, if you have one) captures stable individual differences in the outcome on the transformed scale.

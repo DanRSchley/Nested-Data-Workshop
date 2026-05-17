@@ -36,25 +36,87 @@ The intercept factor has loadings of 1.0 at all time points. The slope factor ha
 
 ## Fitting an LGC Model in lavaan
 
-```{r lgc-simulation}
-# Simulate data
-n <- 150
-intercepts <- rnorm(n, 50, 8)
-slopes     <- rnorm(n, -2, 1.5)
+### JDM Context: Savings Growth After Loyalty Program Enrollment
 
-Y <- sapply(0:4, function(t) intercepts + slopes * t + rnorm(n, 0, 4))
-colnames(Y) <- paste0("y", 1:5)
+A financial services firm tracks 150 customers' monthly net savings for 5 months after they enroll in a loyalty-and-coaching program. The key substantive questions:
+
+- **On average**, how much do customers save at enrollment, and how fast does savings grow?
+- **How much do they vary?** Do some customers start high and stay high? Do some start low but grow quickly?
+- **Do initial level and growth rate covary?** Customers who start with high savings might grow more slowly (ceiling effects) or more quickly (financially engaged customers who compound good habits).
+
+These are precisely the questions the latent growth curve model answers. The intercept factor captures each customer's baseline savings level; the slope factor captures their personal savings growth trajectory.
+
+```{r lgc-simulation}
+# 150 loyalty program customers tracked for 5 months
+# Outcome: monthly net savings (€)
+n <- 150
+intercepts <- rnorm(n, 500, 80)   # wide between-customer variation in baseline savings
+slopes     <- rnorm(n,  15, 12)   # some customers grow savings fast; others plateau
+
+Y <- sapply(0:4, function(t) intercepts + slopes * t + rnorm(n, 0, 35))
+colnames(Y) <- paste0("savings_m", 1:5)   # monthly savings at months 1–5
 df_lgc <- as.data.frame(Y)
 ```
+
+### Visualizing What the Latent Factors Mean
+
+Before fitting the model, it helps to see what the intercept and slope factors represent in individual trajectories.
+
+```{r lgc-visual, fig.width=7, fig.height=4.5}
+# Draw 12 representative individual trajectories
+df_vis <- tibble(
+  id        = 1:12,
+  intercept = c(intercepts[1:12]),
+  slope     = c(slopes[1:12])
+) |>
+  expand_grid(time = 0:4) |>
+  mutate(savings = intercept + slope * time + rnorm(n(), 0, 25),
+         id = factor(id))
+
+grand_intercept <- mean(intercepts)
+grand_slope     <- mean(slopes)
+
+ggplot(df_vis, aes(x = time, y = savings)) +
+  geom_line(aes(group = id), alpha = 0.35, color = "#4393c3") +
+  geom_point(aes(group = id), alpha = 0.35, color = "#4393c3", size = 1.5) +
+  # Mean growth line
+  geom_abline(intercept = grand_intercept, slope = grand_slope,
+              color = "#d73027", linewidth = 1.5) +
+  # Label: intercept at time = 0
+  annotate("point", x = 0, y = grand_intercept, color = "#d73027", size = 4) +
+  annotate("text",  x = 0.15, y = grand_intercept - 30,
+           label = paste0("Mean intercept: \u20ac", round(grand_intercept), "/month at enrollment"),
+           hjust = 0, size = 3.5, color = "#d73027") +
+  # Label: slope (one-month increment on mean line)
+  annotate("segment", x = 3, xend = 4,
+           y = grand_intercept + 3 * grand_slope,
+           yend = grand_intercept + 4 * grand_slope,
+           color = "#d73027", linewidth = 1.2,
+           arrow = arrow(length = unit(0.25, "cm"), ends = "last")) +
+  annotate("text",  x = 4.05, y = grand_intercept + 3.5 * grand_slope,
+           label = paste0("Mean slope:\n+\u20ac", round(grand_slope), "/month"),
+           hjust = 0, size = 3.5, color = "#d73027") +
+  scale_x_continuous(breaks = 0:4,
+                     labels = paste0("Month ", 1:5)) +
+  labs(
+    title    = "Latent growth curve model: loyalty program savings trajectories",
+    subtitle = "Blue = individual customer trajectories; Red = average growth line\nIntercept = baseline savings; Slope = monthly growth rate",
+    x = NULL, y = "Monthly net savings (\u20ac)"
+  ) +
+  coord_cartesian(xlim = c(0, 4.8)) +
+  theme_minimal(base_size = 13)
+```
+
+Each blue line is one customer. The intercept (red dot at month 1) is their individual starting level; the slope is how steeply their line rises. The model estimates both factors' means, variances, and covariance.
 
 ```{r fit-lgc}
 # Latent growth curve model in lavaan
 lgc_model <- '
   # Intercept factor (loadings all fixed to 1)
-  intercept =~ 1*y1 + 1*y2 + 1*y3 + 1*y4 + 1*y5
+  intercept =~ 1*savings_m1 + 1*savings_m2 + 1*savings_m3 + 1*savings_m4 + 1*savings_m5
 
   # Slope factor (loadings = time coding: 0, 1, 2, 3, 4)
-  slope     =~ 0*y1 + 1*y2 + 2*y3 + 3*y4 + 4*y5
+  slope     =~ 0*savings_m1 + 1*savings_m2 + 2*savings_m3 + 3*savings_m4 + 4*savings_m5
 
   # Means of latent factors (the fixed effects)
   intercept ~ 1
@@ -68,11 +130,11 @@ lgc_model <- '
   intercept ~~ slope
 
   # Residual variances (constrained equal across time for simplicity)
-  y1 ~~ a*y1
-  y2 ~~ a*y2
-  y3 ~~ a*y3
-  y4 ~~ a*y4
-  y5 ~~ a*y5
+  savings_m1 ~~ a*savings_m1
+  savings_m2 ~~ a*savings_m2
+  savings_m3 ~~ a*savings_m3
+  savings_m4 ~~ a*savings_m4
+  savings_m5 ~~ a*savings_m5
 '
 
 m_lgc <- growth(lgc_model, data = df_lgc)
@@ -85,7 +147,7 @@ parameterEstimates(m_lgc) |>
   filter(op %in% c("~1", "~~") & lhs %in% c("intercept", "slope")) |>
   select(lhs, op, rhs, est, se, pvalue) |>
   knitr::kable(digits = 3,
-    caption = "LGC parameter estimates: means and variances of intercept and slope")
+    caption = "LGC parameter estimates: mean baseline savings, mean monthly growth, and their variances")
 ```
 
 ## The Equivalence with MLM
@@ -94,15 +156,16 @@ parameterEstimates(m_lgc) |>
 # Fit equivalent MLM
 df_long_lgc <- df_lgc |>
   mutate(id = 1:n) |>
-  pivot_longer(-id, names_to = "wave", values_to = "Y") |>
+  pivot_longer(-id, names_to = "wave", values_to = "savings") |>
   mutate(time = as.integer(str_extract(wave, "[0-9]")) - 1,
          id   = factor(id))
 
-m_mlm <- lmer(Y ~ time + (time | id), data = df_long_lgc)
+m_mlm <- lmer(savings ~ time + (time | id), data = df_long_lgc)
 
 # Compare estimates
 tibble(
-  Parameter        = c("Mean intercept", "Mean slope", "Var(intercept)", "Var(slope)"),
+  Parameter        = c("Mean intercept (baseline savings)", "Mean slope (monthly growth)",
+                       "Var(intercept)", "Var(slope)"),
   `MLM estimate`   = c(fixef(m_mlm),
                         as.data.frame(VarCorr(m_mlm))$vcov[1:2]),
   `LGC estimate`   = c(
@@ -110,7 +173,8 @@ tibble(
     diag(lavInspect(m_lgc, "cov.lv"))[c("intercept", "slope")]
   )
 ) |>
-  knitr::kable(digits = 3, caption = "MLM and LGC give equivalent results")
+  knitr::kable(digits = 3,
+    caption = "MLM and LGC give equivalent results: loyalty program savings growth model")
 ```
 
 The estimates match. The difference is in the language and the software ecosystem — not the math.
@@ -128,9 +192,9 @@ In standard MLM, the residual is treated as a mix of measurement error and genui
 ::: {.callout-note}
 ## Advantage 2: Multiple Growth Processes
 
-With SEM, you can model two interrelated growth curves simultaneously — for instance, how anxiety and depression co-evolve over therapy. The covariance between the two intercept factors and between the two slope factors captures how initial levels and rates of change co-relate.
+With SEM, you can model two interrelated growth curves simultaneously. A natural JDM application: how **app engagement** and **monthly savings** co-evolve over the first 5 months of a loyalty program. The covariance between the two intercept factors tells you whether customers who were already engaging heavily at enrollment also started with higher savings. The covariance between the two slope factors tells you whether customers whose engagement grew faster also showed steeper savings growth — that is, whether engagement and savings amplify each other over time.
 
-This is difficult to do cleanly in standard MLM.
+This is difficult to do cleanly in standard MLM, which would require a multivariate response formulation or a separate bivariate outcome model.
 :::
 
 ## Assumptions of LGC Models

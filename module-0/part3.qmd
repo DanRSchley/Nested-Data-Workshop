@@ -86,33 +86,36 @@ When ICC = 0.02, the group means barely differ — the groups look almost interc
 The ICC comes directly from a null (intercept-only) multilevel model — one with no predictors, just a random intercept for the grouping variable. The model partitions total variance into between-group and within-group components.
 
 ```{r compute-icc}
-# Simulate a dataset: employees nested within firms
-n_firms     <- 30
-n_employees <- 15
+# Simulate a dataset: households nested within bank branches
+# (each branch has a different financial coaching culture and local economic environment)
+n_branches    <- 30
+n_per_branch  <- 15
 
-firm_effects <- rnorm(n_firms, 50, 6)   # between-firm variance
+branch_effects <- rnorm(n_branches, 50, 6)   # between-branch variance in savings behavior
 
-df_firms <- expand_grid(
-  firm     = 1:n_firms,
-  employee = 1:n_employees
+df_branches <- expand_grid(
+  branch    = 1:n_branches,
+  household = 1:n_per_branch
 ) |>
   mutate(
-    satisfaction = firm_effects[firm] + rnorm(n(), 0, 8)  # within-firm variance
+    monthly_savings = branch_effects[branch] + rnorm(n(), 0, 8)  # within-branch variance
   )
 
-# Fit the null model
-null_model <- lmer(satisfaction ~ 1 + (1 | firm), data = df_firms)
+# Fit the null model: only branch random intercept, no predictors
+null_model <- lmer(monthly_savings ~ 1 + (1 | branch), data = df_branches)
 summary(null_model)
 ```
 
 ```{r icc-from-model}
 # Extract variance components
 vc <- as.data.frame(VarCorr(null_model))
-var_between <- vc$vcov[1]   # firm-level variance
-var_within  <- vc$vcov[2]   # residual variance
+var_between <- vc$vcov[1]   # branch-level variance (shared branch environment)
+var_within  <- vc$vcov[2]   # household-level residual variance
 
 icc_value <- var_between / (var_between + var_within)
 cat("ICC =", round(icc_value, 3))
+cat("\nThis means", round(icc_value * 100, 1), "% of the variance in monthly savings")
+cat("\nis explained simply by which branch the household belongs to.\n")
 ```
 
 The `performance` package provides a cleaner interface:
@@ -122,28 +125,34 @@ library(performance)
 icc(null_model)
 ```
 
-## Why Even a Small ICC is a Big Problem
+The ICC here reflects how much the branch environment — local economic conditions, coaching culture, program availability — shapes savings behavior beyond household-level characteristics. A branch ICC of 0.20 would mean that simply knowing which branch a household belongs to explains 20% of the variance in their savings outcomes.
 
-This is one of the most important things to understand before you run any analysis on nested data: **even a modest ICC has large consequences for inference.**
+## Why Even a Small ICC Is a Big Problem
 
-The reason is the **design effect** (sometimes called DEFF): a multiplier that tells you how much your effective sample size shrinks due to clustering.
+::: {.callout-warning icon=false}
+## Critical Reviewer Challenge: Small ICC Does Not Mean Clustering is Irrelevant
 
-$$
-\text{DEFF} = 1 + (n_{\text{cluster}} - 1) \times \text{ICC}
-$$
+A common mistake: researchers see a small ICC (say, 0.05) and conclude the clustering penalty is negligible. **This is wrong when cluster sizes are large.** The relevant quantity is the design effect, which multiplies the ICC by the cluster size.
 
-where $n_{\text{cluster}}$ is the number of observations per cluster.
+With 50 transactions per household and an ICC of 0.05:
+$$\text{DEFF} = 1 + (50 - 1) \times 0.05 = 1 + 2.45 = 3.45$$
+
+Your nominal 500 transaction-level observations act like only $500 / 3.45 \approx 145$ independent observations — a 3.5× penalty from an ICC that many researchers would dismiss as "small."
+:::
+
+The reason is the **design effect** (DEFF): a multiplier that tells you how much your effective sample size shrinks due to clustering.
+
+$$\text{DEFF} = 1 + (n_{\text{cluster}} - 1) \times \text{ICC}$$
 
 ```{r deff-calculation}
-# Design effect as a function of ICC and cluster size
 deff_df <- expand_grid(
   icc          = c(0.01, 0.05, 0.10, 0.20, 0.30),
   cluster_size = c(5, 10, 20, 50)
 ) |>
   mutate(
-    deff           = 1 + (cluster_size - 1) * icc,
-    effective_n    = 1000 / deff,  # if nominal N = 1000
-    label          = paste0("n = ", cluster_size)
+    deff        = 1 + (cluster_size - 1) * icc,
+    effective_n = 1000 / deff,
+    label       = paste0("n = ", cluster_size)
   )
 
 ggplot(deff_df, aes(x = icc, y = deff, color = factor(cluster_size),
@@ -153,7 +162,7 @@ ggplot(deff_df, aes(x = icc, y = deff, color = factor(cluster_size),
   scale_color_brewer(palette = "Set2", name = "Cluster size") +
   scale_linetype_discrete(name = "Cluster size") +
   labs(
-    title    = "Design Effect as a function of ICC and cluster size",
+    title    = "Design effect as a function of ICC and cluster size",
     subtitle = "DEFF = 1 means no clustering penalty; DEFF = 5 means your 1000 obs act like 200",
     x        = "ICC",
     y        = "Design Effect (DEFF)",
@@ -162,13 +171,11 @@ ggplot(deff_df, aes(x = icc, y = deff, color = factor(cluster_size),
   theme_minimal(base_size = 13)
 ```
 
-Let's make this concrete. Suppose you have 200 students in 10 classrooms of 20 students each, and the ICC on your outcome is 0.10 — a seemingly small value often found in educational research.
+**JDM example:** Suppose you have 300 consumers in 15 bank branches of 20 consumers each, and the ICC for monthly savings on your outcome is 0.10 — a value common in branch-level financial data:
 
-$$
-\text{DEFF} = 1 + (20 - 1) \times 0.10 = 1 + 1.9 = 2.9
-$$
+$$\text{DEFF} = 1 + (20 - 1) \times 0.10 = 1 + 1.9 = 2.9$$
 
-Your 200 observations act like only $200 / 2.9 \approx 69$ independent observations. You have nearly three times less statistical power than you thought. If you treat 200 clustered observations as 200 independent ones, your standard errors are too small, your p-values are too small, and your confidence intervals are too narrow.
+Your 300 observations act like only $300 / 2.9 \approx 103$ independent observations. You have nearly three times less statistical power than the raw sample size suggests. If you treat 300 clustered observations as 300 independent ones, your standard errors are too small, your p-values are too small, and your confidence intervals are too narrow.
 
 ```{r type1-inflation}
 # Simulate Type I error inflation from ignoring clustering
@@ -226,27 +233,27 @@ A standard ICC treats within-group variance as homogeneous across groups. In rea
 :::
 
 ```{r icc-assumptions-check}
-# Check: is within-group variance stable?
-df_firms |>
-  group_by(firm) |>
+# Check: is within-group variance stable across bank branches?
+df_branches |>
+  group_by(branch) |>
   summarise(
-    group_mean = mean(satisfaction),
-    group_sd   = sd(satisfaction),
+    group_mean = mean(monthly_savings),
+    group_sd   = sd(monthly_savings),
     n          = n()
   ) |>
   ggplot(aes(x = group_mean, y = group_sd)) +
   geom_point(size = 3, color = "#1e3a5f", alpha = 0.7) +
   geom_smooth(method = "loess", se = TRUE, color = "#e63946") +
   labs(
-    title    = "Within-group SD vs. group mean",
+    title    = "Within-branch SD vs. branch mean savings",
     subtitle = "A strong relationship suggests heteroskedastic nesting",
-    x        = "Group Mean (Satisfaction)",
-    y        = "Within-Group SD"
+    x        = "Branch Mean (Monthly Savings)",
+    y        = "Within-Branch SD"
   ) +
   theme_minimal(base_size = 13)
 ```
 
-In this simulated dataset, there is no strong relationship — within-group variance is roughly constant across firms. That is reassuring, but not always the case in real data.
+In this simulated dataset, there is no strong relationship — within-branch variance is roughly constant across branches. That is reassuring, but not always the case in real data. A common violation: wealthier branches tend to have higher *and more variable* savings behavior, because high-income households have more discretionary slack.
 
 ## ICC in Experimental Research: Two Sources of Non-Independence
 
@@ -255,28 +262,34 @@ The ICC applies equally to experimental designs — but the sources of non-indep
 In a **within-subjects experiment**, each participant responds to multiple stimuli or conditions. Two responses from the *same participant* will be more similar than responses from different participants: this is the participant-level ICC. Two responses to the *same stimulus* (rated by different participants) will also be more similar than responses to different stimuli: this is the stimulus-level ICC.
 
 ::: {.callout-note icon=false}
-## Two ICCs in a Crossed Design
+## Two ICCs in a Crossed JDM Design
 
-Consider a word recall experiment: 40 participants each see 80 words, half positive and half neutral. The outcome (recalled = 1 / not = 0) has clustering at two levels simultaneously:
+Consider a willingness-to-pay study: 60 consumers each evaluate 20 financial products (savings accounts, insurance plans, investment funds). The outcome (WTP in euros) has clustering at two levels simultaneously:
 
-- **Participant ICC:** People differ in overall recall ability. A high-ability participant's responses are positively correlated with each other.
-- **Stimulus ICC:** Some words are simply more memorable. Responses to the same word across participants share variance.
+- **Participant ICC:** Consumers differ in how generous or cautious they are overall. A high-WTP consumer's responses across products are more similar to each other than to a different consumer's responses.
+- **Product ICC:** Some products attract systematically higher WTP regardless of who evaluates them — because of perceived quality, brand, or framing. Responses to the same product across participants share variance.
 
-Ignoring *either* ICC inflates the Type I error rate for the focal treatment comparison. This is why Module 1 Part 6 introduces **crossed random effects**: `(1 | participant) + (1 | stimulus)` models both ICCs simultaneously, and the design-effect penalty compounds across both levels.
+Ignoring *either* ICC inflates the Type I error rate for any focal comparison (e.g., whether a transparent fee disclosure increases WTP). This is why Module 1 Part 6 introduces **crossed random effects**: `(1 | participant) + (1 | product)` models both ICCs simultaneously, and the design-effect penalty compounds across both levels.
 
 ```r
 # Crossed design: two ICCs
-null_crossed <- lmer(recalled ~ 1 + (1 | participant) + (1 | stimulus), data = df_exp)
+null_crossed <- lmer(wtp ~ 1 + (1 | participant) + (1 | product), data = df_wtp)
 icc(null_crossed)  # returns ICCs for both grouping levels
 ```
 
-In typical psycholinguistic and judgment studies, stimulus ICCs of 0.05–0.20 are common — small enough to ignore in any single study, large enough to inflate false positives systematically across a literature.
+In typical consumer valuation studies, product ICCs of 0.10–0.25 are common — meaning that 10–25% of the variance in WTP is attributable to which product was being evaluated, not to who evaluated it. Ignoring this inflates false positives for any framing manipulation applied at the product level.
 :::
 
 ## The ICC as a Scientific Finding
 
 Throughout this workshop, we treat the ICC primarily as a diagnostic tool — something you check before deciding what model to use. But it is also a finding in its own right.
 
-If your outcome is job satisfaction and the ICC across firms is 0.30, that means 30% of the variance in job satisfaction is explained simply by *which firm* someone works for. That is a substantive result. It tells you that organizational-level factors — culture, management, pay structure — explain nearly a third of the variation in how people feel about their work. That is worth reporting, and worth investigating.
+**JDM examples where the ICC is itself substantively informative:**
 
-The decomposition of variance across levels is one of the most underutilized findings in social science research.
+- If the ICC for risky-choice acceptance across gamble items is 0.18, that means 18% of the variance in choice behavior is explained simply by *which gamble* was presented — payoff structure and framing matter a great deal, beyond individual risk preferences.
+- If the ICC for monthly savings across bank branches is 0.22, that means 22% of the variance in household savings is explained by *which branch* the household belongs to — local program access, advisor quality, and community effects account for nearly a quarter of the variation.
+- If the ICC for willingness to pay across participants in a repeated valuation task is 0.45, that means the dominant source of variance is stable individual differences in preferences, not trial-to-trial variation.
+
+Each of these ICCs tells you something substantive about the DGP — not just about which model to use.
+
+The decomposition of variance across levels is one of the most underutilized findings in social science research. Report it alongside your treatment effects.

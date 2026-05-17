@@ -179,6 +179,36 @@ This module lays the conceptual groundwork for everything that follows.
 
 **Part 4: Data Structure and Format** — How should my dataset be structured to make the nesting visible and the analysis correct? Long format, identifying variables, and reading a dataset to see its level structure immediately.
 
+::: {.callout-note icon=false}
+## Same Observables, Different Stories
+
+Consider two researchers who collect the same dataset: household monthly spending measured for 18 months, with an average positive correlation of 0.42 within households.
+
+**Researcher A** says: "Spending is persistent — households have stable spending habits, and month-to-month fluctuations are minor noise around a stable level."
+
+**Researcher B** says: "The correlation is driven entirely by time-invariant income — richer households spend more every month, so their rows look similar. Within a household, spending fluctuates unpredictably around that income-constrained mean."
+
+Both researchers see the same 0.42 correlation. Both are working from the same data. But they have opposite models of what drives it — one says stable habits (a within-person process), the other says fixed income (a between-person characteristic).
+
+**The observable pattern does not tell you which story is true.** Only design choices — within-person centering, instruments for income shocks, experimental manipulation of budget constraints — can discriminate between them. This is the central challenge of working with nested data: the same correlation structure can arise from genuinely different DGPs, and your model choice embeds an assumption about which DGP you believe.
+
+Throughout this workshop, whenever you learn a new model or assumption, ask:
+*What else could produce the same observable pattern? What design or data would discriminate?*
+:::
+
+::: {.callout-tip}
+## Reviewer Challenge: Which Level is Generating This Pattern?
+
+When presenting results from nested data, expect a sharp reviewer to ask:
+
+- "Is the effect you are claiming a **within-person** change, a **between-person** difference, or both mixed together?"
+- "Which level of the nesting structure could be driving this result instead of the level your theory is about?"
+- "If the ICCs are low, does that mean clustering is irrelevant — or does it mean the penalty is large because cluster sizes are large?"
+- "Could the 'treatment effect' you estimate be entirely driven by which group or context someone was in, rather than the treatment itself?"
+
+These are not hostile questions. They are the natural consequences of working with data that has structure. The models in this workshop teach you to answer them before the reviewer has to ask.
+:::
+
 ::: {.callout-tip}
 ## Observational and Experimental JDM: The Same Nesting Logic
 

@@ -7,28 +7,51 @@ library(tidyverse)
 library(nlme)
 library(lme4)
 library(ggplot2)
+library(patchwork)
 set.seed(77)
 ```
 
 # Covariance Structures
 
-## The Covariance Matrix is a Scientific Statement
+::: {.callout-note icon=false}
+## The Structure Question
 
-When you measure the same person at multiple time points, those measurements co-vary. How they co-vary is not a statistical nuisance — it is a substantive statement about the DGP. The choice of covariance structure encodes an assumption about how the underlying process operates over time.
+> **Which of your repeated observations should look most alike?** Adjacent ones — a WTP rating taken immediately after a disclosure is more similar to a rating taken a week later than to a rating taken six months later. This is the starting intuition for choosing a covariance structure.
+>
+> **What does the covariance structure encode?** An assumption about the data-generating process — how the underlying psychological or financial state of a person persists, decays, or drifts over time.
+>
+> **What goes wrong if you choose wrong?** Standard errors and test statistics are computed using the assumed structure. An incorrect structure produces biased inference — usually overstated precision (too-small SEs) if you assume too little covariance.
+:::
 
-The covariance structure specifies two things: **variances** (how variable are observations at each time point?) and **covariances** (how correlated are observations at different time points?).
+## The Covariance Matrix Is a Scientific Statement
+
+When you measure the same person at multiple time points, those measurements co-vary. How they co-vary is not a nuisance parameter — it is a substantive statement about the DGP. The choice of covariance structure encodes an assumption about how the process unfolds over time.
+
+**A useful starting question:** "If I knew Person A's WTP in week 1, how much does that tell me about their WTP in week 2 versus week 8?" The answer depends on the persistence of the underlying state being measured:
+
+- **Short-lived state** (e.g., momentary risk perception after seeing a shocking news headline): week 1 barely predicts week 4. Adjacent observations are only a bit more similar than distant ones.
+- **Persistent individual tendency** (e.g., stable financial risk tolerance): week 1 predicts week 8 almost as well as week 2. Observations are broadly similar regardless of lag.
+- **Gradually decaying memory or habit** (e.g., recall of a disclosure or momentum of a savings habit): week 2 is more similar to week 1 than week 8 is, and the similarity decays smoothly with lag.
+
+Each of these stories implies a different covariance structure.
+
+---
 
 ## The Main Structures
 
 ### 1. Compound Symmetry (CS)
 
-All variances are equal. All covariances are equal regardless of lag.
+All variances equal. All covariances equal regardless of lag.
 
 $$\Sigma_{CS} = \begin{pmatrix} \sigma^2 & \sigma^2\rho & \sigma^2\rho \\ \sigma^2\rho & \sigma^2 & \sigma^2\rho \\ \sigma^2\rho & \sigma^2\rho & \sigma^2 \end{pmatrix}$$
 
-**When it makes sense:** When there is no reason to think observations closer in time are more similar than distant observations. Very rare in practice.
+**The DGP story:** Each person has a stable individual level, and every observation is equally predictable from every other. The WTP at month 1 tells you as much about month 6 as it tells you about month 2.
 
-**When it fails:** Almost always. Time 1 and Time 2 are almost always more correlated than Time 1 and Time 6.
+**JDM setting:** Most appropriate when what you are measuring is a **fixed individual trait** that shows no dynamic persistence or decay — for example, a stable risk-preference score that does not drift meaningfully across sessions. In practice this is rare; most repeated JDM measurements show some decay structure.
+
+**When it fails:** Whenever observations are more similar to adjacent ones than to distant ones — which is almost always true in longitudinal JDM studies.
+
+---
 
 ### 2. Autoregressive Order 1 — AR(1)
 
@@ -36,41 +59,58 @@ Correlations decay exponentially with time lag. Observations one step apart corr
 
 $$\Sigma_{AR1} = \sigma^2\begin{pmatrix} 1 & \rho & \rho^2 \\ \rho & 1 & \rho \\ \rho^2 & \rho & 1 \end{pmatrix}$$
 
-**When it makes sense:** For many psychological, physiological, and economic time series where the past predicts the present and the influence fades over time. Very commonly appropriate.
+**The DGP story:** Each observation partially inherits from the previous one. Yesterday's state predicts today's, but the influence decays at a constant rate. A financial decision made under a disclosure effect carries partial memory into the next measurement, but fades over longer gaps.
+
+**JDM settings:**
+- Daily spending diary: today's spending predicts tomorrow's more than next week's
+- Weekly savings rate: this week's savings are correlated with last week's, but the correlation decays with the lag
+- Risk perception during a market fluctuation: day-to-day persistence that gradually loses predictive power
+
+**When it fits:** When your measurement intervals are equal and the process has smooth geometric decay in correlations.
+
+---
 
 ### 3. Unstructured (UN)
 
-No constraints. Every variance and covariance is estimated freely.
+No constraints. Every variance and covariance is estimated freely from the data.
 
-**When it makes sense:** When you have no prior beliefs about the pattern and enough data to estimate all parameters.
+**The DGP story:** The data speak for themselves. There is no assumed decay pattern or symmetry.
 
-**When it fails:** With many time points or small samples, the unstructured model is overparameterized and produces unstable estimates.
+**JDM settings:** Reasonable when you have a small number of waves (3–4) and a large sample — the model has enough data to estimate every pairwise correlation without exploding the parameter count.
+
+**When it fails:** With many waves or small samples, the unstructured model is severely overparameterized. With 5 waves and 50 people, you are estimating 15 covariance parameters from data where each person contributes only 5 observations. The estimates are unstable and the model often fails to converge.
+
+---
 
 ### 4. Toeplitz
 
-Like AR(1) but relaxes the constraint that correlations must follow an exponential decay — each lag has its own correlation, but the correlation only depends on the lag (not the absolute time point). A flexible middle ground.
+Like AR(1) but without the geometric constraint: each lag has its own correlation, but the correlation depends only on the lag size, not the absolute time point.
+
+**The DGP story:** Lag-1 observations are more similar than lag-2, which are more similar than lag-3 — but the rate of decay does not have to be exponential. A financial decision's influence might fade quickly at first (week 1 to week 2) and then more slowly (week 3 to week 6), which AR(1) cannot capture but Toeplitz can.
+
+---
 
 ## Visualizing the Structures
 
-```{r vis-structures}
-make_cov_plot <- function(Sigma, title) {
+```{r vis-structures, fig.width=10, fig.height=5}
+make_cov_plot <- function(Sigma, title, subtitle = NULL) {
   n <- nrow(Sigma)
-  # Convert to correlation
   D <- diag(1 / sqrt(diag(Sigma)))
   Corr <- D %*% Sigma %*% D
+  wlabs <- paste0("W", 1:n)
 
   data.frame(Corr) |>
-    setNames(paste0("T", 1:n)) |>
-    mutate(row = paste0("T", 1:n)) |>
+    setNames(wlabs) |>
+    mutate(row = wlabs) |>
     pivot_longer(-row, names_to = "col", values_to = "r") |>
-    mutate(row = factor(row, levels = rev(paste0("T", 1:n))),
-           col = factor(col, levels = paste0("T", 1:n))) |>
+    mutate(row = factor(row, levels = rev(wlabs)),
+           col = factor(col, levels = wlabs)) |>
     ggplot(aes(x = col, y = row, fill = r)) +
     geom_tile(color = "white", linewidth = 1) +
     geom_text(aes(label = round(r, 2)), size = 3.5) +
     scale_fill_gradient2(low = "#f7fbff", mid = "#4292c6", high = "#08306b",
                          midpoint = 0.5, limits = c(-0.1, 1)) +
-    labs(title = title, x = NULL, y = NULL) +
+    labs(title = title, subtitle = subtitle, x = NULL, y = NULL) +
     theme_minimal(base_size = 11) +
     theme(legend.position = "none")
 }
@@ -89,41 +129,53 @@ UN <- matrix(c(4.0, 2.4, 1.8, 1.4, 1.0,
                1.4, 1.6, 2.4, 4.8, 2.2,
                1.0, 1.1, 1.5, 2.2, 5.0), n, n)
 
-library(patchwork)
-(make_cov_plot(CS,   "Compound Symmetry") +
- make_cov_plot(AR1,  "AR(1)")) /
-(make_cov_plot(Toep, "Toeplitz") +
- make_cov_plot(UN,   "Unstructured"))
+(make_cov_plot(CS,   "Compound Symmetry",
+               "Flat correlations — any wave\npredicts any other equally") +
+ make_cov_plot(AR1,  "AR(1)",
+               "Geometric decay — adjacent\nwaves most similar")) /
+(make_cov_plot(Toep, "Toeplitz",
+               "Free decay by lag — flexible\nbut still lag-dependent") +
+ make_cov_plot(UN,   "Unstructured",
+               "No constraints — data-driven\nbut needs large N"))
 ```
+
+The heatmaps show how correlation between waves (W1–W5) changes under each structure. AR(1) and Toeplitz capture the realistic pattern where similarity decreases as the time gap grows.
+
+---
 
 ## Specifying Covariance Structures in R
 
 `lme4` does not support custom covariance structures beyond the random effects structure. For explicit covariance modeling, use `nlme`:
 
 ```{r covariance-nlme}
-# Simulate data with AR(1) structure
+# Simulate WTP data from a savings study: 5 waves with AR(1) correlation
 n_people <- 50
 n_times  <- 5
 rho_true <- 0.7
 
 Y_ar1 <- MASS::mvrnorm(n_people, rep(50, n_times),
                         outer(0:(n_times-1), 0:(n_times-1),
-                              function(i,j) rho_true^abs(i-j)) * 9)
+                              function(i, j) rho_true^abs(i-j)) * 9)
 
 df_long <- as.data.frame(Y_ar1) |>
-  setNames(paste0("t", 1:n_times)) |>
+  setNames(paste0("wave", 1:n_times)) |>
   mutate(person = 1:n_people) |>
-  pivot_longer(-person, names_to = "time", values_to = "Y") |>
-  mutate(time_num = as.integer(str_extract(time, "[0-9]")),
+  pivot_longer(-person, names_to = "wave", values_to = "WTP") |>
+  mutate(wave_num = as.integer(str_extract(wave, "[0-9]")),
          person   = factor(person))
 
 # Fit four competing models
-m_cs  <- gls(Y ~ factor(time_num), correlation = corCompSymm(form = ~1 | person), data = df_long)
-m_ar1 <- gls(Y ~ factor(time_num), correlation = corAR1(form = ~time_num | person), data = df_long)
-m_un  <- gls(Y ~ factor(time_num), correlation = corSymm(form = ~time_num | person),
-             weights = varIdent(form = ~1 | factor(time_num)), data = df_long)
+m_cs  <- gls(WTP ~ factor(wave_num),
+             correlation = corCompSymm(form = ~1 | person),
+             data = df_long)
+m_ar1 <- gls(WTP ~ factor(wave_num),
+             correlation = corAR1(form = ~wave_num | person),
+             data = df_long)
+m_un  <- gls(WTP ~ factor(wave_num),
+             correlation = corSymm(form = ~wave_num | person),
+             weights = varIdent(form = ~1 | factor(wave_num)),
+             data = df_long)
 
-# Compare AIC
 tibble(
   Model = c("Compound Symmetry", "AR(1)", "Unstructured"),
   AIC   = c(AIC(m_cs), AIC(m_ar1), AIC(m_un)),
@@ -131,32 +183,84 @@ tibble(
 ) |>
   arrange(AIC) |>
   knitr::kable(digits = 1,
-    caption = "Model comparison: AR(1) fits better than CS when data has AR structure")
+    caption = "Model comparison: AR(1) fits best when data has geometric decay in correlations (lower AIC/BIC = better)")
 ```
 
-## Assumptions and How to Check Each Structure
+When the true structure is AR(1), the AR(1) model is preferred by AIC. Compound symmetry underfits (too constrained). Unstructured overfits (too many parameters for this sample size).
+
+---
+
+## Assumptions
 
 ::: {.callout-warning icon=false}
 ## AR(1) Assumption: Stationarity
 
-**What it means:** The mean and variance of observations are constant over time, and the correlation between observations depends only on the time lag, not on the absolute time point.
+**Plain-language meaning:** The mean and variance of the outcome are constant across time, and the correlation between any two observations depends only on how far apart they are — not on *when* in the study they fall. An AR(1) with $|\phi| < 1$ is stationary by construction.
 
-**How to check:** Plot the mean and variance of your outcome at each time point. If either is trending systematically, stationarity is violated. A detrended model (with time as a fixed effect) may restore stationarity of the residuals.
+**What the model is assuming away:** Trending means (e.g., WTP systematically rising over time due to growing familiarity with the product) or trending variance (e.g., participants becoming more variable later in a long task when fatigue sets in).
+
+**JDM example:** If participants in a repeated savings task become more financially confident across waves — so WTP increases for all participants regardless of condition — the mean is trending. The AR(1) model will confound this trend with the outcome trajectory unless time is included as a fixed effect.
+
+**What a skeptical reviewer might say:** "You modeled repeated savings willingness with AR(1) — but if participants are becoming more engaged with the study instrument over time, the mean is trending and stationarity fails."
+
+**Observable warning sign:** Plot wave-by-wave means. If the mean increases or decreases systematically across waves, stationarity is violated for the raw outcome. Including wave as a fixed effect typically restores stationarity for the residuals.
+
+**What to check:** Plot means and variances by wave. Fit a model with time as a fixed effect and check whether residuals are stationary. Use the Augmented Dickey-Fuller test for stationarity on per-person residual series.
+
+**What claim survives if the assumption is doubtful:** The direction of the condition effect is usually robust. The autoregressive coefficient estimate and its confidence interval may be biased if stationarity is violated.
 :::
 
 ::: {.callout-warning icon=false}
 ## Unstructured Assumption: Sufficient Sample Size
 
-**What it means:** The unstructured model estimates $T(T+1)/2$ covariance parameters (for $T$ time points). With 5 time points, that is 15 parameters just for the covariance structure.
+**Plain-language meaning:** The unstructured model estimates $T(T+1)/2$ covariance parameters for $T$ waves. With 5 waves, that is 15 parameters — just for the covariance structure. These must be estimated from the data.
 
-**How to check:** Compare the number of observations to the number of covariance parameters. As a rough guide, you want at least 10× as many observations as parameters.
+**What the model is assuming away:** Any parsimony. The unstructured model places no restrictions on how measurements co-vary.
+
+**JDM example:** A 6-wave savings diary study with 60 participants requires estimating 21 covariance parameters from a sample that has only 360 observations. That is fewer than 17 observations per covariance parameter — estimates will be noisy and models may fail to converge.
+
+**What to check:** Compare the number of observations to the number of covariance parameters (aim for at least 10:1). If the unstructured model fails to converge, start with AR(1) and use AIC to evaluate whether the more constrained model fits acceptably.
 :::
+
+---
 
 ## Model Selection Strategy
 
-Use AIC/BIC to compare competing covariance structures:
+```{r model-selection-guide}
+tibble(
+  Structure          = c("Compound Symmetry", "AR(1)", "Toeplitz", "Unstructured"),
+  `Params (T=5)`    = c("2", "2", "5", "15"),
+  `Best for`         = c(
+    "Stable trait; no decay; rarely appropriate",
+    "Regular intervals; geometric decay; default starting point",
+    "Irregular decay; flexible but tractable; good middle ground",
+    "Small T; large N; no prior structure; fit check for simpler models"
+  )
+) |>
+  knitr::kable(caption = "Covariance structure selection guide (T = number of waves)")
+```
 
-1. Start with the AR(1) model as a reasonable default
-2. Compare to compound symmetry (more constrained) and Toeplitz (more flexible)
-3. Try unstructured if sample size allows
-4. Choose the model with the lowest AIC, subject to convergence and interpretability
+**Recommended workflow:**
+
+1. Start with AR(1) as the default for regularly-spaced longitudinal JDM data
+2. Compare to compound symmetry (more constrained) using AIC/BIC — if CS fits as well, use it
+3. Try Toeplitz if the decay looks non-geometric from the raw correlation matrix
+4. Try unstructured only if sample size allows ($T \leq 4$, large $N$) — use as a robustness check
+5. Plot residual autocorrelations after fitting to verify that serial dependence has been removed
+
+---
+
+## Reviewer Challenge
+
+::: {.callout-tip}
+## What a Reviewer Would Ask
+
+**Challenge 1:** "You fitted a random intercept model with `lme4`. What covariance structure does that imply for your repeated WTP measurements?"
+A random intercept model in `lme4` implies compound symmetry — all waves correlate equally at $\rho = \sigma^2_u / (\sigma^2_u + \sigma^2_\varepsilon)$. If adjacent waves should correlate more than distant ones (almost always true), this model misspecifies the covariance structure. Switch to `nlme` with `corAR1()` for longitudinal data with meaningful time ordering.
+
+**Challenge 2:** "Why did you choose AR(1) over unstructured?"
+The data-driven answer: AIC/BIC favored AR(1) and the unstructured model showed convergence issues (too many parameters for the sample). The conceptual answer: WTP decay after a disclosure intervention is well described by geometric fading — the psychological mechanism supports AR(1) structure.
+
+**Challenge 3:** "Your AR(1) estimate is $\hat{\rho} = 0.72$ — doesn't that suggest the waves are measuring a stable trait rather than a dynamic process?"
+High AR(1) correlation does not necessarily mean it is a fixed trait. It means the process has strong short-term persistence. A Bayesian risk-tolerance parameter might show $\rho = 0.72$ across weeks while still responding to information interventions — the AR structure describes the baseline persistence, not the treatment effect.
+:::

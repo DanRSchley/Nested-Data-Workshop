@@ -22,7 +22,7 @@ $$
 \underbrace{\tau_i}_{\substack{\text{causal effect} \\ \text{for unit } i}} = \underbrace{Y_i(1)}_{\substack{\text{outcome if} \\ \text{treated}}} - \underbrace{Y_i(0)}_{\substack{\text{outcome if} \\ \text{not treated}}}
 $$
 
-The fundamental problem: **we can never observe both $Y_i(1)$ and $Y_i(0)$ for the same unit at the same time.** A person either received psychotherapy or they did not. A country either adopted a carbon tax or it did not. We observe one potential outcome and must infer the other.
+The fundamental problem: **we can never observe both $Y_i(1)$ and $Y_i(0)$ for the same unit at the same time.** A household either received a financial coaching program or it did not. A country either adopted a mandatory disclosure policy or it did not. We observe one potential outcome and must infer the other.
 
 Regression estimates the **average treatment effect** (ATE):
 
@@ -89,6 +89,61 @@ Sign(Z→X) × Sign(Z→Y) = sign of the bias:
 You can use this qualitatively even before collecting data: "If my estimate is already large, and the likely omitted confound would produce positive bias, my true effect is probably smaller than I think."
 :::
 
+### Same Observables, Two Stories
+
+The same scatter of data points can support two completely different causal interpretations. The visualization below shows this directly: in panel (A), pooled data suggest that budget-tool use predicts higher savings. In panel (B), the same points are colored by financial literacy tertile — and within each literacy group, the relationship disappears. Financial literacy drives *both* budget-tool use and savings; the pooled slope is pure confounding.
+
+When you have not measured the confounder — which is the typical case — you see only panel (A) and cannot make the comparison that panel (B) reveals.
+
+```{r same-obs-two-stories, echo=FALSE, fig.width=10, fig.height=4.2, message=FALSE, warning=FALSE}
+set.seed(99)
+n_story <- 300
+
+# Financial literacy (Z) drives both budget tool use (X) and savings (Y)
+# True causal effect of X on Y = 0
+Z_lit  <- rnorm(n_story, 50, 10)
+X_tool <- 0.4 * Z_lit + rnorm(n_story, 0, 6)
+Y_sav  <- 0.5 * Z_lit + rnorm(n_story, 0, 8)
+
+df_story <- tibble(X_tool, Y_sav, Z_lit) |>
+  mutate(Z_grp = cut(Z_lit,
+                     breaks = quantile(Z_lit, probs = c(0, 1/3, 2/3, 1)),
+                     labels = c("Low literacy", "Medium literacy", "High literacy"),
+                     include.lowest = TRUE))
+
+# Panel A: pooled — looks like tool causes savings
+p_pooled <- ggplot(df_story, aes(x = X_tool, y = Y_sav)) +
+  geom_point(alpha = 0.18, color = "#1e3a5f", size = 1.3) +
+  geom_smooth(method = "lm", color = "#e63946", linewidth = 1.3, se = TRUE) +
+  labs(
+    title    = "(A) Pooled: budget tool predicts savings",
+    subtitle = "Naive read: \u2018tool use causes higher savings\u2019\n(confounder not measured or modeled)",
+    x = "Budget tool use (X)", y = "Monthly savings rate (Y)"
+  ) +
+  theme_minimal(base_size = 12)
+
+# Panel B: colored by literacy — within-group slopes are flat
+p_colored <- ggplot(df_story, aes(x = X_tool, y = Y_sav, color = Z_grp)) +
+  geom_point(alpha = 0.38, size = 1.3) +
+  geom_smooth(aes(group = Z_grp), method = "lm", se = FALSE, linewidth = 1.1) +
+  scale_color_manual(
+    values = c("Low literacy" = "#aec6e8",
+               "Medium literacy" = "#4a90d9",
+               "High literacy"   = "#1e3a5f"),
+    name = "Literacy (Z)"
+  ) +
+  labs(
+    title    = "(B) Within literacy groups: slope \u2248 0",
+    subtitle = "Correct read: literacy (Z) drives both tool use (X) and savings (Y)\nTrue effect of tool use \u2248 0 within literacy groups",
+    x = "Budget tool use (X)", y = "Monthly savings rate (Y)"
+  ) +
+  theme_minimal(base_size = 12)
+
+p_pooled + p_colored
+```
+
+This is the OVB core: the observed X–Y correlation in the left panel is entirely explained by Z. When Z is unmeasured, the naive estimate is a biased blend of the (zero) true effect and the Z-driven confounding. The simulations below show this numerically across three financial services examples.
+
 ### Three Demonstrations
 
 ```{r ovb-simulation}
@@ -151,9 +206,19 @@ The budget-tracking example illustrates a common error in consumer finance resea
 
 **How to check:** Draw a causal diagram. List every plausible cause of Y. Ask: is any of these also correlated with X? This requires substantive reasoning about the DGP — you cannot test it purely from data.
 
-**In nested data:** OVB is especially insidious because the omitted variable often varies at a higher level. Studying whether neighborhood green space predicts depression while omitting neighborhood income biases your estimate; the omitted variable is a neighborhood-level characteristic that clustering creates.
+**In nested data:** OVB is especially insidious because the omitted variable often varies at a higher level. Studying whether branch-level disclosure intensity predicts household savings while omitting branch-level financial literacy programming biases your estimate; the omitted variable is a branch-level characteristic that clustering creates — households within high-intensity-disclosure branches are also more likely to receive financial coaching.
 
 **What to do:** Add the variable if measurable. Use fixed effects to absorb all stable unit-level confounders. Use IV, RDD, or DiD if the confound is unmeasurable (covered in Parts 2–6).
+:::
+
+::: {.callout-note icon=false}
+## Reviewer Challenge: Omitted Variable Bias
+
+> *"Your interpretation assumes you have controlled for all common causes of X and Y. What unmeasured variable could simultaneously predict your predictor and your outcome?"*
+
+**Pattern that invites the challenge:** When X and Y are both desirable outcomes (higher savings AND higher engagement; better decisions AND more information), reviewers will ask what stable individual characteristic could explain both.
+
+**What to show:** The OVB bias formula tells you the *direction* of the problem even without the data: Sign(Z→X) × Sign(Z→Y) = sign of your bias. Report this logic explicitly. If you have plausible confounders, bound the bias using coefficient stability (Oster, 2019) or sensitivity analysis (E-values).
 :::
 
 ---
@@ -166,12 +231,13 @@ X causes Y, but Y also causes X. The causal arrow runs in both directions, creat
 n_sim <- 300
 set.seed(42)
 
-# Social support → depression (negative), but depression → social withdrawal (negative)
-# Simulate equilibrium: both processes are real
+# Consumer trust → financial engagement (positive), but engagement → trust (positive)
+# Simulate equilibrium: customer who engages more trusts the institution more,
+# but the institution also targets more-trusting customers with higher engagement offers
 time_pts <- tibble(
-  t    = 1:10,
-  support = c(60, 55, 52, 50, 49, 48, 47, 47, 47, 47) + rnorm(10, 0, 2),
-  depression = c(30, 35, 38, 40, 41, 42, 43, 43, 43, 43) + rnorm(10, 0, 2)
+  t          = 1:10,
+  engagement = c(30, 35, 38, 40, 41, 42, 43, 43, 43, 43) + rnorm(10, 0, 2),
+  trust      = c(60, 55, 52, 50, 49, 48, 47, 47, 47, 47) + rnorm(10, 0, 2)
 )
 
 p_sim <- time_pts |>
@@ -179,8 +245,8 @@ p_sim <- time_pts |>
   ggplot(aes(x = t, y = value, color = name, group = name)) +
   geom_line(linewidth = 1.2) + geom_point(size = 2.5) +
   scale_color_manual(values = c("#e63946", "#1e3a5f"),
-                     labels = c("Depression", "Social Support")) +
-  labs(title = "Simultaneity: support → depression AND depression → support",
+                     labels = c("Platform Engagement", "Consumer Trust")) +
+  labs(title = "Simultaneity: trust → engagement AND engagement → trust",
        subtitle = "OLS on cross-sectional data picks up both arrows simultaneously",
        x = "Time", y = "Level", color = NULL) +
   theme_minimal(base_size = 13)
@@ -188,9 +254,9 @@ p_sim <- time_pts |>
 p_sim
 ```
 
-**Psychology example:** Social support reduces depression — but depression also causes people to withdraw from social networks. A cross-sectional regression of depression on social support picks up both directions simultaneously and gives a confounded estimate.
+**JDM example:** Consumer trust in a financial institution increases platform engagement — but engagement also builds trust (repeated positive experiences reinforce confidence). A cross-sectional regression of engagement on trust picks up both directions simultaneously and gives a confounded estimate.
 
-The same dynamic is common in consumer markets: advertising drives sales (brand awareness → purchase), but sales revenue funds advertising (revenue → ad budget). A cross-sectional regression of sales on advertising spending cannot identify whether awareness causes purchases or revenue enables advertising. Longitudinal designs with lagged predictors are required.
+The same dynamic appears in advertising: promotional messaging drives purchase intent (awareness → intention), but purchase history drives the volume of targeted promotions a customer receives (purchase history → ad targeting). A cross-sectional regression of purchase intent on messaging frequency cannot identify whether messaging causes intent or prior purchasing causes targeting. Longitudinal designs with lagged predictors are required.
 
 ::: {.callout-warning icon=false}
 ## Assumption: No Reverse Causality
@@ -203,19 +269,39 @@ The same dynamic is common in consumer markets: advertising drives sales (brand 
 - Use **cross-lagged panel models** (Module 4, Part 6) which model both causal arrows explicitly
 :::
 
+::: {.callout-note icon=false}
+## Reviewer Challenge: Reverse Causality
+
+> *"Your model assumes X causes Y, but couldn't Y cause X? What tells us the arrow runs in the direction you claim?"*
+
+**Pattern that invites the challenge:** Cross-sectional data, outcomes that could plausibly influence the predictor, or settings where timing is ambiguous (e.g., both variables are measured at the same moment).
+
+**What to show:** Lagged predictors ($X_{t-1}$ predicting $Y_t$) rule out same-period reverse causality. Natural experiments or randomized instruments that shift X but cannot respond to Y rule out the reverse path. The cross-lagged panel model (Module 4, Part 6) makes both causal arrows estimable.
+:::
+
 ---
 
 ## Source 3: Selection Effects
 
 The observations in your dataset are not a random sample of the population. Who ends up in your data — and which treatment they receive — is systematically related to both X and Y.
 
-**Self-selection:** People who choose to undergo therapy are systematically different from those who don't — they may be more motivated to change, have better social support, or have less severe disorders. Comparing therapy-goers to non-therapy-goers conflates the effect of therapy with all these pre-existing differences.
+**Self-selection:** Customers who choose to open a premium bank account are systematically different from those who don't — they may be more financially literate, more savings-oriented, or already wealthier. Comparing premium account holders to standard customers conflates the effect of the account type with all these pre-existing differences.
 
-**Survivorship bias:** You only observe firms that survived long enough to be in your dataset. Failed firms are absent. Conclusions about firm strategy drawn from survivors are biased because you are conditioning on survival.
+**Survivorship bias:** You only observe the financial products that survived long enough to be in your dataset. Products that were discontinued due to poor uptake are absent. Conclusions about product design drawn from current survivors are biased because you are conditioning on market survival.
 
-**Attrition in longitudinal studies:** Participants who drop out of a study are often systematically different from completers. If the sickest patients drop out of a clinical trial, the observed treatment effect among completers overstates the population-level effect.
+**Attrition in longitudinal studies:** Participants who drop out of a financial diary study are often systematically different from completers. If the most financially distressed households stop reporting because their situation is worsening, the observed trajectory among completers overstates average financial health improvement.
 
 This source of endogeneity is covered in depth in Part 3.
+
+::: {.callout-note icon=false}
+## Reviewer Challenge: Selection Effects
+
+> *"Who is in your sample, and why? Are the people you observed the same as the population your theory is about?"*
+
+**Pattern that invites the challenge:** Studies of platform users, program participants, survey respondents, or experimental volunteers — any setting where participation is voluntary or observable only for a subset.
+
+**What to show:** Compare baseline characteristics of participants to the eligible population (if known). Report participation rates. In longitudinal designs, compare baseline characteristics of completers to dropouts. If selective participation seems likely, use IPW (Module 3, Part 6) or bound the estimate under selection-on-observables.
+:::
 
 ---
 
@@ -293,6 +379,16 @@ The same logic applies any time you analyze a selected subset: only people who p
 **Common mistake:** "Kitchen sink" regressions that add every available covariate. If any of those covariates is a collider, adding it *creates* bias where none existed.
 :::
 
+::: {.callout-note icon=false}
+## Reviewer Challenge: Collider / Bad Control Bias
+
+> *"The variable you added to your model — are you sure it's a confounder and not a collider? Could controlling for it have opened a backdoor path rather than closed one?"*
+
+**Pattern that invites the challenge:** "Kitchen sink" regressions; controlling for behavioral outcomes that happen after X; restricting samples based on an outcome-related criterion (only analyzing purchasers, only active users, only completers).
+
+**What to show:** Draw the causal diagram. For every covariate included, confirm it is caused by neither X nor Y (confounder), not caused by both (collider), and not on the causal path from X to Y (mediator). If uncertain, run the analysis with and without the suspect variable.
+:::
+
 ---
 
 ## Pearl's Causal Framework: Three Types of Paths
@@ -300,6 +396,8 @@ The same logic applies any time you analyze a selected subset: only people who p
 Judea Pearl's causal graph (DAG) framework provides a systematic way to identify endogeneity. Every causal graph has three fundamental path structures:
 
 ```{r dag-structures}
+#| fig-width: 10
+#| fig-height: 4.5
 make_dag_panel <- function(nodes, edges_df, title, note = NULL) {
   p <- ggplot() +
     geom_point(data = nodes, aes(x = x, y = y), size = 18,
@@ -313,29 +411,39 @@ make_dag_panel <- function(nodes, edges_df, title, note = NULL) {
                       arrow = arrow(length = unit(0.25, "cm")),
                       color = edges_df$color[i], linewidth = 1.2)
   }
-  p + labs(title = title, subtitle = note) +
-    xlim(0.3, 3.7) + ylim(0.4, 2.6) + theme_void(base_size = 11) +
-    theme(plot.title = element_text(face = "bold", size = 11),
-          plot.subtitle = element_text(size = 9, color = "gray40"))
+  # Place note text inside the plot area (below nodes) — avoids patchwork overflow
+  if (!is.null(note)) {
+    p <- p + annotate("text", x = 2, y = 1.1, label = note,
+                      size = 2.55, color = "gray30", hjust = 0.5, vjust = 1,
+                      lineheight = 1.3)
+  }
+  p + labs(title = title) +
+    xlim(0.3, 3.7) + ylim(0.1, 2.8) + theme_void(base_size = 11) +
+    theme(plot.title = element_text(face = "bold", size = 11, hjust = 0.5,
+                                    margin = margin(b = 4)))
 }
 
-nodes_fork <- tibble(label = c("Z", "X", "Y"), x = c(2, 1, 3), y = c(2, 1, 1))
-edges_fork <- tibble(x1=c(1.8,2.2), x2=c(1.2,2.8), y1=c(1.9,1.9), y2=c(1.1,1.1),
-                     color = c("#e63946","#e63946"))
+# Nodes shifted upward so text annotation sits cleanly below them
+nodes_fork  <- tibble(label = c("Z", "X", "Y"), x = c(2, 1, 3), y = c(2.3, 1.6, 1.6))
+edges_fork  <- tibble(x1 = c(1.85, 2.15), x2 = c(1.2,  2.8),
+                      y1 = c(2.20, 2.20), y2 = c(1.70, 1.70),
+                      color = c("#e63946", "#e63946"))
 p_fork <- make_dag_panel(nodes_fork, edges_fork, "Fork (Confounder)",
-  "Z → X and Z → Y\nCreates spurious X-Y correlation\nExample: financial literacy (Z) → engagement\nwith disclosure format (X) and → risky choice (Y)\nFix: control for Z")
+  "Z → X  and  Z → Y\nCreates spurious X-Y correlation\nEx: literacy (Z) → disclosure (X)\n   and risky choice (Y)\nFix: control for Z")
 
-nodes_chain <- tibble(label = c("X", "M", "Y"), x = c(1, 2, 3), y = c(1, 1, 1))
-edges_chain <- tibble(x1=c(1.2,2.2), x2=c(1.8,2.8), y1=c(1,1), y2=c(1,1),
-                      color = c("#1e3a5f","#1e3a5f"))
+nodes_chain <- tibble(label = c("X", "M", "Y"), x = c(1, 2, 3), y = c(1.7, 1.7, 1.7))
+edges_chain <- tibble(x1 = c(1.2, 2.2), x2 = c(1.8, 2.8),
+                      y1 = c(1.7, 1.7), y2 = c(1.7, 1.7),
+                      color = c("#1e3a5f", "#1e3a5f"))
 p_chain <- make_dag_panel(nodes_chain, edges_chain, "Chain (Mediator)",
-  "X → M → Y\nM is on the causal path\nExample: default enrollment (X) → savings habit (M)\n→ long-term savings (Y)\nFix: do NOT control for M")
+  "X → M → Y\nM is on the causal path\nEx: auto-enroll (X) → savings habit (M)\n   → long-term savings (Y)\nFix: do NOT control for M")
 
-nodes_coll <- tibble(label = c("X", "C", "Y"), x = c(1, 2, 3), y = c(1, 1, 1))
-edges_coll <- tibble(x1=c(1.2,2.8), x2=c(1.8,2.2), y1=c(1,1), y2=c(1,1),
-                     color = c("#1e3a5f","#1e3a5f"))
+nodes_coll  <- tibble(label = c("X", "C", "Y"), x = c(1, 2, 3), y = c(1.7, 1.7, 1.7))
+edges_coll  <- tibble(x1 = c(1.2, 2.8), x2 = c(1.8, 2.2),
+                      y1 = c(1.7, 1.7), y2 = c(1.7, 1.7),
+                      color = c("#1e3a5f", "#1e3a5f"))
 p_coll <- make_dag_panel(nodes_coll, edges_coll, "Collider",
-  "X → C ← Y\nCondition on C = open backdoor\nExample: promotional sensitivity (X) →\nplatform activity (C) ← consumer wealth (Y)\nFix: do NOT control for C")
+  "X → C ← Y\nConditioning on C opens a backdoor\nEx: promo sensitivity (X) →\nplatform activity (C) ← wealth (Y)\nFix: do NOT control for C")
 
 p_fork + p_chain + p_coll
 ```

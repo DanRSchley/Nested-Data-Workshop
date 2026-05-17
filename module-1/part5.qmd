@@ -15,13 +15,21 @@ set.seed(42)
 
 # Three-Level Structures
 
+::: {.callout-note icon=false}
+## What Does a Third Level Add?
+
+- **Question:** When observations are nested in customers, and customers are nested in bank branches (or stores, regions, clinics), collapsing to two levels misattributes branch-level variance to customers — producing a biased ICC and wrong standard errors for any branch-level predictor.
+- **What goes wrong:** A two-level model treats all customer-level residuals as independent within the sample, ignoring the fact that customers at the same branch share their local economic environment, advisor quality, and program availability. Any branch-level variation ends up in the wrong variance component.
+- **The fix:** Add a third random intercept for branches — `(1 | branch/customer)` — so the model partitions variance correctly across all three levels. The branch ICC ($\text{ICC}_3$) becomes a scientific finding in its own right: it tells you how much branch-level factors shape customer outcomes.
+:::
+
 ## When Two Levels Aren't Enough
 
 Real data rarely comes in neat two-level packages. The nesting structures encountered in organizational research and experimental science are often deeper, and collapsing them to two levels misattributes variance in ways that affect both inference and interpretation.
 
 Three-level structures arise in two distinct research contexts:
 
-**Longitudinal organizational research.** Quarterly observations (L1) are nested within employees (L2), who are nested within organizations (L3). The ICC at L3 tells you how much organizations differ in employee outcomes — a direct measure of organizational-level influence. Ignoring the organizational level means assuming that all employees within the same firm are no more similar to each other than to employees at a different firm — an implausible assumption when organizations shape work environments, norms, policies, and resources.
+**Consumer panel data nested within service branches.** Monthly observations (L1) are nested within customers (L2), who are nested within bank branches (L3). The ICC at L3 tells you how much branches differ in customer financial outcomes — a direct measure of branch-level influence. Local economic conditions, advisor quality, branch program availability, and community effects all contribute to this branch-level variance. Ignoring the branch level means assuming that all customers within the same branch are no more similar to each other than customers at different branches — an implausible assumption when branches shape the advice received, the peers observed, and the local financial environment.
 
 **Multi-site experimental research.** Trials (L1) are nested within participants (L2), who are nested within labs or research sites (L3). The ICC at L3 tells you how much results vary across labs — a direct measure of the replication generalizability problem. A multi-site replication study — increasingly common in psychological science as a response to the replication crisis — is structurally a three-level model. Ignoring the lab level treats site-to-site variation as random noise attributable to participants or trials, misattributing variance and producing overconfident estimates.
 
@@ -47,53 +55,54 @@ $$Y_{ijk} = \underbrace{\delta_{000}}_{\text{grand mean}} + \underbrace{\beta_1 
 
 The total variance in $Y$ is $\sigma^2_v + \sigma^2_u + \sigma^2_e$, and each component can be expressed as a proportion of this total to obtain the ICCs.
 
-## Longitudinal Example — Employee Wellbeing Panel
+## Longitudinal Example — Consumer Savings Panel in Bank Branches
 
-**Design:** 6 organizations × 12 employees × 6 quarterly waves = 432 observations. The three levels are:
+**Design:** 8 bank branches × 15 customers × 6 monthly waves = 720 observations. The three levels are:
 
-- **Level 1:** quarterly observation (well-being score, workload)
-- **Level 2:** employee (random intercept per employee, nested within organization)
-- **Level 3:** organization (random intercept per organization)
+- **Level 1:** monthly observation (savings rate, disclosure engagement)
+- **Level 2:** customer (random intercept per customer, nested within branch)
+- **Level 3:** branch (random intercept per branch)
 
-**Research question:** How much of total well-being variance is attributable to organizational differences vs. employee-level stable differences vs. wave-to-wave fluctuation within employees?
+**Research question:** How much of total savings variance is attributable to branch-level differences vs. stable customer-level differences vs. month-to-month fluctuation within customers? And after partitioning variance, is within-customer disclosure engagement associated with higher savings?
 
 ```{r longitudinal-3level}
-n_orgs   <- 6
-n_emp    <- 12    # employees per organization
-n_waves  <- 6    # quarterly observations per employee
+n_branches  <- 8
+n_customers <- 15   # customers per branch
+n_waves     <- 6    # monthly observations per customer
 
-# Level-3 random effects (organization)
-org_effects <- rnorm(n_orgs, 0, 4)            # SD = 4 between organizations
+# Level-3 random effects (branch)
+branch_effects <- rnorm(n_branches, 0, 5)          # SD = 5 between branches
+                                                    # (local economy, advisor quality)
 
-# Level-2 random effects (employee within organization)
-emp_effects <- rnorm(n_orgs * n_emp, 0, 3)   # SD = 3 between employees within org
+# Level-2 random effects (customer within branch)
+cust_effects <- rnorm(n_branches * n_customers, 0, 4)  # SD = 4 between customers within branch
 
 df_3l <- expand_grid(
-  org      = 1:n_orgs,
-  employee = 1:n_emp,
+  branch   = 1:n_branches,
+  customer = 1:n_customers,
   wave     = 1:n_waves
 ) |>
   mutate(
-    emp_id    = (org - 1) * n_emp + employee,
-    workload  = rnorm(n(), mean = 50, sd = 10),
-    workload_c = workload - 50,
-    well_being = 60 +
-                 org_effects[org] +
-                 emp_effects[emp_id] +
-                 -0.2 * workload_c +
-                 rnorm(n(), 0, 4),          # SD = 4 within-employee
-    org    = factor(org,    labels = paste0("Org", 1:n_orgs)),
-    emp_id = factor(emp_id)
+    cust_id    = (branch - 1) * n_customers + customer,
+    disclosure = rnorm(n(), mean = 5, sd = 2),
+    disc_c     = disclosure - 5,
+    savings    = 25 +
+                 branch_effects[branch] +
+                 cust_effects[cust_id] +
+                 0.8 * disc_c +
+                 rnorm(n(), 0, 3),            # SD = 3 within-customer monthly noise
+    branch  = factor(branch,  labels = paste0("Branch",  1:n_branches)),
+    cust_id = factor(cust_id)
   )
 
-# Three-level model: waves within employees within organizations
-model_3l <- lmer(well_being ~ workload_c + (1 | org/emp_id),
+# Three-level model: waves within customers within branches
+model_3l <- lmer(savings ~ disc_c + (1 | branch/cust_id),
                  data = df_3l)
 
 summary(model_3l)
 ```
 
-The `(1 | org/emp_id)` shorthand is equivalent to `(1 | org) + (1 | emp_id:org)`. Both tell `lme4` to estimate a random intercept for each organization *and* for each employee *within* their organization.
+The `(1 | branch/cust_id)` shorthand is equivalent to `(1 | branch) + (1 | cust_id:branch)`. Both tell `lme4` to estimate a random intercept for each branch *and* for each customer *within* their branch.
 
 ```{r longitudinal-variance-decomp}
 vc_long <- as.data.frame(VarCorr(model_3l))
@@ -106,17 +115,17 @@ vc_long |>
   knitr::kable(
     digits  = 2,
     col.names = c("Level", "Variance", "% of Total"),
-    caption = "Variance decomposition: employee well-being panel"
+    caption = "Variance decomposition: customer savings panel within branches"
   )
 ```
 
 **Reading the variance components:**
 
-- `org`: How much of total well-being variance is explained by *which organization* an employee works for? This is the organization-level ICC (ICC$_3$).
-- `emp_id:org`: How much is explained by stable differences *between employees* within the same organization?
-- `Residual`: How much is wave-to-wave fluctuation *within the same employee* — the portion that varies over time.
+- `branch`: How much of total savings variance is explained by *which branch* a customer belongs to? This is the branch-level ICC (ICC$_3$). It captures local economic conditions, advisor quality, branch program availability, and community savings norms.
+- `cust_id:branch`: How much is explained by stable differences *between customers* within the same branch — persistent individual differences in income, financial habits, risk tolerance.
+- `Residual`: How much is month-to-month fluctuation *within the same customer* — the portion that varies over time and could be affected by disclosure engagement.
 
-A large org-level ICC (ICC$_3 > 0.10$) means organizations matter substantially for employee well-being — suggesting organization-level interventions (management practices, structural policies) are warranted, not just individual-level ones.
+A large branch-level ICC (ICC$_3 > 0.10$) means branches matter substantially for customer savings — suggesting branch-level interventions (coaching quality, program design, community outreach) have real impact beyond individual-level characteristics.
 
 ## Experimental Example — Multi-Lab Replication Study
 
@@ -203,7 +212,7 @@ The difference $\text{ICC}_2 - \text{ICC}_3$ is the variance *uniquely* attribut
 icc_long <- icc(model_3l)
 icc_exp  <- icc(model_multilab)
 
-cat("=== Longitudinal panel (well-being) ===\n")
+cat("=== Longitudinal consumer panel (savings) ===\n")
 print(icc_long)
 
 cat("\n=== Experimental multi-lab replication ===\n")
@@ -224,8 +233,8 @@ make_varpart_df <- function(model, labels, design) {
 
 vp_long <- make_varpart_df(
   model_3l,
-  labels = c("Organization (L3)", "Employee (L2)", "Occasion (L1)"),
-  design = "Longitudinal"
+  labels = c("Branch (L3)", "Customer (L2)", "Month (L1)"),
+  design = "Longitudinal (Consumer Panel)"
 )
 
 vp_exp <- make_varpart_df(
@@ -240,7 +249,7 @@ p_vp_long <- ggplot(vp_long, aes(x = "", y = pct, fill = factor(level, levels = 
   geom_col(width = 0.5, color = "white") +
   scale_fill_manual(values = c("#d4e6f1", "#457b9d", "#1e3a5f")) +
   scale_y_continuous(labels = scales::percent) +
-  labs(title = "Longitudinal", y = "% of variance", x = NULL, fill = "Level") +
+  labs(title = "Consumer Panel (branches)", y = "% of variance", x = NULL, fill = "Level") +
   theme_minimal(base_size = 12) +
   theme(legend.position = "bottom")
 
@@ -260,28 +269,29 @@ p_vp_long + p_vp_exp +
 
 Three-level models allow testing whether higher-level variables moderate lower-level effects — some of the most theoretically interesting questions in multilevel research.
 
-### Longitudinal: Does organizational culture moderate workload → well-being?
+### Longitudinal: Does branch coaching intensity moderate disclosure → savings?
 
-**Hypothesis:** In more authoritarian organizations (top-down management, low autonomy), the negative effect of workload on well-being may be steeper than in more egalitarian organizations where employees can modulate their own workload.
+**Hypothesis:** In branches with intensive financial coaching programs (high-touch advisors, regular follow-ups), the positive effect of disclosure engagement on savings may be stronger — because the advice is reinforced by personal contact. In low-touch branches, disclosure alone may not be enough to change behaviour.
 
 ```{r cross-level-long}
-# Add L3 predictor: org type (1 = authoritarian, 0 = egalitarian)
+# Add L3 predictor: branch coaching intensity (1 = high-touch, 0 = standard)
 df_3l <- df_3l |>
-  group_by(org) |>
-  mutate(org_type = if_else(org %in% c("Org1", "Org2", "Org3"), 1L, 0L)) |>
+  group_by(branch) |>
+  mutate(high_touch = if_else(branch %in% c("Branch1", "Branch2", "Branch3", "Branch4"),
+                              1L, 0L)) |>
   ungroup()
 
-model_cli <- lmer(well_being ~ workload_c * org_type + (1 | org/emp_id),
+model_cli <- lmer(savings ~ disc_c * high_touch + (1 | branch/cust_id),
                   data = df_3l)
 
 broom.mixed::tidy(model_cli, effects = "fixed") |>
   knitr::kable(
     digits  = 3,
-    caption = "Cross-level interaction: org type × workload → well-being"
+    caption = "Cross-level interaction: branch coaching intensity × disclosure → savings"
   )
 ```
 
-The interaction term `workload_c:org_type` tests whether the workload slope differs between authoritarian and egalitarian organizations. A significant negative coefficient would indicate that workload is more damaging in authoritarian organizations — where employees lack the autonomy to buffer its impact.
+The interaction term `disc_c:high_touch` tests whether the disclosure slope differs between high-touch and standard branches. A significant positive coefficient would indicate that disclosure is more effective in high-touch branches — the behavioural change from reading the document is amplified by concurrent personal coaching.
 
 ### Experimental: Does lab context moderate the scarcity effect?
 
@@ -338,7 +348,7 @@ ggplot(pred_df, aes(x = condition, y = predicted,
 
 **Heisig & Schaeffer (2019)** showed that when a cross-level interaction involves a level-1 predictor, you must include a random slope for that predictor to obtain unbiased estimates of the interaction. Without the random slope, the cross-level interaction estimate absorbs variance that should be attributed to individual-level heterogeneity.
 
-In practice: if you include `workload_c * org_type`, you should also include `(workload_c | org)` or at minimum allow the workload slope to vary across organizations. This model requires more data to estimate reliably, but it is the correctly specified model.
+In practice: if you include `disc_c * high_touch`, you should also include `(disc_c | branch/cust_id)` or at minimum allow the disclosure slope to vary across branches. This model requires more data to estimate reliably, but it is the correctly specified model.
 :::
 
 ## Assumptions of Three-Level Models
@@ -348,17 +358,17 @@ All two-level model assumptions carry over — normality of random effects at ea
 ::: {.callout-warning icon=false}
 ## Assumption 1: Correct Level Specification
 
-**What it means:** The model must correctly identify which units belong to which level. If employees are incorrectly assigned to organizations (data entry errors, employees who move between organizations mid-study), variance components will be misattributed between levels.
+**What it means:** The model must correctly identify which units belong to which level. If customers are incorrectly assigned to branches (data linkage errors, customers who switch branches mid-study), variance components will be misattributed between levels.
 
 **In experimental designs:** Participants must be uniquely and correctly assigned to labs. Cross-site contamination — participants completing a study at one lab but attributed to another — corrupts the level-3 variance estimate.
 
 **How to check:** Cross-tabulate your level-2 and level-3 identifiers. In a pure nested hierarchy, each level-2 unit belongs to exactly one level-3 unit. Any rows returned below signal a cross-classified or misassigned structure.
 
 ```{r level-check}
-# Longitudinal: each employee should belong to exactly one organization
+# Longitudinal: each customer should belong to exactly one branch
 df_3l |>
-  distinct(emp_id, org) |>
-  group_by(emp_id) |>
+  distinct(cust_id, branch) |>
+  group_by(cust_id) |>
   filter(n() > 1)   # should return 0 rows
 
 # Experimental: each participant should belong to exactly one lab
@@ -368,7 +378,7 @@ df_multilab |>
   filter(n() > 1)   # should return 0 rows
 ```
 
-Zero rows confirms a clean nested hierarchy. If rows appear, you have a cross-classified structure requiring a different model specification (e.g., `(1 | org) + (1 | emp_id)` instead of `(1 | org/emp_id)`).
+Zero rows confirms a clean nested hierarchy. If rows appear, you have a cross-classified structure requiring a different model specification (e.g., `(1 | branch) + (1 | cust_id)` instead of `(1 | branch/cust_id)`).
 :::
 
 ::: {.callout-warning icon=false}
@@ -376,19 +386,19 @@ Zero rows confirms a clean nested hierarchy. If rows appear, you have a cross-cl
 
 **What it means:** Variance components at higher levels require sufficient numbers of higher-level units to be estimated reliably. With only 5 labs or 6 organizations, the level-3 variance estimate is extremely noisy — confidence intervals for $\sigma^2_v$ will be very wide.
 
-**Why it matters:** Type I error rates for fixed effects are also affected. With very few level-3 units, the degrees of freedom for organization- or lab-level effects are essentially the number of level-3 units minus the number of predictors at that level.
+**Why it matters:** Type I error rates for fixed effects are also affected. With very few level-3 units, the degrees of freedom for branch- or lab-level effects are essentially the number of level-3 units minus the number of predictors at that level.
 
 **How to check:** Count units at each level explicitly.
 
 ```{r sample-size-check}
-cat("=== Longitudinal design ===\n")
-cat("Organizations (L3):", n_distinct(df_3l$org), "\n")
-cat("Employees per org (avg):",
-    round(nrow(distinct(df_3l, org, emp_id)) / n_distinct(df_3l$org), 1), "\n")
-cat("Waves per employee (avg):",
-    round(nrow(df_3l) / nrow(distinct(df_3l, emp_id)), 1), "\n")
+cat("=== Longitudinal consumer panel design ===\n")
+cat("Branches (L3):", n_distinct(df_3l$branch), "\n")
+cat("Customers per branch (avg):",
+    round(nrow(distinct(df_3l, branch, cust_id)) / n_distinct(df_3l$branch), 1), "\n")
+cat("Waves per customer (avg):",
+    round(nrow(df_3l) / nrow(distinct(df_3l, cust_id)), 1), "\n")
 
-cat("\n=== Experimental design ===\n")
+cat("\n=== Experimental multi-lab design ===\n")
 cat("Labs (L3):", n_distinct(df_multilab$lab), "\n")
 cat("Participants per lab (avg):",
     round(nrow(distinct(df_multilab, lab, par_id)) / n_distinct(df_multilab$lab), 1), "\n")
@@ -424,33 +434,34 @@ One major advantage of three-level models is the ability to include predictors a
 ### Longitudinal Setting
 
 ```{r longitudinal-predictors}
-# Add employee-level predictor (L2): job tenure
-# Add organization-level predictor (L3): org size (large vs. small)
+# Add customer-level predictor (L2): account tenure (years with bank)
+# Add branch-level predictor (L3): branch urban vs. rural location
 set.seed(42)
 
 df_3l <- df_3l |>
-  group_by(org) |>
-  mutate(org_size = if_else(org %in% c("Org1", "Org2", "Org3"), 1L, 0L)) |>
+  group_by(branch) |>
+  mutate(urban = if_else(branch %in% c("Branch1", "Branch2", "Branch3", "Branch4"),
+                         1L, 0L)) |>
   ungroup()
 
 df_3l <- df_3l |>
-  group_by(org, emp_id) |>
-  mutate(tenure = round(runif(1, 1, 20), 0)) |>
+  group_by(branch, cust_id) |>
+  mutate(acct_tenure = round(runif(1, 1, 15), 0)) |>   # years with bank
   ungroup()
 
 model_3l_pred <- lmer(
-  well_being ~ workload_c + tenure + org_size + (1 | org/emp_id),
+  savings ~ disc_c + acct_tenure + urban + (1 | branch/cust_id),
   data = df_3l
 )
 
 broom.mixed::tidy(model_3l_pred, effects = "fixed") |>
   knitr::kable(
     digits  = 3,
-    caption = "Three-level panel model with L1 (workload), L2 (tenure), and L3 (org size) predictors"
+    caption = "Three-level panel model with L1 (disclosure), L2 (account tenure), L3 (urban/rural) predictors"
   )
 ```
 
-Each fixed effect is estimated controlling for the others: the workload effect is within-employee, the tenure effect is between-employees within the same organization, and the org-size effect is between organizations.
+Each fixed effect is estimated controlling for the others: the disclosure effect is within-customer, the account-tenure effect is between-customers within the same branch, and the urban/rural effect is between branches.
 
 ### Experimental Setting
 
@@ -480,6 +491,19 @@ broom.mixed::tidy(model_multilab_pred, effects = "fixed") |>
 ```
 
 The model simultaneously estimates the scarcity effect (within participants across trials), the cognitive ability effect (between participants within labs), and the lab prestige effect (between labs) — each adjusted for the other two levels.
+
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions About Your Three-Level Model
+
+**Challenge 1 — "How precise is your branch-level ICC?"**
+With only 8 branches, the branch-level variance ($\hat\sigma_v^2$) is estimated from 8 data points. Confidence intervals for the ICC at level 3 will be very wide. A reviewer will note this and may ask for a sensitivity analysis — reporting how your fixed-effect estimates change if you instead treat branches as fixed effects (branch dummies) rather than a random effect. If the coefficient on your focal predictor (disclosure engagement) shifts substantially, the branch-level random effect is doing a lot of heavy lifting and deserves scrutiny.
+
+**Challenge 2 — "Is the cross-level interaction identified?"**
+The interaction between disclosure engagement (L1) and branch coaching intensity (L3) claims that the disclosure slope is moderated by a branch-level characteristic. But there are only 8 branches — 4 high-touch and 4 standard. With 4 data points per group at L3, detecting a genuine interaction requires strong effect sizes. Reviewers will ask whether the interaction is robust to removing any single branch from the analysis (leave-one-branch-out sensitivity), and whether the pattern is consistent with the individual branch means rather than driven by one outlier branch.
+
+**Challenge 3 — "Did you include the L2 random slope for the cross-level interaction?"**
+Heisig & Schaeffer (2019) showed that cross-level interactions involving a L1 predictor must include a random slope for that predictor at L2, otherwise the interaction estimate is biased. If you include `disc_c * high_touch` but not `(disc_c | branch/cust_id)`, you are assuming that every customer's disclosure sensitivity is identical within branches — which contradicts the premise of the interaction. A reviewer who knows this literature will ask why the full random slope was not included.
+:::
 
 ## Recommended Reading
 

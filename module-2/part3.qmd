@@ -12,87 +12,102 @@ set.seed(42)
 
 # Simpson's Paradox
 
+::: {.callout-note icon=false}
+## When the Pooled Relationship Tells the Opposite Story
+
+- **Question:** When consumers who receive more promotions are systematically from price-sensitive segments (lower baseline WTP), does pooling across segments tell you whether promotions work?
+- **What goes wrong:** The pooled regression picks up the between-segment confound — price-sensitive segments receive more promotions AND have lower WTP — and reports a negative promotion effect. Within every segment, promotions increase purchase intent. The pooled estimate is wrong in both sign and magnitude.
+- **The fix:** Decompose the analysis: compare the pooled slope to the within-cluster slope. If they differ in sign, you have a Simpson's Paradox. Use a mixed model or CMC decomposition (Module 2 Parts 1–2) that estimates the within-cluster effect separately from the between-cluster confound.
+:::
+
 ## When the Aggregate Lies
 
 Simpson's Paradox occurs when a relationship that exists in the aggregate data *reverses* (or dramatically changes) when you look within subgroups. It is not a statistical quirk — it is a direct consequence of ignoring nesting, and it is surprisingly common in social science data.
 
 This chapter demonstrates Simpson's Paradox in three distinct research contexts:
 
-1. **Cross-sectional nesting** — the classic case: students nested in programs
+1. **Cross-sectional nesting** — consumers nested in market segments
 2. **Longitudinal panel data** — the within vs. between paradox: income and life satisfaction
-3. **Within-subjects experiments** — the stimulus confound: memory and emotional valence
+3. **Within-subjects experiments** — the stimulus confound: WTP and fee transparency
 
 Each context has a different structural cause and a different remedy. Together, they establish a single diagnostic principle: **always decompose before you report**.
 
 ---
 
-## Context 1: Cross-Sectional Nesting — The Classic Case
+## Context 1: Cross-Sectional Nesting — JDM Version
 
-### The Programs × Study Hours Example
+### The Consumer Segments × Promotional Messaging Example
 
-Students in harder academic programs study more AND receive lower grades — because the programs are harder, not because studying hurts. When you pool across programs, the between-program confound dominates the within-program relationship.
+Price-sensitive consumer segments receive more promotional messages AND have lower average purchase intent — not because promotions reduce intent, but because the segments are price-sensitive by nature (low brand loyalty, high price elasticity). Within every segment, consumers who receive more promotional messages show higher purchase intent. The pooled analysis reverses the sign.
 
 ```{r cross-sectional-sim}
-n_students  <- 200
-n_programs  <- 5
+n_consumers  <- 200
+n_segments   <- 5
 
-program_difficulty <- c(2, 4, 6, 8, 10)   # harder programs lower average grades
-program_study_avg  <- c(8, 7, 6, 5, 4)    # harder programs, students study more
+# Budget → Premium segments: high promo exposure AND low purchase intent → low promo AND high intent
+seg_promo_avg    <- c(22, 17, 13, 9, 5)     # avg promo messages/month
+seg_intent_base  <- c(28, 36, 46, 55, 62)   # baseline purchase intent (%) — loyalty proxy
 
-students <- tibble(
-  student  = 1:n_students,
-  program  = rep(1:n_programs, each = n_students / n_programs),
-  study    = program_study_avg[program] + rnorm(n_students, 0, 0.8),
-  grade    = 80 - 3 * program_difficulty[program] +
-             2 * (study - program_study_avg[program]) +
-             rnorm(n_students, 0, 3),
-  program_label = factor(program, labels = paste("Program", 1:n_programs))
-)
+df_consumers <- tibble(
+  consumer = 1:n_consumers,
+  segment  = rep(1:n_segments, each = n_consumers / n_segments)
+) |>
+  mutate(
+    promo_msgs   = seg_promo_avg[segment] + rnorm(n_consumers, 0, 3),
+    # Within-segment: more promo than usual → higher intent (promotions work)
+    purch_intent = seg_intent_base[segment] +
+                   1.8 * (promo_msgs - seg_promo_avg[segment]) +
+                   rnorm(n_consumers, 0, 5),
+    seg_label    = factor(segment,
+                          labels = c("Budget", "Value", "Mixed", "Lifestyle", "Premium"))
+  )
 ```
 
 ```{r cross-sectional-plot}
-p_pooled <- ggplot(students, aes(x = study, y = grade)) +
-  geom_point(aes(color = program_label), alpha = 0.5) +
+p_pooled <- ggplot(df_consumers, aes(x = promo_msgs, y = purch_intent)) +
+  geom_point(aes(color = seg_label), alpha = 0.5) +
   geom_smooth(method = "lm", color = "black", linewidth = 1.5) +
   scale_color_brewer(palette = "Set1") +
-  labs(title = "Pooled: studying MORE predicts LOWER grades?!",
-       x = "Study hours/week", y = "Grade", color = "Program") +
+  labs(title = "Pooled: more promotions → LOWER purchase intent?!",
+       subtitle = "Pooled slope is negative — a sign reversal",
+       x = "Promotional messages/month", y = "Purchase intent (%)", color = "Segment") +
   theme_minimal(base_size = 12)
 
-p_within <- ggplot(students, aes(x = study, y = grade, color = program_label)) +
+p_within <- ggplot(df_consumers, aes(x = promo_msgs, y = purch_intent, color = seg_label)) +
   geom_point(alpha = 0.4) +
   geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
   scale_color_brewer(palette = "Set1") +
-  labs(title = "Within program: studying MORE predicts HIGHER grades",
-       x = "Study hours/week", y = "Grade", color = "Program") +
+  labs(title = "Within segment: more promotions → HIGHER purchase intent",
+       subtitle = "Within every segment, promotions increase intent",
+       x = "Promotional messages/month", y = "Purchase intent (%)", color = "Segment") +
   theme_minimal(base_size = 12)
 
 p_pooled / p_within
 ```
 
-The pooled slope is negative: students who study more get lower grades. The truth: students in harder programs both study more AND earn lower grades — *because the programs are harder*. Within any given program, studying more helps. The aggregate correlation is driven entirely by the confound between program difficulty and study time.
+The pooled slope is negative: consumers who receive more promotional messages show lower purchase intent. The truth: budget segments receive the most promotions AND have the lowest baseline loyalty — not because promotions destroy intent, but because marketers target price-sensitive customers with promotions. Within any given segment, promotions work. The aggregate correlation is driven entirely by the confound between segment type and promotional targeting.
 
-**The fix:** Use a mixed model that explicitly estimates the within-program effect:
+**The fix:** Use a mixed model that explicitly estimates the within-segment effect:
 
 ```{r cross-sectional-models}
-m_pooled <- lm(grade ~ study, data = students)
-m_mixed  <- lmer(grade ~ study + (1 | program_label), data = students)
+m_pooled_cs <- lm(purch_intent ~ promo_msgs, data = df_consumers)
+m_mixed_cs  <- lmer(purch_intent ~ promo_msgs + (1 | seg_label), data = df_consumers)
 
 tibble(
-  Model         = c("Pooled OLS", "Mixed model (within-program)"),
-  Study_coeff   = c(coef(m_pooled)["study"],
-                    fixef(m_mixed)["study"]),
+  Model         = c("Pooled OLS", "Mixed model (within-segment)"),
+  Promo_coeff   = c(coef(m_pooled_cs)["promo_msgs"],
+                    fixef(m_mixed_cs)["promo_msgs"]),
   Direction     = c("Negative (wrong)", "Positive (correct)")
 ) |>
   knitr::kable(digits = 3,
-               caption = "Study hours coefficient: pooled vs. within-program")
+               caption = "Promotional messaging coefficient: pooled vs. within-segment")
 ```
 
 ### Real-World Examples of Cross-Sectional Simpson's Paradox
 
 **Berkeley admissions (1973):** Across departments, women were admitted at lower rates than men. Within departments, women were admitted at the same or higher rates. The paradox arose because women applied disproportionately to competitive departments.
 
-**COVID-19 mortality:** In some early analyses, countries with more advanced healthcare appeared to have higher mortality rates. Within matched patient groups (controlling for age and severity), better healthcare reduced mortality. The aggregate correlation was driven by age confounds.
+**Bank loan defaults:** Branches in economically distressed areas have higher default rates AND also offer more financial coaching programs (targeted at at-risk customers). Pooled: coaching → higher defaults. Within branches: coaching → lower defaults. The confound is branch economic context.
 
 **Wages across demographic groups:** Total wages can fall for every group while rising in the aggregate, if people are shifting from lower-paid to higher-paid occupations.
 
@@ -223,15 +238,15 @@ In any longitudinal analysis, run both pooled OLS and a within-person model (fix
 
 ## Context 3: Within-Subjects Experiments — The Stimulus Confound
 
-### Memory, Emotional Valence, and Concrete Words
+### Fee Transparency, WTP, and Brand Familiarity
 
 Simpson's Paradox can appear even in experiments when stimuli are not properly counterbalanced — when certain conditions happen to receive stimuli that systematically differ on a key attribute.
 
-**The scenario:** A researcher tests whether *positive emotional content* improves memory recall. 50 participants each study 30 stimuli: 15 positive-valence words and 15 neutral-valence words.
+**The scenario:** A researcher tests whether *transparent fee disclosure* increases willingness to pay (WTP) for financial products. 50 consumers each evaluate 30 products: 15 displayed with full fee transparency and 15 with standard (opaque) disclosure.
 
-**The flaw:** Positive stimuli happen to be more *concrete* (higher imageability — easier to visualize: "puppy", "sunset", "garden"). Neutral stimuli are more abstract ("justice", "theory", "process"). Concreteness is a well-established predictor of memory — concrete words are better recalled regardless of valence.
+**The flaw:** Products assigned to the transparent condition happen to be from *well-known brands* (higher brand familiarity). Products in the opaque condition are from lesser-known providers. Brand familiarity is a well-established driver of WTP — consumers pay more for brands they recognise, regardless of disclosure format.
 
-**The result:** Pooled across participants, positive words are better recalled. But this is entirely because they are more concrete. Within each concreteness level, valence has NO effect on recall. This is Simpson's Paradox at the stimulus level.
+**The result:** Pooled across consumers, transparent products attract higher WTP. But this is entirely because they are better-known brands. Within each level of brand familiarity, disclosure format has NO effect on WTP. This is Simpson's Paradox at the product level.
 
 ```{r experiment-sim}
 n_par  <- 50
@@ -239,17 +254,17 @@ n_stim <- 30
 
 par_effects  <- rnorm(n_par,  0, 5)
 stim_effects <- rnorm(n_stim, 0, 4)
-valence      <- rep(c(0, 1), times = n_stim / 2)   # 0 = neutral, 1 = positive
-concreteness <- 3 + 2 * valence + rnorm(n_stim, 0, 1)  # confound: positive = more concrete
+transparent  <- rep(c(0, 1), times = n_stim / 2)   # 0 = opaque, 1 = transparent
+brand_fam    <- 3 + 2 * transparent + rnorm(n_stim, 0, 1)  # confound: transparent = better-known brands
 
 df_exp_sp <- expand_grid(participant = 1:n_par, stimulus = 1:n_stim) |>
   mutate(
-    par_eff  = par_effects[participant],
-    stim_eff = stim_effects[stimulus],
-    val_s    = valence[stimulus],
-    conc_s   = concreteness[stimulus],
-    # True DGP: concreteness matters; valence has NO direct effect
-    recall   = 50 + par_eff + stim_eff + 2 * conc_s + rnorm(n(), 0, 3),
+    par_eff   = par_effects[participant],
+    stim_eff  = stim_effects[stimulus],
+    transp_s  = transparent[stimulus],
+    brand_s   = brand_fam[stimulus],
+    # True DGP: brand familiarity drives WTP; transparency has NO direct effect
+    wtp       = 50 + par_eff + stim_eff + 2 * brand_s + rnorm(n(), 0, 3),
     participant = factor(participant),
     stimulus    = factor(stimulus)
   )
@@ -258,76 +273,76 @@ df_exp_sp <- expand_grid(participant = 1:n_par, stimulus = 1:n_stim) |>
 ### Fitting the Wrong and Correct Models
 
 ```{r experiment-models}
-# Wrong model: ignores stimulus-level confound and stimulus random effects
-m_wrong   <- lmer(recall ~ val_s + (1 | participant),
+# Wrong model: ignores product-level confound and stimulus random effects
+m_wrong   <- lmer(wtp ~ transp_s + (1 | participant),
                   data = df_exp_sp)
 
-# Correct model: controls for concreteness + crossed stimulus RE
-m_correct <- lmer(recall ~ val_s + conc_s + (1 | participant) + (1 | stimulus),
+# Correct model: controls for brand familiarity + crossed stimulus RE
+m_correct <- lmer(wtp ~ transp_s + brand_s + (1 | participant) + (1 | stimulus),
                   data = df_exp_sp)
 
-# Compare valence coefficients
+# Compare transparency coefficients
 tidy_wrong   <- broom.mixed::tidy(m_wrong,   effects = "fixed")
 tidy_correct <- broom.mixed::tidy(m_correct, effects = "fixed")
 
 bind_rows(
-  tidy_wrong   |> filter(term == "val_s") |>
-    mutate(model = "Wrong (no concreteness, no stimulus RE)"),
-  tidy_correct |> filter(term == "val_s") |>
-    mutate(model = "Correct (concreteness + stimulus RE)")
+  tidy_wrong   |> filter(term == "transp_s") |>
+    mutate(model = "Wrong (no brand familiarity control, no stimulus RE)"),
+  tidy_correct |> filter(term == "transp_s") |>
+    mutate(model = "Correct (brand familiarity + stimulus RE)")
 ) |>
   select(model, estimate, std.error, statistic) |>
   knitr::kable(digits = 3,
-               caption = "Valence coefficient: false positive vs. null result (statistic = t-value)")
+               caption = "Fee transparency coefficient: false positive vs. null result (statistic = t-value)")
 ```
 
-The wrong model finds a statistically significant positive valence effect. The correct model — which includes concreteness as a covariate and crossed stimulus random effects — shows that valence has no effect. The apparent memory advantage of positive words disappears entirely once the concreteness confound is controlled.
+The wrong model finds a statistically significant positive transparency effect — concluding that fee disclosure increases WTP. The correct model — which includes brand familiarity as a covariate and crossed product random effects — shows that transparency has no effect. The apparent WTP premium for transparent products disappears entirely once the brand familiarity confound is controlled.
 
 ### Visualizing the Stimulus Confound
 
 ```{r experiment-plot}
 stimulus_summary <- df_exp_sp |>
-  mutate(valence_label = ifelse(val_s == 1, "positive", "neutral")) |>
-  group_by(stimulus, valence_label, conc_s) |>
-  summarise(mean_recall = mean(recall), .groups = "drop")
+  mutate(disclosure_label = ifelse(transp_s == 1, "transparent", "opaque")) |>
+  group_by(stimulus, disclosure_label, brand_s) |>
+  summarise(mean_wtp = mean(wtp), .groups = "drop")
 
-p_valence_raw <- ggplot(stimulus_summary,
-                        aes(x = valence_label, y = mean_recall,
-                            color = valence_label)) +
+p_disclosure_raw <- ggplot(stimulus_summary,
+                            aes(x = disclosure_label, y = mean_wtp,
+                                color = disclosure_label)) +
   geom_jitter(width = 0.1, alpha = 0.6, size = 2) +
   stat_summary(fun = mean, geom = "crossbar", width = 0.3, linewidth = 0.8) +
-  scale_color_manual(values = c("positive" = "#d73027", "neutral" = "#4393c3")) +
-  labs(title = "Apparent effect: positive words recalled more",
-       subtitle = "This looks like a valence effect...",
-       x = "Valence", y = "Mean recall", color = NULL) +
+  scale_color_manual(values = c("transparent" = "#d73027", "opaque" = "#4393c3")) +
+  labs(title = "Apparent effect: transparent products attract higher WTP",
+       subtitle = "This looks like a disclosure effect...",
+       x = "Disclosure format", y = "Mean WTP (\u20ac)", color = NULL) +
   theme_minimal(base_size = 12) +
   theme(legend.position = "none")
 
-p_concreteness <- ggplot(stimulus_summary,
-                         aes(x = conc_s, y = mean_recall,
-                             color = valence_label)) +
+p_brand <- ggplot(stimulus_summary,
+                  aes(x = brand_s, y = mean_wtp,
+                      color = disclosure_label)) +
   geom_point(alpha = 0.7, size = 2) +
   geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
-  scale_color_manual(values = c("positive" = "#d73027", "neutral" = "#4393c3")) +
-  labs(title = "True structure: concreteness drives recall",
-       subtitle = "...but both lines have the same slope; valence just shifts concreteness",
-       x = "Concreteness (imageability)", y = "Mean recall",
-       color = "Valence") +
+  scale_color_manual(values = c("transparent" = "#d73027", "opaque" = "#4393c3")) +
+  labs(title = "True structure: brand familiarity drives WTP",
+       subtitle = "...but both lines have the same slope; disclosure just shifts brand familiarity",
+       x = "Brand familiarity", y = "Mean WTP (\u20ac)",
+       color = "Disclosure") +
   theme_minimal(base_size = 12)
 
-p_valence_raw | p_concreteness
+p_disclosure_raw | p_brand
 ```
 
-The right panel is diagnostic: the two regression lines (positive and neutral) are nearly parallel — same slope for concreteness — and the gap between them narrows within each concreteness band. Positive words appear higher overall only because they occupy higher positions on the concreteness axis.
+The right panel is diagnostic: the two regression lines (transparent and opaque) are nearly parallel — same slope for brand familiarity — and the gap between them narrows within each familiarity band. Transparent products appear higher overall only because they occupy higher positions on the brand familiarity axis.
 
 ### Why This Is Simpson's Paradox
 
-Within each concreteness level, positive and neutral stimuli have the same recall. But pooled across all stimuli, positive words look better because they happen to be more concrete. This is precisely the Simpson's Paradox structure: the within-group relationship (null) and the aggregate relationship (positive) point in different directions.
+Within each level of brand familiarity, transparent and opaque products attract the same WTP. But pooled across all products, transparent products look better because they happen to be well-known brands. This is precisely the Simpson's Paradox structure: the within-group relationship (null) and the aggregate relationship (positive) point in different directions.
 
 ### The Fix
 
-1. **Design solution:** Properly counterbalance stimuli across conditions — match positive and neutral words on concreteness, length, frequency, arousal, and other relevant attributes. This removes the confound at the data collection stage.
-2. **Analysis solution:** Include crossed stimulus random effects (Module 1 Part 6) and known stimulus attributes as covariates. This partials out the stimulus-level confound after the fact — but requires that the confounding attribute was measured.
+1. **Design solution:** Properly counterbalance products across disclosure conditions — match transparent and opaque products on brand familiarity, product category, price range, and other relevant attributes. This removes the confound at the data collection stage.
+2. **Analysis solution:** Include crossed product random effects (Module 1 Part 6) and known product attributes as covariates. This partials out the product-level confound after the fact — but requires that the confounding attribute was measured.
 
 ---
 
@@ -367,19 +382,33 @@ Before reporting any correlation or regression coefficient from nested data, ask
 If not, you are reporting a Simpson's Paradox. The CMC/GMC decomposition (Module 2) is the systematic fix.
 :::
 
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions About Aggregation Bias
+
+**Challenge 1 — "Does your pooled result replicate within every subgroup?"**
+The clearest diagnostic for Simpson's Paradox is to plot the relationship separately for each cluster (segment, branch, participant group) and compare to the pooled slope. If the within-cluster slopes all point opposite to the pooled slope, you have a paradox. A reviewer will ask: "Among all the consumer segments you studied, did promotions increase purchase intent within any of them? Or only in the aggregate?" Have a segment-by-segment breakdown ready.
+
+**Challenge 2 — "What is the confounding variable at the cluster level?"**
+Simpson's Paradox always has a structural cause — a between-cluster characteristic that correlates with both the predictor and the outcome. For the consumer segments example, it is segment price-sensitivity: budget segments receive more promotions AND have lower loyalty. For the Easterlin paradox, it is stable personality and circumstance. A reviewer will ask you to name the confound and justify why you believe it operates at the cluster level rather than the individual level. If you cannot name it, the reviewer may suspect unmeasured omitted variables.
+
+**Challenge 3 — "Does controlling for the between-cluster confound change your conclusion?"**
+If the within-cluster effect of promotions on purchase intent is positive (+1.8 per message), but the between-cluster relationship is negative (budget segments have high promo AND low intent), a reviewer will ask: when you control for segment-level characteristics (average income, price elasticity, brand loyalty) as fixed effects, does the within-cluster effect remain positive and significant? If it collapses to near zero after controlling for these characteristics, the within-cluster variation in promotions may itself be confounded by unmeasured segment-level factors.
+:::
+
+
 ### Three-Panel Summary Visualization
 
 ```{r synthesis-plot, fig.width=12, fig.height=5}
-# Panel 1: Cross-sectional Simpson
-p1 <- ggplot(students, aes(x = study, y = grade)) +
-  geom_point(aes(color = program_label), alpha = 0.4, size = 1) +
+# Panel 1: Cross-sectional Simpson (consumer segments)
+p1 <- ggplot(df_consumers, aes(x = promo_msgs, y = purch_intent)) +
+  geom_point(aes(color = seg_label), alpha = 0.4, size = 1) +
   geom_smooth(method = "lm", color = "black", linewidth = 1.2) +
-  geom_smooth(aes(color = program_label), method = "lm",
+  geom_smooth(aes(color = seg_label), method = "lm",
               se = FALSE, linewidth = 0.8) +
   scale_color_brewer(palette = "Set1") +
   labs(title = "1. Cross-sectional nesting",
-       subtitle = "Pooled: negative\nWithin program: positive",
-       x = "Study hours", y = "Grade", color = NULL) +
+       subtitle = "Pooled: negative\nWithin segment: positive",
+       x = "Promo messages", y = "Purchase intent", color = NULL) +
   theme_minimal(base_size = 11) +
   theme(legend.position = "none")
 
@@ -396,13 +425,13 @@ p2 <- ggplot(person_means, aes(x = income_mean, y = satisfaction)) +
 
 # Panel 3: Experiment Simpson
 p3 <- ggplot(stimulus_summary,
-             aes(x = conc_s, y = mean_recall, color = valence_label)) +
+             aes(x = brand_s, y = mean_wtp, color = disclosure_label)) +
   geom_point(alpha = 0.6, size = 1.5) +
   geom_smooth(method = "lm", se = FALSE, linewidth = 1.2) +
-  scale_color_manual(values = c("positive" = "#d73027", "neutral" = "#4393c3")) +
+  scale_color_manual(values = c("transparent" = "#d73027", "opaque" = "#4393c3")) +
   labs(title = "3. Within-subjects experiment",
-       subtitle = "Marginal: positive recalled more\nWithin concreteness: no valence effect",
-       x = "Concreteness", y = "Mean recall", color = "Valence") +
+       subtitle = "Marginal: transparent WTP higher\nWithin brand familiarity: no disclosure effect",
+       x = "Brand familiarity", y = "Mean WTP (\u20ac)", color = "Disclosure") +
   theme_minimal(base_size = 11) +
   theme(legend.position = "bottom")
 
@@ -413,9 +442,9 @@ The table below summarizes the three contexts, their structural causes, and thei
 
 | Context | Mechanism | Aggregate relationship | Within-unit relationship | Remedy |
 |---|---|---|---|---|
-| Cross-sectional nesting | Program difficulty confounds study–grade link | Negative (wrong) | Positive (correct) | Mixed model; within-group slope |
+| Cross-sectional nesting | Segment price-sensitivity confounds promo–intent link | Negative (wrong) | Positive (correct) | Mixed model; within-segment slope |
 | Panel data | Between-person selection confounds within-person change | Strongly positive (misleading) | Near zero (causal) | CMC decomposition; FE model |
-| Experiment | Stimulus attribute confounded with condition | Positive (false positive) | Null (correct) | Stimulus RE; covariate control |
+| Experiment | Brand familiarity confounded with disclosure condition | Positive (false positive) | Null (correct) | Product RE; brand familiarity covariate |
 
 ::: {.callout-tip icon=false}
 ## Observational → Experimental Translation

@@ -11,13 +11,21 @@ set.seed(2024)
 
 # Survival Analysis
 
+::: {.callout-note icon=false}
+## What Does Survival Analysis Add Over Regression?
+
+- **Question:** When does a customer cancel their subscription? When does a borrower default on their loan? The outcome is not *whether* the event happens (everyone might eventually churn) but *when* — and many customers have not yet experienced the event by the time the study window closes.
+- **What goes wrong:** Treating time-to-churn as a continuous outcome and discarding customers who have not yet churned (censored observations) loses information and produces biased estimates. Customers who were still subscribed at month 12 tell you something — they tell you the event had not occurred up to that point.
+- **The fix:** Survival analysis uses the hazard function to model the instantaneous risk of the event at each time point, incorporating both the timing of events and the fact that some observations are censored. Frailty models extend this to clustered data (customers within acquisition channels, borrowers within bank branches).
+:::
+
 ## When Time-to-Event is the Outcome
 
-Not all outcomes are measured on a continuous scale or as a snapshot at one moment. Some outcomes are events: the moment an employee quits, the day a patient relapses, the first purchase after acquiring a new customer. The outcome of interest is **when** the event occurs — or whether it has occurred at all by the time observation ends.
+Not all outcomes are measured on a continuous scale or as a snapshot at one moment. Some outcomes are events: the day a customer first churns from a financial app, the day a borrower misses their first loan payment, the first purchase after receiving a marketing offer, the moment a household opts out of an automatic enrollment. The outcome of interest is **when** the event occurs — or whether it has occurred at all by the time observation ends.
 
 This is the domain of **survival analysis** (also called event history analysis or time-to-event analysis).
 
-The defining feature: **censoring**. Some participants have not experienced the event by the end of the study — they were still employed, still in remission, still active users when the observation window closed. Censored observations contribute partial information: we know the event had not occurred up to that point, but we do not know when (or whether) it eventually will.
+The defining feature: **censoring**. Some customers have not experienced the event by the end of the study — they were still subscribed, still paying, still active when the observation window closed. Censored observations contribute partial information: we know the event had not occurred up to that point, but we do not know when (or whether) it eventually will.
 
 Standard regression discards this information. Survival analysis uses it.
 
@@ -34,21 +42,21 @@ Intuitively: if you have survived until time $t$, what is your risk of the event
 The Kaplan-Meier estimator non-parametrically estimates the survival function $S(t) = P(T > t)$: the probability of surviving (not experiencing the event) past time $t$.
 
 ```{r km-curve}
-# Simulate employee tenure data
+# Simulate app subscription data: time to cancellation (churn) by plan type
 n <- 200
-group <- rep(c("High autonomy", "Low autonomy"), each = 100)
+plan <- rep(c("Premium", "Basic"), each = 100)
 
-# High-autonomy employees stay longer
-tenure_time  <- c(rexp(100, rate = 0.05),   # ~20 months average
-                   rexp(100, rate = 0.10))   # ~10 months average
-censored     <- rbinom(200, 1, 0.3)  # 30% are censored (still employed)
-tenure_obs   <- pmin(tenure_time, 24)  # cap at 24 months observation window
-status       <- ifelse(censored == 1, 0, 1)   # 0 = censored, 1 = event (quit)
+# Premium subscribers churn more slowly (higher engagement, more features)
+churn_time <- c(rexp(100, rate = 0.04),   # ~25 months avg (premium — more committed)
+                rexp(100, rate = 0.10))    # ~10 months avg (basic — less committed)
+censored   <- rbinom(200, 1, 0.35)        # 35% still subscribed at study end
+obs_time   <- pmin(churn_time, 24)        # 24-month observation window
+status     <- ifelse(censored == 1, 0, 1) # 0 = censored (still subscribed), 1 = churned
 
-df_surv <- tibble(time = tenure_obs, status, group)
+df_surv <- tibble(time = obs_time, status, plan)
 
 # Kaplan-Meier
-km_fit <- survfit(Surv(time, status) ~ group, data = df_surv)
+km_fit <- survfit(Surv(time, status) ~ plan, data = df_surv)
 
 ggsurvplot(
   km_fit,
@@ -57,10 +65,10 @@ ggsurvplot(
   pval        = TRUE,
   risk.table  = TRUE,
   palette     = c("#1e3a5f", "#aec6e8"),
-  legend.labs = c("High autonomy", "Low autonomy"),
-  xlab        = "Months",
-  ylab        = "Probability of staying",
-  title       = "Kaplan-Meier: employee tenure by autonomy condition"
+  legend.labs = c("Basic", "Premium"),
+  xlab        = "Months since subscription start",
+  ylab        = "Probability of remaining subscribed",
+  title       = "Kaplan-Meier: app subscriber churn by plan type"
 )
 ```
 
@@ -73,28 +81,28 @@ $$h(t \mid X) = h_0(t) \cdot \exp(\beta_1 X_1 + \beta_2 X_2 + \ldots)$$
 Coefficients are interpreted as **hazard ratios** after exponentiation: $\exp(\beta) > 1$ means higher hazard (shorter survival); $\exp(\beta) < 1$ means lower hazard (longer survival).
 
 ```{r cox-model}
-# Add predictors
+# Add subscriber-level predictors
 df_surv <- df_surv |>
   mutate(
-    autonomy     = ifelse(group == "High autonomy", 1, 0),
-    age          = rnorm(200, 35, 8),
-    satisfaction = rnorm(200, 60, 10)
+    premium       = ifelse(plan == "Premium", 1, 0),
+    months_active = pmax(1, rnorm(200, 8, 3)),
+    features_used = pmax(0, rnorm(200, 4, 2))
   )
 
-m_cox <- coxph(Surv(time, status) ~ autonomy + age + satisfaction,
+m_cox <- coxph(Surv(time, status) ~ premium + months_active + features_used,
                data = df_surv)
 
 broom::tidy(m_cox, exponentiate = TRUE) |>
   knitr::kable(digits = 3,
-    caption = "Cox hazard ratios: autonomy reduces hazard of quitting")
+    caption = "Cox hazard ratios: premium plan and higher feature usage reduce hazard of churn")
 ```
 
 ::: {.callout-warning icon=false}
 ## Assumption: Proportional Hazards
 
-**What it means:** The hazard ratio between groups is constant over time. The effect of autonomy on the hazard of quitting is the same in month 1 as in month 20.
+**What it means:** The hazard ratio between groups is constant over time. The effect of premium plan on the hazard of churn is the same in month 1 as in month 20.
 
-**Why it fails:** Some effects are strongest early (a drug that prevents relapse mainly in the first few weeks) and fade over time. This is a non-proportional hazard.
+**Why it fails:** Some effects are strongest early (an introductory discount that keeps subscribers through the first few months) and fade once the promotional period ends. This is a non-proportional hazard.
 
 **How to check:** Schoenfeld residuals should be uncorrelated with time. The `cox.zph()` function tests this.
 
@@ -102,45 +110,58 @@ broom::tidy(m_cox, exponentiate = TRUE) |>
 ph_test <- cox.zph(m_cox)
 print(ph_test)
 
-# If significant: stratify by the variable or include time interaction
+# If significant: stratify by plan type or include a time interaction (e.g., premium * log(time))
 ```
 :::
 
 ## Frailty Models for Clustered Survival Data
 
-When survival times are clustered (patients within hospitals, employees within firms), standard Cox models underestimate standard errors. The **frailty model** adds a random effect (the "frailty") to the Cox model — a direct analog of the random intercept in linear MLM.
+When survival times are clustered (customers within acquisition channels, borrowers within bank branches), standard Cox models underestimate standard errors. The **frailty model** adds a random effect (the "frailty") to the Cox model — a direct analog of the random intercept in linear MLM.
 
 ```{r frailty-model}
-# Simulate clustered survival data
-n_firms    <- 20
-n_per_firm <- 10
+# Simulate clustered survival data: app subscribers within acquisition channels
+n_channels     <- 20
+n_per_channel  <- 10
 
-firm_effects <- rnorm(n_firms, 0, 0.5)
+channel_effects <- rnorm(n_channels, 0, 0.5)
 
 df_cluster <- tibble(
-  firm     = rep(1:n_firms, each = n_per_firm),
-  autonomy = rbinom(n_firms * n_per_firm, 1, 0.5),
-  firm_eff = rep(firm_effects, each = n_per_firm),
-  time_raw = rexp(n_firms * n_per_firm,
-                   rate = exp(-1.5 - 0.4 * autonomy + firm_eff)),
-  status   = rbinom(n_firms * n_per_firm, 1, 0.7),
-  time     = pmin(time_raw, 24)
+  channel     = rep(1:n_channels, each = n_per_channel),
+  premium     = rbinom(n_channels * n_per_channel, 1, 0.5),
+  channel_eff = rep(channel_effects, each = n_per_channel),
+  time_raw    = rexp(n_channels * n_per_channel,
+                     rate = exp(-1.5 - 0.4 * premium + channel_eff)),
+  status      = rbinom(n_channels * n_per_channel, 1, 0.7),
+  time        = pmin(time_raw, 24)
 )
 
-# Cox model with gamma frailty
-m_frailty <- coxph(Surv(time, status) ~ autonomy + frailty(firm),
+# Cox model with gamma frailty — clustering by acquisition channel
+m_frailty <- coxph(Surv(time, status) ~ premium + frailty(channel),
                    data = df_cluster)
 
 broom::tidy(m_frailty) |>
-  filter(term == "autonomy") |>
+  filter(term == "premium") |>
   knitr::kable(digits = 3,
-    caption = "Frailty model: firm clustering accounted for in survival analysis")
+    caption = "Frailty model: acquisition channel clustering accounted for; premium plan reduces churn hazard")
 ```
 
 ::: {.callout-warning icon=false}
 ## Assumption: Non-Informative Censoring
 
-**What it means:** The reason an observation is censored must be unrelated to the outcome. If sicker patients are more likely to drop out of a study (i.e., censoring is related to the hazard of relapse), standard survival estimates are biased.
+**What it means:** The reason an observation is censored must be unrelated to the outcome. If financially distressed subscribers are more likely to cancel but also more likely to disappear before their cancellation is recorded (i.e., censoring is related to the hazard of churn), standard survival estimates are biased upward — the sample that remains looks healthier than it actually is.
 
-**How to check:** Compare characteristics of censored and non-censored participants at their censoring time. Large differences suggest informative censoring.
+**How to check:** Compare key covariates (plan type, months active, features used) between censored and non-censored subscribers at their censoring time. Large differences on predictors of churn suggest informative censoring.
+:::
+
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions About Your Survival Model
+
+**Challenge 1 — "Is the proportional hazards assumption defensible for plan type?"**
+The Cox model assumes the hazard ratio between Premium and Basic subscribers is constant across all 24 months. A reviewer will ask whether early-adopter Premium subscribers differ systematically from late upgraders — if so, the effect of plan type likely varies over time. Show the Schoenfeld residual plot and explain why any observed time-trend is substantively negligible, or include a `premium * log(time)` interaction to model the non-proportionality explicitly.
+
+**Challenge 2 — "How do you know censoring is non-informative?"**
+Subscribers still active at month 24 (censored) may be systematically different from churners. High-usage subscribers are more likely to still be subscribed, so the censored group is not a random subset — it is the healthiest part of the cohort. Compare `months_active` and `features_used` between censored and event observations. If churners had markedly fewer features used at the time of their last observation, censoring is likely non-informative (the two processes are distinct). If usage drops sharply just before censoring, it may not be.
+
+**Challenge 3 — "Why acquisition channel as the frailty cluster?"**
+A reviewer will ask whether clustering by acquisition channel captures a meaningful source of shared frailty, or is an arbitrary grouping. The case: subscribers acquired through the same channel share marketing exposure, onboarding flow, initial pricing, and expected feature set — these create correlated baseline churn tendencies beyond individual-level predictors. Report the estimated frailty variance: near zero means channel clustering is negligible; large variance means ignoring it inflated your standard errors and confidence in `premium`'s effect is overstated.
 :::

@@ -17,15 +17,91 @@ set.seed(42)
 
 Module 1's fixed effects model removes time-invariant confounders by exploiting within-unit variation over time. But fixed effects are not a universal cure for endogeneity. Two failure modes are especially common.
 
-**In longitudinal panel research**, the endogeneity can be time-varying: firms that are on an upward productivity trajectory are exactly the firms that invest in training programs. Firm fixed effects absorb stable firm quality, but they cannot absorb a time-varying quality shock that simultaneously drives training adoption and productivity. Even after demeaning, the estimate remains confounded.
+**In longitudinal panel research**, the endogeneity can be time-varying: bank branches that are on an upward savings trajectory are exactly the branches most likely to adopt new financial planning tools — they have the motivated staff, engaged customer base, and organizational energy to implement them. Branch fixed effects absorb stable branch quality, but they cannot absorb a time-varying engagement shock that simultaneously drives tool adoption and savings improvement. Even after demeaning, the estimate remains confounded.
 
-**In experiments**, randomization solves endogeneity for assignment — but not always for treatment receipt. Participants assigned to a wellness intervention may never attend a session. Patients randomized to a drug may not take their pills. When compliance is imperfect, the simple comparison of assigned groups underestimates the effect of actually receiving the treatment.
+**In experiments**, randomization solves endogeneity for assignment — but not always for treatment receipt. Participants randomly offered access to a financial planning tool may never log in. Customers sent a disclosure summary may never open it. When compliance is imperfect, the simple comparison of assigned groups underestimates the effect of actually using the tool.
 
 In both cases, an **instrument** is a variable that provides exogenous variation in treatment uptake — variation that is not driven by the confounders affecting outcomes.
 
-- **Longitudinal context:** Distance from the firm's headquarters to the nearest accredited training center provides exogenous variation in training adoption. Firms close to a training center adopt at higher rates not because of their productivity trajectory but because of geography. Distance does not directly affect productivity — only training adoption does.
+- **Longitudinal context:** The scheduled wave in which a branch received an IT infrastructure upgrade provides exogenous variation in financial planning tool adoption. Branches in Wave 1 adopted the tool at higher rates not because of their savings trajectory but because of administrative scheduling order. The rollout wave does not directly affect household savings — only the tool adoption it enables does.
 
-- **Experimental context:** Random assignment to an encouragement condition (a structured protocol with reminders) provides exogenous variation in actual program completion. Whether you were randomized to encouragement does not directly reduce stress — completing the sessions does.
+- **Experimental context:** Random assignment to an encouragement condition (a structured outreach protocol with personalized prompts) provides exogenous variation in actual financial tool use. Whether you were randomized to encouragement does not directly improve your savings decisions — logging in and engaging with the tool does.
+
+---
+
+## The IV Structure: Permitted and Forbidden Pathways
+
+The instrumental variables strategy works by tracing exactly which paths between Z, X, and Y are permitted and which must be blocked. The diagram below shows this structure for the branch savings example.
+
+```{r iv-dag, fig.width=8, fig.height=4.2}
+library(ggplot2)
+
+# Node positions
+nodes <- tibble(
+  label = c("Z\n(IT rollout\nwave)", "X\n(Tool\nadoption)", "Y\n(Savings\nrate)", "U\n(Branch\nquality)"),
+  x = c(0, 2.5, 5, 2.5),
+  y = c(2,   2,  2,   0)
+)
+
+arrow_end <- 0.45   # shorten arrow ends to not overlap node circles
+
+ggplot() +
+  # --- permitted arrows (blue) ---
+  # Z → X  (relevance)
+  annotate("segment", x=0.45, xend=2.05, y=2, yend=2,
+           arrow=arrow(length=unit(.25,"cm"), type="closed"),
+           color="#1e3a5f", linewidth=1.3) +
+  # X → Y  (causal effect — what we identify)
+  annotate("segment", x=2.95, xend=4.55, y=2, yend=2,
+           arrow=arrow(length=unit(.25,"cm"), type="closed"),
+           color="#1e3a5f", linewidth=1.3) +
+  # U → X  (confound)
+  annotate("segment", x=2.5, xend=2.5, y=0.45, yend=1.55,
+           arrow=arrow(length=unit(.25,"cm"), type="closed"),
+           color="#888888", linewidth=1, linetype="dashed") +
+  # U → Y  (confound)
+  annotate("segment", x=2.95, xend=4.55, y=0.2, yend=1.65,
+           arrow=arrow(length=unit(.25,"cm"), type="closed"),
+           color="#888888", linewidth=1, linetype="dashed") +
+  # --- FORBIDDEN arrow: Z → Y (dashed red, exclusion violation) ---
+  annotate("segment", x=0.45, xend=4.55, y=1.7, yend=1.7,
+           arrow=arrow(length=unit(.25,"cm"), type="closed"),
+           color="#cc0000", linewidth=1, linetype="dotted") +
+  annotate("text", x=2.5, y=1.45, label="FORBIDDEN\n(exclusion restriction)",
+           size=3.2, color="#cc0000", fontface="bold") +
+  # --- FORBIDDEN link: Z ↔ U (dashed orange, independence violation) ---
+  annotate("segment", x=0.45, xend=2.1, y=1.65, yend=0.35,
+           arrow=arrow(length=unit(.25,"cm"), type="closed"),
+           color="#e67e00", linewidth=1, linetype="dotted") +
+  annotate("text", x=0.7, y=0.85, label="FORBIDDEN\n(independence)", hjust=0,
+           size=3.2, color="#e67e00", fontface="bold") +
+  # --- node circles ---
+  geom_point(data=nodes, aes(x=x, y=y), shape=21, size=14,
+             fill=c("#d4e6f5","#d4e6f5","#d4e6f5","#fce8cc"),
+             color=c("#1e3a5f","#1e3a5f","#1e3a5f","#a05000"),
+             stroke=1.5) +
+  geom_text(data=nodes, aes(x=x, y=y, label=label), size=3.3, lineheight=0.9) +
+  # --- path labels ---
+  annotate("text", x=1.25, y=2.18, label="Relevance\n(Z predicts X)",
+           size=3.2, color="#1e3a5f") +
+  annotate("text", x=3.75, y=2.18, label="Causal path\n(what IV identifies)",
+           size=3.2, color="#1e3a5f") +
+  annotate("text", x=3.5,  y=0.9,  label="Confounders\n(U affects X and Y)",
+           size=3.2, color="#888888") +
+  xlim(-0.5, 5.7) + ylim(-0.4, 2.8) +
+  labs(
+    title    = "IV causal diagram: permitted paths and forbidden pathways",
+    subtitle = "Blue = valid paths (Z identifies X→Y effect)    Red/orange = paths that must be blocked for IV to be valid"
+  ) +
+  theme_void(base_size = 12) +
+  theme(plot.title    = element_text(size=13, face="bold"),
+        plot.subtitle = element_text(size=11, color="#555555"),
+        plot.margin   = margin(5, 5, 5, 5))
+```
+
+The blue arrows show the structure IV exploits: Z creates exogenous variation in X (relevance), and X causally affects Y. The grey dashed arrows show the endogeneity problem: U confounds both X and Y, so naive OLS is biased. The **red dotted arrow** (Z → Y directly) is the **exclusion restriction violation** — if this path exists, Z affects Y through channels other than X, and the IV estimate is biased. The **orange dotted arrow** (Z → U) is the **independence violation** — if Z is correlated with the very confounders it is meant to bypass, it is not truly exogenous.
+
+When all three forbidden pathways are blocked, the IV estimate recovers the causal effect of X on Y.
 
 ---
 
@@ -38,9 +114,9 @@ In both cases, an **instrument** is a variable that provides exogenous variation
 
 **How to check:** Regress X on Z (the "first stage"). The F-statistic on Z must exceed 10. Below that threshold, the instrument is "weak."
 
-**Longitudinal context:** Distance to the nearest training center must meaningfully predict whether firms adopt the training program. Firms closer to a center should adopt at higher rates.
+**Longitudinal context:** The IT rollout wave must meaningfully predict whether branches adopt the financial planning tool. Wave 1 branches should adopt at substantially higher rates than Wave 2 branches during the observation window.
 
-**Experimental context:** Being randomized to the encouragement condition must meaningfully predict actual program completion. If the encouragement protocol is so feeble that it does not increase uptake, it cannot serve as an instrument.
+**Experimental context:** Being randomized to the encouragement condition must meaningfully predict actual tool use. If the encouragement protocol is so feeble that it does not increase log-ins and engagement, it cannot serve as an instrument.
 :::
 
 ::: {.callout-warning icon=false}
@@ -50,9 +126,9 @@ In both cases, an **instrument** is a variable that provides exogenous variation
 
 **How to scrutinize:** Trace every conceivable path from Z to Y that bypasses X. Each such path is a potential violation.
 
-**Longitudinal context:** Distance to a training center must not directly affect firm productivity. It should matter only because it affects whether the firm sends employees to training. A potential violation: firms near training centers may also be in denser urban areas with richer labor markets and better infrastructure — advantages that raise productivity regardless of training adoption.
+**Longitudinal context:** The IT rollout wave must not directly affect household savings rates. It should matter only because it determines which branches have the financial planning tool available. A potential violation: Wave 1 branches may have been selected because they were in larger, more urban markets — advantages that raise savings rates regardless of whether the tool is adopted.
 
-**Experimental context:** Random assignment to the encouragement condition must not affect stress outcomes except through whether participants completed the mindfulness sessions. A potential violation: receiving reminder emails might itself reduce stress by making participants feel supported, even if they never attend a session — a direct path from Z to Y that bypasses D.
+**Experimental context:** Random assignment to the encouragement condition must not improve savings decisions except through actual tool use. A potential violation: receiving a personalized outreach message might itself prompt reflection on financial goals — a direct effect on savings behavior that bypasses the tool entirely, even if the participant never logs in.
 :::
 
 ::: {.callout-warning icon=false}
@@ -62,41 +138,42 @@ In both cases, an **instrument** is a variable that provides exogenous variation
 
 **How to check:** Verify that Z is balanced across observable pre-treatment characteristics. In a natural experiment, check whether the instrument predicts baseline covariates.
 
-**Longitudinal context:** Distance from headquarters to a training center should not be correlated with firm quality or productivity drivers. Firms did not systematically choose to locate near training centers because of their underlying productivity potential. In practice: check whether baseline productivity and firm size predict distance.
+**Longitudinal context:** The IT rollout wave should not be correlated with branch quality or growth trajectory. Branches did not self-select into Wave 1 based on their savings performance potential — the order was determined by infrastructure scheduling. In practice: check whether baseline savings rates and branch size predict wave assignment.
 
-**Experimental context:** In a proper encouragement design, Z is genuinely randomized — independence holds by construction. The practical threat is post-randomization contamination (e.g., differential attrition by encouragement condition) or a failed randomization procedure.
+**Experimental context:** In a proper encouragement design, Z is genuinely randomized — independence holds by construction. The practical threat is post-randomization contamination (e.g., differential attrition by encouragement condition — less financially engaged customers more likely to drop out of the encouraged group) or a failed randomization procedure.
 :::
 
 ---
 
-## Section 3: Longitudinal IV — Training Programs and Firm Productivity
+## Section 3: Longitudinal IV — Budgeting Tool Adoption and Household Savings
 
 ### The Setup
 
-200 firms are observed over 6 years. The research question is whether adopting a formal employee training program increases firm productivity. The identification problem: high-performing firms are more likely to adopt training. They have the budget, the HR infrastructure, and the organizational culture that supports it. A naive OLS regression will overestimate the training effect.
+200 bank branches are observed over 6 years. The research question is whether adopting a financial planning tool increases branch-level household savings rates. The identification problem: branches on an upward savings trajectory — engaged staff, motivated customer base — are exactly the ones most likely to implement new tools proactively. A naive OLS regression overestimates the tool's causal effect.
 
-Even adding firm fixed effects does not fully resolve this: if firms experiencing a positive time-varying productivity shock respond by investing in training, within-firm variation in training adoption is still confounded by this time-varying shock.
+Even adding branch fixed effects does not fully resolve this: if branches experiencing a positive engagement shock (a new community outreach manager, an unusually successful financial literacy event) respond by deploying the tool, within-branch variation in adoption is still confounded by this time-varying engagement shock.
 
-The instrument is geographic distance (in km) from the firm's headquarters to the nearest accredited training center.
+The instrument is rollout wave — a staggered IT infrastructure upgrade that determined which branches could deploy the tool first. The wave order was set by administrative scheduling (server installation logistics), not by branch savings performance. Branches in Wave 1 adopted the tool at much higher rates than Wave 2 branches during the early years.
 
 ```{r panel-iv-setup}
-n_firms <- 200
-n_years <- 6
+n_branches <- 200
+n_years    <- 6
 
-firm_quality <- rnorm(n_firms, 0, 5)   # unobserved time-invariant firm quality
-distance     <- runif(n_firms, 10, 200) # km to nearest training center
+branch_quality <- rnorm(n_branches, 0, 5)   # unobserved branch engagement quality
+# Wave 1 vs. Wave 2 (1 = early rollout, 0 = later rollout) — as-good-as-random
+wave1          <- rbinom(n_branches, 1, 0.5)
 
-df_panel <- expand_grid(firm = 1:n_firms, year = 1:n_years) |>
+df_panel <- expand_grid(branch = 1:n_branches, year = 1:n_years) |>
   mutate(
-    fq       = firm_quality[firm],
-    dist     = distance[firm],
-    # High-quality firms and nearby firms adopt training more
-    p_train  = plogis(-0.5 + 0.4 * (fq / sd(firm_quality)) - 0.010 * dist +
+    bq       = branch_quality[branch],
+    wave     = wave1[branch],
+    # High-quality branches AND Wave 1 branches adopt the tool more
+    p_adopt  = plogis(-0.5 + 0.4 * (bq / sd(branch_quality)) + 0.8 * wave +
                         rnorm(n(), 0, 0.3)),
-    training     = rbinom(n(), 1, p_train),
-    # True causal effect of training = 4; firm quality also boosts productivity
-    productivity = 50 + 4 * training + 2.5 * fq + rnorm(n(), 0, 4),
-    firm     = factor(firm),
+    adopted  = rbinom(n(), 1, p_adopt),
+    # True causal effect of tool adoption = 4 pp savings gain; quality also helps
+    savings  = 50 + 4 * adopted + 2.5 * bq + rnorm(n(), 0, 4),
+    branch   = factor(branch),
     year     = factor(year)
   )
 ```
@@ -104,35 +181,35 @@ df_panel <- expand_grid(firm = 1:n_firms, year = 1:n_years) |>
 ### First Stage: Instrument Relevance
 
 ```{r panel-first-stage}
-m_first <- lm(training ~ dist, data = df_panel)
+m_first <- lm(adopted ~ wave, data = df_panel)
 f_stat  <- summary(m_first)$fstatistic[1]
 cat("First-stage F-statistic:", round(f_stat, 1), "\n")
 cat("(Rule of thumb: F > 10 indicates a relevant instrument)\n")
 ```
 
-Distance is a strong negative predictor of training adoption (closer firms adopt at higher rates). F > 10 confirms the instrument is not weak.
+Wave 1 is a strong positive predictor of tool adoption (Wave 1 branches adopt at substantially higher rates). F > 10 confirms the instrument is not weak.
 
 ### OLS vs. IV
 
 ```{r panel-ols-vs-iv}
-# Naive OLS: inflated by firm quality confound
-m_ols <- lm(productivity ~ training, data = df_panel)
+# Naive OLS: inflated by branch engagement confound
+m_ols <- lm(savings ~ adopted, data = df_panel)
 
-# IV via Two-Stage Least Squares: uses only distance-driven variation in training
-m_iv  <- ivreg(productivity ~ training | dist, data = df_panel)
+# IV via Two-Stage Least Squares: uses only wave-driven variation in adoption
+m_iv  <- ivreg(savings ~ adopted | wave, data = df_panel)
 
 bind_rows(
-  tidy(m_ols) |> filter(term == "training") |>
+  tidy(m_ols) |> filter(term == "adopted") |>
     mutate(model = "OLS (confounded — true = 4)"),
-  tidy(m_iv)  |> filter(term == "training") |>
+  tidy(m_iv)  |> filter(term == "adopted") |>
     mutate(model = "IV / TSLS (consistent under exclusion restriction)")
 ) |>
   select(model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Panel IV: effect of training on firm productivity (true effect = 4). OLS is biased upward by firm quality; IV is consistent but with larger SE — individual draws can deviate from truth.")
+    caption = "Panel IV: effect of tool adoption on savings rate (true effect = 4). OLS is biased upward by branch quality; IV is consistent but with larger SE.")
 ```
 
-OLS overestimates the training effect because firm quality simultaneously drives adoption and productivity. IV isolates only the exogenous, geography-driven variation in training. IV is **consistent** — its bias shrinks to zero as $N \to \infty$ — but in any single finite sample the estimate can be above or below the truth. The larger standard error reflects this uncertainty honestly.
+OLS overestimates the tool's effect because branch engagement simultaneously drives adoption and savings improvement. IV isolates only the exogenous, wave-driven variation in adoption. IV is **consistent** — its bias shrinks to zero as $N \to \infty$ — but in any single finite sample the estimate can be above or below the truth. The larger standard error reflects this uncertainty honestly.
 
 ---
 
@@ -154,17 +231,17 @@ Because $\hat{X}$ contains no endogenous variation, $\hat{\beta}_1$ is a consist
 
 ```{r tsls-manual}
 # Manual TSLS to show the mechanics
-# Stage 1: predict training from distance
-stage1    <- lm(training ~ dist, data = df_panel)
-df_panel  <- df_panel |> mutate(training_hat = fitted(stage1))
+# Stage 1: predict tool adoption from rollout wave
+stage1    <- lm(adopted ~ wave, data = df_panel)
+df_panel  <- df_panel |> mutate(adopted_hat = fitted(stage1))
 
-# Stage 2: regress productivity on predicted training
-stage2    <- lm(productivity ~ training_hat, data = df_panel)
+# Stage 2: regress savings on predicted adoption
+stage2    <- lm(savings ~ adopted_hat, data = df_panel)
 
-cat("Manual TSLS (Stage 2 coefficient on training_hat):",
-    round(coef(stage2)["training_hat"], 3), "\n")
+cat("Manual TSLS (Stage 2 coefficient on adopted_hat):",
+    round(coef(stage2)["adopted_hat"], 3), "\n")
 cat("ivreg() coefficient (should match):",
-    round(coef(m_iv)["training"], 3), "\n")
+    round(coef(m_iv)["adopted"], 3), "\n")
 ```
 
 ::: {.callout-note icon=false}
@@ -175,17 +252,17 @@ The coefficients from manual TSLS match `ivreg()`, but the standard errors do **
 
 ### Connection to Module 1 Fixed Effects
 
-Panel fixed effects absorb time-invariant firm-level confounders. But if training adoption responds to time-varying firm shocks, fixed effects alone are insufficient. Adding IV on top of FE handles both:
+Panel fixed effects absorb time-invariant branch-level confounders. But if tool adoption responds to time-varying branch engagement shocks, fixed effects alone are insufficient. Adding IV on top of FE handles both:
 
 $$\underbrace{\text{FE removes}}_{\substack{\text{time-invariant} \\ \text{confounders}}} \quad + \quad \underbrace{\text{IV removes}}_{\substack{\text{time-varying} \\ \text{endogeneity}}}$$
 
 ```{r panel-fe-iv}
-# Panel FE-IV: year fixed effects as controls; distance as instrument
-m_fe_iv <- ivreg(productivity ~ training + year | dist + year, data = df_panel)
-cat("FE-IV estimate (training):", round(coef(m_fe_iv)["training"], 3), "\n")
+# Panel FE-IV: year fixed effects as controls; rollout wave as instrument
+m_fe_iv <- ivreg(savings ~ adopted + year | wave + year, data = df_panel)
+cat("FE-IV estimate (adopted):", round(coef(m_fe_iv)["adopted"], 3), "\n")
 ```
 
-By including year fixed effects in both stages, we account for common time trends while using distance to instrument training adoption within each year.
+By including year fixed effects in both stages, we account for common time trends while using rollout wave to instrument tool adoption within each year.
 
 ---
 
@@ -197,40 +274,41 @@ In experiments, the instrument is the **random assignment** Z itself. When all p
 
 $$\text{LATE} = \frac{\underbrace{E[Y \mid Z=1] - E[Y \mid Z=0]}_{\text{Intent-to-treat effect (ITT)}}}{\underbrace{E[D \mid Z=1] - E[D \mid Z=0]}_{\text{Compliance rate (first stage)}}}$$
 
-The **Intent-to-treat (ITT)** effect — the effect of assignment, regardless of compliance — is an unbiased estimate of the causal effect of *being assigned* to treatment. Dividing by the compliance rate scales the ITT up to recover the LATE: the causal effect of *actually receiving* treatment, among those who comply.
+The **Intent-to-treat (ITT)** effect — the effect of assignment, regardless of compliance — is an unbiased estimate of the causal effect of *being assigned* to treatment. Dividing by the compliance rate scales the ITT up to recover the LATE: the causal effect of *actually using* the tool, among those who comply.
 
 ### Compliance Classes
 
-When Z = random assignment and D = actual treatment receipt, participants fall into four latent types:
+When Z = random assignment and D = actual tool use, participants fall into four latent types:
 
 | Type | D if Z = 0 | D if Z = 1 | Description |
 |-------------|------------|------------|--------------------------------------|
-| Complier | 0 | 1 | Takes treatment iff assigned — IV identifies this group |
-| Always-taker | 1 | 1 | Takes treatment regardless — uninformative |
-| Never-taker | 0 | 0 | Never takes treatment — uninformative |
+| Complier | 0 | 1 | Uses tool iff encouraged — IV identifies this group |
+| Always-taker | 1 | 1 | Uses tool regardless — uninformative |
+| Never-taker | 0 | 0 | Never uses tool even when encouraged — uninformative |
 | Defier | 1 | 0 | Does the opposite of assignment — assumed absent (monotonicity) |
 
-Only **compliers** contribute to the IV estimate. LATE is the effect for compliers only.
+Only **compliers** contribute to the IV estimate. LATE is the effect of using the tool, for compliers only.
 
-### Simulation: Online Mindfulness Intervention
+### Simulation: Financial Planning Tool Encouragement Design
 
-160 participants are randomized to encouragement (n = 80) or control (n = 80). Of those encouraged, 70% actually complete the mindfulness sessions; none in the control group can access the program. The true causal effect of *completing* the program is a 10-point stress reduction.
+160 customers are randomized to encouragement (n = 80, receives personalized outreach and prompts to use the budgeting tool) or control (n = 80, standard materials). Of those encouraged, 70% actually engage with the planning tool; none in the control group have access. The true causal effect of *actually using* the tool is a 10-percentage-point improvement in savings rate.
 
 ```{r encouragement-design}
 n <- 160
-Z <- rep(c(0, 1), each = 80) # random assignment to encouragement
+Z <- rep(c(0, 1), each = 80)  # random assignment to encouragement
 
-# One-sided noncompliance: encouraged participants comply at 70%
+# One-sided noncompliance: encouraged participants use tool at 70%
 D <- ifelse(Z == 1, rbinom(80, 1, 0.70), 0)
 
-# True effect of completing the program = -10 points on stress scale
-stress  <- 60 - 10 * D + rnorm(n, 0, 8)
-df_exp  <- tibble(Z = factor(Z), D = factor(D), stress, id = 1:n)
+# True effect of using the tool = +10 pp savings improvement
+# Self-selected tool users (always-takers) are more financially motivated — biases as-treated
+savings_rate <- 40 + 10 * D + rnorm(n, 0, 8)
+df_exp       <- tibble(Z = factor(Z), D = factor(D), savings_rate, id = 1:n)
 
 # Three estimators
-m_itt  <- lm(stress ~ Z, data = df_exp)         # ITT: effect of assignment
-m_at   <- lm(stress ~ D, data = df_exp)         # As-treated: biased by selection
-m_late <- ivreg(stress ~ D | Z, data = df_exp)  # LATE: IV estimate
+m_itt  <- lm(savings_rate ~ Z, data = df_exp)         # ITT: effect of assignment
+m_at   <- lm(savings_rate ~ D, data = df_exp)         # As-treated: biased by selection
+m_late <- ivreg(savings_rate ~ D | Z, data = df_exp)  # LATE: IV estimate
 
 bind_rows(
   tidy(m_itt)  |> filter(term == "Z1") |>
@@ -242,22 +320,22 @@ bind_rows(
 ) |>
   select(model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Encouragement design: three estimators compared (true effect = −10). ITT is diluted; as-treated is biased; LATE is consistent but individual samples can deviate from truth due to finite-sample noise.")
+    caption = "Encouragement design: three estimators (true tool effect = +10). ITT is diluted; as-treated overstates due to self-selection; LATE is consistent but individual samples can deviate from truth.")
 ```
 
 ```{r wald-manual}
 # Manual Wald estimator: confirms IV equals ITT / compliance rate
-itt_effect <- mean(stress[Z == 1]) - mean(stress[Z == 0])
+itt_effect <- mean(savings_rate[Z == 1]) - mean(savings_rate[Z == 0])
 compliance <- mean(D[Z == 1] == 1) - mean(D[Z == 0] == 1)
 wald_late  <- itt_effect / compliance
 
-cat("ITT (numerator)       :", round(itt_effect, 3), "\n")
+cat("ITT (numerator)         :", round(itt_effect, 3), "\n")
 cat("Compliance (denominator):", round(compliance, 3), "\n")
-cat("Wald LATE             :", round(wald_late, 3), "\n")
-cat("ivreg() LATE          :", round(coef(m_late)["D1"], 3), "\n")
+cat("Wald LATE               :", round(wald_late, 3), "\n")
+cat("ivreg() LATE            :", round(coef(m_late)["D1"], 3), "\n")
 ```
 
-The ITT is approximately −7: diluted because only 70% of encouraged participants completed the program. The as-treated estimate is biased upward in absolute value — completers are likely more motivated than the average participant, so they would have had lower stress regardless. The IV/LATE is **consistent** under the exclusion restriction: on average across many samples it targets −10, though any single sample estimate can deviate from the truth due to sampling variability.
+The ITT is approximately +7: diluted because only 70% of encouraged customers actually used the tool. The as-treated estimate is biased upward — customers who chose to engage with the tool are likely more financially motivated than the average participant, so they would have saved more regardless. The IV/LATE is **consistent** under the exclusion restriction: on average across many samples it targets +10, though any single sample estimate can deviate from the truth due to sampling variability.
 
 ---
 
@@ -265,9 +343,9 @@ The ITT is approximately −7: diluted because only 70% of encouraged participan
 
 The IV estimand is always a LATE — the causal effect for compliers only. This has concrete implications in both research contexts.
 
-**What LATE means in the longitudinal case:** The estimate applies specifically to firms that adopted training *because* they happened to be geographically close to a training center. Firms that would have adopted regardless (always-takers) or would never have adopted regardless (never-takers) are not identified. If the firms near the margin of adoption are smaller, younger, or less resourced than the typical firm in your sample, the LATE may not generalize to the broader firm population.
+**What LATE means in the longitudinal case:** The estimate applies specifically to branches that adopted the financial planning tool *because* they happened to be in Wave 1 of the rollout — not to branches that would have adopted regardless (always-takers: highly engaged branches that would find a way to deploy the tool in any scenario) or those that would never have adopted regardless (never-takers: branches with too little infrastructure or staff capacity). If Wave-1-compliant branches are mid-sized, moderately engaged branches, the LATE describes the effect for that marginal segment — it may not generalize to either the most or least engaged branches.
 
-**What LATE means in the experimental case:** The estimate applies to participants who completed the mindfulness program *because* they were encouraged — not to always-takers who would have completed it on their own initiative, and not to never-takers who would not complete it even when encouraged. If compliers are more ambivalent or less intrinsically motivated than always-takers, the LATE may understate how much the program helps self-selected completers, while overstating how much it would help never-takers if somehow compelled to participate.
+**What LATE means in the experimental case:** The estimate applies to customers who engaged with the financial planning tool *because* they were encouraged — not to always-takers who would have logged in and used it on their own initiative, and not to never-takers who would not engage even with personalized outreach. If compliers are ambivalent but malleable (responsive to prompts, but not intrinsically financially motivated), the LATE may understate how much the tool helps self-selected always-takers, while overstating how much it would help confirmed never-takers if somehow compelled to use it.
 
 **Generalizability:** LATE is a valid causal estimate, but it is local. Policy conclusions drawn from LATE assume that the complier subpopulation is relevant to the policy question. When it is not — when you need to know the ATE for everyone — IV alone is insufficient.
 
@@ -279,10 +357,10 @@ The exclusion restriction is the bottleneck. Common instrument classes in social
 
 | Instrument class | Longitudinal example | Experimental example | Why valid |
 |-----------------------|------------------------------|-------------------------------|------------------------------|
-| Geographic variation | Distance to training center | Site randomization in multi-site trials | Not chosen by individual unit |
-| Natural experiment | Weather shock on operations | Random lottery for waitlisted participants | Random by nature or design |
-| Regulatory threshold | Age cutoff for program eligibility | PHQ-9 screening cutoff (RDD–IV) | Arbitrary administrative cutoff |
-| Time-based shock | Policy change, sudden regulation | DST, seasonal variation in study timing | Exogenous timing |
-| Peer / administrative assignment | Random roommate assignment | Experimenter assignment in multi-experimenter designs | Administrative randomization |
+| Administrative assignment | IT rollout wave for budgeting tool | Site randomization in multi-site trials | Order set by logistics, not branch quality |
+| Natural experiment | Weather shock disrupting branch operations | Random lottery for waitlisted customers | Random by nature or design |
+| Regulatory / eligibility threshold | Credit score cutoff for prime-rate access | Financial distress screening cutoff (RDD–IV) | Arbitrary administrative rule |
+| Time-based shock | Policy change or fee structure revision | Seasonal or day-of-week variation in study timing | Exogenous timing |
+| Geographic variation | Distance to nearest financial literacy center | Experimenter assignment in multi-advisor designs | Not chosen by customer or branch |
 
 The mathematics of TSLS are straightforward. Finding a credible instrument — one whose exclusion restriction can be defended from theory and whose relevance can be demonstrated empirically — requires deep domain knowledge and careful thinking about the data-generating process. A weak but credible instrument is preferable to a strong instrument with a plausible exclusion-restriction violation. The first produces inflated standard errors; the second produces biased point estimates.

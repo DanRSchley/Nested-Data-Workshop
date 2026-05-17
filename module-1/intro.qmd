@@ -1,8 +1,16 @@
 ---
-title: "Overview"
+title: "Module 1: The Mixed-Effects Framework"
 ---
 
 # Module 1: The Mixed-Effects Framework {.unnumbered}
+
+::: {.callout-note icon=false}
+## Three Questions Before Fitting Any Model
+
+- **What does your data structure require?** Are observations nested inside units, crossed across multiple grouping factors, or nested at three levels — and does your model reflect that structure?
+- **What goes wrong without the right model?** Standard errors that are too small, fixed-effect estimates that conflate within-unit change with between-unit sorting, and predictions that cannot generalize to new units.
+- **What does each step add — and what does it cost?** Moving from pooled OLS to fixed effects to random intercepts to random slopes imposes progressively stronger distributional assumptions. Each model buys something new and requires something new in return.
+:::
 
 ## The Toolkit
 
@@ -44,6 +52,79 @@ Before diving into each part, here is a map of the model family this module buil
 | Units nested in higher units | Three-level model | Partitions variance correctly; avoids pseudo-replication | Does not identify causal pathways across levels |
 
 : Model family overview. The last column is what drives Module 3. {tbl-colwidths="[22,20,30,28]"}
+
+```{r assumption-map, echo=FALSE, fig.height=4, fig.width=10}
+#| fig-cap: "Assumption burden and capability across model families. Green = advantage or assumption not needed; Amber = assumption you must meet; Red = limitation or violated by design; Grey = not applicable."
+library(ggplot2)
+library(dplyr)
+
+models <- c("Pooled\nOLS", "Fixed\nEffects", "Random\nIntercepts", "Random\nSlopes", "Crossed\nRE")
+
+df_map <- tribble(
+  ~assumption,                         ~model,             ~status,          ~label,
+  "RE ⊥ X\n(no stable confound)",      "Pooled\nOLS",       "violated",       "Violated",
+  "RE ⊥ X\n(no stable confound)",      "Fixed\nEffects",    "not_needed",     "Not needed",
+  "RE ⊥ X\n(no stable confound)",      "Random\nIntercepts","required_star",  "Required ★",
+  "RE ⊥ X\n(no stable confound)",      "Random\nSlopes",    "required_star",  "Required ★",
+  "RE ⊥ X\n(no stable confound)",      "Crossed\nRE",       "required_star",  "Required ★",
+  "Normality of\nrandom effects",       "Pooled\nOLS",       "not_applicable", "N/A",
+  "Normality of\nrandom effects",       "Fixed\nEffects",    "not_applicable", "N/A",
+  "Normality of\nrandom effects",       "Random\nIntercepts","required",       "Required",
+  "Normality of\nrandom effects",       "Random\nSlopes",    "required",       "Required",
+  "Normality of\nrandom effects",       "Crossed\nRE",       "required",       "Required",
+  "Between-unit variance\nhandling",    "Pooled\nOLS",       "violated",       "Confounded",
+  "Between-unit variance\nhandling",    "Fixed\nEffects",    "benefit",        "Removed",
+  "Between-unit variance\nhandling",    "Random\nIntercepts","benefit",        "Estimated",
+  "Between-unit variance\nhandling",    "Random\nSlopes",    "benefit",        "Estimated",
+  "Between-unit variance\nhandling",    "Crossed\nRE",       "benefit",        "Both estimated",
+  "Heterogeneous\nslopes",              "Pooled\nOLS",       "violated",       "Ignored",
+  "Heterogeneous\nslopes",              "Fixed\nEffects",    "violated",       "Ignored",
+  "Heterogeneous\nslopes",             "Random\nIntercepts","violated",       "Ignored",
+  "Heterogeneous\nslopes",              "Random\nSlopes",    "benefit",        "Modeled",
+  "Heterogeneous\nslopes",              "Crossed\nRE",       "partial",        "Partial",
+  "Generalise to\nnew units",           "Pooled\nOLS",       "partial",        "Yes (naive)",
+  "Generalise to\nnew units",           "Fixed\nEffects",    "violated",       "No",
+  "Generalise to\nnew units",           "Random\nIntercepts","benefit",        "Yes",
+  "Generalise to\nnew units",           "Random\nSlopes",    "benefit",        "Yes",
+  "Generalise to\nnew units",           "Crossed\nRE",       "benefit",        "Yes"
+) |>
+  mutate(
+    model = factor(model, levels = models),
+    assumption = factor(assumption, levels = rev(c(
+      "RE ⊥ X\n(no stable confound)",
+      "Normality of\nrandom effects",
+      "Between-unit variance\nhandling",
+      "Heterogeneous\nslopes",
+      "Generalise to\nnew units"
+    )))
+  )
+
+status_colors <- c(
+  "violated"       = "#f4a7a3",
+  "not_needed"     = "#b7e4c7",
+  "required_star"  = "#fdd9a0",
+  "required"       = "#fdd9a0",
+  "benefit"        = "#b7e4c7",
+  "not_applicable" = "#e8e8e8",
+  "partial"        = "#dde9f7"
+)
+
+ggplot(df_map, aes(x = model, y = assumption, fill = status, label = label)) +
+  geom_tile(color = "white", linewidth = 0.9, width = 0.95, height = 0.92) +
+  geom_text(size = 2.9, lineheight = 0.9) +
+  scale_fill_manual(values = status_colors, guide = "none") +
+  labs(
+    title    = "Assumption burden and capability across model families",
+    subtitle = "Green = advantage or not needed  |  Amber = required assumption  |  Red = concern  |  Grey = N/A\n★ = the key assumption that distinguishes random effects from fixed effects",
+    x = NULL, y = NULL
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    panel.grid  = element_blank(),
+    axis.text.x = element_text(face = "bold", size = 10),
+    axis.text.y = element_text(size = 9)
+  )
+```
 
 The rightmost column is intentional. Every model in this module corrects a **dependence problem** — observations that are not independent. None of them, on their own, solve an **identification problem** — the question of whether your predictor is truly exogenous. That distinction is the heart of Module 3.
 

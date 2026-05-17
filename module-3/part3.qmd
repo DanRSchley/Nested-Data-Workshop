@@ -21,6 +21,25 @@ Even with a perfectly specified model, if your observations are not representati
 
 Selection is especially dangerous in nested and longitudinal data because the same processes that structure the data — time, group membership, experimental condition — also drive who stays in it. The threats that follow apply across research contexts, but the way they manifest differs.
 
+```{mermaid}
+flowchart TD
+    A["Eligible population<br/>All consumers / study-eligible participants"]
+    --> B["Sampling frame<br/>Those reachable by recruitment"]
+    B --> C["Enrolled / baseline sample<br/>Those who agreed to participate"]
+    C --> D["Active participants<br/>Retained through key time points"]
+    D --> E["Analyzed sample<br/>Complete-case or available-case dataset"]
+
+    A --> |"Representativeness bias:<br/>systematic gap between eligible and reachable"| B
+    B --> |"Self-selection bias:<br/>volunteers differ from decliners"| C
+    C --> |"Attrition bias:<br/>high-distress, high-burden participants drop"| D
+    D --> |"Exclusion bias:<br/>non-random post-hoc criteria"| E
+
+    style A fill:#deebf7,stroke:#1e3a5f
+    style E fill:#fce4ec,stroke:#c0392b
+```
+
+Each narrowing step in the funnel is a potential source of selection bias. The question at each step is: **are the people who disappear systematically different from those who remain, in ways that predict the outcome?** If yes, the analyzed sample is not representative of the population the researcher wants to generalize to. The types below catalog the main mechanisms.
+
 ---
 
 ## Type 1: Representativeness Bias

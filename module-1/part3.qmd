@@ -15,15 +15,23 @@ set.seed(42)
 
 # Random Slopes
 
+::: {.callout-note icon=false}
+## When the Average Effect Hides the Most Interesting Story
+
+- **Question:** If the random-intercept model only lets units start at different levels, what happens when the *effect* of a predictor also varies across units — when disclosure motivates some households strongly but leaves others cold?
+- **What goes wrong:** A model with random intercepts but a fixed slope estimates one disclosure effect for everyone. That single number is the *average*, but the average may describe no individual household accurately. Omitting the random slope also pushes treatment heterogeneity into the residual, deflating standard errors for the average effect.
+- **The fix:** Random slopes add a unit-specific deviation to the slope — estimating the distribution of effects across units, not just the mean. The result is correct standard errors, richer interpretation, and a direct measure of treatment effect heterogeneity.
+:::
+
 ## When Effects Vary Across Units
 
 The random-intercept model assumes that the *slope* — the relationship between a predictor and the outcome — is identical across all units. Only the baseline level differs from unit to unit. This is often an unrealistic assumption.
 
 Consider two research settings:
 
-**Longitudinal panel data.** An employee well-being study tracks workers across weekly waves. The average effect of workload on well-being may be negative — heavier workloads are associated with lower well-being. But some employees are highly sensitive: a small increase in workload produces a steep drop in their scores. Others are remarkably resilient: their well-being stays high regardless of how demanding their job gets. The slope of workload → well-being *varies across employees*.
+**Longitudinal panel data.** A financial coaching program tracks households across monthly waves. The average effect of disclosure engagement on savings may be positive — households that read more of the disclosure tend to save more that month. But some households are highly responsive: reading one extra page pushes them to act on the advice. Others are dismissive: they read the same pages but do not change their behaviour. The slope of disclosure → savings *varies across households*.
 
-**Within-subjects experiments.** A scarcity priming study asks participants to complete decision tasks under either resource-scarcity or control conditions. On average, the scarcity condition reduces decision quality. But individual responses to the manipulation vary considerably — some participants are strongly affected, others barely register a difference. The *treatment effect itself* is heterogeneous across participants.
+**Within-subjects experiments.** A price-framing study asks participants to complete WTP tasks under either a "high anchor" or "neutral" framing. On average, the anchor condition increases WTP. But individual responses to the manipulation vary considerably — some participants are strongly anchored, others barely register a difference. The *treatment effect itself* is heterogeneous across participants.
 
 The **random-slope model** addresses this directly. Rather than fixing one slope for everyone, we treat each unit's slope as a draw from a distribution, allowing us to estimate:
 
@@ -41,108 +49,108 @@ $$\beta_{0j} = \gamma_{00} + u_{0j}$$
 $$\beta_{1j} = \gamma_{10} + u_{1j}$$
 
 **Combined form:**
-$$Y_{ij} = \underbrace{\gamma_{00}}_{\text{grand mean}} + \underbrace{\gamma_{10} X_{ij}}_{\text{avg slope}} + \underbrace{u_{0j}}_{\text{person intercept}} + \underbrace{u_{1j} X_{ij}}_{\text{person slope deviation}} + \varepsilon_{ij}$$
+$$Y_{ij} = \underbrace{\gamma_{00}}_{\text{grand mean}} + \underbrace{\gamma_{10} X_{ij}}_{\text{avg slope}} + \underbrace{u_{0j}}_{\text{unit intercept}} + \underbrace{u_{1j} X_{ij}}_{\text{unit slope deviation}} + \varepsilon_{ij}$$
 
 The random effects are assumed to follow a bivariate normal distribution:
 $$\begin{pmatrix} u_{0j} \\ u_{1j} \end{pmatrix} \sim \mathcal{N}\left(\begin{pmatrix} 0 \\ 0 \end{pmatrix}, \begin{pmatrix} \sigma^2_{u_0} & \sigma_{u_0 u_1} \\ \sigma_{u_0 u_1} & \sigma^2_{u_1} \end{pmatrix}\right)$$
 
 **What does $u_{1j}$ mean in each context?**
 
-- **Longitudinal:** $u_{1j}$ is employee $j$'s deviation from the average workload sensitivity. A large negative $u_{1j}$ means this employee is especially sensitive to workload demands — their well-being drops steeply when workload increases. A near-zero $u_{1j}$ means workload has its typical effect on this person.
+- **Longitudinal:** $u_{1j}$ is household $j$'s deviation from the average disclosure sensitivity. A large positive $u_{1j}$ means this household responds unusually strongly to disclosure — each page read produces a steep increase in savings. A near-zero $u_{1j}$ means disclosure has its typical (average) effect on this household.
 
-- **Experimental:** $u_{1j}$ is participant $j$'s deviation from the average scarcity effect on decision quality. A large positive or negative $u_{1j}$ signals heterogeneous treatment response — the manipulation was much stronger or weaker for this individual than average.
+- **Experimental:** $u_{1j}$ is participant $j$'s deviation from the average anchoring effect. A large $u_{1j}$ signals that this individual is strongly anchored — the framing shifts their WTP far more than average. A near-zero $u_{1j}$ means the manipulation barely affected them.
 
-## Longitudinal Example — Employee Wellbeing and Workload
+## Longitudinal Example — Heterogeneous Response to Financial Disclosure
 
-**Design:** 50 employees measured at 8 weekly time points. The predictor is weekly workload (centered at its grand mean of 50). The outcome is well-being (0–100 scale). Each employee has their own workload sensitivity — modeled as a random slope.
+**Design:** 50 households measured across 8 monthly waves. The predictor is monthly disclosure engagement (pages read, centered at its grand mean of 6). The outcome is monthly savings rate (%). Each household has their own disclosure sensitivity — modeled as a random slope.
 
-The simulation imposes a correlation of −0.3 between intercepts and slopes, so employees who start with high baseline well-being are somewhat less sensitive to workload fluctuations.
+The simulation imposes a correlation of −0.3 between intercepts and slopes: households that start with high baseline savings are somewhat less sensitive to disclosure (perhaps because they are already well-informed and the marginal effect of additional reading is smaller).
 
 ```{r longitudinal-data}
-n_employees <- 50
-n_waves     <- 8
+n_households <- 50
+n_waves      <- 8
 
-# Correlated random intercepts and slopes: SD_int = 8, SD_slope = 1.5, rho = -0.3
-Sigma_long <- matrix(c(64, -3.6, -3.6, 2.25), nrow = 2)
-re_mat     <- MASS::mvrnorm(n_employees, mu = c(0, 0), Sigma = Sigma_long)
+# Correlated random intercepts and slopes: SD_int = 8, SD_slope = 0.8, rho = -0.3
+Sigma_long <- matrix(c(64, -1.92, -1.92, 0.64), nrow = 2)
+re_mat     <- MASS::mvrnorm(n_households, mu = c(0, 0), Sigma = Sigma_long)
 
-df_long <- expand_grid(
-  employee = 1:n_employees,
-  wave     = 1:n_waves
+df_diary <- expand_grid(
+  household = 1:n_households,
+  wave      = 1:n_waves
 ) |>
   mutate(
-    workload   = rnorm(n(), mean = 50, sd = 10),
-    workload_c = workload - 50,
-    well_being = (55 + re_mat[employee, 1]) +
-                 (-2 + re_mat[employee, 2]) * workload_c +
-                 rnorm(n(), 0, 5),
-    employee   = factor(employee)
+    disclosure   = rnorm(n(), mean = 6, sd = 2),
+    disclosure_c = disclosure - 6,
+    savings      = (25 + re_mat[household, 1]) +
+                   (2 + re_mat[household, 2]) * disclosure_c +
+                   rnorm(n(), 0, 5),
+    household    = factor(household)
   )
 
 # Random intercept only
-model_ri_long <- lmer(well_being ~ workload_c + (1 | employee),
-                      data = df_long, REML = TRUE)
+model_ri_diary <- lmer(savings ~ disclosure_c + (1 | household),
+                       data = df_diary, REML = TRUE)
 
 # Random intercept + slope
-model_rs_long <- lmer(well_being ~ workload_c + (workload_c | employee),
-                      data = df_long, REML = TRUE)
+model_rs_diary <- lmer(savings ~ disclosure_c + (disclosure_c | household),
+                       data = df_diary, REML = TRUE)
 
-broom.mixed::tidy(model_rs_long, effects = "ran_pars") |>
+broom.mixed::tidy(model_rs_diary, effects = "ran_pars") |>
   knitr::kable(digits = 3,
-               caption = "Variance components: workload → well-being random slope model")
+               caption = "Variance components: disclosure → savings random slope model")
 ```
 
-The variance component for `workload_c` at the employee level ($\hat\sigma^2_{u_1}$) captures how much individual sensitivity varies. The correlation term estimates the intercept-slope association.
+The variance component for `disclosure_c` at the household level ($\hat\sigma^2_{u_1}$) captures how much individual sensitivity to disclosure varies. The correlation term estimates the intercept-slope association.
 
 ```{r longitudinal-slopes-plot}
-# Extract OLS estimates per employee for visualization
-employee_lines <- df_long |>
-  group_by(employee) |>
+# Extract OLS estimates per household for visualization
+household_lines <- df_diary |>
+  group_by(household) |>
   summarise(
-    intercept = coef(lm(well_being ~ workload_c))[[1]],
-    slope     = coef(lm(well_being ~ workload_c))[[2]],
+    intercept = coef(lm(savings ~ disclosure_c))[[1]],
+    slope     = coef(lm(savings ~ disclosure_c))[[2]],
     .groups   = "drop"
   )
 
-workload_range <- seq(-20, 20, by = 0.5)
+disc_range <- seq(-4, 4, by = 0.5)
 
-lines_df_long <- employee_lines |>
+lines_df_long <- household_lines |>
   mutate(
-    x = list(workload_range),
-    y = map2(intercept, slope, ~ .x + .y * workload_range)
+    x = list(disc_range),
+    y = map2(intercept, slope, ~ .x + .y * disc_range)
   ) |>
   unnest(c(x, y)) |>
-  rename(workload_c = x, well_being = y)
+  rename(disclosure_c = x, savings = y)
 
 p_long_slopes <- ggplot() +
   geom_line(data = lines_df_long,
-            aes(x = workload_c, y = well_being, group = employee),
+            aes(x = disclosure_c, y = savings, group = household),
             color = "#1e3a5f", alpha = 0.3, linewidth = 0.4) +
   geom_abline(
-    slope     = fixef(model_rs_long)["workload_c"],
-    intercept = fixef(model_rs_long)["(Intercept)"],
+    slope     = fixef(model_rs_diary)["disclosure_c"],
+    intercept = fixef(model_rs_diary)["(Intercept)"],
     color     = "#e63946", linewidth = 1.8
   ) +
   labs(
-    title    = "Longitudinal: workload → well-being",
-    subtitle = "Each line = one employee; red = average fixed slope",
-    x        = "Workload (centered)",
-    y        = "Well-being"
+    title    = "Longitudinal: disclosure → savings",
+    subtitle = "Each line = one household; red = average fixed slope",
+    x        = "Disclosure engagement (centered)",
+    y        = "Monthly savings rate (%)"
   ) +
   theme_minimal(base_size = 12)
 
 p_long_slopes
 ```
 
-The grey lines reveal substantial variation in workload sensitivity. Most employees show the expected negative slope, but the *steepness* varies considerably. A few employees show near-flat or even slightly positive slopes — for them, workload may not be experienced as burdensome during this observation period.
+The grey lines reveal substantial variation in disclosure sensitivity. Most households show the expected positive slope, but the *steepness* varies considerably. A few households show near-flat slopes — for them, disclosure engagement may reflect motivation that exists regardless of the specific advice read.
 
-**Intercept-slope correlation:** A negative correlation (as simulated here) means employees who start with high baseline well-being tend to show a *weaker* negative workload effect. High-well-being employees may have resources — social support, autonomy, resilience — that buffer against workload demands. Conversely, employees already struggling (low baseline) may be most vulnerable to workload spikes.
+**Intercept-slope correlation:** A negative correlation means households with higher baseline savings tend to show a *weaker* positive disclosure effect. High-saving households may already be well-informed, so additional reading yields diminishing returns. Conversely, low-saving households may have the most to gain from each additional page.
 
-## Experimental Example — Scarcity and Decision Quality
+## Experimental Example — Anchoring and WTP
 
-**Design:** 60 participants complete 12 decision trials each (6 in the scarcity condition, 6 in the control condition, counterbalanced). The predictor is condition (scarcity = 1, control = 0). The outcome is decision quality (0–100 scale). Each participant is allowed their own scarcity sensitivity.
+**Design:** 60 participants complete 12 WTP tasks each (6 in the high-anchor condition, 6 in the neutral condition, counterbalanced). The predictor is framing condition (anchor = 1, neutral = 0). The outcome is WTP (0–100 scale). Each participant is allowed their own anchoring sensitivity.
 
-The simulation imposes a positive correlation of 0.2 between intercepts and slopes: participants with higher baseline decision quality show a slightly stronger scarcity effect.
+The simulation imposes a positive correlation of 0.2 between intercepts and slopes: participants with higher baseline WTP show a slightly stronger anchoring effect (the anchor has more "room" to pull their estimates upward).
 
 ```{r experimental-data}
 n_participants <- 60
@@ -158,36 +166,36 @@ df_exp <- expand_grid(
   trial       = 1:n_trials_each
 ) |>
   mutate(
-    decision_quality = (65 + re_mat_exp[participant, 1]) +
-                       (-5 + re_mat_exp[participant, 2]) * condition +
-                       rnorm(n(), 0, 6),
+    wtp             = (55 + re_mat_exp[participant, 1]) +
+                      (8 + re_mat_exp[participant, 2]) * condition +
+                      rnorm(n(), 0, 6),
     participant     = factor(participant),
-    condition_label = factor(condition, labels = c("Control", "Scarcity"))
+    condition_label = factor(condition, labels = c("Neutral", "Anchor"))
   )
 
 # Random intercept only
-model_ri_exp <- lmer(decision_quality ~ condition + (1 | participant),
+model_ri_exp <- lmer(wtp ~ condition + (1 | participant),
                      data = df_exp, REML = TRUE)
 
 # Random intercept + slope for condition
-model_rs_exp <- lmer(decision_quality ~ condition + (condition | participant),
+model_rs_exp <- lmer(wtp ~ condition + (condition | participant),
                      data = df_exp, REML = TRUE)
 
 broom.mixed::tidy(model_rs_exp, effects = "ran_pars") |>
   knitr::kable(digits = 3,
-               caption = "Variance components: scarcity condition random slope model")
+               caption = "Variance components: anchor framing condition random slope model")
 ```
 
 ```{r experimental-ranef-histogram}
-# Extract per-participant scarcity effects (random slope BLUPs + fixed effect)
+# Extract per-participant anchoring effects (random slope BLUPs + fixed effect)
 re_exp     <- ranef(model_rs_exp)$participant
 names(re_exp) <- c("u0", "u1")
 avg_effect <- fixef(model_rs_exp)["condition"]
 
 re_exp <- re_exp |>
-  mutate(person_scarcity_effect = avg_effect + u1)
+  mutate(person_anchor_effect = avg_effect + u1)
 
-p_hist <- ggplot(re_exp, aes(x = person_scarcity_effect)) +
+p_hist <- ggplot(re_exp, aes(x = person_anchor_effect)) +
   geom_histogram(bins = 20, fill = "#457b9d", color = "white", alpha = 0.85) +
   geom_vline(xintercept = avg_effect, color = "#e63946",
              linewidth = 1.5, linetype = "dashed") +
@@ -195,9 +203,9 @@ p_hist <- ggplot(re_exp, aes(x = person_scarcity_effect)) +
            label = "avg effect", color = "#e63946",
            vjust = 2, hjust = 0, size = 3.5) +
   labs(
-    title    = "Distribution of individual scarcity effects",
+    title    = "Distribution of individual anchoring effects on WTP",
     subtitle = "Each bar = how many participants experienced that effect size",
-    x        = "Person-level scarcity effect on decision quality",
+    x        = "Person-level anchoring effect on WTP",
     y        = "Count"
   ) +
   theme_minimal(base_size = 12)
@@ -205,14 +213,14 @@ p_hist <- ggplot(re_exp, aes(x = person_scarcity_effect)) +
 p_hist
 ```
 
-Some participants show almost no scarcity effect; others show a drop exceeding −10 points. The random slope captures this theoretically important heterogeneity — heterogeneity that is invisible in a model that forces the same effect on everyone.
+Some participants show almost no anchoring effect; others show a WTP increase exceeding +20 points. The random slope captures this theoretically important heterogeneity — heterogeneity that is invisible in a model that forces the same effect on everyone.
 
 ```{r experimental-slopes-plot}
 participant_lines <- df_exp |>
   group_by(participant) |>
   summarise(
-    intercept = coef(lm(decision_quality ~ condition))[[1]],
-    slope     = coef(lm(decision_quality ~ condition))[[2]],
+    intercept = coef(lm(wtp ~ condition))[[1]],
+    slope     = coef(lm(wtp ~ condition))[[2]],
     .groups   = "drop"
   )
 
@@ -231,12 +239,12 @@ p_exp_slopes <- ggplot() +
         yend = fixef(model_rs_exp)["(Intercept)"] + fixef(model_rs_exp)["condition"]),
     color = "#e63946", linewidth = 2
   ) +
-  scale_x_continuous(breaks = c(0, 1), labels = c("Control", "Scarcity")) +
+  scale_x_continuous(breaks = c(0, 1), labels = c("Neutral", "Anchor")) +
   labs(
-    title    = "Experimental: scarcity → decision quality",
-    subtitle = "Each line = one participant's treatment effect; red = average",
+    title    = "Experimental: anchor framing → WTP",
+    subtitle = "Each line = one participant's framing effect; red = average",
     x        = "Condition",
-    y        = "Decision quality"
+    y        = "WTP (0–100)"
   ) +
   theme_minimal(base_size = 12)
 
@@ -257,7 +265,7 @@ p_exp_slopes
 p_long_slopes + p_exp_slopes +
   plot_annotation(
     title   = "Random slopes: heterogeneous effects in two research designs",
-    caption = "Red lines/segments = fixed (average) effects; colored lines = individual unit slopes"
+    caption = "Red lines/segments = fixed (average) effects; grey lines = individual unit slopes"
   )
 ```
 
@@ -267,19 +275,19 @@ The random-slope model estimates not just variance in intercepts and variance in
 
 This correlation is substantively meaningful in both contexts.
 
-**Longitudinal interpretation.** A negative intercept-slope correlation means: employees with *higher* baseline well-being tend to show a *weaker* negative workload effect. This is a buffering pattern — high-well-being employees are more resilient to workload fluctuations than their struggling colleagues.
+**Longitudinal interpretation.** A negative intercept-slope correlation means: households with *higher* baseline savings tend to show a *weaker* positive disclosure effect. High-saving households may already implement advice regardless of how much they read — diminishing returns to disclosure. Conversely, low-saving households may have the most to gain from each additional page.
 
-**Experimental interpretation.** A positive intercept-slope correlation means: participants with *higher* baseline decision quality (in the control condition) show a *stronger* drop under scarcity. One interpretation: the scarcity manipulation particularly disrupts the elaborate, careful strategies that high-ability participants rely on — a "more to lose" pattern.
+**Experimental interpretation.** A positive intercept-slope correlation means: participants with *higher* baseline WTP show a *stronger* anchoring effect. One interpretation: the anchor provides a reference that is proportionally more relevant when a participant already has a high willingness to pay — more room to be pulled upward.
 
 ```{r intercept-slope-corr}
-p_corr_long <- ggplot(employee_lines, aes(x = intercept, y = slope)) +
+p_corr_long <- ggplot(household_lines, aes(x = intercept, y = slope)) +
   geom_point(size = 2.5, color = "#1e3a5f", alpha = 0.7) +
   geom_smooth(method = "lm", color = "#e63946", se = TRUE, linewidth = 1) +
   labs(
     title    = "Longitudinal",
-    subtitle = "Negative: high-baseline employees less workload-sensitive",
-    x        = "Intercept (baseline well-being)",
-    y        = "Slope (workload effect)"
+    subtitle = "Negative: high-baseline households less disclosure-sensitive",
+    x        = "Intercept (baseline savings rate)",
+    y        = "Slope (disclosure effect)"
   ) +
   theme_minimal(base_size = 12)
 
@@ -288,9 +296,9 @@ p_corr_exp <- ggplot(participant_lines, aes(x = intercept, y = slope)) +
   geom_smooth(method = "lm", color = "#e63946", se = TRUE, linewidth = 1) +
   labs(
     title    = "Experimental",
-    subtitle = "Positive: high-baseline participants more scarcity-sensitive",
-    x        = "Intercept (control condition quality)",
-    y        = "Slope (scarcity effect)"
+    subtitle = "Positive: high-baseline WTP participants more anchor-sensitive",
+    x        = "Intercept (neutral condition WTP)",
+    y        = "Slope (anchoring effect)"
   ) +
   theme_minimal(base_size = 12)
 
@@ -304,27 +312,27 @@ By default, `(predictor | group)` estimates random slope variance *and* the inte
 
 ```r
 # Full: estimates intercept variance, slope variance, AND their correlation
-lmer(well_being ~ workload_c + (workload_c | employee), data = df_long)
+lmer(savings ~ disclosure_c + (disclosure_c | household), data = df_diary)
 
 # Zero-correlation: estimates both variances, forces correlation to zero
-lmer(well_being ~ workload_c + (1 | employee) + (0 + workload_c | employee), data = df_long)
+lmer(savings ~ disclosure_c + (1 | household) + (0 + disclosure_c | household), data = df_diary)
 ```
 
 Applied to the experimental data:
 
 ```{r zero-corr-example}
-model_zcp_exp <- lmer(decision_quality ~ condition +
+model_zcp_exp <- lmer(wtp ~ condition +
                         (1 | participant) + (0 + condition | participant),
                       data = df_exp, REML = FALSE)
 
 # Staged LRT: (1) does the random slope variance matter?
 #             (2) does the correlation additionally matter?
-model_ri_only_ml <- lmer(decision_quality ~ condition + (1 | participant),
+model_ri_only_ml <- lmer(wtp ~ condition + (1 | participant),
                          data = df_exp, REML = FALSE)
-model_zcp_ml     <- lmer(decision_quality ~ condition +
+model_zcp_ml     <- lmer(wtp ~ condition +
                            (1 | participant) + (0 + condition | participant),
                          data = df_exp, REML = FALSE)
-model_full_rs_ml <- lmer(decision_quality ~ condition + (condition | participant),
+model_full_rs_ml <- lmer(wtp ~ condition + (condition | participant),
                          data = df_exp, REML = FALSE)
 
 anova(model_ri_only_ml, model_zcp_ml, model_full_rs_ml)
@@ -347,6 +355,8 @@ The sequence tests: (1) does the random slope variance matter at all? (RI vs. ZC
 ## Assumption 1: Multivariate Normality of Random Effects
 
 **What it means:** The random intercepts and slopes are jointly drawn from a bivariate normal distribution. Severe departures — banana-shaped clouds, truncation, discrete clusters — suggest the normality assumption is violated, and estimates may be biased.
+
+**JDM examples:** If households fall into two discrete types (highly financially engaged vs. completely disengaged), the random slopes will form two clusters rather than an elliptical cloud. Similarly, if participants in an anchoring study come from two distinct pools (experienced negotiators vs. novices), the slope distribution may be bimodal.
 
 **How to check:** Plot the BLUP estimates from `ranef()` as a scatterplot. A well-specified model produces an elliptical cloud centered at the origin.
 
@@ -376,20 +386,20 @@ ggplot(re_df_exp, aes(x = u0_intercept, y = u1_slope)) +
 **How to check:** Use likelihood ratio tests (LRT) comparing models with and without the random slope. Models must be fitted with `REML = FALSE` for valid LRT comparisons.
 
 ```{r lrt-slopes}
-model_ri_long_ml <- lmer(well_being ~ workload_c + (1 | employee),
-                         data = df_long, REML = FALSE)
-model_rs_long_ml <- lmer(well_being ~ workload_c + (workload_c | employee),
-                         data = df_long, REML = FALSE)
+model_ri_diary_ml <- lmer(savings ~ disclosure_c + (1 | household),
+                          data = df_diary, REML = FALSE)
+model_rs_diary_ml <- lmer(savings ~ disclosure_c + (disclosure_c | household),
+                          data = df_diary, REML = FALSE)
 
-cat("=== Longitudinal: does workload slope vary across employees? ===\n")
-anova(model_ri_long_ml, model_rs_long_ml)
+cat("=== Longitudinal: does disclosure slope vary across households? ===\n")
+anova(model_ri_diary_ml, model_rs_diary_ml)
 
-model_ri_exp_ml  <- lmer(decision_quality ~ condition + (1 | participant),
+model_ri_exp_ml  <- lmer(wtp ~ condition + (1 | participant),
                           data = df_exp, REML = FALSE)
-model_rs_exp_ml  <- lmer(decision_quality ~ condition + (condition | participant),
+model_rs_exp_ml  <- lmer(wtp ~ condition + (condition | participant),
                           data = df_exp, REML = FALSE)
 
-cat("\n=== Experimental: does scarcity effect vary across participants? ===\n")
+cat("\n=== Experimental: does anchoring effect vary across participants? ===\n")
 anova(model_ri_exp_ml, model_rs_exp_ml)
 ```
 
@@ -404,7 +414,7 @@ A significant LRT ($p < .05$) indicates the random slope accounts for meaningful
 **How to check:** Use `check_convergence()` from the `performance` package.
 
 ```{r convergence-check}
-check_convergence(model_rs_long)
+check_convergence(model_rs_diary)
 check_convergence(model_rs_exp)
 ```
 
@@ -421,25 +431,38 @@ check_convergence(model_rs_exp)
 
 Add random slopes when:
 
-1. **Theory predicts heterogeneous effects.** In organizational research, employee-level differences in workload sensitivity are plausible and interesting. In experiments, individual differences in response to priming manipulations are well-documented.
+1. **Theory predicts heterogeneous effects.** In financial coaching research, household-level differences in disclosure sensitivity are plausible and theoretically interesting — some households act on advice, others do not. In anchoring studies, individual differences in susceptibility to reference points are well-documented.
 
 2. **The LRT supports them.** The model with random slopes fits significantly better than the model without (at `REML = FALSE`).
 
 3. **The design mandates them.** In within-subjects experimental designs, random slopes for within-subjects conditions are structurally required to account for heterogeneous treatment effects. Omitting them is not conservative — it inflates Type I error (Barr et al., 2013).
 
-4. **Sample size is adequate.** Estimating a random slope requires sufficient variation in the predictor *within each unit*. Longitudinally: each employee must have multiple waves with varying workload. Experimentally: each participant must complete trials in multiple conditions.
+4. **Sample size is adequate.** Estimating a random slope requires sufficient variation in the predictor *within each unit*. Longitudinally: each household must have multiple waves with varying disclosure engagement. Experimentally: each participant must complete trials in multiple conditions.
 
 ```{r model-comparison-table}
 bind_rows(
-  broom.mixed::glance(model_ri_long_ml) |> mutate(model = "RI only",    setting = "Longitudinal"),
-  broom.mixed::glance(model_rs_long_ml) |> mutate(model = "RI + Slope", setting = "Longitudinal"),
-  broom.mixed::glance(model_ri_exp_ml)  |> mutate(model = "RI only",    setting = "Experimental"),
-  broom.mixed::glance(model_rs_exp_ml)  |> mutate(model = "RI + Slope", setting = "Experimental")
+  broom.mixed::glance(model_ri_diary_ml) |> mutate(model = "RI only",    setting = "Longitudinal"),
+  broom.mixed::glance(model_rs_diary_ml) |> mutate(model = "RI + Slope", setting = "Longitudinal"),
+  broom.mixed::glance(model_ri_exp_ml)   |> mutate(model = "RI only",    setting = "Experimental"),
+  broom.mixed::glance(model_rs_exp_ml)   |> mutate(model = "RI + Slope", setting = "Experimental")
 ) |>
   select(setting, model, AIC, BIC, logLik) |>
   knitr::kable(digits = 1,
                caption = "Model fit: random intercept vs. random intercept + slope")
 ```
+
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions About Your Random Slopes
+
+**Challenge 1 — "Is the slope variance scientifically meaningful or just noise?"**
+A significant LRT for the random slope variance tells you that slopes vary across units more than expected by chance. But variance could reflect true heterogeneity in disclosure sensitivity *or* measurement noise in within-household disclosure estimates. Reviewers will ask: is the $\hat\sigma_{u_1}$ estimate large enough to be practically meaningful? If the SD of individual slopes is only 0.1 when the average effect is 2.0, the heterogeneity is probably not theoretically important, even if statistically significant. Report $\hat\sigma_{u_1}$ alongside the fixed slope.
+
+**Challenge 2 — "What does the intercept-slope correlation mean for your theory?"**
+A reviewer will ask whether the negative correlation between household baseline savings and disclosure sensitivity is consistent with a theoretical mechanism (diminishing returns) or whether it is an artefact of regression to the mean. Present the correlation with a scatterplot of BLUPs and a substantive interpretation — do not just report the number from the variance-covariance matrix.
+
+**Challenge 3 — "Did you test the maximal structure?"**
+If you included a random slope for disclosure engagement but not for other within-household predictors (e.g., season, promotion activity), a reviewer may ask why. The Barr et al. (2013) recommendation is to include random slopes for all within-unit factors. Be ready to justify each slope inclusion or exclusion with a combination of theoretical reasoning and LRT results.
+:::
 
 ## Recommended Reading
 

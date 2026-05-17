@@ -14,6 +14,14 @@ set.seed(202)
 
 # Separating Within and Between Effects
 
+::: {.callout-note icon=false}
+## When the Blended Estimate Fails Both Questions at Once
+
+- **Question:** You have a within-subjects observation (a customer's monthly savings) and a predictor (disclosure engagement). Your scientific question is: does engaging with the disclosure document cause savings to increase? But the pooled model also picks up the fact that financially engaged customers are generally better savers. Which question does your estimate actually answer?
+- **What goes wrong:** A random-effects model with an uncentered predictor implicitly assumes that the within-customer effect of disclosure equals the between-customer correlation. When these differ — and in consumer financial behaviour, they almost always do — the pooled estimate is biased for both questions.
+- **The fix:** The Mundlak device (cluster-mean centering + unit mean in the model) gives you two separate estimates: the within-customer causal question and the between-customer comparison. The Wald test tells you whether they are statistically distinguishable.
+:::
+
 ## The Mundlak Device
 
 Part 1 showed that a predictor in nested data carries two mechanisms. The formal statistical tool for separating them is known as the **Mundlak device** (Mundlak, 1978) or equivalently the **within-between (WB) model**.
@@ -159,38 +167,38 @@ The between-country estimate is 5× larger than the within-country estimate. Usi
 
 ---
 
-## Example 4: Convergent Effects — Training and Performance
+## Example 4: Convergent Effects — Consumer Financial Information Exposure and Savings
 
 Not every decomposition reveals a divergence. When within and between effects are approximately equal, this is itself a substantive finding: the same mechanism operates at both levels.
 
-**Employee training hours → job performance.** Within an employee: weeks where they receive more training, their performance ticks up (skill acquisition). Between employees: those who invest more in training overall also perform better (both due to training AND because high performers seek out training). Both effects are positive and of similar magnitude.
+**Monthly information exposure (coaching contact hours) → savings rate.** Within a customer: months where they have *more coaching contact than usual*, their savings rate increases (the coaching content is being absorbed and acted on). Between customers: customers with *higher average coaching contact* also have higher savings (both due to coaching AND because financially motivated customers seek more contact). Both effects are positive and of similar magnitude.
 
-```{r training-performance}
-n_emp <- 100; n_weeks <- 8
+```{r coaching-savings}
+n_cust  <- 100; n_months_c <- 8
 
-emp_train_avg   <- rnorm(n_emp, 4, 1.5)
-emp_perf_base   <- 50 + 3 * emp_train_avg + rnorm(n_emp, 0, 6)
+cust_coach_avg  <- rnorm(n_cust, 3, 1)
+cust_save_base  <- 20 + 3 * cust_coach_avg + rnorm(n_cust, 0, 5)
 
-df_train <- expand_grid(employee = 1:n_emp, week = 1:n_weeks) |>
+df_coach <- expand_grid(customer = 1:n_cust, month = 1:n_months_c) |>
   mutate(
-    training    = pmax(0, emp_train_avg[employee] + rnorm(n(), 0, 1)),
-    performance = emp_perf_base[employee] +
-                  2.8 * (training - emp_train_avg[employee]) + rnorm(n(), 0, 5),
-    employee    = factor(employee)
+    coaching = pmax(0, cust_coach_avg[customer] + rnorm(n(), 0, 0.8)),
+    savings  = cust_save_base[customer] +
+               2.5 * (coaching - cust_coach_avg[customer]) + rnorm(n(), 0, 4),
+    customer = factor(customer)
   ) |>
-  group_by(employee) |>
-  mutate(train_mean = mean(training), train_cmc = training - train_mean) |>
+  group_by(customer) |>
+  mutate(coach_mean = mean(coaching), coach_cmc = coaching - coach_mean) |>
   ungroup()
 
-m_train <- lmer(performance ~ train_cmc + train_mean + (1 | employee), data = df_train)
-broom.mixed::tidy(m_train, effects = "fixed") |> filter(term != "(Intercept)") |>
-  mutate(mechanism = c("Within-employee", "Between-employee")) |>
+m_coach <- lmer(savings ~ coach_cmc + coach_mean + (1 | customer), data = df_coach)
+broom.mixed::tidy(m_coach, effects = "fixed") |> filter(term != "(Intercept)") |>
+  mutate(mechanism = c("Within-customer (coaching → savings)", "Between-customer (engagement level)")) |>
   select(mechanism, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Training → performance: within ≈ between ≈ 3. Pooled model is approximately correct here.")
+    caption = "Coaching → savings: within ≈ between ≈ 3. Pooled model is approximately correct here.")
 ```
 
-When $\beta_W \approx \beta_B$, the pooled model is defensible. But again: **you only know this after running the decomposition.** The convergence is informative — it suggests training itself (not some trait that drives both training and performance) is the active mechanism.
+When $\beta_W \approx \beta_B$, the pooled model is defensible. But again: **you only know this after running the decomposition.** The convergence is informative — it suggests coaching contact itself (not just the trait of financial motivation that drives both coaching uptake and savings) is the active mechanism. This finding strengthens the case for scaling up the coaching program.
 
 ---
 
@@ -229,3 +237,17 @@ Including a variable as within-unit (CMC) or between-unit (unit mean) requires k
 
 **How to check:** Compute the ICC of the predictor itself. High ICC (>0.70) means most variation is between units; CMC will give you noisy, low-variance within deviations. Low ICC means the variable genuinely varies at the within-unit level.
 :::
+
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions About Your Within–Between Decomposition
+
+**Challenge 1 — "Is the between-customer estimate a selection effect or a dosage effect?"**
+When $\hat\beta_B > \hat\beta_W$ for coaching contact, a reviewer will ask: does higher average coaching contact *cause* higher savings, or do financially motivated customers seek out more contact AND save more independently? The Mundlak device separates the estimates but does not resolve the causal interpretation of $\hat\beta_B$. If customers self-select into higher coaching tiers based on unobserved financial goals, the between-customer estimate is still a selection effect. Make clear what causal claim you are making about each component.
+
+**Challenge 2 — "Did you check whether the Wald test has adequate power?"**
+A non-significant Wald test ($H_0: \beta_W = \beta_B$) only tells you that the data are consistent with equal effects — it does not confirm they are equal. With small $n$ at the household level, the test has low power to detect moderate differences between within and between effects. Report the confidence interval for $\hat\beta_W - \hat\beta_B$ alongside the *p*-value. If the interval is wide, the data are uninformative about whether the mechanisms differ.
+
+**Challenge 3 — "What is the policy-relevant quantity?"**
+Reviewers will ask which estimate to use for intervention design. If a financial coaching program is rolled out at the branch level (all customers in a branch receive more coaching), the relevant estimate is the within-customer effect: does additional coaching, beyond a customer's own baseline, change their behaviour? The between-customer estimate is confounded by the selection process that determines who receives more coaching. Be explicit about which estimand matches the policy question.
+:::
+

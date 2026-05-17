@@ -11,6 +11,14 @@ set.seed(2024)
 
 # Fixed vs. Random Effects: When to Use Which
 
+::: {.callout-note icon=false}
+## When Does the Choice Between Fixed and Random Effects Matter?
+
+- **Question:** You have a panel of 30 bank branches tracked over 8 quarters, and you want to estimate whether a new disclosure policy increased household savings rates. Should you use fixed effects (one dummy per branch) or random effects (branch as a random intercept)?
+- **What goes wrong:** Random effects are more efficient but assume branch effects are uncorrelated with your predictors. If branches that adopted the disclosure policy earlier are also the ones serving wealthier, more savings-oriented customers, the RE assumption is violated and estimates are biased. Fixed effects remove this confound but eliminate all branch-level comparisons — you can no longer ask whether urban vs. rural branches differ.
+- **The fix:** The Hausman test checks whether the RE assumption is plausible. If it fails, use FE (or the cluster-mean centering hybrid that preserves within-unit consistency while explicitly modeling the between-unit comparison). The decision is driven by the data and the scientific question — not by convention.
+:::
+
 ## The Most Frequently Asked Question
 
 If you have been following along, you have noticed that fixed effects and random effects make different assumptions, answer slightly different questions, and have different costs and benefits. The obvious question is: **which one should I use?**
@@ -39,10 +47,119 @@ The most important question is whether the random effects (unit-level deviations
 The Hausman test formalizes this check (covered in Part 2). But you should also think about it substantively:
 
 **Example 1 — Use FE:**
-You are studying whether neighborhood green space predicts depression. People choose where to live based on many factors — income, family ties, preferences — that also affect mental health. The random effects (neighborhood-level deviations in mental health) are surely correlated with neighborhood characteristics. Use fixed effects.
+You are studying whether a financial disclosure policy raises household savings rates across 30 bank branches observed quarterly. Branches adopt the policy at different times, and branches that adopt earlier may serve wealthier, more financially engaged customers (selection into adoption). The random effects (branch-level deviations in savings) are likely correlated with adoption timing. Use fixed effects — or the cluster-mean centering hybrid that partitions within-branch from between-branch effects.
 
 **Example 2 — Use RE:**
-You run a multi-site experiment where participants at 20 different universities complete a survey. The sites were chosen roughly at random, and the random effects (site-level deviations in mean response) are unlikely to correlate with your experimental manipulation. Use random effects.
+You run a field experiment at 20 bank branches randomly assigned to high-touch vs. standard coaching. The branches were randomly assigned, so the random effects (branch-level deviations in mean savings) are unlikely to correlate with the treatment. Use random effects — randomization breaks the confound that makes RE problematic.
+
+## Worked Example: When RE Is Biased and FE Is Not
+
+### Branch Selection into a Disclosure Policy
+
+The abstract argument is clearer with data. Suppose you have 30 bank branches observed over 8 quarters. A new savings disclosure policy was rolled out staggered across branches — but adoption timing was not random: branches serving wealthier, more financially engaged customers adopted earlier. The confound is unobserved: the dataset contains `treated` (policy active or not) and `savings`, but not `branch_quality` (underlying client wealth).
+
+```{r fe-re-sim}
+n_branches <- 30
+n_quarters <- 8
+
+# Unobserved: branch quality — wealthier, more savings-oriented clients
+branch_quality <- rnorm(n_branches, 0, 15)
+
+# Selection: higher-quality branches adopted the policy earlier (smaller quarter number)
+adopt_quarter <- pmax(2, pmin(7,
+  round(4.5 - 0.20 * branch_quality + rnorm(n_branches, 0, 1.2))))
+
+df_fe_re <- expand_grid(branch = 1:n_branches, quarter = 1:n_quarters) |>
+  mutate(
+    branch_q = branch_quality[branch],
+    adopt_q  = adopt_quarter[branch],
+    treated  = as.integer(quarter >= adopt_q),     # disclosure policy active
+    # True causal effect = 5; branch quality is the unobserved confound
+    savings  = 500 + branch_q + 5 * treated + rnorm(n(), 0, 10),
+    branch_f = factor(branch)
+  )
+```
+
+### Diagnosing the RE Assumption Failure
+
+Before fitting any model, check whether the random effect is correlated with the treatment variable. Since `branch_quality` is unobserved in the analysis, the proxy is the **proportion of quarters each branch spent under the policy**: if wealthier branches adopted earlier, they will have both higher baseline savings *and* a larger proportion of treated quarters.
+
+```{r fe-re-diagnostic, fig.width=6, fig.height=4}
+df_branch_check <- df_fe_re |>
+  group_by(branch_f, branch_q) |>
+  summarise(prop_treated = mean(treated), .groups = "drop")
+
+ggplot(df_branch_check, aes(x = prop_treated, y = branch_q)) +
+  geom_point(size = 3, color = "#1e3a5f", alpha = 0.8) +
+  geom_smooth(method = "lm", color = "#e63946", se = TRUE) +
+  labs(
+    title    = "RE assumption failure: branch quality \u2248 treatment rate",
+    subtitle = "Higher-quality (wealthier) branches adopted earlier \u2192 more treated quarters\n\u2192 random effect correlated with predictor \u2192 RE is biased",
+    x        = "Proportion of quarters with policy active",
+    y        = "Branch quality (unobserved client wealth)"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+The upward slope is the visual signature of the RE assumption failure: branches with higher unobserved quality (which drives higher baseline savings) were also treated for a larger fraction of the panel. The random intercept and the treatment indicator are correlated.
+
+### Comparing FE, RE, and Hybrid Estimates
+
+```{r fe-re-models}
+# Fixed effects: absorbs all branch-level confounds (including unobserved quality)
+m_fe <- plm(savings ~ treated,
+            data  = df_fe_re |> mutate(branch = as.integer(branch_f)),
+            index = c("branch", "quarter"),
+            model = "within")
+
+# Random effects: assumes branch random intercept ⊥ treated (violated here)
+m_re <- lmer(savings ~ treated + (1 | branch_f), data = df_fe_re)
+
+# Hybrid (cluster-mean centering): correctly partitions within and between
+df_fe_re <- df_fe_re |>
+  group_by(branch_f) |>
+  mutate(
+    treated_mean = mean(treated),           # branch-level treatment rate
+    treated_cmc  = treated - treated_mean   # within-branch deviation from mean
+  ) |>
+  ungroup()
+
+m_hybrid <- lmer(savings ~ treated_cmc + treated_mean + (1 | branch_f),
+                 data = df_fe_re)
+
+# Compare all three
+tibble(
+  Model        = c("Random effects (biased)",
+                   "Fixed effects (correct)",
+                   "Hybrid CMC — within estimate (correct)"),
+  Estimate     = c(fixef(m_re)["treated"],
+                   as.numeric(coef(m_fe)["treated"]),
+                   fixef(m_hybrid)["treated_cmc"]),
+  True_effect  = 5
+) |>
+  mutate(Bias = round(Estimate - True_effect, 2)) |>
+  knitr::kable(digits = 2,
+               caption = "Disclosure policy effect on savings: true value = 5.0")
+```
+
+The RE estimate is substantially inflated — it conflates the true within-branch disclosure effect with the between-branch quality confound (wealthier branches both adopted earlier *and* had higher savings all along). The FE estimate and the hybrid CMC within-estimate recover the true effect of approximately 5. The hybrid model additionally estimates the between-branch association as a separate coefficient (`treated_mean`), making the confound explicit rather than removing it silently.
+
+::: {.callout-important icon=false}
+## What Survives If the RE Assumption Fails?
+
+If the RE assumption is violated (random effects correlated with predictors), the RE estimate of your focal predictor is biased. But several quantities remain interpretable:
+
+- **The fixed-effects within-unit estimate** is still valid — it answers "within the same branch, do the quarters when the policy is active show higher savings than the quarters when it is not?"
+- **The variance components** (ICC) remain descriptively useful even under RE misspecification — they still tell you how much variance is between units.
+- **The hybrid CMC model's within-estimate** is consistent and additionally makes the between-unit confound visible as a separate coefficient.
+
+What is *not* interpretable under RE misspecification:
+- The RE coefficient on the treatment variable (biased by the unobserved branch-quality confound)
+- Any between-unit comparison that relies on the exchangeability assumption
+- Predictions for out-of-sample units from the mixed model (these use biased BLUPs)
+
+The practical rule: if your treatment or exposure varies both between *and* within units, and there is any reason to believe higher-baseline units also received more treatment, treat RE as your baseline hypothesis and test it with the Hausman test — then report FE or the hybrid if it fails.
+:::
 
 ## A Third Option: Hybrid Models
 
@@ -92,3 +209,17 @@ Is the random effect correlated with your predictors?
                 ├── Yes → Random Effects
                 └── No → Either (use Hausman test to choose)
 ```
+
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions About Your FE vs. RE Choice
+
+**Challenge 1 — "Did you run the Hausman test before committing to random effects?"**
+Random effects are only unbiased if cluster effects are uncorrelated with the predictors. If you defaulted to RE because "the clusters are a random sample," a reviewer will ask whether cluster-level selection processes could plausibly create this correlation. Show the Hausman test result and explain substantively why RE is defensible — or switch to fixed effects or the hybrid CMC model.
+
+**Challenge 2 — "What between-cluster information are you discarding with FE?"**
+Fixed effects remove all between-cluster variance. If you want to know whether urban branches respond differently to a disclosure policy than rural branches, FE cannot answer this — branch characteristics are absorbed by the dummies. Be explicit about what between-cluster questions your design can and cannot answer. If between-cluster comparisons matter, the cluster-mean centering hybrid is the right tool.
+
+**Challenge 3 — "Is the hybrid model (cluster-mean centering) a better default?"**
+The CMC model gives you both: within-cluster consistency from FE and the ability to model between-cluster effects explicitly. A reviewer may push back on a pure FE or pure RE choice when a hybrid is available. Explain whether the within and between estimates are substantively different enough to warrant the hybrid, and if not, provide the Wald test confirming convergence.
+:::
+

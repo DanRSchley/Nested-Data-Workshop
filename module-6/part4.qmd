@@ -13,11 +13,19 @@ set.seed(2024)
 
 # Missing Data in Nested Contexts
 
+::: {.callout-note icon=false}
+## What Does Missing Data Analysis Add Over Complete-Case Analysis?
+
+- **Question:** You are tracking monthly savings for 150 households in a financial coaching program across 12 months. By month 8, a third of households have stopped logging transactions or responding to surveys. Can you use only the households who stayed all the way through?
+- **What goes wrong:** The households that disengage are precisely those the intervention failed — families falling further into debt stopped opening the app. Restricting to completers produces estimates from the healthiest, most financially stable subsample: the coaching program looks far more effective than it was.
+- **The fix:** Mixed-effects models use all available observations under the MAR assumption — a household that contributes 8 waves contributes to estimates for those 8 waves, not zero. Multiple imputation handles missing predictors at the right level of the nesting structure. Sensitivity analysis quantifies how wrong the MAR assumption would have to be to reverse your conclusions.
+:::
+
 ## Why Missing Data is a Nesting Problem
 
 In a cross-sectional study, missing data is annoying but manageable: you lose some participants and hope they are not systematically different from those who stayed. In a **longitudinal or nested study**, missing data is woven into the very structure of the data — and it is almost always non-random.
 
-Consider a clinical trial tracking depression over 12 months. Patients who are getting worse are more likely to drop out — they are too depressed to fill out questionnaires, or they seek alternative treatment. The patients who complete all 12 measurements are not a random sample. They are the patients who recovered (or at least stayed stable enough to participate). Any analysis based only on completers overestimates the treatment's effectiveness.
+Consider a financial coaching app tracking monthly savings over 12 months. Participants who are falling further into debt are more likely to disengage — they stop opening the app, stop logging transactions, stop responding to surveys. The participants who provide data at all 12 waves are not a random sample: they are the participants who were improving, or at least stable enough to keep engaging. Any analysis based only on completers overstates the coaching program's effectiveness.
 
 This is **attrition bias** — but now understood through the lens of missing data mechanisms.
 
@@ -25,64 +33,65 @@ This is **attrition bias** — but now understood through the lens of missing da
 
 Three mechanisms, with very different implications:
 
-**MCAR (Missing Completely At Random):** The probability of a value being missing is unrelated to any observed or unobserved variable. Your survey crashed and lost data for participants whose IDs ended in 7. Truly random. Analysis of complete cases is valid, though inefficient.
+**MCAR (Missing Completely At Random):** The probability of a value being missing is unrelated to any observed or unobserved variable. The app server went down on one Tuesday and no transaction records were logged for those 3 hours — random with respect to any participant characteristic. Truly random. Analysis of complete cases is valid, though inefficient.
 
-**MAR (Missing At Random):** The probability of missingness depends on *observed* variables, but not on the unobserved value itself. Older participants are more likely to miss the follow-up, but among older participants, the missing and observed values are similar. MAR allows valid inference with appropriate methods (mixed-effects models, multiple imputation).
+**MAR (Missing At Random):** The probability of missingness depends on *observed* variables, but not on the unobserved value itself. Participants with higher starting debt are more likely to disengage, but among high-debt participants, those who stay and those who drop out have similar financial trajectories. Missingness is predictable from observed data, not from the unobserved savings values that are missing. MAR allows valid inference with appropriate methods (mixed-effects models, multiple imputation).
 
-**MNAR (Missing Not At Random):** The probability of missingness depends on the *unobserved* value. The most depressed patients are most likely to drop out — and depression is the outcome being measured. No standard method can fully correct for MNAR; sensitivity analysis is required.
+**MNAR (Missing Not At Random):** The probability of missingness depends on the *unobserved* value itself. Participants whose financial situation is getting *worse* are the most likely to stop logging — and financial health is precisely the outcome being measured. No standard method can fully correct for MNAR; sensitivity analysis is required.
 
 ## Testing for Non-Random Dropout
 
 ```{r test-dropout}
-n_people <- 150
-n_waves  <- 4
+n_households <- 150
+n_waves      <- 4
 
-# Simulate longitudinal data with selective dropout
-df_long <- expand_grid(person = 1:n_people, wave = 1:n_waves) |>
-  group_by(person) |>
+# Simulate longitudinal financial diary data with selective dropout
+# Households with high debt / low savings are more likely to disengage
+df_long <- expand_grid(household = 1:n_households, wave = 1:n_waves) |>
+  group_by(household) |>
   mutate(
-    baseline  = rnorm(1, 50, 10),
-    treatment = rbinom(1, 1, 0.5),
-    Y         = baseline - 3 * treatment * (wave - 1) / 3 + rnorm(n(), 0, 4),
-    # Dropout: high-depression (high Y) people are more likely to dropout in wave 3+
-    drop_prob = plogis(-3 + 0.04 * mean(Y[wave == 1])),
-    dropout   = cummax(rbinom(n(), 1, drop_prob)),
-    Y_obs     = ifelse(dropout == 1 & wave > 2, NA, Y)
+    starting_debt = rnorm(1, 50, 10),       # higher = more financially stressed at baseline
+    coaching      = rbinom(1, 1, 0.5),      # received financial coaching (1) or not (0)
+    monthly_savings = -0.5 * starting_debt + 3 * coaching * (wave - 1) / 3 + rnorm(n(), 0, 4),
+    # Dropout: households with high debt (high starting_debt) are more likely to disengage after wave 2
+    drop_prob     = plogis(-3 + 0.04 * mean(monthly_savings[wave == 1])),
+    dropout       = cummax(rbinom(n(), 1, drop_prob)),
+    savings_obs   = ifelse(dropout == 1 & wave > 2, NA, monthly_savings)
   ) |>
   ungroup()
 
 # Test: do completers differ from dropouts at baseline?
 baseline_comparison <- df_long |>
   filter(wave == 1) |>
-  mutate(completer = person %in% (df_long |>
-    filter(wave == n_waves, !is.na(Y_obs)) |> pull(person))) |>
+  mutate(completer = household %in% (df_long |>
+    filter(wave == n_waves, !is.na(savings_obs)) |> pull(household))) |>
   group_by(completer) |>
   summarise(
-    n = n(),
-    mean_baseline = mean(baseline),
-    mean_Y_wave1  = mean(Y)
+    n                  = n(),
+    mean_starting_debt = mean(starting_debt),
+    mean_savings_wave1 = mean(monthly_savings)
   )
 
 knitr::kable(baseline_comparison, digits = 2,
-  caption = "Completers vs. dropouts at baseline: systematic differences indicate MAR/MNAR")
+  caption = "Completers vs. dropouts at baseline: dropouts have higher debt and lower initial savings — indicates MAR/MNAR")
 ```
 
 ## Mixed-Effects Models Under MAR
 
-A key advantage of mixed-effects models: under the MAR assumption, the likelihood uses all available observations — not just complete cases. A patient who provided data at waves 1, 2, and 3 (but not 4) contributes to the model estimate for waves 1–3. You do not need to discard them.
+A key advantage of mixed-effects models: under the MAR assumption, the likelihood uses all available observations — not just complete cases. A household that provided savings data at waves 1, 2, and 3 (but not 4) contributes to the model estimate for those three waves. You do not need to discard them.
 
 This is why mixed-effects models are preferable to RM-ANOVA for longitudinal data with dropout: RM-ANOVA requires complete cases; mixed models do not.
 
 ```{r mlm-vs-complete-case}
-# Complete case analysis — keep only people with all 4 waves observed
+# Complete case analysis — keep only households with all 4 waves observed
 df_complete <- df_long |>
-  group_by(person) |>
-  filter(sum(!is.na(Y_obs)) == n_waves) |>
+  group_by(household) |>
+  filter(sum(!is.na(savings_obs)) == n_waves) |>
   ungroup()
 
 # Mixed model using all available data
-m_all   <- lmer(Y_obs ~ wave * treatment + (wave | person), data = df_long)
-m_complete <- lmer(Y_obs ~ wave * treatment + (wave | person), data = df_complete)
+m_all      <- lmer(savings_obs ~ wave * coaching + (wave | household), data = df_long)
+m_complete <- lmer(savings_obs ~ wave * coaching + (wave | household), data = df_complete)
 
 bind_rows(
   broom.mixed::tidy(m_all,      effects = "fixed") |> filter(str_detect(term, ":")) |>
@@ -92,39 +101,39 @@ bind_rows(
 ) |>
   select(model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Treatment × wave interaction: using all data reduces bias from selective dropout")
+    caption = "Coaching × wave interaction: using all available data reduces bias from selective dropout by high-debt households")
 ```
 
 ## Multiple Imputation for Multilevel Data
 
 When MCAR/MAR assumptions hold and you want to impute missing values before analysis (e.g., for predictors that are missing), the `mice` package supports multilevel-aware multiple imputation.
 
-`baseline_obs` is a **Level-2 variable** — it is measured once per person, not once per observation. The right strategy is to impute it at the person level (one row per person), then merge the imputations back into the long-format data. This respects the nesting structure and avoids falsely treating the same missing value as if it were independent across waves.
+`starting_debt_obs` is a **Level-2 variable** — it is measured once per household, not once per observation. The right strategy is to impute it at the household level (one row per household), then merge the imputations back into the long-format data. This respects the nesting structure and avoids falsely treating the same missing value as if it were independent across waves.
 
 ```{r multiple-imputation}
-# Introduce 15% missingness in the person-level baseline covariate
+# Introduce 15% missingness in the household-level starting debt covariate
 set.seed(2024)
 df_long_miss <- df_long |>
-  group_by(person) |>
+  group_by(household) |>
   mutate(
-    baseline_obs = ifelse(runif(1) < 0.15, NA_real_, first(baseline))
+    starting_debt_obs = ifelse(runif(1) < 0.15, NA_real_, first(starting_debt))
   ) |>
   ungroup()
 
-# --- Step 1: Impute at the person level ---
-# Extract one row per person (Level-2 dataset)
-df_person <- df_long_miss |>
-  group_by(person) |>
+# --- Step 1: Impute at the household level ---
+# Extract one row per household (Level-2 dataset)
+df_household <- df_long_miss |>
+  group_by(household) |>
   summarise(
-    treatment    = first(treatment),
-    baseline_obs = first(baseline_obs),
-    mean_Y       = mean(Y_obs, na.rm = TRUE),  # person-level auxiliary variable
-    .groups      = "drop"
+    coaching          = first(coaching),
+    starting_debt_obs = first(starting_debt_obs),
+    mean_savings      = mean(savings_obs, na.rm = TRUE),  # household-level auxiliary variable
+    .groups           = "drop"
   )
 
-# Standard mice on the person-level data (pmm = predictive mean matching)
+# Standard mice on the household-level data (pmm = predictive mean matching)
 imp_L2 <- mice(
-  df_person |> select(treatment, baseline_obs, mean_Y),
+  df_household |> select(coaching, starting_debt_obs, mean_savings),
   method = "pmm",
   m      = 5,
   maxit  = 5,
@@ -134,15 +143,15 @@ imp_L2 <- mice(
 # --- Step 2: Merge each imputed L2 dataset back into the long-format data ---
 # and run the mixed model, then pool
 models_imp <- lapply(1:5, function(i) {
-  df_person_imp <- df_person |>
-    mutate(baseline_obs = complete(imp_L2, i)$baseline_obs)
+  df_household_imp <- df_household |>
+    mutate(starting_debt_obs = complete(imp_L2, i)$starting_debt_obs)
 
   df_merged <- df_long_miss |>
-    select(person, wave, treatment, Y_obs) |>
-    left_join(df_person_imp |> select(person, baseline_obs),
-              by = "person")
+    select(household, wave, coaching, savings_obs) |>
+    left_join(df_household_imp |> select(household, starting_debt_obs),
+              by = "household")
 
-  lmer(Y_obs ~ wave * treatment + baseline_obs + (1 | person),
+  lmer(savings_obs ~ wave * coaching + starting_debt_obs + (1 | household),
        data = df_merged, REML = FALSE)
 })
 
@@ -150,7 +159,7 @@ pooled <- pool(models_imp)
 summary(pooled) |>
   select(term, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Pooled MI estimates: imputing at the person level respects nesting structure")
+    caption = "Pooled MI estimates: imputing starting debt at the household level respects nesting structure")
 ```
 
 ::: {.callout-warning icon=false}
@@ -158,5 +167,18 @@ summary(pooled) |>
 
 **What it means:** The probability of a value being missing depends only on observed variables. This allows valid inference using all available data or multiple imputation.
 
-**How to check:** You cannot directly test MAR vs. MNAR. Conduct sensitivity analyses: how different would your conclusions be under a range of MNAR scenarios? The `tipping point` analysis asks how extreme the missing data would have to be to overturn your result.
+**How to check:** You cannot directly test MAR vs. MNAR. Conduct sensitivity analyses: how different would your conclusions be under a range of MNAR scenarios? The *tipping point* analysis asks how extreme the missing data would have to be to overturn your result.
+:::
+
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions About Your Missing Data Approach
+
+**Challenge 1 — "Is MAR defensible given who dropped out?"**
+You have shown that dropouts had higher starting debt and lower initial savings. A reviewer will ask: after conditioning on those observed baseline characteristics, are the missing savings values still random? If households with high debt *and* worsening trajectories are the most likely to disengage — and the worsening trajectory is not fully captured by the observed variables — then MAR fails and your estimates remain biased. Be explicit about what observed variables you used to justify MAR and what unobserved trajectory information could be driving additional dropout.
+
+**Challenge 2 — "Did you compare complete-case to your full model as a sensitivity check?"**
+The comparison of MLM estimates from all-available-data versus completers-only is not just a pedagogical illustration — it is a diagnostic. A large difference in the coaching × wave interaction between the two models tells you that the completers are doing better along the trajectory and that your full-data estimate is closer to the truth. Report both estimates and interpret the gap as a bound on attrition bias.
+
+**Challenge 3 — "What is the tipping point for MNAR?"**
+Suppose dropout is not fully explained by observed starting debt and coaching assignment — suppose households with the worst unobserved financial trajectories are even more likely to disengage. How large would this MNAR component have to be to make the coaching effect nonsignificant? Specify the sensitivity model: if the missing savings values were δ units lower than the imputed values, at what δ does the coaching effect become negligible? Reporting this tipping point makes the MNAR vulnerability concrete and bounded rather than an open-ended threat.
 :::

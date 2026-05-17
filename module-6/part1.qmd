@@ -12,6 +12,14 @@ set.seed(2024)
 
 # Binary Outcomes: Logistic Mixed Models
 
+::: {.callout-note icon=false}
+## What Does a Logistic MLM Add Over Standard Logistic Regression?
+
+- **Question:** A price promotion is randomly allocated to customers across 50 retail stores. Did it increase purchase probability? Your outcome is binary (purchased / not purchased), and customers are nested within stores that differ in baseline purchase rates.
+- **What goes wrong:** Standard logistic regression treats all 5,000 observations as independent. Customers within the same store share unobserved characteristics — local market conditions, store layout, staff behavior — that make their purchase decisions correlated. Ignoring this clustering underestimates standard errors and produces false precision for the promotion estimate.
+- **The fix:** A logistic mixed model adds a store-level random intercept, separating the promotion's within-store effect from between-store variation in purchase propensity. The critical additional subtlety: in logistic models, conditional effects (for a specific store) and marginal effects (averaged over all stores) are not equal. Report the right one for your question.
+:::
+
 ## When Your Outcome is 0 or 1
 
 Suppose you are studying whether a price promotion increases purchase probability, using transaction data from 5,000 customers across 50 stores. Your outcome is binary: purchased (1) or not (0). Customers are nested within stores.
@@ -95,29 +103,55 @@ For policy and generalization purposes, the marginal effect is usually more rele
 ::: {.callout-warning icon=false}
 ## Assumption 1: Correct Link Function
 
-**What it means:** The logistic model assumes the log-odds of the outcome is linear in the predictors. This is the standard assumption for binary outcomes, but it may not hold at the extremes.
+**What it means:** The model assumes the log-odds of purchase is a linear function of the predictors. This is the natural choice for binary outcomes — but it implies the effect of promotion on purchase probability is largest at intermediate baseline probabilities and smaller at the extremes (near 0 or near 1).
 
-**How to check:** Examine whether predicted probabilities are reasonable at extreme predictor values. Consider complementary log-log (cloglog) as an alternative if your outcome is rare (P < 0.05).
+**JDM example:** If most stores already have very high baseline purchase rates (P ≈ 0.90), the promotion can only move the needle a little — the log-odds scale captures this ceiling effect, but a careless interpretation of the raw coefficient misses it.
+
+**Warning sign:** Predicted probabilities outside [0, 1] or systematically poor calibration at the tails of the predictor distribution.
+
+**How to check:** Inspect calibration plots of predicted vs. observed purchase rates in deciles of predicted probability. If your outcome is very rare (P < 0.05), consider complementary log-log (cloglog) as an alternative link function.
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption 2: Normality of Random Effects (on the Log-Odds Scale)
 
-**What it means:** The store-level random intercepts are assumed normal on the log-odds scale. If store effects are heavily skewed (e.g., a few stores have dramatically different purchase rates), this assumption may fail.
+**What it means:** The store-level random intercepts are assumed to follow a normal distribution on the log-odds scale. If a few stores are genuinely outliers — dramatically higher or lower purchase rates than the rest — this assumption fails and the model will smooth those outliers toward the mean (shrinkage), potentially distorting the promotion estimate.
 
-**How to check:** Extract random effects with `ranef()` and examine their distribution. A Q-Q plot of the random intercepts is informative.
+**JDM example:** A flagship store with unusually high-engagement customers may have a log-odds intercept far above the distribution of typical stores. Forcing it into a normal random effects structure will understate how unusual it is.
+
+**Warning sign:** A Q-Q plot of the BLUPs (best linear unbiased predictors) showing a heavy tail or clear departure from linearity.
+
+**How to check:** Extract random effects with `ranef()` and examine their distribution:
 
 ```{r re-normality}
 re_vals <- ranef(m_logit)$store[, 1]
-qqnorm(re_vals, main = "Q-Q plot of store random effects")
+qqnorm(re_vals, main = "Q-Q plot of store random effects (log-odds scale)")
 qqline(re_vals, col = "#e63946", lwd = 2)
 ```
 :::
 
 ::: {.callout-warning icon=false}
-## Assumption 3: No Overdispersion
+## Assumption 3: No Residual Overdispersion
 
-**What it means:** For binary outcomes, overdispersion (more variance than the model predicts) can occur if there is residual clustering not accounted for by the random effects.
+**What it means:** After accounting for the store random intercept, the remaining variability in individual purchase decisions should match the binomial distribution. Residual overdispersion — more variability than the model predicts — suggests an unmodeled source of clustering (e.g., customers within the same promotional batch) or a misspecified predictor.
 
-**How to check:** Compute the ratio of the Pearson chi-square statistic to its degrees of freedom. Values substantially greater than 1 indicate overdispersion.
+**JDM example:** If customers within a store are further clustered by the cashier who served them (some cashiers pitch the promotion more enthusiastically), within-store correlation inflates residual variance beyond what the store random intercept accounts for.
+
+**Warning sign:** Pearson dispersion statistic substantially above 1.
+
+**How to check:** Compute the ratio of the Pearson chi-square to its degrees of freedom. Values above 1.5 suggest overdispersion; add a customer-level random effect or switch to a beta-binomial model if clustering runs deeper.
 :::
+
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions About Your Logistic MLM
+
+**Challenge 1 — "Are you reporting conditional or marginal effects?"**
+The promotion coefficient from `glmer()` is a conditional odds ratio — the effect for a store sitting exactly at the mean random effect (RE = 0). A reviewer will ask whether this is the quantity you want. For policy purposes (what happens if we roll out this promotion across all stores?), the marginal effect averaged over the distribution of store effects is more appropriate. Show both using `ggpredict()` and explain which you are interpreting.
+
+**Challenge 2 — "How large is the between-store variance, and does it matter?"**
+If the store random effect variance is near zero, the logistic MLM collapses to standard logistic regression — the clustering correction is negligible. If it is large, ignoring it dramatically inflates Type I error. Report the estimated variance and the ICC on the latent log-odds scale. An ICC of 0.20 means 20% of the variability in purchase propensity is between stores — this is the quantity a reviewer needs to assess whether store clustering matters.
+
+**Challenge 3 — "Could the promotion effect be confounded by store characteristics?"**
+Even with a store random intercept, the promotion was not randomly assigned in the same way across stores in all designs. If stores with better foot traffic or wealthier catchment areas were more likely to receive the promotion, the estimate confounds the promotion effect with store-level selection. Describe the assignment mechanism and explain whether store random effects (vs. fixed effects) are defensible given potential confounding.
+:::
+

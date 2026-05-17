@@ -9,10 +9,20 @@ library(plm)
 library(ggplot2)
 library(patchwork)
 library(broom)
+library(sandwich)
+library(lmtest)
 set.seed(2024)
 ```
 
 # Fixed Effects Models
+
+::: {.callout-note icon=false}
+## What Does Fixed Effects Buy — And What Does It Cost?
+
+- **Question:** When units are observed multiple times, how do we separate the effect of a time-varying predictor (disclosure engagement, treatment condition) from stable differences between units that confound the comparison?
+- **What goes wrong:** Pooled OLS conflates within-unit change with between-unit sorting. Households that are more financially literate engage more with disclosure *and* save more — even if disclosure itself has zero within-household effect. The pooled slope reflects both.
+- **The fix:** Within-demeaning removes every stable unit-level difference — financial literacy, risk tolerance, income tier — and recovers the pure within-unit slope. The cost: between-unit information is discarded entirely, and the estimator breaks if the predictor feeds back into itself over time (strict exogeneity).
+:::
 
 ## Two Settings, One Problem
 
@@ -20,13 +30,13 @@ Fixed effects models are usually introduced in the context of panel data — the
 
 Consider two studies:
 
-**Study A (Longitudinal):** You survey 500 employees across 25 firms about autonomy and job satisfaction — and you do it again the following year. Each employee is measured twice.
+**Study A (Longitudinal):** You track 30 households across 8 monthly waves in a financial coaching program. Each month, you record how many pages of the financial disclosure document they reviewed and how much they saved. Households differ in underlying financial literacy: more literate households engage more with disclosure *and* save more regardless of engagement. The disclosure effect is confounded with literacy.
 
 **Study B (Experimental):** You run a within-subjects experiment. Each of 80 participants evaluates 12 product descriptions — 6 under a "scarcity" framing ("only 3 left!") and 6 under a neutral framing. Each participant sees both conditions.
 
-Both studies share the same fundamental structure: **multiple observations nested within the same unit** (employee, participant). And both share the same fundamental problem: unit-level differences confound your estimate of the effect you care about.
+Both studies share the same fundamental structure: **multiple observations nested within the same unit** (household, participant). And both share the same fundamental problem: unit-level differences confound the estimate of the effect you care about.
 
-In Study A, high-autonomy firms also happen to have better cultures — so the autonomy effect is confounded with culture.
+In Study A, financially literate households read more disclosure *and* save more — so the disclosure engagement effect is confounded with literacy.
 
 In Study B, some participants are just more easily persuaded than others — so the framing effect is confounded with individual persuadability.
 
@@ -36,13 +46,13 @@ Fixed effects solve both problems in exactly the same way.
 
 ## The Model
 
-Let $Y_{ij}$ be the outcome for observation $i$ within unit $j$ (employee $i$ in firm $j$; rating $i$ by participant $j$). The fixed-effects model is:
+Let $Y_{ij}$ be the outcome for observation $i$ within unit $j$ (month $i$ for household $j$; rating $i$ by participant $j$). The fixed-effects model is:
 
 $$
 \underbrace{Y_{ij}}_{\text{outcome}} = \underbrace{\alpha_j}_{\substack{\text{unit fixed} \\ \text{effect}}} + \underbrace{\beta_1}_{\substack{\text{within-unit} \\ \text{slope}}} \underbrace{X_{ij}}_{\substack{\text{within-unit} \\ \text{predictor}}} + \underbrace{\varepsilon_{ij}}_{\substack{\text{residual}}}
 $$
 
-The $\alpha_j$ is a **separate intercept for every unit** — a dummy variable for firm $j$, or a dummy variable for participant $j$. It absorbs *everything* that is constant within that unit: the firm's culture, the participant's baseline persuadability, the country's institutions.
+The $\alpha_j$ is a **separate intercept for every unit** — a dummy variable for household $j$, or a dummy variable for participant $j$. It absorbs *everything* that is constant within that unit: the household's financial literacy, the participant's baseline persuadability.
 
 The slope $\beta_1$ is estimated purely from **within-unit variation**: how does $Y$ change when $X$ changes *within the same unit*?
 
@@ -56,7 +66,7 @@ $$
 
 After demeaning, every trace of between-unit variation is gone. The $\alpha_j$ terms vanish completely — they cancel out when you subtract the unit mean from both sides. What remains is the pure **within-unit relationship** between $X$ and $Y$.
 
-In the firm study: we are comparing each employee to the *average* employee in their own firm.
+In the household study: we are comparing each month's disclosure engagement to that *household's own average* — controlling for the household's literacy, income, and every other stable characteristic.
 
 In the experiment: we are comparing each participant's rating under scarcity to their *own average* rating — which is precisely what within-subjects experimental designs intend.
 
@@ -64,36 +74,38 @@ In the experiment: we are comparing each participant's rating under scarcity to 
 
 ## Two Examples: Longitudinal and Experimental
 
-### Example 1: Firms (Longitudinal Cross-Section)
+### Example 1: Households (Longitudinal Panel)
 
 ```{r pooled-problem}
-# --- STUDY A: Employees nested within firms ---
-n_firms     <- 25
-n_employees <- 20
+# --- STUDY A: Households tracked over 8 monthly waves ---
+n_households <- 30
+n_months     <- 8
 
-# The confound: high-autonomy firms also have better culture
-firm_autonomy_mean  <- rnorm(n_firms, 50, 10)
-firm_culture_effect <- firm_autonomy_mean * 0.4 + rnorm(n_firms, 0, 5)
+# The confound: financially literate households engage more AND save more
+hh_literacy  <- rnorm(n_households, 50, 10)
+hh_intercept <- hh_literacy * 0.5 + rnorm(n_households, 0, 5)
 
-df_firms <- expand_grid(
-  firm     = 1:n_firms,
-  employee = 1:n_employees
+df_households <- expand_grid(
+  household = 1:n_households,
+  month     = 1:n_months
 ) |>
   mutate(
-    firm_autonomy = firm_autonomy_mean[firm],
-    firm_culture  = firm_culture_effect[firm],
-    autonomy      = firm_autonomy + rnorm(n(), 0, 5),
-    # True WITHIN-firm effect = 0.2; but between-firm confound inflates it
-    satisfaction  = 30 + 0.2 * autonomy + firm_culture + rnorm(n(), 0, 8),
-    firm_label    = factor(firm)
+    hh_literacy    = hh_literacy[household],
+    hh_intercept   = hh_intercept[household],
+    # Disclosure engagement: partly driven by literacy, partly random month-to-month
+    disclosure     = hh_literacy[household] * 0.3 + rnorm(n(), 0, 8),
+    # True WITHIN-household effect = 0.4 (pages reviewed → percentage points saved)
+    # Literacy also raises savings directly — this is the confound
+    monthly_savings = 15 + 0.4 * disclosure + hh_intercept + rnorm(n(), 0, 10),
+    household_f     = factor(household)
   )
 
 # Naive pooled regression
-naive_firms <- lm(satisfaction ~ autonomy, data = df_firms)
-broom::tidy(naive_firms) |>
-  filter(term == "autonomy") |>
+naive_hh <- lm(monthly_savings ~ disclosure, data = df_households)
+broom::tidy(naive_hh) |>
+  filter(term == "disclosure") |>
   knitr::kable(digits = 3,
-    caption = "Pooled OLS: estimated effect of autonomy (confounded)")
+    caption = "Pooled OLS: estimated effect of disclosure (confounded by literacy)")
 ```
 
 ### Example 2: Within-Subjects Experiment
@@ -128,22 +140,22 @@ broom::tidy(naive_exp) |>
     caption = "Pooled OLS: estimated scarcity effect (ignores person differences)")
 ```
 
-In the experiment, the pooled estimate is closer to the truth than in the firm study — because condition was randomly assigned, persuadability does not systematically correlate with condition. But random assignment only guarantees this *on average*; individual differences still add noise and can distort estimates in small samples or unbalanced designs.
+In the experiment, the pooled estimate is closer to the truth than in the household study — because condition was randomly assigned, persuadability does not systematically correlate with condition. But random assignment only guarantees this *on average*; individual differences still add noise and can distort estimates in small samples or unbalanced designs.
 
 ```{r pooled-vs-within}
 # Show both confound patterns side by side
-firm_summary <- df_firms |>
-  group_by(firm) |>
-  summarise(mean_auto = mean(autonomy), mean_sat = mean(satisfaction))
+hh_summary <- df_households |>
+  group_by(household) |>
+  summarise(mean_disc = mean(disclosure), mean_sav = mean(monthly_savings))
 
-p1 <- ggplot(df_firms, aes(x = autonomy, y = satisfaction)) +
+p1 <- ggplot(df_households, aes(x = disclosure, y = monthly_savings)) +
   geom_point(alpha = 0.15, color = "#1e3a5f") +
   geom_smooth(method = "lm", color = "#e63946", linewidth = 1.3) +
-  geom_point(data = firm_summary, aes(x = mean_auto, y = mean_sat),
+  geom_point(data = hh_summary, aes(x = mean_disc, y = mean_sav),
              color = "#e63946", size = 3) +
-  labs(title = "Study A: Firms",
-       subtitle = "Red dots = firm means; slope is inflated by culture confound",
-       x = "Autonomy", y = "Satisfaction") +
+  labs(title = "Study A: Households",
+       subtitle = "Red dots = household means; slope inflated by literacy confound",
+       x = "Disclosure pages read", y = "Monthly savings rate (%)") +
   theme_minimal(base_size = 12)
 
 person_summary <- df_exp |>
@@ -170,15 +182,11 @@ p1 + p2
 
 ## How Fixed Effects Solve This
 
-Fixed effects recover the within-unit slope by including a dummy for every unit. In the firm study that is 25 firm dummies. In the experiment it is 80 participant dummies. Each dummy absorbs everything that is constant within that unit.
+Fixed effects recover the within-unit slope by including a dummy for every unit. In the household study that is 30 household dummies. In the experiment it is 80 participant dummies. Each dummy absorbs everything that is constant within that unit.
 
 ```{r fe-model}
-# Study A: FE via plm
-df_firms_pdata <- pdata.frame(df_firms, index = c("firm", "employee"))
-fe_firms <- plm(satisfaction ~ autonomy,
-                data   = df_firms_pdata,
-                model  = "within",
-                effect = "individual")
+# Study A: FE via lm with household dummies
+fe_hh  <- lm(monthly_savings ~ disclosure + household_f, data = df_households)
 
 # Study B: FE via lm with participant dummies (equivalent)
 fe_exp <- lm(purchase_intent ~ scarcity_bin + participant_f, data = df_exp)
@@ -187,27 +195,26 @@ fe_exp <- lm(purchase_intent ~ scarcity_bin + participant_f, data = df_exp)
 ```{r fe-compare}
 # Compare naive vs. FE for both studies
 bind_rows(
-  broom::tidy(naive_firms)  |> filter(term == "autonomy") |>
-    mutate(study = "Study A", model = "Pooled OLS", term = "Predictor"),
-  broom::tidy(lm(satisfaction ~ autonomy + firm_label, data = df_firms)) |>
-    filter(term == "autonomy") |>
+  broom::tidy(naive_hh)  |> filter(term == "disclosure") |>
+    mutate(study = "Study A", model = "Pooled OLS",    term = "Predictor"),
+  broom::tidy(fe_hh)     |> filter(term == "disclosure") |>
     mutate(study = "Study A", model = "Fixed Effects", term = "Predictor"),
-  broom::tidy(naive_exp)  |> filter(term == "scarcity_bin") |>
-    mutate(study = "Study B", model = "Pooled OLS", term = "Predictor"),
-  broom::tidy(fe_exp) |> filter(term == "scarcity_bin") |>
+  broom::tidy(naive_exp) |> filter(term == "scarcity_bin") |>
+    mutate(study = "Study B", model = "Pooled OLS",    term = "Predictor"),
+  broom::tidy(fe_exp)    |> filter(term == "scarcity_bin") |>
     mutate(study = "Study B", model = "Fixed Effects", term = "Predictor")
 ) |>
   select(study, model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Pooled vs. Fixed Effects: Study A (true effect = 0.2), Study B (true effect = 4)")
+    caption = "Pooled vs. Fixed Effects — Study A (true effect = 0.4), Study B (true effect = 4)")
 ```
 
 ::: {.callout-note}
 ## The DGP Connection
 
-In Study A, the pooled estimate is badly confounded — it reflects both the true autonomy effect (0.2) *and* the between-firm culture effect. Fixed effects remove the latter, recovering the within-unit DGP.
+In Study A, the pooled estimate is badly confounded — it reflects both the true within-household disclosure effect (0.4) *and* the between-household literacy effect. Fixed effects remove the latter, recovering the within-unit DGP.
 
-In Study B, the pooled estimate is closer to the truth because random assignment broke the correlation between condition and persuadability. But fixed effects still improve efficiency and explicitly answer the within-person question: for the same participant, does scarcity increase intent?
+In Study B, the pooled estimate is closer to the truth because random assignment broke the correlation between condition and persuadability. But fixed effects still improve efficiency and explicitly answer the within-person question: for the same participant, does scarcity increase purchase intent?
 
 Both uses are valid. The experimental use is often overlooked — but within-subjects ANOVA is, mathematically, a fixed-effects model.
 :::
@@ -227,9 +234,111 @@ $$E[\varepsilon_{ij} \mid X_{i1}, X_{i2}, \ldots, X_{in_j}, \alpha_j] = 0$$
 
 In words: the residuals must be uncorrelated with the predictor **at every observation point** — past, present, and future — after conditioning on the fixed effect.
 
-**In longitudinal data:** This fails if the outcome feeds back into the predictor. If a firm's declining satisfaction causes it to *increase* autonomy in the next period, then autonomy at time $t+1$ is correlated with the residual at time $t$. The predictor is no longer exogenous.
+**In longitudinal data:** This fails if the outcome feeds back into the predictor. If a household's rising savings rate causes it to *engage more* with the disclosure document in the next month (they feel good about progress and want to read more), then disclosure at $t+1$ is correlated with the savings residual at $t$. This is **reverse causation** — and it violates strict exogeneity.
 
-**In experiments:** Strict exogeneity is typically satisfied by design — random assignment ensures that condition is not caused by the outcome. But it can fail in carryover designs where the treatment in one block affects the outcome in a later block (i.e., order effects or fatigue). Counterbalancing and washout periods address this.
+It also fails with **anticipation effects**: if households know the disclosure program starts in month 3, they may begin saving more in month 2 in anticipation — causing the month-2 savings residual to be correlated with the future predictor.
+
+**In experiments:** Strict exogeneity is typically satisfied by design — random assignment ensures that condition is not caused by the outcome. But it can fail in carryover designs where the treatment in one block affects the outcome in a later block (order effects, fatigue, contrast effects). Counterbalancing and washout periods address this.
+
+```{r strict-exogeneity-timeline, echo=FALSE, fig.height=4.5, fig.width=9}
+# Timeline diagram: strict exogeneity holds vs. fails
+# Three scenarios: OK / reverse causation / anticipation
+library(ggplot2)
+library(dplyr)
+
+months_n <- 4
+
+nodes <- bind_rows(
+  tibble(month = 1:months_n, var = "X (disclosure)", row = 2,
+         panel = "A: Exogeneity holds — FE is unbiased"),
+  tibble(month = 1:months_n, var = "Y (savings)",    row = 1,
+         panel = "A: Exogeneity holds — FE is unbiased"),
+  tibble(month = 1:months_n, var = "X (disclosure)", row = 2,
+         panel = "B: Reverse causation — FE is biased"),
+  tibble(month = 1:months_n, var = "Y (savings)",    row = 1,
+         panel = "B: Reverse causation — FE is biased"),
+  tibble(month = 1:months_n, var = "X (disclosure)", row = 2,
+         panel = "C: Anticipation — FE is biased"),
+  tibble(month = 1:months_n, var = "Y (savings)",    row = 1,
+         panel = "C: Anticipation — FE is biased")
+) |>
+  mutate(lbl = paste0(ifelse(var == "X (disclosure)", "X", "Y"), month))
+
+fwd_arrows <- bind_rows(
+  tibble(x = 1:months_n, xend = 1:months_n, y = 1.85, yend = 1.15,
+         clr = "#2d6a4f", panel = "A: Exogeneity holds — FE is unbiased"),
+  tibble(x = 1:months_n, xend = 1:months_n, y = 1.85, yend = 1.15,
+         clr = "#2d6a4f", panel = "B: Reverse causation — FE is biased"),
+  tibble(x = 1:months_n, xend = 1:months_n, y = 1.85, yend = 1.15,
+         clr = "#2d6a4f", panel = "C: Anticipation — FE is biased")
+)
+
+rev_arrows <- tibble(
+  x = 1:3, xend = 2:4, y = 1.12, yend = 1.88,
+  clr = "#e63946", panel = "B: Reverse causation — FE is biased"
+)
+
+ant_arrows <- tibble(
+  x    = c(3, 3),    # future X at month 3 already announced
+  xend = c(1, 2),    # affects savings at months 1 and 2
+  y    = c(1.92, 1.92),
+  yend = c(1.12, 1.12),
+  clr  = "#e06c2a",
+  panel = "C: Anticipation — FE is biased"
+)
+
+all_arrows <- bind_rows(fwd_arrows, rev_arrows, ant_arrows)
+
+panel_order <- c(
+  "A: Exogeneity holds — FE is unbiased",
+  "B: Reverse causation — FE is biased",
+  "C: Anticipation — FE is biased"
+)
+
+ggplot() +
+  geom_segment(
+    data = all_arrows,
+    aes(x = x, xend = xend, y = y, yend = yend, color = I(clr)),
+    arrow = arrow(length = unit(0.14, "cm"), type = "closed"),
+    linewidth = 1.1
+  ) +
+  geom_point(
+    data = nodes,
+    aes(x = month, y = row, fill = var),
+    shape = 21, size = 12, color = "white", stroke = 1.5
+  ) +
+  geom_text(
+    data = nodes,
+    aes(x = month, y = row, label = lbl),
+    size = 2.8, fontface = "bold"
+  ) +
+  scale_fill_manual(
+    values = c("X (disclosure)" = "#dde9f7", "Y (savings)" = "#fde8d8"),
+    name   = NULL
+  ) +
+  scale_x_continuous(breaks = 1:months_n, labels = paste0("Month ", 1:months_n)) +
+  scale_y_continuous(
+    breaks = c(1, 2),
+    labels = c("Savings (Y)", "Disclosure (X)"),
+    limits = c(0.5, 2.5)
+  ) +
+  facet_wrap(~ factor(panel, levels = panel_order), ncol = 1) +
+  labs(
+    title    = "Strict exogeneity: when fixed effects works and when it fails",
+    subtitle = paste0(
+      "Green arrows = causal effect of disclosure on savings (OK)\n",
+      "Red arrows = feedback from savings back to disclosure (reverse causation)\n",
+      "Orange arrows = savings rise before program starts because households anticipate it"
+    ),
+    x = NULL, y = NULL
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    panel.grid.minor = element_blank(),
+    strip.text       = element_text(face = "bold", size = 10),
+    legend.position  = "bottom"
+  )
+```
 
 **How to check:** In longitudinal data, plot residuals against *future* values of the predictor. In experiments, check for order effects by including trial number as a covariate.
 :::
@@ -241,13 +350,13 @@ In words: the residuals must be uncorrelated with the predictor **at every obser
 
 $$\alpha_j = \text{constant over all } i \text{ within unit } j$$
 
-If the unit's "true level" shifts — a firm's culture changes after a merger; a participant becomes fatigued midway through a session — the single $\alpha_j$ is no longer a valid representation.
+If the unit's "true level" shifts — a household moves to a wealthier neighbourhood mid-study; a participant becomes fatigued midway through a session — the single $\alpha_j$ is no longer a valid representation.
 
-**In longitudinal data:** Any policy, economic shock, or personal event that co-occurs with your predictor is a time-varying confound. Example: if firms that grant more autonomy simultaneously adopt flexible hours, and flexible hours boost satisfaction, FE does not remove the flexible hours effect.
+**In longitudinal data:** Any policy, economic shock, or personal event that co-occurs with your predictor is a time-varying confound. Example: if households that read more disclosure also simultaneously switch to automatic savings transfers that month, the savings effect is confounded with the automatic-transfer adoption — not with any stable characteristic, but with a time-varying behaviour.
 
 **In experiments:** Practice effects, fatigue, and demand characteristics that change systematically across trials. If participants become better at evaluating products as the experiment progresses (learning), and if scarcity items happen to appear later in the session, this is a trial-varying confound.
 
-**How to check:** Include trial order or time as a covariate. Check whether your substantive estimates change when you control for order.
+**How to check:** Include trial order or time as a covariate. Check whether substantive estimates change when you control for order.
 :::
 
 ::: {.callout-warning icon=false}
@@ -259,81 +368,76 @@ $$\widehat{\beta}_1 = \frac{\sum_j \sum_i (X_{ij} - \bar{X}_j)(Y_{ij} - \bar{Y}_
 
 The denominator — total within-unit variation in $X$ — appears in the denominator of the variance of $\hat\beta_1$. Small within-unit variation → large standard errors.
 
-**In longitudinal data:** A predictor like firm size barely changes within a firm from year to year. FE is poorly suited to estimating the effect of stable characteristics.
+**In longitudinal data:** A predictor like household income barely changes within a household from month to month. FE is poorly suited to estimating the effect of stable characteristics. Disclosure engagement varies monthly — but only because households differ in their timing. If most households read the same pages every month, within-household variation in disclosure is small.
 
-**In experiments:** This is usually not an issue because condition is deliberately manipulated. But if the manipulation is very small (e.g., a subtle framing tweak that most participants do not notice), within-unit variation in the *effective* treatment is low.
+**In experiments:** This is usually not an issue because condition is deliberately manipulated. But if the manipulation is very subtle (a framing tweak that most participants barely notice), the *effective* treatment variation is low.
 
 ```{r variation-check}
-# Study A: how much within-firm variation does autonomy have?
-df_firms |>
-  group_by(firm) |>
-  summarise(within_sd = sd(autonomy)) |>
+# Study A: how much within-household variation does disclosure have?
+df_households |>
+  group_by(household) |>
+  summarise(within_sd = sd(disclosure)) |>
   summarise(
-    mean_within_sd   = mean(within_sd),
-    total_sd         = sd(df_firms$autonomy),
-    within_fraction  = mean(within_sd) / sd(df_firms$autonomy)
+    mean_within_sd  = mean(within_sd),
+    total_sd        = sd(df_households$disclosure),
+    within_fraction = mean(within_sd) / sd(df_households$disclosure)
   ) |>
   knitr::kable(digits = 3,
-    caption = "Study A: fraction of autonomy variance that is within-firm")
+    caption = "Study A: fraction of disclosure variance that is within-household")
 ```
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption 4: Fixed Effects Are Stable (One Intercept Per Unit)
 
-**What it means:** The model assigns each unit exactly one intercept $\alpha_j$. This assumes the unit's baseline is constant across all its observations. The model equation is:
+**What it means:** The model assigns each unit exactly one intercept $\alpha_j$. This assumes the unit's baseline is constant across all its observations:
 
 $$Y_{ij} = \alpha_j + \beta_1 X_{ij} + \varepsilon_{ij}$$
 
-and $\alpha_j$ is the **same** regardless of which observation $i$ we are looking at within unit $j$.
+**In longitudinal data:** If a household's financial situation changes dramatically mid-study — a job loss, inheritance, or major purchase — the single $\alpha_j$ no longer represents either period accurately. The early-period and late-period intercepts differ, but the model conflates them.
 
-**In longitudinal data:** If a firm's culture changes dramatically after a merger halfway through the study, the single $\alpha_j$ no longer accurately represents either period. The early-period and late-period intercepts are different, but the model conflates them.
+**In experiments:** If a participant's attention or mood changes substantially mid-session (and this change is not modeled), the stable-intercept assumption is violated. Attention checks and session-split analyses help detect this.
 
-**In experiments:** If a participant's attention or mood changes substantially mid-session (and this change is not modeled), the stable-intercept assumption is violated. Split-session designs or attention checks help detect this.
-
-**How to check:** For longitudinal data, split the sample at the midpoint and compare unit intercepts across periods. For experiments, split the trials into first-half and second-half blocks and test whether the effect estimate shifts.
+**How to check:** For longitudinal data, split the sample at the midpoint and compare unit intercepts across periods. For experiments, split trials into first-half and second-half blocks and test whether the effect estimate shifts.
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption 5: Homoskedasticity and Independence of Residuals Within Units
 
-**What it means:** After conditioning on fixed effects, the residuals $\varepsilon_{ij}$ are assumed to be independent and identically distributed:
+**What it means:** After conditioning on fixed effects, residuals $\varepsilon_{ij}$ are assumed to be independent and identically distributed:
 
 $$\varepsilon_{ij} \overset{iid}{\sim} \mathcal{N}(0,\ \sigma^2_\varepsilon)$$
 
 Two components: (1) constant variance across units and observations (homoskedasticity), and (2) no correlation between residuals of the same unit across observations (independence).
 
-**In longitudinal data:** Serial correlation is nearly universal. Today's mood affects tomorrow's mood, so residuals at $t$ and $t+1$ are correlated. Heteroskedasticity also appears if variance changes over time (e.g., outcomes become more variable in later periods).
+**In longitudinal data:** Serial correlation is nearly universal. A household's savings rate this month partly predicts next month's — so residuals at $t$ and $t+1$ are correlated. Heteroskedasticity also appears if variance changes over time (e.g., households become more variable in later stages of the program).
 
-**In experiments:** Autocorrelation is less severe for blocked designs (participants evaluate each product once), but can appear in trial-level data with carryover. Heteroskedasticity is possible if some conditions produce more variable responses than others.
+**In experiments:** Autocorrelation is less severe for blocked designs (participants evaluate each product once), but can appear in trial-level data with carryover.
 
 **What to do:** Use cluster-robust standard errors, which are valid even under heteroskedasticity and within-unit correlation.
 
 ```{r exogeneity-check}
-fe_lm_firms <- lm(satisfaction ~ autonomy + firm_label, data = df_firms)
-df_firms <- df_firms |> mutate(fe_resid = residuals(fe_lm_firms))
+fe_lm_hh <- lm(monthly_savings ~ disclosure + household_f, data = df_households)
+df_households <- df_households |> mutate(fe_resid = residuals(fe_lm_hh))
 
-ggplot(df_firms, aes(x = autonomy, y = fe_resid)) +
+ggplot(df_households, aes(x = disclosure, y = fe_resid)) +
   geom_point(alpha = 0.25, color = "#1e3a5f") +
   geom_smooth(method = "loess", color = "#e63946", se = TRUE) +
   geom_hline(yintercept = 0, linetype = "dashed") +
   labs(
-    title    = "Study A: FE residuals vs. autonomy",
-    subtitle = "No pattern expected if exogeneity holds",
-    x = "Autonomy", y = "FE Residual"
+    title    = "Study A: FE residuals vs. disclosure engagement",
+    subtitle = "No pattern expected if strict exogeneity holds",
+    x = "Disclosure pages read", y = "FE Residual"
   ) +
   theme_minimal(base_size = 13)
 ```
 
 ```{r robust-se}
-library(sandwich)
-library(lmtest)
-
 # Cluster-robust standard errors for Study A
-coeftest(fe_lm_firms,
-         vcov = vcovCL(fe_lm_firms, cluster = ~firm_label))["autonomy", , drop = FALSE] |>
+coeftest(fe_lm_hh,
+         vcov = vcovCL(fe_lm_hh, cluster = ~household_f))["disclosure", , drop = FALSE] |>
   knitr::kable(digits = 3,
-    caption = "Study A autonomy coefficient with cluster-robust SEs")
+    caption = "Study A disclosure coefficient with cluster-robust SEs")
 
 # For Study B, cluster by participant
 coeftest(fe_exp,
@@ -349,32 +453,45 @@ coeftest(fe_exp,
 
 Fixed effects are powerful but have important limits that apply equally in both settings:
 
-1. **They cannot estimate unit-level predictors.** In Study A, you cannot estimate the effect of firm industry (constant within firm). In Study B, you cannot estimate the effect of participant gender (constant within participant). All between-unit variation is absorbed by the $\alpha_j$ terms.
+1. **They cannot estimate unit-level predictors.** In Study A, you cannot estimate the effect of household income tier (constant within household). In Study B, you cannot estimate the effect of participant financial literacy (constant within participant). All between-unit variation is absorbed by the $\alpha_j$ terms.
 
-2. **They discard between-unit information.** If the between-unit relationship is scientifically interesting — whether more autonomous firms differ from less autonomous ones — FE discards that comparison. This is the price of controlling for all stable unit-level confounds.
+2. **They discard between-unit information.** If the between-unit relationship is scientifically interesting — whether more disclosure-engaged households differ from less engaged ones — FE discards that comparison. This is the price of controlling for all stable unit-level confounds.
 
-3. **They assume a common slope.** The model estimates one $\beta_1$ for everyone. If the effect of autonomy on satisfaction differs across firms, or if the scarcity effect differs across participants, FE averages over this heterogeneity. Random slopes (Module 1, Part 3) address this.
+3. **They assume a common slope.** The model estimates one $\beta_1$ for everyone. If the effect of disclosure on savings differs across households (some are very responsive, others not at all), FE averages over this heterogeneity. Random slopes (Part 3) address this.
 
 4. **They are not well suited to purely between-subjects designs.** If every participant sees only one condition (between-subjects), there is no within-person variation in the predictor — FE collapses entirely to OLS. The fixed-effects logic requires that the predictor varies within units.
 
 ---
 
 ::: {.callout-note icon=false}
-## What Fixed Effects Can and Cannot Do
+## What Fixed Effects Can and Cannot Say
 
 **What you can say after a fixed-effects analysis:**
 
 - Within-unit variation in X is associated with within-unit variation in Y, after removing all stable unit-level differences.
-- Time-invariant confounders (firm quality, stable personality, neighborhood characteristics) are not driving this result.
+- Time-invariant confounders (financial literacy, stable personality, household income tier) are not driving this result.
 - The estimate is not inflated by the kind of between-unit sorting that makes observational comparisons suspect.
 
 **What you cannot say:**
 
-- That the relationship is causal — time-varying confounders (a quarterly productivity shock that simultaneously drives training adoption and output) still bias the estimate.
+- That the relationship is causal — time-varying confounders (a household simultaneously adopting automatic savings and reading more disclosure) still bias the estimate.
 - That the between-unit relationship is the same — FE explicitly throws away between-unit variation and cannot speak to it.
 - That your standard errors are correct if residuals within a unit are correlated over time — cluster your SEs at the unit level.
 
 Fixed effects are a powerful first step toward causal identification. They are not the last step.
+:::
+
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions for Fixed-Effects Results
+
+**Challenge 1 — "What is the time-varying confound?"**
+A sharp reviewer will ask what event or process could have changed at the same time as your predictor, within the same household or participant. For the disclosure study: did households that read more disclosure also receive more coaching calls that month? Did they happen to receive a bonus? Fixed effects do not solve time-varying confounding — they only remove stable differences. Be ready with a list of the time-varying confounds you checked and ruled out.
+
+**Challenge 2 — "Is the within-unit variation sufficient to identify this?"**
+If disclosure engagement varies very little within households over 8 months (most households read the same amount every month), the FE estimate is identified from almost no variation. Very small within-unit variation → very wide standard errors → you are essentially running an underpowered analysis even if the total N looks large. Report the within-unit SD of your key predictor.
+
+**Challenge 3 — "Are the fixed effects really stable?"**
+If a policy change, economic shock, or personal event shifted households' baseline savings behavior mid-study, the single $\alpha_j$ is misspecified. A reviewer familiar with panel econometrics will ask whether you tested for structural breaks in the unit intercepts — for instance, by including time-period interactions or running the analysis separately on early and late waves.
 :::
 
 ## Recommended Reading

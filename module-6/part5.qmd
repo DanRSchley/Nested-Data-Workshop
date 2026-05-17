@@ -13,6 +13,14 @@ set.seed(2024)
 
 # Effect Sizes & Reporting
 
+::: {.callout-note icon=false}
+## What Do Effect Sizes and Reporting Add Over Model Output?
+
+- **Question:** Your mixed model shows that disclosure engagement significantly predicts monthly savings (b = 2.48, SE = 0.31, p < .001). Is this a large effect? How much of the variance in savings is explained? How do you communicate this to a financial institution's strategy team who has never seen an ICC?
+- **What goes wrong:** Raw coefficients are in the original units of Y (dollars saved per unit of disclosure). Without a variance partition, readers cannot tell whether disclosure explains 2% or 40% of what varies in savings behavior. R² from a standard regression is wrong in MLM — it ignores the multilevel variance structure and can exceed 1 or be negative when computed naively.
+- **The fix:** Marginal R² captures what the fixed effects alone explain; conditional R² adds the random effects. The ICC from a null model is the effect size for the clustering structure itself — it tells the strategy team that X% of what varies in savings is about which household you are, not about disclosure engagement.
+:::
+
 ## Why R² is Hard in MLM
 
 In standard regression, $R^2$ has a clean interpretation: the proportion of variance in Y explained by the predictors. In multilevel models, there are multiple sources of variance (level-1 residuals, level-2 random effects) and multiple ways to define "explained variance."
@@ -30,18 +38,19 @@ $$R^2_c = \frac{\sigma^2_f + \sigma^2_u}{\sigma^2_f + \sigma^2_u + \sigma^2_\var
 where $\sigma^2_f$ = variance of fixed effect predictions, $\sigma^2_u$ = random effect variance, $\sigma^2_\varepsilon$ = residual variance.
 
 ```{r r2-example}
-n_people <- 60
-n_days   <- 10
+n_households <- 60
+n_months     <- 10
 
-person_int <- rnorm(n_people, 50, 8)
-df <- expand_grid(person = 1:n_people, day = 1:n_days) |>
+hh_baseline <- rnorm(n_households, 25, 8)  # household baseline savings rate
+
+df <- expand_grid(household = 1:n_households, month = 1:n_months) |>
   mutate(
-    sleep  = rnorm(n(), 7, 1.5),
-    mood   = person_int[person] + 2.5 * (sleep - 7) + rnorm(n(), 0, 5),
-    person = factor(person)
+    disclosure = rnorm(n(), 6, 1.5),   # pages of disclosure document read
+    savings    = hh_baseline[household] + 2.5 * (disclosure - 6) + rnorm(n(), 0, 5),
+    household  = factor(household)
   )
 
-m <- lmer(mood ~ sleep + (1 | person), data = df)
+m <- lmer(savings ~ disclosure + (1 | household), data = df)
 
 # Compute R²
 r2_vals <- r2(m)
@@ -49,16 +58,16 @@ print(r2_vals)
 ```
 
 **Interpretation:**
-- $R^2_m$ tells you how much variance is explained by `sleep` alone
-- $R^2_c$ tells you how much is explained by `sleep` plus person-level clustering
-- The difference ($R^2_c - R^2_m$) is the proportion attributable to person-level random effects — related to the ICC
+- $R^2_m$ tells you how much variance in monthly savings is explained by `disclosure` engagement alone
+- $R^2_c$ tells you how much is explained by `disclosure` plus household-level clustering (persistent differences between households)
+- The difference ($R^2_c - R^2_m$) is the proportion attributable to household-level random effects — this equals the ICC from the null model and tells you how much of savings variation is "who you are" rather than "how much disclosure you engaged with this month"
 
 ## ICC as an Effect Size
 
 The ICC from a null model is itself an effect size: it tells you the proportion of total variance that is between-cluster. Reporting this before any predictors is informative — it tells readers how much of the outcome is driven by group membership, regardless of the predictors.
 
 ```{r icc-effect}
-m_null <- lmer(mood ~ 1 + (1 | person), data = df)
+m_null <- lmer(savings ~ 1 + (1 | household), data = df)
 icc(m_null)
 ```
 
@@ -67,15 +76,15 @@ icc(m_null)
 Fixed effect coefficients are in the original units of X and Y. For comparison across studies or predictors with different scales, standardize:
 
 ```{r standardized}
-# Method 1: Standardize inputs
+# Standardize inputs for effect size comparison
 df <- df |>
-  mutate(sleep_z = scale(sleep)[,1],
-         mood_z  = scale(mood)[,1])
+  mutate(disclosure_z = scale(disclosure)[,1],
+         savings_z    = scale(savings)[,1])
 
-m_std <- lmer(mood_z ~ sleep_z + (1 | person), data = df)
+m_std <- lmer(savings_z ~ disclosure_z + (1 | household), data = df)
 broom.mixed::tidy(m_std, effects = "fixed") |>
   knitr::kable(digits = 3,
-    caption = "Standardized coefficient: 1 SD increase in sleep → β SD increase in mood")
+    caption = "Standardized coefficient: 1 SD increase in disclosure engagement → β SD increase in monthly savings")
 ```
 
 ## What to Report
@@ -86,11 +95,11 @@ Here is a model results write-up following JARS-Quant guidelines for multilevel 
 
 *Sample write-up:*
 
-We modeled daily mood as a function of hours of sleep using a two-level mixed-effects model (lme4; Bates et al., 2015), with days (Level 1) nested within participants (Level 2). A random intercept for participant was included to account for between-person differences in baseline mood.
+We modeled monthly household savings as a function of financial disclosure engagement using a two-level mixed-effects model (lme4; Bates et al., 2015), with months (Level 1) nested within households (Level 2). A random intercept for household was included to account for between-household differences in baseline savings behavior.
 
-A null model revealed an intraclass correlation of ICC = .{icc}, indicating that {icc*100}% of the variance in mood was attributable to between-person differences in baseline mood.
+A null model revealed an intraclass correlation of ICC = .{icc}, indicating that {icc*100}% of the variance in monthly savings was attributable to persistent between-household differences, independent of disclosure engagement.
 
-Adding sleep as a predictor significantly improved model fit (χ² = X, df = 1, p < .001). Sleep significantly predicted same-day mood (b = 2.48, SE = 0.31, t = 8.0, p < .001), indicating that each additional hour of sleep was associated with a 2.5-point increase in mood (on a 0–100 scale). The marginal R² was .{r2_m} and the conditional R² was .{r2_c}, indicating that sleep explained {r2_m*100}% of total variance; together with person-level random effects, the model explained {r2_c*100}% of total variance.
+Adding disclosure engagement as a predictor significantly improved model fit (χ² = X, df = 1, p < .001). Disclosure significantly predicted same-month savings (b = 2.48, SE = 0.31, t = 8.0, p < .001), indicating that each additional page of disclosure material engaged was associated with a 2.5-unit increase in monthly savings (on a 0–100 scale). The marginal R² was .{r2_m} and the conditional R² was .{r2_c}, indicating that disclosure engagement explained {r2_m*100}% of total variance in savings; together with household-level random effects, the model explained {r2_c*100}% of total variance.
 
 ---
 
@@ -117,5 +126,19 @@ broom.mixed::tidy(m, effects = "fixed", conf.int = TRUE) |>
   ) |>
   select(term, estimate, std.error, conf.low, conf.high, p_value) |>
   knitr::kable(digits = 3,
-    caption = "APA-style fixed effects table")
+    caption = "APA-style fixed effects table: disclosure engagement → monthly savings")
 ```
+
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions About Your Effect Size Reporting
+
+**Challenge 1 — "Why is your marginal R² so much lower than the conditional R²?"**
+A large gap between $R^2_m$ and $R^2_c$ means the random effects (household-level clustering) are absorbing a lot of variance that your fixed effects are not capturing. A reviewer will ask: does this mean the household-level differences are substantively important, or that you are missing a key predictor? Report the ICC and explain whether the between-household variance represents theoretically meaningful heterogeneity (e.g., households differ in financial literacy or income stability) or is residual noise from omitted covariates.
+
+**Challenge 2 — "Is your standardized coefficient comparable to prior studies?"**
+Standardized β depends on the variance structure of both X and Y in your sample. If your sample has unusual variance in disclosure engagement (e.g., because your study design constrained the range), the standardized β will not be comparable to a study with natural variation. When making comparisons across studies, report unstandardized coefficients with their original units and standard deviations alongside the standardized value so readers can recalculate.
+
+**Challenge 3 — "Did you report variance components, not just the ICC from the null model?"**
+The ICC tells readers that household membership explains X% of savings variance — but not whether that variance is large in absolute terms. A variance component of σ²_u = 64 (SD = 8 savings units) is substantively large; σ²_u = 0.5 is trivial, even if the ICC is 0.30 because residual variance is also small. Report both the ICC and the raw variance components so readers can judge the practical importance of the clustering.
+:::
+

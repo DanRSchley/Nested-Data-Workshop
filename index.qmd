@@ -1,58 +1,129 @@
 ---
 title: "Nested Data Structures"
-subtitle: "A Workshop on Multilevel Modeling"
+subtitle: "A Workshop on Multilevel Modeling · RSM"
+description: >
+  Open graduate workshop from Rotterdam School of Management on nested data
+  analysis — multilevel modeling, panel data, and causal identification —
+  with worked R simulations and interactive diagnostics.
+toc: false
 ---
 
-# Welcome
+This workshop is built around a single, uncomfortable idea: **your data is never really about your data**. Every dataset you collect is a partial, imperfect snapshot of a broader process — almost always structured, layered, and nested in ways standard analysis ignores.
 
-This workshop is built around a single, uncomfortable idea: **your data is never really about your data**. Every dataset you collect is a partial, imperfect snapshot of a broader process — a process that is almost always structured, layered, and nested in ways your standard analysis ignores.
+The workshop is written for researchers in judgment and decision making — studying consumer choice, financial behavior, risky decision making, and policy response — who work with both observational panel data and randomized experiments.
 
-A household's spending choice this month is nested within its monthly budget cycle and its broader financial trajectory. A person's risky decision is nested within a sequence of prior choices and a specific framing context that shapes how the options are perceived. A consumer's willingness to pay is nested within the product messages they have encountered, the market conditions surrounding the purchase, and their own stable risk preferences — preferences that show up again and again across different decisions. Even a simple between-subjects experiment — where you collect exactly one response per person — has nesting baked in: your participants were sampled from a population, your stimuli were sampled from a population of possible stimuli, and the moment of measurement was sampled from a population of possible moments.
-
-This workshop is written for researchers in judgment and decision making — studying consumer choice, financial behavior, risky decision making, and policy response — who work with both observational panel data and randomized experiments.
-
-The field of *nested data analysis* is fundamentally about recovering the **data-generating process** (DGP) from these snapshots. The models in this workshop don't just fit your data better — they get you closer to the truth about the process that produced it.
-
-## What This Workshop Covers
-
-The curriculum follows a two-act structure.
-
-**Act I — Foundations (Modules 0–3)** builds the conceptual language: how nested structure works, how coefficient meaning changes across levels, and how inference breaks. Each module adds one layer of the diagnostic toolkit.
-
-**Act II — Applications (Modules 4–5)** applies those tools in two tracks: Module 4 for observational and longitudinal data, Module 5 for experimental and nested trial designs. Both tracks ask the same question — *can we recover a credible causal estimate?* — and answer it with context-specific tools.
+The field of *nested data analysis* is fundamentally about recovering the **data-generating process** (DGP) from these snapshots. The models here don't just fit your data better — they get closer to the truth about the process that produced it.
 
 The unifying question throughout is: *What assumption is standard regression making here, and what happens when it's wrong?*
 
+---
+
+## Modules
+
 ::: {.grid}
 
-::: {.g-col-12}
+::: {.g-col-12 .g-col-md-4}
 ### Module 0: All Data is Nested
-The conceptual foundation. Why the independence assumption is almost always violated, how to measure how badly, and how to think about your data as a snapshot of a larger process.
+
+Why the independence assumption is almost always violated, and how to think about your data as a snapshot of a larger process.
+
+[Module 0 →](module-0/intro.qmd){.btn .btn-primary}
+
+**Sections**
+
+- [Part 1: The DGP Perspective](module-0/part1.qmd)
+- [Part 2: Types of Nested Structures](module-0/part2.qmd)
+- [Part 3: Measuring Non-Independence](module-0/part3.qmd)
+- [Part 4: Data Structure and Format](module-0/part4.qmd)
 :::
 
-::: {.g-col-12}
+::: {.g-col-12 .g-col-md-4}
 ### Module 1: The Mixed-Effects Framework
-The core toolkit: fixed effects, random intercepts, random slopes, three-level structures, and crossed random effects. With a deep focus on the assumptions each model makes and how to check them.
+
+Fixed effects, random intercepts, random slopes, and three-level structures — with a focus on the assumptions each model makes and how to check them.
+
+[Module 1 →](module-1/intro.qmd){.btn .btn-primary}
+
+**Sections**
+
+- [Part 1: Fixed Effects Models](module-1/part1.qmd)
+- [Part 2: Random Intercepts](module-1/part2.qmd)
+- [Part 3: Random Slopes](module-1/part3.qmd)
+- [Part 4: Fixed vs. Random — When to Use Which](module-1/part4.qmd)
+- [Part 5: Three-Level Structures](module-1/part5.qmd)
+- [Part 6: Crossed Random Effects](module-1/part6.qmd)
 :::
 
-::: {.g-col-12}
+::: {.g-col-12 .g-col-md-4}
 ### Module 2: Centering & Between/Within Effects
-One of the most consequential (and least taught) decisions in multilevel analysis: what does your predictor mean? Grand-mean centering versus cluster-mean centering, the ecological fallacy, and Simpson's Paradox.
+
+What does your predictor actually mean? Grand-mean vs. cluster-mean centering, the ecological fallacy, and Simpson's Paradox.
+
+[Module 2 →](module-2/intro.qmd){.btn .btn-primary}
+
+**Sections**
+
+- [Part 1: Centering as Decomposition](module-2/part1.qmd)
+- [Part 2: Separating Within and Between Effects](module-2/part2.qmd)
+- [Part 3: Simpson's Paradox](module-2/part3.qmd)
 :::
 
-::: {.g-col-12}
+::: {.g-col-12 .g-col-md-4}
 ### Module 3: Inferential Threats & Identification
-The identification toolkit: when standard regression fails, and what to do about it. Module 3 maps the inferential threats — omitted variables, selection, reverse causality, collider bias — and introduces the logic behind each recovery strategy. The full implementations live in Modules 4 and 5.
+
+When standard regression fails and what to do about it: omitted variables, selection, reverse causality, and the logic of each recovery strategy.
+
+[Module 3 →](module-3/intro.qmd){.btn .btn-primary}
+
+**Sections**
+
+- [Part 1: Endogeneity](module-3/part1.qmd)
+- [Part 2: Instrumental Variables](module-3/part2.qmd)
+- [Part 3: Selection Effects & Attrition](module-3/part3.qmd)
+- [Part 4: Regression Discontinuity](module-3/part4.qmd)
+- [Part 5: Difference-in-Differences](module-3/part5.qmd)
+- [Part 6: Propensity Scores & Matching](module-3/part6.qmd)
 :::
 
-::: {.g-col-12}
+::: {.g-col-12 .g-col-md-4}
 ### Module 4: Longitudinal Data & Change
-The observational track. Consumer panels, household finance data, and policy rollouts create longitudinal structures where the question is whether changes in information, incentives, prices, or defaults alter decision trajectories. Module 4 covers the full modeling arc — covariance structure, growth curves, event outcomes, missing data — and closes with the causal identification tools needed when panel data has an identification problem: DiD, ITS, panel IV, and time-varying propensity scores.
+
+Consumer panels, growth curves, event outcomes, and panel causal identification: DiD, ITS, panel IV, and time-varying propensity scores.
+
+[Module 4 →](module-4/intro.qmd){.btn .btn-primary}
+
+**Sections**
+
+- [Part 1: From RM-ANOVA to Mixed Models](module-4/part1.qmd)
+- [Part 2: Covariance Structures](module-4/part2.qmd)
+- [Part 3: Growth Curve Models](module-4/part3.qmd)
+- [Part 4: Latent Growth Curve Models](module-4/part4.qmd)
+- [Part 5: Autoregressive Structures](module-4/part5.qmd)
+- [Part 6: Cross-Lagged Panel Models](module-4/part6.qmd)
+- [Part 7: Binary and Count Outcomes Over Time](module-4/part7.qmd)
+- [Part 8: Survival Analysis](module-4/part8.qmd)
+- [Part 9: Missing Data in Longitudinal Studies](module-4/part9.qmd)
+- [Part 10: Applied Identification Strategies](module-4/part10.qmd)
 :::
 
-::: {.g-col-12}
+::: {.g-col-12 .g-col-md-4}
 ### Module 5: Experimental Designs with Nesting
-The experimental track. Even randomized experiments have nesting: participants are crossed with product messages or policy stimuli; treatment arms may have coach or advisor clustering; multi-site replications create site-level variance. Module 5 covers correct model specification for these designs, power analysis, and — in Parts 8–9 — a self-contained unit on what to do when randomization is imperfect: non-compliance (ITT/LATE), non-random attrition (IPW), and quasi-experimental fixes.
+
+Crossed and partially nested designs, power analysis, and — when randomization is imperfect — non-compliance, attrition, and quasi-experimental fixes.
+
+[Module 5 →](module-5/intro.qmd){.btn .btn-primary}
+
+**Sections**
+
+- [Part 1: Crossed Random Effects in Experiments](module-5/part1.qmd)
+- [Part 2: Partially Nested Designs](module-5/part2.qmd)
+- [Part 3: Maximal vs. Parsimonious Random Effects](module-5/part3.qmd)
+- [Part 4: Multi-Site Experiments](module-5/part4.qmd)
+- [Part 5: Power Analysis for Nested Designs](module-5/part5.qmd)
+- [Part 6: Binary and Count Outcomes in Experiments](module-5/part6.qmd)
+- [Part 7: Effect Sizes, Reporting, and Reproducibility](module-5/part7.qmd)
+- [Part 8: Non-Compliance: ITT and LATE](module-5/part8.qmd)
+- [Part 9: Quasi-Experimental Methods](module-5/part9.qmd)
 :::
 
 :::

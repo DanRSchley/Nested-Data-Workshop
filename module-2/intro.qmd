@@ -1,8 +1,16 @@
 ---
-title: "Overview"
+title: "Module 2: Centering & Between/Within Effects"
 ---
 
 # Module 2: Centering & Between/Within Effects {.unnumbered}
+
+::: {.callout-note icon=false}
+## Three Questions This Module Answers
+
+- **What does my predictor's coefficient actually mean?** A customer's monthly disclosure engagement score carries two signals at once: customers who are generally more engaged (between-household) tend to save more, and in months when a household engages more than usual (within-household) their savings also increase. The standard random-intercept model conflates these into a single number that answers neither question cleanly.
+- **When does a pooled estimate mislead?** The classic case: more promotional messages are sent to lower-tier consumer segments, and within each segment, more messages correlate with higher purchase intent. The aggregate relationship (more messages → lower intent) is real but backwards from the within-segment truth. This is Simpson's Paradox — a systematic feature of nested data, not a statistical curiosity.
+- **How do I estimate both effects in one model?** Cluster-mean centering (CMC) separates the within-unit deviation from the unit mean. The Mundlak device includes both in a single regression. The Wald test tells you whether the within and between effects are statistically distinguishable — and therefore whether a pooled estimate is defensible.
+:::
 
 ## The Subtlest Assumption
 
@@ -10,10 +18,10 @@ You have built a mixed-effects model, checked your residuals, verified convergen
 
 **What does your predictor's value actually mean?**
 
-This sounds almost philosophical, but it has concrete, testable consequences. A predictor like "daily sleep hours" can mean two different things in a within-person longitudinal dataset:
+This sounds almost philosophical, but it has concrete, testable consequences. A predictor like "monthly financial disclosure engagement" can mean two different things in a household longitudinal dataset:
 
-1. **Between-person effect:** People who tend to sleep more also tend to have higher mood (perhaps because of a third factor — stable health, lifestyle, genetics — or because sleep causally improves mood on average across people)
-2. **Within-person effect:** On days when *this specific person* sleeps more than *their own average*, their mood is higher
+1. **Between-household effect:** Households that engage more with disclosures on average also tend to have higher savings rates (perhaps because financially motivated households both seek out disclosures and save more independently)
+2. **Within-household effect:** In months when *this specific household* engages more than *their own average*, their savings rate increases
 
 These two effects are not the same. They can point in opposite directions. They answer different scientific questions. And the standard random-intercept model, without careful centering, conflates them.
 
@@ -31,4 +39,4 @@ These two effects are not the same. They can point in opposite directions. They 
 
 Standard regression assumes your predictor has one meaning. In nested data, it has (at least) two: a within-unit meaning and a between-unit meaning. Centering is the tool that separates them.
 
-> *"What do your means mean?"* — this question, asked before every analysis, will save you from some of the most common and consequential errors in social science research.
+> *"What does this coefficient represent — a within-household comparison or a between-household comparison?"* — asking this question before interpreting every coefficient will prevent some of the most consequential errors in applied multilevel research.

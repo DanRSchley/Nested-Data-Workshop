@@ -14,62 +14,93 @@ set.seed(2025)
 
 # Missing Data in Longitudinal Studies
 
+::: {.callout-note icon=false}
+## The Dropout Question
+
+> **Who is missing from your data at wave 3, and why?** If the people who stopped participating are systematically different from those who stayed — more financially stressed, more discouraged, more disengaged — then your wave 3 sample is not a representative snapshot of the population you enrolled. It is a survivor sample.
+>
+> **What does that do to your estimates?** It creates selection into the observed sample that is correlated with the outcome trajectory. The estimated treatment effect on completers may not reflect the true effect on the full enrolled sample.
+>
+> **What can be done about it?** Depends entirely on the mechanism. Under MAR (dropout predictable from observed variables), available-case estimation via `lmer` or multiple imputation is valid. Under MNAR (dropout driven by the unobserved outcome itself), no standard method fully corrects the bias — you need sensitivity analysis.
+:::
+
 ## Why Longitudinal Data Are Especially Prone to Missingness
 
-Cross-sectional surveys have one chance to collect data. Longitudinal studies have multiple waves — and at each wave, participants can fail to provide data. This creates a missingness structure that is both richer and more dangerous than in cross-sectional research.
+Cross-sectional studies have one chance to collect data. Longitudinal studies have multiple waves — and at each wave, participants can fail to provide data. Even modest per-wave dropout compounds dramatically:
 
-Consider a 4-wave panel study. Even if each wave has 90% completion, only $0.9^4 \approx 66\%$ of participants complete all four waves. With 80% completion per wave: $0.8^4 \approx 41\%$. The complete-case sample — participants with data at all waves — can be a small and highly selected subset of the original enrollment.
+- 90% retention per wave × 4 waves = 66% completing all waves
+- 80% retention per wave × 4 waves = 41% completing all waves
 
-This matters because **why people drop out is rarely random**. Participants who are struggling are more likely to drop out. Participants who improved may feel they no longer need to participate. These are mechanisms that create **systematic relationships between missingness and the outcome** — exactly the conditions that bias estimates.
+The complete-case sample — participants with data at every wave — can be a small, highly selected subset of the original enrollment.
+
+**The central problem:** Why people drop out is rarely random. Financially stressed households are more likely to disengage from financial diary studies precisely because their situation is worsening and they are avoiding measurement. App users with the worst savings outcomes are often the least engaged users — and the first to stop logging. These are mechanisms that create systematic relationships between missingness and the outcome trajectory.
 
 ---
 
 ## The Three Mechanisms of Missing Data
 
-Missing data mechanisms determine how severe the bias is and what can be done about it. Following Rubin (1976), there are three:
-
 ### Missing Completely At Random (MCAR)
 
-Whether an observation is missing is **independent of everything** — both observed and unobserved variables. This is effectively a random subsample of the full data. Complete-case analysis is unbiased under MCAR, but still inefficient (you lose information).
+Whether an observation is missing is independent of everything — both observed and unobserved variables. Complete-case analysis is unbiased under MCAR, but still inefficient.
 
-*Example:* A participant's data are missing because their file was accidentally deleted by the research assistant. The deletion has nothing to do with their health status, demographics, or outcomes.
+*JDM example:* Data are missing because a server outage prevented 15% of responses from being saved at wave 2. The outage has nothing to do with who the participants are or how they were responding.
 
 ### Missing At Random (MAR)
 
-Whether an observation is missing depends on **observed variables** in the dataset, but not on the missing value itself after conditioning on those observed variables. This is a conditional independence assumption: missingness is predictable from what you have.
+Whether an observation is missing depends on **observed variables** in the dataset, but not on the missing value itself after conditioning on those variables. Modern methods (FIML via `lmer`, multiple imputation) are valid under MAR.
 
-*Example:* Older participants are more likely to drop out of a study, and older participants also tend to have worse health at baseline. Once you condition on age (an observed variable), missingness is independent of the unobserved future health. Modern imputation methods (Multiple Imputation, Full Information Maximum Likelihood) are valid under MAR.
+*JDM example:* Households with higher baseline debt are more likely to drop out of a financial diary study. Higher debt is observed. Once you condition on observed baseline debt, dropout is independent of the *unobserved future* financial behavior. The dropout is predictable from what you have — but it is not driven by the unseen future outcome.
 
 ### Missing Not At Random (MNAR)
 
-Whether an observation is missing depends on **the missing value itself**, even after conditioning on all observed variables. This is the dangerous case — no standard analysis fully corrects for it.
+Whether an observation is missing depends on **the missing value itself**, even after conditioning on all observed variables. This is the dangerous case.
 
-*Example:* Participants drop out because their depression worsened — and worse depression directly predicts dropout, over and above any observed baseline predictors. Your observed data systematically underrepresent the bad outcomes.
+*JDM example:* App users stop logging their transactions **because** their spending worsened — and the worsened spending that caused them to disengage is the exact outcome you would have measured. The missingness is caused by the unobserved outcome. No standard method corrects for this.
+
+### The MAR/MNAR Distinction Visualized
+
+```{mermaid}
+flowchart TD
+    A["Enrolled participants\nN = 200"] --> B["Wave 2 complete\nN = 160"]
+    A --> C["Dropped out at wave 2\nN = 40"]
+    B --> D["Wave 3 complete\nN = 128"]
+    B --> E["Dropped out at wave 3\nN = 32"]
+    C --> F_mar["MAR: dropout predicted by\nobserved baseline debt"]
+    C --> F_mnar["MNAR: dropout caused by\nunobserved spending shock"]
+    style F_mar fill:#e8f5e9,stroke:#2d6a4f
+    style F_mnar fill:#fce4ec,stroke:#c0392b
+```
+
+Under MAR, the cause of dropout sits in your observed data — you can model it. Under MNAR, the cause is invisible — it is the thing you failed to measure.
 
 ::: {.callout-warning icon=false}
 ## Assumption: MAR or Better
 
-Multiple imputation and FIML are only valid if the data are MAR (or MCAR). If data are MNAR, these methods reduce but do not eliminate bias. There is no fully satisfying solution to MNAR missingness — it requires either selection models (joint model for outcome and dropout), pattern mixture models, or sensitivity analyses that bound the possible bias.
+**Plain-language meaning:** Multiple imputation and FIML via `lmer` are only valid if the data are MAR — missing for reasons explainable by observed variables — or MCAR. If dropout is driven by the unobserved outcome trajectory, these methods reduce but cannot eliminate bias.
 
-**How to check:** You cannot directly test MNAR from observed data (it involves the unobserved values). Proxy indicators: do dropouts differ from completers on observed baseline variables? Does the rate of dropout vary by initial outcome level? These patterns are consistent with MNAR, though not diagnostic.
+**What the model is assuming away:** The possibility that the financially distressed households who disappeared from wave 3 had *worse outcomes than predicted from their observed characteristics* — and dropped out specifically because of that unobserved worsening.
+
+**JDM example:** If app users disengage specifically after large overdraft events (which are unobserved in your data), their missing wave 3 savings behavior is not explained by their observed baseline debt level. The dropout is MNAR.
+
+**What a skeptical reviewer might say:** "Your imputation is valid under MAR — but why would a financial diary dropout be MAR? The people who stop logging finances are arguably the ones whose finances are getting worse in ways your baseline measures don't fully capture."
+
+**Observable warning sign:** Significant differences in observed baseline variables between completers and dropouts (consistent with MAR, but also consistent with MNAR); dropout rates that increase across waves; dropout concentrated in the control arm.
+
+**What to check:** Compare observed baseline characteristics between completers and dropouts. If they differ, MAR is possible but MNAR cannot be ruled out. Run sensitivity analysis to bound the MNAR bias.
 :::
 
 ---
 
 ## Step 1: Diagnosing Missingness
 
-Before imputing or excluding, understand the pattern and mechanism.
-
 ```{r simulate-missing}
-# Simulate 4-wave panel study with dropout
 n_people <- 150
 n_waves  <- 4
 
 person_baseline <- rnorm(n_people, 50, 10)
 person_trt      <- rep(c(0, 1), each = n_people / 2)
 
-# Generate complete data
-df_complete <- expand_grid(person = 1:n_people, wave = 1:n_waves) |>
+df_full <- expand_grid(person = 1:n_people, wave = 1:n_waves) |>
   mutate(
     baseline  = person_baseline[person],
     treatment = person_trt[person],
@@ -77,41 +108,39 @@ df_complete <- expand_grid(person = 1:n_people, wave = 1:n_waves) |>
     person    = factor(person)
   )
 
-# Introduce MAR missingness: higher dropout for people with worse baseline
-dropout_prob <- plogis(-2 + 0.03 * (50 - person_baseline) + 0.4 * (df_complete$wave - 1))
-missing_flag <- rbinom(nrow(df_complete), 1, dropout_prob)
+# MAR mechanism: households with lower baseline savings drop out more over time
+dropout_prob <- plogis(-2 + 0.03 * (50 - person_baseline[as.integer(df_full$person)])
+                          + 0.4 * (df_full$wave - 1))
+missing_flag <- rbinom(nrow(df_full), 1, dropout_prob)
 
-df_obs <- df_complete |>
+df_obs <- df_full |>
   mutate(Y_obs = ifelse(missing_flag == 1, NA, Y_true))
 
-# Missingness rates by wave
 df_obs |>
   group_by(wave) |>
   summarise(
     n_total   = n(),
     n_missing = sum(is.na(Y_obs)),
-    pct_missing = mean(is.na(Y_obs)) * 100
+    pct_miss  = round(mean(is.na(Y_obs)) * 100, 1)
   ) |>
-  knitr::kable(digits = 1, caption = "Missingness rates per wave")
+  knitr::kable(caption = "Missingness rates per wave — attrition compounds across waves")
 ```
 
-```{r missing-pattern-plot}
-# Who is missing? Compare baseline scores of completers vs. dropouts
-df_person_missing <- df_obs |>
+```{r missing-pattern-plot, fig.width=9, fig.height=4}
+df_person_miss <- df_obs |>
   group_by(person, baseline, treatment) |>
   summarise(
-    complete = all(!is.na(Y_obs)),
     n_observed = sum(!is.na(Y_obs)),
-    .groups = "drop"
+    .groups    = "drop"
   )
 
-p1 <- ggplot(df_person_missing, aes(x = factor(n_observed), y = baseline)) +
+p1 <- ggplot(df_person_miss, aes(x = factor(n_observed), y = baseline)) +
   geom_boxplot(fill = "#1e3a5f", alpha = 0.7) +
   labs(
-    title    = "Baseline score by number of waves observed",
-    subtitle = "Lower baseline → more dropout (MAR mechanism)",
-    x = "Number of waves with data",
-    y = "Baseline score"
+    title    = "Baseline score by waves observed",
+    subtitle = "Lower baseline → more dropout (MAR mechanism visible here)",
+    x        = "Number of waves observed",
+    y        = "Baseline savings score"
   ) +
   theme_minimal(base_size = 13)
 
@@ -119,86 +148,80 @@ p2 <- df_obs |>
   group_by(wave) |>
   summarise(pct_missing = mean(is.na(Y_obs)) * 100) |>
   ggplot(aes(x = wave, y = pct_missing)) +
-  geom_bar(stat = "identity", fill = "#e63946", alpha = 0.8) +
+  geom_bar(stat = "identity", fill = "#e67e22", alpha = 0.8) +
   labs(
     title    = "Missingness rate by wave",
-    subtitle = "Attrition compounds across waves",
-    x = "Wave", y = "% Missing"
+    subtitle = "Compounding attrition across waves",
+    x        = "Wave",
+    y        = "% missing"
   ) +
   theme_minimal(base_size = 13)
 
 p1 + p2
 ```
 
-The diagnostic pattern confirms the MAR mechanism: people with lower baseline scores drop out more over time. This is predictable from observed baseline — which means multiple imputation can recover unbiased estimates.
+The diagnostic pattern confirms MAR: households with lower baseline savings drop out more over time. This is predictable from the observed baseline, so multiple imputation and FIML can recover unbiased estimates.
 
 ---
 
 ## Step 2: Complete-Case vs. Available-Case Analysis
 
-**Complete-case analysis** uses only observations with no missing values at any wave. It is simple but biased when dropouts differ from completers.
+**Complete-case analysis**: use only participants with data at every wave. Simple, but biased when dropouts differ from completers — and they almost always do in financial panel studies.
 
-**Available-case analysis** uses all available data at each wave (mixed model with `lmer` uses this by default). It is more efficient than complete-case and is unbiased under MAR when the model is correctly specified — because the random effects model uses all available information to recover the full trajectory.
+**Available-case analysis**: use all available data at each wave. `lmer` uses this by default (FIML-like estimation), and it is unbiased under MAR when the model correctly includes the observed predictors of dropout.
 
 ```{r compare-approaches}
-# Approach 1: Complete cases only
-df_complete_only <- df_obs |>
+# Complete cases only
+df_cc <- df_obs |>
   group_by(person) |>
   filter(sum(!is.na(Y_obs)) == n_waves) |>
   ungroup()
 
-m_cc <- lmer(Y_obs ~ wave * treatment + (1 | person), data = df_complete_only)
-
-# Approach 2: Available case (lmer handles missingness automatically)
+m_cc <- lmer(Y_obs ~ wave * treatment + (1 | person), data = df_cc)
 m_ac <- lmer(Y_obs ~ wave * treatment + (1 | person), data = df_obs)
 
 bind_rows(
   broom.mixed::tidy(m_cc, effects = "fixed") |>
-    filter(stringr::str_detect(term, "wave.*treatment")) |>
+    filter(str_detect(term, "wave.*treatment")) |>
     mutate(approach = "Complete-case"),
   broom.mixed::tidy(m_ac, effects = "fixed") |>
-    filter(stringr::str_detect(term, "wave.*treatment")) |>
+    filter(str_detect(term, "wave.*treatment")) |>
     mutate(approach = "Available-case (lmer)")
 ) |>
   select(approach, estimate, std.error, p.value) |>
   knitr::kable(
     digits = 3,
-    caption = "Treatment × wave interaction: complete-case vs. available-case. True effect ≈ 5."
+    caption = "Treatment × wave interaction: complete-case vs. available-case. True effect ≈ 5. Available-case is closer under MAR."
   )
 ```
 
-Because dropout is MAR (related to baseline, which is in the model), the available-case estimate from `lmer` is close to the truth. The complete-case estimate may be biased if the subset of completers is systematically different.
+Because dropout is MAR (related to observed baseline), the available-case estimate from `lmer` is close to the truth. The complete-case estimate may be biased — the completer subset over-represents households with higher baseline savings, distorting the treatment effect estimate.
 
 ---
 
 ## Step 3: Multiple Imputation
 
-Multiple Imputation (MI) is a principled approach for MAR data. The procedure has three steps:
+Multiple Imputation (MI) is a principled approach for MAR data with three steps:
 
-1. **Impute:** Create $m$ plausible complete datasets, each with missing values filled in by draws from the posterior predictive distribution given observed data.
-2. **Analyze:** Run your analysis model on each of the $m$ complete datasets.
-3. **Pool:** Combine estimates using Rubin's rules, which correctly propagate the uncertainty from imputation into the final standard errors.
+1. **Impute**: Create $m$ plausible complete datasets, with missing values filled by draws from the posterior predictive distribution given observed data
+2. **Analyze**: Run your analysis model on each of the $m$ complete datasets
+3. **Pool**: Combine estimates using Rubin's rules, propagating imputation uncertainty into the final standard errors
 
 ::: {.callout-note icon=false}
-## A note on MI for longitudinal outcomes
+## MI for Longitudinal Outcomes
 
-For repeated-measures longitudinal outcomes (where the missing data *are* the outcome at specific waves), **FIML via `lmer()` with all available observations is usually the preferred approach under MAR** — it directly maximizes the likelihood over observed data without requiring an imputation model for the outcome itself. Full multilevel MI that respects the time-series structure of the data (e.g., using `mice` with `2l.pan` or Bayesian multilevel imputation) is technically superior when auxiliary variables not in the analysis model predict missingness, but it is considerably more complex to implement correctly.
+For repeated-measures longitudinal outcomes where the missing data *are* the outcome at specific waves, **FIML via `lmer()` using all available observations is usually the preferred approach under MAR** — it directly maximizes the likelihood over observed data without requiring a separate imputation model.
 
-The illustration below uses a **simplified person-level imputation strategy** as a didactic toy example to show the Rubin's rules pooling mechanics. It is *not* a recommended best-practice workflow for longitudinal outcomes — it imputes a person-level mean and reuses it across waves, which distorts the within-person variance and time trajectory. Use FIML (`lmer` on all observed data) or a proper multilevel MI package for applied work.
+Full multilevel MI that respects the time-series structure (e.g., `mice` with `2l.pan` or Bayesian multilevel imputation) is technically superior when auxiliary variables not in the analysis model predict missingness. But it is considerably more complex to implement correctly.
+
+The illustration below uses a simplified person-level imputation to demonstrate Rubin's rules pooling mechanics. It is a **didactic toy example**, not a recommended workflow for longitudinal outcomes.
 :::
 
-For longitudinal data with person-level predictors, the didactic illustration imputes at the **person level** (one row per person, using person-level summaries) to show the pooling mechanics in a tractable form.
-
 ```{r multiple-imputation}
-# Create person-level summary for imputation
 df_person <- df_obs |>
   group_by(person, treatment, baseline) |>
-  summarise(
-    mean_Y = mean(Y_obs, na.rm = TRUE),  # observed mean (available data)
-    .groups = "drop"
-  )
+  summarise(mean_Y = mean(Y_obs, na.rm = TRUE), .groups = "drop")
 
-# Impute mean_Y at the person level using predictive mean matching
 imp <- mice(
   df_person |> select(treatment, baseline, mean_Y),
   method = "pmm",
@@ -207,25 +230,17 @@ imp <- mice(
   print  = FALSE
 )
 
-# Merge back into long format and analyze
 results_list <- lapply(1:20, function(k) {
-  # Complete dataset k
   df_imp_person <- complete(imp, k) |>
     mutate(person = df_person$person)
 
-  # Merge imputed mean back — for MI we impute the full longitudinal dataset
-  # by filling in person-level missing observations proportionally
   df_long_imp <- df_obs |>
-    left_join(df_imp_person |> select(person, mean_Y_imp = mean_Y),
-              by = "person") |>
-    mutate(
-      Y_mi = ifelse(is.na(Y_obs), mean_Y_imp + rnorm(n(), 0, 3), Y_obs)
-    )
+    left_join(df_imp_person |> select(person, mean_Y_imp = mean_Y), by = "person") |>
+    mutate(Y_mi = ifelse(is.na(Y_obs), mean_Y_imp + rnorm(n(), 0, 3), Y_obs))
 
   lmer(Y_mi ~ wave * treatment + (1 | person), data = df_long_imp, REML = FALSE)
 })
 
-# Pool results using Rubin's rules
 pooled <- pool(results_list)
 
 summary(pooled) |>
@@ -239,30 +254,26 @@ summary(pooled) |>
 
 ### Rubin's Rules
 
-The pooled estimate from $m$ imputations is the simple average:
+The pooled estimate from $m$ imputations is the average:
 $$\hat{\beta}_{pool} = \frac{1}{m} \sum_{k=1}^m \hat{\beta}_k$$
 
-The pooled variance combines **within-imputation variance** (average of the $m$ standard errors) and **between-imputation variance** (variability across the $m$ estimates):
-
+The pooled variance combines **within-imputation variance** and **between-imputation variance**:
 $$V_{pool} = \bar{W} + \left(1 + \frac{1}{m}\right) B$$
 
-where $\bar{W} = \frac{1}{m}\sum V_k$ is the average within-imputation variance and $B = \frac{1}{m-1}\sum(\hat\beta_k - \hat\beta_{pool})^2$ is the between-imputation variance. The term $(1 + 1/m)B$ inflates the standard error to reflect the extra uncertainty from imputing the missing values.
+The between-imputation variance $B$ captures uncertainty from the imputed values themselves. Unlike complete-case analysis, MI correctly accounts for the fact that imputed values are estimated, not observed — standard errors are appropriately wider.
 
 ---
 
 ## Step 4: Sensitivity Analysis for MNAR
 
-Multiple imputation assumes MAR. If the dropout mechanism is MNAR — people drop out because of their outcome trajectory itself — imputation is biased. The appropriate response is a **sensitivity analysis** that asks: "How large would the MNAR bias have to be to change my conclusions?"
+When you suspect MNAR, the honest response is not to claim the problem is solved — it is to characterize how much the MNAR mechanism would need to deviate before your conclusions change.
 
-A simple approach: **worst-case analysis** with a tipping point calculation.
+**Tipping point analysis:** Shift the imputed missing values by a parameter $\delta$ (representing how much worse the dropouts' outcomes were relative to MAR predictions) and observe when the key estimate loses significance.
 
-```{r sensitivity-analysis}
-# Worst-case sensitivity: what if dropouts had worse outcomes?
-# Shift imputed values by a sensitivity parameter delta
-
+```{r sensitivity-analysis, fig.width=8, fig.height=4}
 delta_values <- seq(-10, 0, by = 2)
 
-sensitivity_results <- map_dfr(delta_values, function(delta) {
+sensitivity_results <- purrr::map_dfr(delta_values, function(delta) {
   results_delta <- lapply(1:10, function(k) {
     df_imp_person <- complete(imp, k) |>
       mutate(person = df_person$person)
@@ -272,7 +283,7 @@ sensitivity_results <- map_dfr(delta_values, function(delta) {
       mutate(
         Y_mi = ifelse(
           is.na(Y_obs),
-          mean_Y_imp + delta + rnorm(n(), 0, 3),  # shift imputed values by delta
+          mean_Y_imp + delta + rnorm(n(), 0, 3),   # delta = MNAR shift
           Y_obs
         )
       )
@@ -280,67 +291,75 @@ sensitivity_results <- map_dfr(delta_values, function(delta) {
     lmer(Y_mi ~ wave * treatment + (1 | person), data = df_long_imp, REML = FALSE)
   })
 
-  pooled_delta <- pool(results_delta)
-  est <- summary(pooled_delta) |> filter(term == "wave:treatment")
+  pooled_d <- pool(results_delta)
+  est <- summary(pooled_d) |> filter(term == "wave:treatment")
   tibble(delta = delta, estimate = est$estimate, p_value = est$p.value)
 })
 
 ggplot(sensitivity_results, aes(x = delta, y = estimate)) +
   geom_line(linewidth = 1.2, color = "#1e3a5f") +
-  geom_point(size = 3, color = "#1e3a5f") +
+  geom_ribbon(aes(ymin = estimate - 1, ymax = estimate + 1), alpha = 0.1, fill = "#1e3a5f") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "#e63946") +
   labs(
-    title    = "Sensitivity analysis: MNAR robustness check",
-    subtitle = "Delta = assumed shift in imputed outcomes for dropouts (0 = MAR; negative = dropouts did worse)",
-    x = "MNAR shift parameter (delta)",
-    y = "Estimated treatment × time interaction"
+    title    = "MNAR sensitivity analysis: tipping point for treatment × time effect",
+    subtitle = "Delta = assumed additional penalty for dropouts (0 = MAR; negative = dropouts fared worse)",
+    x        = "MNAR shift parameter δ (units worse than MAR prediction)",
+    y        = "Estimated treatment × time interaction"
   ) +
   theme_minimal(base_size = 13)
 ```
 
-The **tipping point** is the value of $\delta$ at which the main conclusion changes (e.g., the treatment effect becomes non-significant). If the tipping point requires implausibly large deviations from MAR, the conclusion is robust. If the tipping point is small, the finding is fragile.
+The tipping point is the $\delta$ at which the estimate drops to zero (or the p-value crosses 0.05). If that requires implausibly large deviations from MAR — for example, assuming dropouts averaged 8 units worse than their observed predictors suggest — the conclusion is relatively robust to MNAR. If the tipping point is $\delta = -2$, the finding is fragile.
 
 ---
 
 ## Step 5: Full Information Maximum Likelihood (FIML)
 
-An alternative to multiple imputation is **Full Information Maximum Likelihood (FIML)**. Instead of imputing missing values, FIML uses the likelihood of the observed data only — but the likelihood is computed across all available time points for each person, not just the complete cases.
+An alternative to MI is **Full Information Maximum Likelihood (FIML)**. Instead of imputing missing values, FIML uses the likelihood of the observed data — but the likelihood is computed across all available time points for each person.
 
-In practice, `lmer` already implements FIML-like estimation when you use all available observations (available-case analysis). For structural equation models with missing data, the `lavaan` package's `missing = "fiml"` argument provides explicit FIML.
+In practice, **`lmer` on all available observations already implements FIML-like estimation**. For structural equation models with missing data, `lavaan`'s `missing = "fiml"` argument provides explicit FIML.
 
-```{r fiml-demo, eval=FALSE}
-# FIML in lavaan (for SEM applications)
-library(lavaan)
-
-# Example: two-wave cross-lagged model with FIML for missingness
-model_fiml <- "
-  Y2 ~ Y1 + X1
-  X2 ~ X1 + Y1
-"
-
-fit_fiml <- sem(model_fiml, data = your_data, missing = "fiml")
-```
-
-FIML and MI give asymptotically equivalent results under MAR when both are correctly specified. MI has the advantage of being applicable to any analysis (including those outside SEM), while FIML is baked into the estimation of a specific model. For standard mixed models with MAR data, available-case lmer is already essentially doing FIML.
+FIML and MI give asymptotically equivalent results under MAR when both are correctly specified. For standard mixed models with MAR data, available-case `lmer` is the simpler and preferred approach.
 
 ---
 
-## A Decision Framework for Missing Data
+## Decision Framework
 
 ::: {.callout-tip}
 ## Missing Data Analysis Workflow
 
-1. **Diagnose:** What is the rate of missingness by wave? Do dropouts differ from completers on observed variables?
-2. **Classify mechanism:** MCAR (rare), MAR (common, treatable), or MNAR (common, serious)?
-3. **Choose primary analysis:**
-   - Available-case `lmer` is unbiased under MAR and correctly specified models
-   - MI adds efficiency and allows including auxiliary variables that predict missingness but are not substantively of interest
-4. **Run sensitivity analysis:** Tipping point analysis quantifies how much MNAR bias would be needed to invalidate conclusions.
-5. **Report:** Report the missingness rate, the mechanism assumption, the analytic approach, and the sensitivity analysis. Transparency about missing data is a marker of rigorous longitudinal research.
+1. **Diagnose**: What is the missingness rate by wave? Do dropouts differ from completers on observed baseline characteristics?
+
+2. **Classify mechanism**: MCAR (server outage, lost data), MAR (dropout predicted by observed variables), or MNAR (dropout driven by the very outcome being studied)?
+
+3. **Choose primary analysis**:
+   - Under MCAR or MAR: available-case `lmer` is unbiased (as long as the model includes observed predictors of dropout as covariates)
+   - Add MI when auxiliary variables predict missingness beyond the main model
+
+4. **Run sensitivity analysis**: Tipping-point analysis shows how much MNAR bias would reverse your conclusions. Report the tipping point explicitly.
+
+5. **Report**: State the missingness rate, the mechanism assumption, the analytic approach, and the sensitivity analysis. Transparency about missing data is a marker of rigorous longitudinal research.
 :::
 
 | Mechanism | Complete-case | Available-case lmer | Multiple Imputation | Notes |
 |-----------|:---:|:---:|:---:|-------|
-| MCAR | Unbiased | Unbiased | Unbiased | Any method works; MI more efficient |
-| MAR | **Biased** | Unbiased* | Unbiased | *requires model to include MAR predictors |
+| MCAR | Unbiased | Unbiased | Unbiased | Any method works |
+| MAR | **Biased** | Unbiased* | Unbiased | *requires observed MAR predictors in model |
 | MNAR | **Biased** | **Biased** | **Biased** | Sensitivity analysis required |
+
+---
+
+## Reviewer Challenge
+
+::: {.callout-tip}
+## What a Reviewer Would Ask
+
+**Challenge 1:** "You assumed MAR and used available-case estimation. But the most financially stressed households — the ones who dropped out — are exactly the ones whose trajectories matter most. If they dropped out because they're worse off, that's MNAR."
+This is the hardest challenge in financial panel research. The appropriate response: (1) show that dropouts and completers differ on observed baseline characteristics (consistent with but not proving MAR), (2) include those observed characteristics in the model to control for predictable dropout, and (3) conduct a tipping point sensitivity analysis showing how much the MNAR effect would need to be to change conclusions.
+
+**Challenge 2:** "Your multiple imputation imputed the wave 3 outcome — but what was the imputation model? Did it include baseline debt, income, and treatment status?"
+Correct specification of the imputation model is critical. The imputation model should include all variables in the analysis model *plus* any auxiliary variables that predict missingness. If baseline debt predicts dropout and is in the imputation model, the resulting imputations will correctly reflect the mechanism. If it is omitted, the imputations are misspecified.
+
+**Challenge 3:** "With 35% missing at wave 4, can you trust any estimates from that wave?"
+High missingness does not automatically invalidate inference — what matters is the mechanism. Under well-supported MAR with a rich set of observed predictors, 35% missingness with `lmer` or MI can still produce unbiased estimates. But the uncertainty is larger (fewer observed data points), and MNAR sensitivity analysis is more important. Report the mechanism argument, not just the imputation procedure.
+:::

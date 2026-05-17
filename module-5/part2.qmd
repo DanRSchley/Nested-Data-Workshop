@@ -12,17 +12,60 @@ set.seed(2025)
 
 # Partially Nested Designs
 
+::: {.callout-note icon=false}
+## The Design Question
+
+> **What clustering structure does this experiment have?** One arm (group coaching) nests participants within shared coaches. The other arm (self-serve) has no group structure — participants are independent of each other.
+>
+> **What goes wrong with a standard two-level model?** Symmetric random effects misattribute coaching variance: applying a random intercept to all participants inflates the SE for the treatment arm and misspecifies the control arm, which has no clustering at all.
+>
+> **What is the right model?** The partially nested model (Bauer, Sterba & Hallfors, 2008): a cluster random effect that operates only within the coaching condition, leaving the control condition's flat variance structure intact.
+:::
+
 ## When Only One Condition Has Clustering
 
-Consider a financial coaching field experiment. The treatment group receives group financial coaching: 8 participants per coach, 15 coaches. The control group receives a self-serve information module — there is no coach and no group structure. Participants in the control condition are independent of each other.
+Consider a financial coaching field experiment. The treatment group receives **group financial coaching**: 8 participants share a coach, 15 coaches total. The control group receives a **self-serve information module** — there is no coach and no shared group structure. Control participants are fully independent of each other.
 
-This design is **partially nested**: the treatment condition has a natural cluster structure (participants within coaching groups), but the control condition does not.
+This design is **partially nested**: only the treatment condition has a natural cluster structure.
 
-If you fit a standard two-level model treating all participants the same way, you either:
-1. Ignore clustering in the treatment group — deflating standard errors and inflating Type I error for the treatment effect
-2. Apply random effects to all participants — misspecifying the control group, which has no actual clustering
+### Why this creates a modeling problem
 
-The **partially nested model** (Bauer, Sterba & Hallfors, 2008) handles this correctly by allowing different variance structures in different conditions.
+If you fit a standard two-level model treating all participants the same way, you are forced into one of two bad choices:
+
+1. **Ignore clustering in the treatment group** — deflating standard errors and inflating Type I error for the treatment effect
+2. **Apply random effects to all participants** — misspecifying the control group, which has no actual clustering
+
+Neither is honest about what the design actually looks like. The correct description of the design is asymmetric: one arm has coach-induced dependence; the other does not.
+
+### The design structure
+
+```{mermaid}
+flowchart TD
+    A["Participants — N = 240"] --> B["Coaching condition\nN = 120"]
+    A --> C["Self-serve condition\nN = 120"]
+    B --> D["Coach 1\n8 participants"]
+    B --> E["Coach 2\n8 participants"]
+    B --> F["...Coach 15\n8 participants"]
+    C --> G["Participant A\n(independent)"]
+    C --> H["Participant B\n(independent)"]
+    C --> I["...Participant N\n(independent)"]
+    style D fill:#e8f5e9,stroke:#2d6a4f
+    style E fill:#e8f5e9,stroke:#2d6a4f
+    style F fill:#e8f5e9,stroke:#2d6a4f
+    style G fill:#f0f0f0,stroke:#888888
+    style H fill:#f0f0f0,stroke:#888888
+    style I fill:#f0f0f0,stroke:#888888
+```
+
+Green boxes share a coach — their outcomes are correlated. Grey boxes are fully independent. A model that treats green and grey identically is wrong about both.
+
+### The key intuition
+
+Each coach is a shared environment. A particularly effective coach lifts all eight of their clients' outcomes together. A disengaged or poorly trained coach drags them all down. This coach-induced similarity is **variance at the cluster level**, not at the individual level. It inflates observed similarity within coaching groups beyond what you would expect from individual-level randomness alone.
+
+The control group has no equivalent of this shared-environment effect. Each self-serve participant experiences the same information materials independently. There is no coach, no shared context, and no reason for outcomes to be correlated across control participants.
+
+---
 
 ## Simulating a Partially Nested Design
 
@@ -31,36 +74,43 @@ n_coaches    <- 15
 n_per_group  <- 8
 n_control    <- n_coaches * n_per_group  # same total N = 120
 
-# Treatment group: coach clustering
-coach_effects <- rnorm(n_coaches, 0, 3)  # ICC ≈ 0.15 from coach variance
+# Treatment group: participants nested in coaching groups
+# Coach effects introduce within-group similarity
+coach_effects <- rnorm(n_coaches, 0, 3)  # SD = 3 → ICC ≈ 0.20
 
 df_treatment <- tibble(
-  condition   = "coaching",
-  coach       = rep(1:n_coaches, each = n_per_group),
-  participant = 1:(n_coaches * n_per_group),
-  coach_eff   = rep(coach_effects, each = n_per_group),
+  condition        = "coaching",
+  coach            = rep(1:n_coaches, each = n_per_group),
+  participant      = 1:(n_coaches * n_per_group),
+  coach_eff        = rep(coach_effects, each = n_per_group),
   savings_increase = 5 + 5 + coach_eff + rnorm(n_coaches * n_per_group, 0, 6)
-  # baseline mean = 5, treatment adds 5, coach effect varies
+  # true mean = 10 (baseline 5 + treatment effect 5); coach effect varies around that
 )
 
-# Control group: independent participants (no coach clustering)
+# Control group: independent participants — no coach, no shared structure
 df_control <- tibble(
-  condition   = "self_serve",
-  coach       = NA_integer_,
-  participant = 1:n_control + max(df_treatment$participant),
-  coach_eff   = 0,
+  condition        = "self_serve",
+  coach            = NA_integer_,
+  participant      = 1:n_control + max(df_treatment$participant),
+  coach_eff        = 0,
   savings_increase = 5 + rnorm(n_control, 0, 6)
 )
 
 df_pn <- bind_rows(df_treatment, df_control)
 ```
 
-## The Partially Nested Model in lme4
+---
 
-The trick: create a dummy coach variable for control participants (unique ID for each, indicating no shared clustering) and fit a model where the random effect only applies to the treatment group.
+## Fitting the Partially Nested Model in lme4
+
+The trick is to create cluster IDs that correctly represent the design's actual structure:
+
+- Coaching participants: share the coach ID
+- Control participants: each gets a unique "cluster" ID of their own — indicating no shared context
+
+A random effect estimated on this ID variable will pick up coach-level variance in the coaching condition, but will estimate near-zero variance for control participants (because each has their own "cluster" and there is nothing to share).
 
 ```{r fit-pn}
-# Assign unique cluster IDs: coaching groups for treatment, individual IDs for control
 df_pn <- df_pn |>
   mutate(
     cluster_id = ifelse(condition == "coaching",
@@ -68,16 +118,15 @@ df_pn <- df_pn |>
                         paste0("Ctrl", participant))
   )
 
-# Partially nested: cluster RE only in coaching condition
-df_pn <- df_pn |>
-  mutate(treat_dummy = as.integer(condition == "coaching"))
-
-# Fit: allow random effect only within coaching clusters
+# Partially nested: the cluster_id random effect operates only meaningfully
+# in the coaching condition; control participants each have a singleton cluster
 m_pn    <- lmer(savings_increase ~ condition + (1 | cluster_id), data = df_pn)
 
-# Compare to naive model (ignores all clustering)
+# Compare to naive model — ignores all clustering
 m_naive <- lm(savings_increase ~ condition, data = df_pn)
+```
 
+```{r compare-table, echo=FALSE}
 bind_rows(
   broom::tidy(m_naive) |> filter(term == "conditioncoaching") |>
     mutate(model = "Naive (no clustering)"),
@@ -87,25 +136,120 @@ bind_rows(
 ) |>
   select(model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Partially nested model: correct SE for coaching-group clustering")
+    caption = "Partially nested model: the SE for the coaching effect is larger than the naive model because coaching-group dependence is correctly accounted for. The naive model treats coaching groups as if participants were independent — producing an overconfident SE and inflated Type I error.")
 ```
 
-Participants in the coaching condition share a coach. Their savings outcomes are not independent: a particularly effective (or ineffective) coach shifts all their clients' outcomes together. Participants in the control condition have no such shared structure — each receives the same information independently.
+### Visualizing coach-level variance
 
-The naive model ignores this clustering in the coaching arm, producing standard errors that are too small and p-values that are too liberal. The partially nested model correctly inflates the SE for the coaching condition, where observations are non-independent, while leaving the control group's independent structure intact.
+The coach random effects plot shows the between-coach spread. This is exactly the shared-environment variance that the naive model erroneously absorbed into the residual:
+
+```{r coach-re-plot, fig.width=7, fig.height=4.5}
+# Extract BLUP estimates for coaching groups
+re_df <- ranef(m_pn)$cluster_id |>
+  rownames_to_column("cluster") |>
+  rename(blup = `(Intercept)`) |>
+  filter(str_starts(cluster, "Coach")) |>
+  mutate(coach_id = as.integer(str_remove(cluster, "Coach"))) |>
+  arrange(blup)
+
+ggplot(re_df, aes(x = reorder(cluster, blup), y = blup)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "#888888") +
+  geom_point(color = "#2d6a4f", size = 3) +
+  geom_segment(aes(xend = cluster, y = 0, yend = blup),
+               color = "#2d6a4f", linewidth = 0.8) +
+  labs(
+    title    = "Estimated coach effects (random intercepts)",
+    subtitle = "Coach-level deviations from the coaching-condition mean. Spread = ICC-generating variance.",
+    x        = "Coach",
+    y        = "Estimated coach effect (BLUP)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+The spread in these estimates is what the naive model ignores. It treats participants from an effective coach and participants from an ineffective coach as if they were drawn from the same independent distribution — understating uncertainty about the coaching condition's overall effect.
+
+---
+
+## The Observational–Experimental Bridge
+
+The partial-nesting problem is not unique to experiments. It appears in observational studies whenever one subgroup has clustering and another does not. Common examples:
+
+- **Branch-level program availability**: households near a branch offering a financial planning service are clustered within that branch environment; households without branch access are independent
+- **Advisor assignment in financial services**: clients assigned to human advisors share an advisor context; clients in a self-service portal do not
+- **Message delivery via teams**: consumers receiving a financial message through a group workshop share a facilitator; those receiving it individually do not
+
+In each case, the same diagnostic question applies: *does one group have shared context that induces outcome correlation, while the other group does not?* If yes, the partially nested model is the right choice, whether the clustering arose from experimental design or from a naturally occurring asymmetry in the observational data.
+
+---
+
+## Assumptions
 
 ::: {.callout-warning icon=false}
 ## Assumption: Correct Identification of Which Condition is Clustered
 
-**What it means:** You must correctly specify which condition has clustering and which does not. If clustering is misattributed (e.g., you apply cluster random effects to the self-serve control group when there is none), variance components will be estimated incorrectly.
+**Plain-language meaning:** You must correctly specify which condition has clustering and which does not. The model is asymmetric by design — you are asserting that one arm has group-level variance and the other does not. Getting this backwards or applying symmetric random effects is a misspecification.
 
-**How to check:** Draw the design. Which participants share a natural group, coach, or classroom? That condition has the nested structure. In this experiment, only participants in the group coaching condition share a coach — control participants each received the same self-serve materials independently.
+**What the model is assuming away:** The possibility that control participants also share latent clustering — common recruiters, common geographic contexts, or common information environments that induce correlation even without an explicit group structure.
+
+**JDM example:** In this coaching experiment, control participants all receive the same self-serve module via an online platform. If the platform itself introduces shared behavior (e.g., participants recruited through the same community forum tend to be more financially engaged), control outcomes may also be correlated despite the absence of an explicit coach.
+
+**Experimental analog in observational work:** In an observational study comparing advisor-served versus self-directed investors, the self-directed group may still share regional or platform-level environments that induce dependence.
+
+**What a skeptical reviewer might say:** "How do you know the control group is truly unstructured? Could shared recruitment channels, neighborhoods, or platform environments create clustering in the 'independent' arm?"
+
+**Observable warning sign:** If the ICC for control-arm residuals is nontrivially positive after fitting the partially nested model — or if control participants from identifiable subgroups look more similar than chance — the flat-variance assumption for the control arm may be incorrect.
+
+**What to check:** Fit a version with cluster random effects in both arms and compare the estimated control-arm ICC to zero. If it is detectably nonzero, consider modeling residual clustering there too.
+
+**What claim survives if the assumption is doubtful:** The direction and rough magnitude of the treatment effect remain interpretable. The standard error may be underestimated if the control arm also has unmodeled clustering.
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption: Homogeneity of Within-Cluster Variance
 
-**What it means:** The standard partially nested model assumes the residual variance is the same in the coaching and self-serve groups (only the random effect variance differs).
+**Plain-language meaning:** The standard partially nested model assumes the *residual* variance (after removing coach effects) is the same in the coaching and self-serve groups. Only the random-effect variance differs across conditions; the individual-level noise is treated as equivalent.
 
-**How to check:** Compare within-group variance across conditions. If the coaching group has substantially more or less residual variance than the self-serve control, allow heteroskedastic residuals.
+**What the model is assuming away:** The possibility that the coaching experience fundamentally changes how much outcome variance exists within each coaching group — for example, that effective coaches reduce individual variation (by standardizing their approach) or that the coaching process introduces new individual-level idiosyncrasies.
+
+**JDM example:** If coaching sessions involve highly interactive financial goal-setting, some participants may be very responsive while others remain unmoved — creating greater within-group residual variance in the coaching arm than in the self-serve arm, where everyone receives the same neutral module.
+
+**What a skeptical reviewer might say:** "Why should individual-level noise be the same in a group coaching experience as in a passive self-serve module? Coach interactions could easily change within-person variability."
+
+**Observable warning sign:** Standard deviations of residuals that differ noticeably across conditions in a simple linear model, or a Levene test for residual variance equality.
+
+**What to check:** Compare within-group residual standard deviations across conditions. If they differ substantially, fit a heteroskedastic residual model (e.g., using `nlme::lme()` with `weights = varIdent(form = ~ 1 | condition)`) to allow different residual variances.
+
+**What claim survives if the assumption is doubtful:** The treatment effect estimate is still interpretable. The standard errors for the treatment effect may be slightly off; the heteroskedastic version is preferred if residual variances clearly differ.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption: Coach Effects Are Exchangeable (Random, Not Systematic)
+
+**Plain-language meaning:** The model treats coach effects as draws from a common distribution rather than as fixed, systematic differences. This is appropriate when coaches are a sample from a broader population of potential coaches and you want to generalize the treatment effect beyond this specific set of 15 coaches.
+
+**What the model is assuming away:** The possibility that coaches were deliberately selected to differ in ways that matter (e.g., some coaches were selected because they were known to be ineffective, as a robustness test), or that coach assignment was not independent of participant characteristics.
+
+**JDM example:** If higher-baseline-savings participants were assigned to better-trained coaches (perhaps as a program-efficiency decision), the coach random effects are confounded with participant pre-treatment characteristics.
+
+**What a skeptical reviewer might say:** "Were coaches randomly assigned to groups, or were they matched to participant characteristics? If matched, the coach random effect is conflated with participant-level selection."
+
+**What to check:** Verify that coach assignment was independent of participant characteristics. If there is coach–participant matching in the design, include matched participant characteristics as covariates, or reframe the coach effect as fixed.
+:::
+
+---
+
+## Reviewer Challenge
+
+::: {.callout-tip}
+## What a Reviewer Would Ask
+
+**Challenge 1:** "Why not just include coach fixed effects?"
+Fixed effects for coaches would absorb all between-coach variance and correctly account for clustering — but they consume 14 degrees of freedom, cannot generalize to new coaches, and cannot estimate the between-coach variance component that characterizes the program's implementation fidelity. Random effects are preferred when coaches are a sample from a population and the goal is generalizable inference about the coaching condition overall.
+
+**Challenge 2:** "Your SE is bigger with the partially nested model — how do I know you are not just being conservative arbitrarily?"
+The partially nested SE is not arbitrary conservatism — it is a consequence of the design. Participants within a coaching group are not independent sources of evidence about the coaching condition; they are partially redundant because they share a coach. The effective sample size for the coaching condition is *n* coaching groups, not *n* × 8 individual participants. The inflated SE correctly reflects that the design has less statistical power than naive sample sizes suggest.
+
+**Challenge 3:** "What if between-coach differences just reflect participant sorting into coaching groups?"
+If participants self-selected coaches rather than being randomly assigned, the coach random effect conflates coach quality with the characteristics of coach-seekers. In the experimental context here, participants are randomly assigned to coaches — so the coach effects are not confounded with pre-existing participant differences. In an observational study with self-selected coaches, this concern would require explicit investigation.
 :::

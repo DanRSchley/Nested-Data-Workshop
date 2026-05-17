@@ -13,6 +13,14 @@ set.seed(101)
 
 # Centering as Decomposition
 
+::: {.callout-note icon=false}
+## What Does Centering Reveal?
+
+- **Question:** A single predictor in nested data carries two different relationships simultaneously — one operating within units (how does savings change when *this household* engages more with disclosure this month?) and one operating between units (do households that engage more overall save more?). Which one does your model estimate?
+- **What goes wrong:** An uncentered predictor in a random-effects model blends both mechanisms into a single coefficient. If the within-unit and between-unit effects differ in size or sign, this blended estimate is wrong for both questions — and useless for both policy and theory.
+- **The fix:** Cluster-mean centering (CMC) separates the predictor into a within-unit deviation (from the household's own average) and a between-unit mean. The model then estimates both effects simultaneously, allowing you to determine whether the same mechanism operates at both levels.
+:::
+
 ## One Variable, Two Mechanisms
 
 When you measure "hours of sleep" across multiple days from multiple people, that variable carries two completely different stories at the same time:
@@ -62,189 +70,230 @@ The decomposed model is a **hypothesis about the DGP**: it asserts that two dist
 
 ---
 
+## Why Not Just Use Pooled Regression?
+
+::: {.callout-important icon=false}
+## The Case Against Pooled OLS (and Uncentered Random Effects)
+
+A natural question: what is wrong with running `lm(savings ~ disclosure, data = df)` or `lmer(savings ~ disclosure + (1 | household), data = df)` without centering? Both produce a single coefficient. Both are easy to fit. Neither requires any centering decisions.
+
+The answer: **both conflate two mechanisms that may differ in sign and magnitude, making the coefficient uninterpretable for any specific question.**
+
+| Model | What the coefficient estimates | When it goes wrong |
+|---|---|---|
+| Pooled OLS | Blend of within- and between-person effects | When between-person sorting confounds the within-person relationship (almost always in panel data) |
+| Uncentered random-effects | Same blended coefficient | When the RE assumption (random effects ⊥ predictor) fails — which it usually does when the predictor varies between persons |
+| CMC decomposition | $\beta_W$ (within) and $\beta_B$ (between) separately | It doesn't "go wrong" — it reveals both effects and makes the question explicit |
+
+**The key question to ask before fitting any model with panel data:** *Does the predictor vary both within and between units?* If yes — almost always the case for continuous predictors like disclosure engagement, app usage, or spending — pooled OLS and uncentered RE give you a blended estimate that is wrong for both the causal within-unit question and the descriptive between-unit question.
+
+Centering is not a technicality. It is the only way to know which question your model is answering.
+:::
+
+---
+
 ## Three Archetypal Patterns
 
 The most important practical question is: *how different are $\beta_W$ and $\beta_B$?*
 
-### Pattern 1: Convergent Effects — Exercise and Wellbeing
+### Pattern 1: Convergent Effects — Budgeting App Engagement and Savings Rate
 
-Both mechanisms point the same direction with similar magnitude. The within-person mechanism (acute endorphins, reduced rumination) and the between-person mechanism (fit people have better overall routines and self-efficacy) both increase wellbeing. True: $\beta_W \approx \beta_B \approx 3$.
+Both mechanisms point in the same direction with similar magnitude. On weeks when a customer opens the budgeting app more than their own typical frequency (within-person), they save more that week — the reflection and goal-salience triggered by app engagement directly improves saving behavior. And across customers, those who engage with the app more on average (between-person) also save more overall — they are both more financially motivated and get more cumulative benefit from the tool. True: $\beta_W \approx \beta_B \approx 1.5$.
 
-```{r exercise-wellbeing}
-n_ppl <- 60; n_days <- 10
+```{r app-savings}
+n_ppl <- 60; n_weeks <- 10
 
-person_ex_avg <- rnorm(n_ppl, 45, 12)
-person_wb_base <- 50 + 0.3 * person_ex_avg + rnorm(n_ppl, 0, 6)
+person_app_avg  <- rnorm(n_ppl, 5, 1.5)    # typical weekly app opens
+person_sav_base <- 20 + 2 * person_app_avg + rnorm(n_ppl, 0, 4)  # motivated users save more
 
-df_ex <- expand_grid(person = 1:n_ppl, day = 1:n_days) |>
+df_app <- expand_grid(person = 1:n_ppl, week = 1:n_weeks) |>
   mutate(
-    exercise  = person_ex_avg[person] + rnorm(n(), 0, 8),
-    wellbeing = person_wb_base[person] +
-                3 * (exercise - person_ex_avg[person]) +
-                rnorm(n(), 0, 5),
-    person = factor(person)
+    app_opens = pmax(0, person_app_avg[person] + rnorm(n(), 0, 2)),
+    savings   = person_sav_base[person] +
+                1.5 * (app_opens - person_app_avg[person]) +
+                rnorm(n(), 0, 4),
+    person    = factor(person)
   ) |>
   group_by(person) |>
-  mutate(ex_mean = mean(exercise), ex_cmc = exercise - ex_mean) |>
+  mutate(app_mean = mean(app_opens), app_cmc = app_opens - app_mean) |>
   ungroup()
 
-m_ex <- lmer(wellbeing ~ ex_cmc + ex_mean + (1 | person), data = df_ex)
-broom.mixed::tidy(m_ex, effects = "fixed") |> filter(term != "(Intercept)") |>
-  mutate(mechanism = c("Within-person", "Between-person")) |>
+m_app <- lmer(savings ~ app_cmc + app_mean + (1 | person), data = df_app)
+broom.mixed::tidy(m_app, effects = "fixed") |> filter(term != "(Intercept)") |>
+  mutate(mechanism = c("Within-person (app_cmc)", "Between-person (app_mean)")) |>
   select(mechanism, estimate, std.error, p.value) |>
-  knitr::kable(digits = 3, caption = "Pattern 1: within ≈ between ≈ 3. One coherent mechanism at two levels.")
+  knitr::kable(digits = 3,
+    caption = "Pattern 1: within ≈ between ≈ 1.5. One coherent mechanism at two levels — pooled OLS approximates well here, but you only know that after checking.")
 ```
 
-Here, the pooled model would give you a decent approximation — but you only know that *after* running the decomposition. The convergence itself is substantively informative: the same process operates at both timescales.
+Here, the pooled model gives a reasonable approximation — but you only know that *after* running the decomposition and finding convergence. The convergence itself is substantively informative: the app appears to operate through the same mechanism at both timescales (goal activation and financial awareness).
 
-### Pattern 2: Divergent Effects — Income and Life Satisfaction (Easterlin Paradox)
+### Pattern 2: Divergent Effects — Weekly Transactions and Monthly Savings Rate
 
-At the between-person level, wealthier people report substantially higher life satisfaction. But within individuals over time, income growth has a surprisingly modest effect — adaptation, shifting aspirations, and social comparison dampen the within-person response. True: $\beta_W \approx 0.3$, $\beta_B \approx 1.5$.
+A common misconception in financial data: customers who transact more frequently appear to save more (between-customer relationship). But within a customer, weeks when they make more transactions than usual correspond to *lower* savings that month — more spending activity drains current savings. The between-person relationship is positive because financially engaged customers are both more active AND more organized about saving. The within-person relationship is negative because extra transactions this week represent extra spending. True: $\beta_W \approx -0.8$ (within: more transactions → less saved), $\beta_B \approx +2.0$ (between: active customers save more).
 
-```{r income-satisfaction}
-n_ppl2 <- 80; n_yrs <- 8
+```{r transactions-savings}
+n_ppl2 <- 80; n_months <- 8
 
-person_inc_avg  <- rnorm(n_ppl2, 50, 15)
-person_sat_base <- 50 + 1.5 * person_inc_avg + rnorm(n_ppl2, 0, 8)
+person_tx_avg   <- rnorm(n_ppl2, 20, 6)              # typical monthly transactions
+person_sav_base <- 15 + 2.0 * person_tx_avg + rnorm(n_ppl2, 0, 5)  # engaged customers save more
 
-df_inc <- expand_grid(person = 1:n_ppl2, year = 1:n_yrs) |>
+df_tx <- expand_grid(person = 1:n_ppl2, month = 1:n_months) |>
   mutate(
-    income   = person_inc_avg[person] + rnorm(n(), 0, 6),
-    life_sat = person_sat_base[person] +
-               0.3 * (income - person_inc_avg[person]) + rnorm(n(), 0, 4),
-    person   = factor(person)
+    transactions = pmax(2, person_tx_avg[person] + rnorm(n(), 0, 5)),
+    savings_rate = person_sav_base[person] +
+                   (-0.8) * (transactions - person_tx_avg[person]) +   # more spending → less saving
+                   rnorm(n(), 0, 4),
+    person       = factor(person)
   ) |>
   group_by(person) |>
-  mutate(inc_mean = mean(income), inc_cmc = income - inc_mean) |>
+  mutate(tx_mean = mean(transactions), tx_cmc = transactions - tx_mean) |>
   ungroup()
 
-m_inc    <- lmer(life_sat ~ inc_cmc + inc_mean + (1 | person), data = df_inc)
-m_pooled <- lmer(life_sat ~ income  + (1 | person), data = df_inc)
+m_tx     <- lmer(savings_rate ~ tx_cmc + tx_mean + (1 | person), data = df_tx)
+m_tx_pool <- lmer(savings_rate ~ transactions + (1 | person), data = df_tx)
 
 bind_rows(
-  broom.mixed::tidy(m_pooled, effects = "fixed") |>
-    filter(term == "income") |> mutate(model = "Pooled (blended)"),
-  broom.mixed::tidy(m_inc, effects = "fixed") |>
-    filter(term == "inc_cmc") |> mutate(model = "Within-person"),
-  broom.mixed::tidy(m_inc, effects = "fixed") |>
-    filter(term == "inc_mean") |> mutate(model = "Between-person")
+  broom.mixed::tidy(m_tx_pool, effects = "fixed") |>
+    filter(term == "transactions") |> mutate(model = "Pooled (blended)"),
+  broom.mixed::tidy(m_tx, effects = "fixed") |>
+    filter(term == "tx_cmc") |> mutate(model = "Within-person"),
+  broom.mixed::tidy(m_tx, effects = "fixed") |>
+    filter(term == "tx_mean") |> mutate(model = "Between-person")
 ) |>
   select(model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Pattern 2: pooled ≈ 1.2, within ≈ 0.3, between ≈ 1.5. Pooled is wrong for both questions.")
+    caption = "Pattern 2: pooled ≈ +0.4 (near zero or positive); within ≈ −0.8 (spending crowds out saving); between ≈ +2.0 (engaged customers save more). Pooled is misleading for both questions.")
 ```
 
-The pooled model gives ~1.2 — it overstates the within-person effect by 4× and understates the between-person effect. A policy conclusion based on this ("raising incomes will substantially improve wellbeing") relies on the between-person relationship but must deliver on the within-person mechanism.
+The pooled model gives a near-zero or weakly positive estimate — a blend of the negative within-customer spending-crowding effect and the positive between-customer engagement effect. A product team concluding "more transactions → more savings" (because the pooled slope is positive) would be wrong: within customers, more spending activity in a given month *reduces* that month's savings rate.
 
-### Pattern 3: Sign Reversal — Study Hours and Grades
+### Pattern 3: Sign Reversal — Price Level and Purchase Rate Across Market Segments
 
-Within a student, studying more than their own average helps their grades. But between programs, the harder programs have students who study *more* and earn *lower* grades — because the programs are harder, not because studying hurts. True: $\beta_W \approx +2$, $\beta_B \approx -3$.
+Within a market segment, promotional price reductions (prices below the segment's typical level) increase purchase rates — basic economics. But across segments, premium segments charge *higher* prices AND have *lower* purchase rates — because premium products are niche, not because high prices cause purchases. A pooled analysis finds that higher prices predict lower purchase rates. This is true between segments but **wrong as a within-segment statement**: within every segment, the price-demand relationship is negative (lower relative price → more purchases). True: $\beta_W \approx -0.4$ (demand elasticity), $\beta_B \approx -0.6$ (between-segment selection).
 
-```{r study-grades}
-n_students <- 200; n_programs <- 5
-prog_difficulty <- c(2, 4, 6, 8, 10)
-prog_study_avg  <- c(4, 5, 6, 7, 8)  # harder programs demand more study hours
+Wait — to get a *sign reversal* we need the between-segment effect to run opposite to within-segment. Here is the JDM version: **Discount depth and category conversion rates** — high-discount product categories (commodity goods: toilet paper, cleaning supplies) have both higher average discount depth *and* lower conversion rates (many competing substitutes). Low-discount categories (specialty foods, premium cosmetics) have lower discount depth *and* higher conversion rates (loyal buyer base). Pooled: deeper average discounts → lower conversion. Within category: deeper-than-average discounts → higher conversion. Sign reversal.
 
-df_study <- tibble(
-  student = 1:n_students,
-  program = rep(1:n_programs, each = n_students / n_programs)
+True: $\beta_W \approx +0.3$ (within-category: promotion → conversion up), $\beta_B \approx -0.5$ (between-category: commodity categories have high discounts but low loyalty).
+
+```{r discount-conversion}
+n_brands     <- 200
+n_categories <- 5
+
+# Commodity categories: high discount depth, low conversion (many substitutes)
+# Premium categories: low discount depth, high conversion (loyal customers)
+cat_discount_avg  <- c(22, 18, 14, 10, 6)    # avg discount depth (%) — high → low commodity→premium
+cat_loyalty_base  <- c(18, 25, 35, 45, 52)   # baseline conversion rate (%)
+
+df_discount <- tibble(
+  brand    = 1:n_brands,
+  category = rep(1:n_categories, each = n_brands / n_categories)
 ) |>
   mutate(
-    study = prog_study_avg[program] + rnorm(n_students, 0, 0.8),
-    grade = 80 - 3 * prog_difficulty[program] +
-            2 * (study - prog_study_avg[program]) + rnorm(n_students, 0, 3),
-    program = factor(program)
+    discount   = cat_discount_avg[category] + rnorm(n_brands, 0, 4),
+    conversion = cat_loyalty_base[category] +
+                 0.3 * (discount - cat_discount_avg[category]) +   # within-cat: promotions help
+                 rnorm(n_brands, 0, 5),
+    category   = factor(category,
+                        labels = c("Commodity", "Staple", "Mixed", "Specialty", "Premium"))
   ) |>
-  group_by(program) |>
-  mutate(study_mean = mean(study), study_cmc = study - study_mean) |>
+  group_by(category) |>
+  mutate(disc_mean = mean(discount), disc_cmc = discount - disc_mean) |>
   ungroup()
 
-m_study_decomp <- lmer(grade ~ study_cmc + study_mean + (1 | program), data = df_study)
-m_study_pooled <- lm(grade ~ study, data = df_study)
+m_disc_decomp <- lmer(conversion ~ disc_cmc + disc_mean + (1 | category), data = df_discount)
+m_disc_pooled <- lm(conversion ~ discount, data = df_discount)
 
 bind_rows(
-  broom::tidy(m_study_pooled) |>
-    filter(term == "study") |> mutate(model = "Pooled OLS"),
-  broom.mixed::tidy(m_study_decomp, effects = "fixed") |>
-    filter(term == "study_cmc") |> mutate(model = "Within-program"),
-  broom.mixed::tidy(m_study_decomp, effects = "fixed") |>
-    filter(term == "study_mean") |> mutate(model = "Between-program")
+  broom::tidy(m_disc_pooled) |>
+    filter(term == "discount") |> mutate(model = "Pooled OLS"),
+  broom.mixed::tidy(m_disc_decomp, effects = "fixed") |>
+    filter(term == "disc_cmc") |> mutate(model = "Within-category"),
+  broom.mixed::tidy(m_disc_decomp, effects = "fixed") |>
+    filter(term == "disc_mean") |> mutate(model = "Between-category")
 ) |>
   select(model, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
     caption = "Pattern 3: pooled is negative; within is positive; between is strongly negative. Sign reversal!")
 ```
 
-```{r study-grades-plot}
-p1 <- ggplot(df_study, aes(x = study, y = grade)) +
-  geom_point(aes(color = program), alpha = 0.4, size = 1.2) +
+```{r discount-conversion-plot}
+p1 <- ggplot(df_discount, aes(x = discount, y = conversion)) +
+  geom_point(aes(color = category), alpha = 0.4, size = 1.2) +
   geom_smooth(method = "lm", color = "black", linewidth = 1.5) +
   scale_color_brewer(palette = "Set1") +
-  labs(title = "Pooled: studying MORE → LOWER grades?",
-       subtitle = "Slope is negative — a sign reversal",
-       x = "Study hours/week", y = "Grade", color = "Program") +
+  labs(title = "Pooled: deeper discounts → LOWER conversion?",
+       subtitle = "Between-category confound reverses the sign",
+       x = "Discount depth (%)", y = "Conversion rate (%)", color = "Category") +
   theme_minimal(base_size = 12)
 
-p2 <- ggplot(df_study, aes(x = study, y = grade, color = program)) +
+p2 <- ggplot(df_discount, aes(x = discount, y = conversion, color = category)) +
   geom_point(alpha = 0.3, size = 1) +
   geom_smooth(method = "lm", se = FALSE, linewidth = 1) +
   scale_color_brewer(palette = "Set1") +
-  labs(title = "Within-program: studying MORE → HIGHER grades",
-       subtitle = "Within every program, the slope is positive",
-       x = "Study hours/week", y = "Grade", color = "Program") +
+  labs(title = "Within-category: deeper discounts → HIGHER conversion",
+       subtitle = "Within every category, promotions work",
+       x = "Discount depth (%)", y = "Conversion rate (%)", color = "Category") +
   theme_minimal(base_size = 12)
 
 p1 + p2
 ```
 
-The pooled model says studying hurts — which is wrong. The decomposition reveals the truth: within every program, studying helps, but harder programs demand more studying and are harder by definition. Ignoring the nesting produces a **Simpson's Paradox** (see Part 3).
+The pooled model says promotions hurt conversion — which is wrong. The decomposition reveals the truth: within every category, discounts increase purchase rates; but commodity categories (with high average discounts) also have low inherent loyalty. Ignoring the nesting produces a **Simpson's Paradox** (see Part 3).
 
 ---
 
-## The Sleep-Mood Example: Applying Decomposition
+## The Disclosure–Savings Example: Applying Decomposition
+
+50 households complete a monthly financial diary for 7 months. Each month, we record how many pages of the financial disclosure document they reviewed and their savings rate. Two questions are entangled:
+
+1. **Within-household:** On months when a household reads *more than their own usual amount*, do they save more?
+2. **Between-household:** Do households that engage more with disclosure *overall* have higher savings?
+
+The between-household relationship is confounded by financial literacy: literate households both engage more with disclosure AND save more regardless of engagement. The within-household relationship is the one that matters for the causal question about disclosure.
 
 ```{r centering-demo}
-n_people <- 50; n_days2 <- 7
+n_hh   <- 50; n_months <- 7
 
-person_sleep_avg  <- rnorm(n_people, 7, 1)
-person_mood_base  <- 40 + 5 * person_sleep_avg + rnorm(n_people, 0, 5)
+hh_disc_avg    <- rnorm(n_hh, 6, 2)                   # household average disclosure
+hh_savings_base <- 20 + 2 * hh_disc_avg + rnorm(n_hh, 0, 5)  # literacy confound
 
-df <- expand_grid(person = 1:n_people, day = 1:n_days2) |>
+df_center <- expand_grid(household = 1:n_hh, month = 1:n_months) |>
   mutate(
-    sleep_raw = person_sleep_avg[person] + rnorm(n(), 0, 1),
-    mood      = person_mood_base[person] +
-                2 * (sleep_raw - person_sleep_avg[person]) + rnorm(n(), 0, 4),
-    person    = factor(person)
+    disc_raw = hh_disc_avg[household] + rnorm(n(), 0, 1.5),
+    savings  = hh_savings_base[household] +
+               1.5 * (disc_raw - hh_disc_avg[household]) + rnorm(n(), 0, 4),
+    household = factor(household)
   ) |>
-  group_by(person) |>
-  mutate(sleep_mean = mean(sleep_raw), sleep_cmc = sleep_raw - sleep_mean) |>
+  group_by(household) |>
+  mutate(disc_mean = mean(disc_raw), disc_cmc = disc_raw - disc_mean) |>
   ungroup() |>
-  mutate(sleep_gmc = sleep_raw - mean(sleep_raw))
+  mutate(disc_gmc = disc_raw - mean(disc_raw))
 
-m_uncentered <- lmer(mood ~ sleep_raw  + (1 | person), data = df)
-m_gmc        <- lmer(mood ~ sleep_gmc  + (1 | person), data = df)
-m_cmc        <- lmer(mood ~ sleep_cmc + sleep_mean + (1 | person), data = df)
+m_uncentered <- lmer(savings ~ disc_raw  + (1 | household), data = df_center)
+m_gmc        <- lmer(savings ~ disc_gmc  + (1 | household), data = df_center)
+m_cmc        <- lmer(savings ~ disc_cmc + disc_mean + (1 | household), data = df_center)
 
 bind_rows(
   broom.mixed::tidy(m_uncentered, effects = "fixed") |>
-    filter(term == "sleep_raw") |>
+    filter(term == "disc_raw") |>
     mutate(model = "Uncentered", mechanism = "Blended"),
   broom.mixed::tidy(m_gmc, effects = "fixed") |>
-    filter(term == "sleep_gmc") |>
+    filter(term == "disc_gmc") |>
     mutate(model = "GMC", mechanism = "Blended"),
   broom.mixed::tidy(m_cmc, effects = "fixed") |>
-    filter(term == "sleep_cmc") |>
-    mutate(model = "CMC", mechanism = "Within-person"),
+    filter(term == "disc_cmc") |>
+    mutate(model = "CMC", mechanism = "Within-household"),
   broom.mixed::tidy(m_cmc, effects = "fixed") |>
-    filter(term == "sleep_mean") |>
-    mutate(model = "CMC", mechanism = "Between-person")
+    filter(term == "disc_mean") |>
+    mutate(model = "CMC", mechanism = "Between-household")
 ) |>
   select(model, mechanism, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Sleep → mood: blended ≈ 4.0; within ≈ 2.0; between ≈ 5.0. Neither blended estimate is correct.")
+    caption = "Disclosure → savings: blended ≈ 3.5; within ≈ 1.5; between ≈ 4.0. Blended estimate is wrong for both questions.")
 ```
 
-The uncentered and GMC models give ~4, which is wrong for both questions. CMC reveals: the within-person mechanism is modest (2 points per extra hour of sleep); the between-person correlation is much larger (5 points) because healthy lifestyle confounds it.
+The uncentered and GMC models give ~3.5 — overstating the within-household effect by 2× because financial literacy inflates the between-household correlation. CMC reveals: the within-household causal effect (1.5 points per additional page) is meaningfully smaller than the between-household correlation (4.0 points) driven by literacy. A policy that relies on the blended estimate will project benefits of disclosure programmes that are unrealistically large.
 
 ---
 
@@ -273,3 +322,17 @@ Including a predictor without CMC in a random-effects model implicitly assumes $
 
 **The stakes:** In the worst case (Pattern 3), conflation completely reverses the direction of the effect.
 :::
+
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions About Your Centering Choice
+
+**Challenge 1 — "Which question does your coefficient actually answer?"**
+If you report a single coefficient for disclosure engagement without centering, a reviewer will ask: "Is this the within-household effect (what happens when a household reads more than usual) or the between-household effect (whether households with generally higher engagement save more)? Because those are different numbers with different policy implications." Run the CMC decomposition and report both — or justify why the blended estimate is the correct quantity of interest.
+
+**Challenge 2 — "Why are the within- and between-household estimates different?"**
+If $\hat\beta_W \neq \hat\beta_B$, reviewers will ask you to explain the mechanism. For the disclosure study: the between-household effect is inflated by financial literacy — literate households engage more AND save more regardless. The within-household effect is the pure causal question. Have a substantive explanation for the discrepancy, not just a statistical note that "random effects may be correlated with the predictor."
+
+**Challenge 3 — "Does the sign reversal survive other robustness checks?"**
+For the discount/conversion sign reversal example: a reviewer will ask whether the paradox holds when you control for other category-level characteristics (product shelf life, brand loyalty, advertising spend). If the within-category effect becomes near-zero once you add category-level controls, the pattern may reflect omitted variable bias rather than a genuine sign reversal. Run the model with additional controls at both levels.
+:::
+

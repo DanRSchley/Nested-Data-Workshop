@@ -8,92 +8,98 @@ library(lme4)
 library(lmerTest)
 library(nlme)
 library(ggplot2)
+library(patchwork)
 set.seed(2024)
 ```
 
 # From RM-ANOVA to Mixed Models
 
-## The Standard Psychology Approach
+::: {.callout-note icon=false}
+## The Covariance Question
 
-Repeated measures ANOVA (RM-ANOVA) has been the default tool for within-subject designs in psychology for decades. It is familiar, built into every statistics textbook, and available in SPSS, JASP, and R. And it makes an assumption about your data that is almost always wrong.
+> **What does RM-ANOVA quietly assume about your repeated measurements?** That every pair of time points correlates equally — a measurement taken immediately after a disclosure intervention relates to a 6-month follow-up measurement exactly as much as it relates to a 1-week follow-up. This is the sphericity assumption, and it is almost always wrong.
+>
+> **What goes wrong when sphericity fails?** The F-test for the time effect — and the condition × time interaction — is anti-conservative. You reject the null more often than your stated alpha level actually permits.
+>
+> **What does the mixed model do differently?** It models the actual covariance structure of your repeated observations, rather than assuming a specific structure that data rarely satisfy.
+:::
+
+## The Standard Approach and Its Hidden Assumption
+
+Repeated measures ANOVA (RM-ANOVA) has been the default tool for within-subjects designs for decades. It is built into every statistics textbook and available in SPSS, JASP, and R. And it makes an assumption about your data that is almost always wrong.
 
 That assumption is **sphericity**.
 
-## What is Sphericity?
+## What Is Sphericity?
 
-Sphericity is a constraint on the variance-covariance matrix of your repeated measurements. Specifically, it requires that the variances of all pairwise *differences* between time points are equal.
+Sphericity constrains the variance-covariance matrix of your repeated measurements. Specifically, it requires that the variances of all pairwise *differences* between time points are equal.
 
-Imagine you measure anxiety at three time points: before a speech, immediately after, and one week later. Sphericity requires that:
-- Var(Time1 − Time2) = Var(Time1 − Time3) = Var(Time2 − Time3)
+Consider measuring willingness to pay (WTP) at three time points: **before** a financial disclosure intervention, **immediately after**, and at a **one-week follow-up**. Sphericity requires that:
 
-In plain language: the variability in how much people change is the same regardless of which two time points you compare. This is equivalent to assuming **compound symmetry** — that all time points correlate equally with each other.
+$$\text{Var}(\text{WTP}_{\text{pre}} - \text{WTP}_{\text{post}}) = \text{Var}(\text{WTP}_{\text{pre}} - \text{WTP}_{\text{follow-up}}) = \text{Var}(\text{WTP}_{\text{post}} - \text{WTP}_{\text{follow-up}})$$
 
-```{r sphericity-diagram}
-# Visualize compound symmetry vs. a realistic AR(1) structure
+In plain language: the variability in how much people *change* must be the same regardless of which two time points you compare. This is equivalent to assuming **compound symmetry** — that all time points correlate equally with each other.
+
+But this is implausible. The pre-to-post change (a few days) captures the immediate disclosure reaction. The pre-to-follow-up change (a week) is noisier because some people's attention has faded. The post-to-follow-up change (a few days) reflects short-term decay. These three differences have different variances — sphericity is already violated in principle before you collect any data.
+
+```{r sphericity-diagram, fig.width=10, fig.height=3.5}
 library(Matrix)
 
-# Compound symmetry: equal variances, equal covariances
+# Three covariance structures for 4 repeated WTP measurements
 CS <- matrix(c(1.0, 0.5, 0.5, 0.5,
                0.5, 1.0, 0.5, 0.5,
                0.5, 0.5, 1.0, 0.5,
                0.5, 0.5, 0.5, 1.0), 4, 4)
 
-# AR(1): closer time points are more correlated
 rho <- 0.7
 AR1 <- outer(1:4, 1:4, FUN = function(i, j) rho^abs(i - j))
 
-# Unstructured: no constraints
 US <- matrix(c(1.0, 0.8, 0.6, 0.3,
                0.8, 1.0, 0.7, 0.5,
                0.6, 0.7, 1.0, 0.8,
                0.3, 0.5, 0.8, 1.0), 4, 4)
 
-plot_cov <- function(M, title) {
+plot_cov <- function(M, title, subtitle = NULL) {
+  lbl <- c("Pre", "Post", "1wk", "1mo")
   as.data.frame(M) |>
-    rownames_to_column("row") |>
+    setNames(lbl) |>
+    mutate(row = lbl) |>
     pivot_longer(-row, names_to = "col", values_to = "corr") |>
-    mutate(row = factor(row, levels = rev(unique(row))),
-           col = factor(col)) |>
+    mutate(row = factor(row, levels = rev(lbl)),
+           col = factor(col, levels = lbl)) |>
     ggplot(aes(x = col, y = row, fill = corr)) +
     geom_tile(color = "white") +
     geom_text(aes(label = round(corr, 1)), size = 4) +
     scale_fill_gradient2(low = "#f7fbff", mid = "#6baed6", high = "#08306b",
                          midpoint = 0.5, limits = c(0, 1)) +
-    labs(title = title, x = "Time point", y = "Time point", fill = "Corr") +
-    theme_minimal(base_size = 12) +
+    labs(title = title, subtitle = subtitle,
+         x = "WTP wave", y = "WTP wave", fill = "Corr") +
+    theme_minimal(base_size = 11) +
     theme(legend.position = "none")
 }
 
-library(patchwork)
-plot_cov(CS, "Compound Symmetry\n(sphericity assumption)") +
-plot_cov(AR1, "AR(1)\n(more realistic)") +
-plot_cov(US, "Unstructured\n(no constraints)")
+plot_cov(CS,  "Compound Symmetry",    "All pairs equally correlated.\nSphericity holds. Implausible.") +
+plot_cov(AR1, "AR(1)",                "Adjacent waves more similar.\nDecaying with time lag. Common.") +
+plot_cov(US,  "Unstructured",         "No constraints. Each pair\nestimated from data.") +
+plot_layout(ncol = 3)
 ```
 
-The compound symmetry structure (left) forces all off-diagonal entries to be equal. The AR(1) structure (middle) lets correlations decay with time lag — closer time points are more correlated. The unstructured matrix (right) lets each correlation be whatever the data say.
+The compound symmetry structure (left) forces all off-diagonal entries to be equal — WTP pre-post relates to WTP post-follow-up the same as WTP pre-follow-up. This is the sphericity assumption. AR(1) (middle) lets correlations decay with the time gap. Unstructured (right) imposes no constraints.
 
 Real longitudinal data almost always looks more like AR(1) or unstructured than compound symmetry.
 
-## What Happens When Sphericity is Violated?
+---
 
-When sphericity fails, RM-ANOVA F-tests are anti-conservative — Type I error rates are inflated. You reject the null hypothesis more often than your alpha level would suggest.
+## What Happens When Sphericity Is Violated?
+
+When sphericity fails, RM-ANOVA F-tests are **anti-conservative** — Type I error rates inflate above your stated alpha level.
 
 ```{r sphericity-violation}
-# Simulate data that violates sphericity: correlations decay with lag
 simulate_repeated <- function(n = 50, n_times = 4, spherical = TRUE) {
-  if (spherical) {
-    # Compound symmetry (sphericity holds)
-    Sigma <- CS * 4  # multiply by variance
-  } else {
-    # AR(1) (sphericity violated)
-    Sigma <- AR1 * 4
-  }
-
-  # Simulate null data (no treatment effect) and check Type I error
+  Sigma <- if (spherical) CS * 4 else AR1 * 4
   MASS::mvrnorm(n, mu = rep(0, n_times), Sigma = Sigma)
 }
 
-# Under the null (no effect), how often does RM-ANOVA reject?
 n_sims <- 1000
 type1_spherical <- numeric(n_sims)
 type1_violated  <- numeric(n_sims)
@@ -102,7 +108,6 @@ for (i in 1:n_sims) {
   y_sph <- simulate_repeated(spherical = TRUE)
   y_vio <- simulate_repeated(spherical = FALSE)
 
-  # Reshape and run RM-ANOVA
   extract_pval <- function(y_mat) {
     df_aov <- data.frame(
       Y      = c(y_mat),
@@ -111,15 +116,12 @@ for (i in 1:n_sims) {
     )
     aov_fit <- aov(Y ~ time + Error(person/time), data = df_aov)
     s <- summary(aov_fit)
-    # Extract p-value from the within-person time effect
     tryCatch(s[["Error: person:time"]][[1]][["Pr(>F)"]][1],
              error = function(e) NA_real_)
   }
-  pval_sph <- extract_pval(y_sph)
-  pval_vio <- extract_pval(y_vio)
 
-  type1_spherical[i] <- ifelse(is.null(pval_sph), NA, pval_sph < 0.05)
-  type1_violated[i]  <- ifelse(is.null(pval_vio), NA, pval_vio < 0.05)
+  type1_spherical[i] <- extract_pval(y_sph) < 0.05
+  type1_violated[i]  <- extract_pval(y_vio) < 0.05
 }
 
 tibble(
@@ -128,69 +130,104 @@ tibble(
                            mean(type1_violated,  na.rm = TRUE))
 ) |>
   knitr::kable(digits = 3,
-    caption = "Type I error under sphericity vs. violation (nominal alpha = 0.05)")
+    caption = "Type I error under sphericity vs. violation (nominal alpha = 0.05). With AR(1) data, RM-ANOVA rejects the null too often.")
 ```
+
+With AR(1) data — where adjacent waves correlate more than distant waves — RM-ANOVA produces Type I error rates above 5%, even though the null is true.
+
+---
+
+## Assumption: Sphericity
 
 ::: {.callout-warning icon=false}
 ## Assumption: Sphericity (RM-ANOVA Only)
 
-**What it means:** All pairwise variance differences among time points are equal. Equivalent to compound symmetry in the covariance matrix.
+**Plain-language meaning:** All pairwise differences between time points have the same variance. Equivalent to compound symmetry: every pair of WTP waves correlates equally, regardless of the time gap separating them.
 
-**Mauchly's test:** The standard test for sphericity in RM-ANOVA. If Mauchly's W is significant (p < 0.05), sphericity is violated.
+**What the model is assuming away:** The natural structure of most longitudinal data, where adjacent observations are more similar than distant ones. A WTP measurement taken immediately after a disclosure should correlate more strongly with a 1-week follow-up than with a 6-month follow-up.
 
-**The problem with Mauchly's test:** It is sensitive to sample size (underpowered in small samples; overpowered in large ones). It also tests an exact assumption — the question is not whether sphericity is exactly true but whether the violation is large enough to matter.
+**JDM example:** In a disclosure experiment with pre, immediate post, 1-week, and 1-month follow-ups, sphericity requires that the correlation structure is flat across all time gaps. But 1-week WTP should resemble immediate-post WTP more than it resembles baseline WTP.
 
-**Corrections within RM-ANOVA:** Greenhouse-Geisser or Huynh-Feldt corrections adjust the degrees of freedom. These are better than nothing but still assume a specific covariance structure.
+**Experimental analog:** In an observational panel study of weekly savings behavior, sphericity would require that week 1 and week 4 savings correlate as strongly as week 1 and week 2 savings. This is never realistic.
 
-**The better solution:** Switch to mixed-effects models, which do not assume sphericity and let you specify the appropriate covariance structure for your data.
+**What a skeptical reviewer might say:** "You used RM-ANOVA with four waves and report a significant time × condition interaction — did you test sphericity? With decaying correlations across waves, RM-ANOVA F-tests will be anti-conservative."
+
+**Observable warning sign:** Mauchly's W is significant (p < .05). Or simply: you have more than 2 repeated measurements and time points are separated by unequal gaps.
+
+**What to check:** Run Mauchly's test as a preliminary check. But note: it is underpowered in small samples and overpowered in large ones. The better move is to switch to a mixed model — then the sphericity assumption is not required at all.
+
+**What claim survives if the assumption is doubtful:** The direction of effects is usually robust. The p-value is too small under violation, so a conclusion that "just barely" passes a threshold is suspect.
 :::
 
-## Mixed-Effects Models: No Sphericity Needed
+---
 
-A mixed-effects model makes no assumption about the overall shape of the covariance matrix (in its most general form). The random effects structure and the residual covariance structure together determine what the model implies about how measurements co-vary.
+## Mixed-Effects Models: No Sphericity Required
+
+A mixed-effects model makes no sphericity assumption. The random effects structure and residual covariance together determine what the model implies about how measurements co-vary — and you can specify the structure that fits the data rather than forcing compound symmetry.
 
 ```{r rm-anova-vs-mlm}
-# Simulate anxiety study: 3 time points, AR(1) correlation structure
+# Simulate a WTP study: 3 waves, AR(1) correlation (sphericity violated)
 n_people <- 60
 n_times  <- 3
-Sigma_ar <- AR1[1:3, 1:3] * 4  # true covariance is AR(1)
+Sigma_ar <- AR1[1:3, 1:3] * 4  # true structure is AR(1), not CS
 
-# No treatment effect (null data)
-anx_data <- MASS::mvrnorm(n_people, mu = c(50, 50, 50), Sigma = Sigma_ar) |>
+# Null data: no true time effect
+wtp_data <- MASS::mvrnorm(n_people, mu = c(50, 50, 50), Sigma = Sigma_ar) |>
   as.data.frame() |>
-  setNames(c("time1", "time2", "time3")) |>
+  setNames(c("pre", "post", "follow_up")) |>
   mutate(person = 1:n_people) |>
-  pivot_longer(-person, names_to = "time", values_to = "anxiety") |>
+  pivot_longer(-person, names_to = "time", values_to = "WTP") |>
   mutate(
-    time_num = as.integer(str_extract(time, "[0-9]")),
+    time_num = case_when(time == "pre" ~ 1, time == "post" ~ 2, TRUE ~ 3),
     person   = factor(person)
   )
 
 # RM-ANOVA
-m_anova <- aov(anxiety ~ factor(time_num) + Error(person / factor(time_num)),
-               data = anx_data)
+m_anova <- aov(WTP ~ factor(time_num) + Error(person / factor(time_num)),
+               data = wtp_data)
 
 # Mixed-effects model with AR(1) covariance
-m_mlm <- lme(anxiety ~ factor(time_num),
-             random = ~1 | person,
+m_mlm <- lme(WTP ~ factor(time_num),
+             random      = ~1 | person,
              correlation = corAR1(),
-             data = anx_data)
+             data        = wtp_data)
 
-cat("RM-ANOVA p-value for time:", round(summary(m_anova)$`Error: person:factor(time_num)`[[1]]["factor(time_num)", "Pr(>F)"], 4), "\n")
-cat("MLM p-value for time:", round(anova(m_mlm)["factor(time_num)", "p-value"], 4), "\n")
+cat("RM-ANOVA p (time):", round(
+  summary(m_anova)$`Error: person:factor(time_num)`[[1]]["factor(time_num)", "Pr(>F)"], 4), "\n")
+cat("MLM p (time):     ", round(anova(m_mlm)["factor(time_num)", "p-value"], 4), "\n")
 ```
 
-When the true covariance structure is AR(1) (not compound symmetry), the mixed-effects model gives more accurate p-values because it uses the correct covariance model. RM-ANOVA's p-value may be misleading.
+When the true covariance structure is AR(1), the mixed-effects model gives more accurate p-values — because it uses the correct covariance structure rather than assuming an implausible flat one.
+
+---
 
 ## The Key Advantages of Mixed Models Over RM-ANOVA
 
 | Feature | RM-ANOVA | Mixed-Effects Model |
-|---------|----------|-------------------|
-| Handles missing data? | No — requires complete cases | Yes — uses all available data |
-| Assumes sphericity? | Yes | No |
-| Allows continuous time? | No | Yes |
+|---------|----------|---------------------|
+| Assumes sphericity? | Yes — almost always violated | No — covariance is modeled |
+| Handles missing data? | No — requires complete cases at every wave | Yes — uses all available observations |
+| Allows continuous time? | No — time must be discrete categories | Yes |
 | Models individual trajectories? | No | Yes (random slopes) |
 | Handles unbalanced designs? | Poorly | Gracefully |
 | Can include level-2 predictors? | No | Yes |
+| Generalizes to non-normal outcomes? | No | Yes (GLMM) |
 
-The only reason to prefer RM-ANOVA is familiarity. Mixed-effects models strictly dominate for any longitudinal design.
+The only reason to prefer RM-ANOVA is familiarity. Mixed-effects models strictly dominate for any real longitudinal design.
+
+---
+
+## Reviewer Challenge
+
+::: {.callout-tip}
+## What a Reviewer Would Ask
+
+**Challenge 1:** "You measured WTP at 4 waves and analyzed with RM-ANOVA — did you test for sphericity? If it's violated, your interaction p-value is too small."
+The correct response: switch to a mixed model (or at minimum apply Greenhouse-Geisser correction). A mixed model with AR(1) residuals is both more flexible and more honest about the covariance structure than corrected RM-ANOVA.
+
+**Challenge 2:** "You have 12% missing data at wave 3 and excluded those cases. How does that affect the RM-ANOVA result?"
+RM-ANOVA requires complete cases — excluding wave-3 dropouts creates a biased subsample. The mixed model with available-case estimation (all participants at their observed waves) is unbiased under MAR and should be the primary analysis.
+
+**Challenge 3:** "Why do you need random effects for person in a within-subjects design where each person appears multiple times?"
+The random intercept for person absorbs between-person variance in baseline WTP, reducing residual noise and improving power. Without it, that between-person variance inflates the residual, making the condition effect look less precise. The random intercept is not optional in a within-subjects mixed model — it is the direct translation of the design into the model.
+:::

@@ -12,12 +12,20 @@ set.seed(99)
 
 # Count Outcomes: Poisson and Negative Binomial MLMs
 
+::: {.callout-note icon=false}
+## What Does a Poisson MLM Add Over Linear Regression for Counts?
+
+- **Question:** Customers are tracked for 14 days after enrolling in a loyalty program. The outcome is the number of purchases per day. Does the loyalty program increase purchase frequency? Customers are nested within stores.
+- **What goes wrong:** Linear regression can predict negative purchase counts; its residuals are heteroskedastic by construction (more frequent purchasers have more variance). Ignoring the count nature of the outcome produces biased coefficients and invalid inference.
+- **The fix:** A Poisson mixed model handles the non-negative integer structure via a log link, adds a customer-level random intercept for the clustering, and produces rate ratios — interpretable as "the loyalty program multiplied purchase frequency by X." When variance exceeds the mean (overdispersion), the negative binomial is the right upgrade. When structural zeros abound (habitual non-purchasers), a zero-inflated model separates the two processes.
+:::
+
 ## When Your Outcome is a Count
 
-Count outcomes arise frequently in psychology and social science: the number of aggressive acts in a session, the number of days absent from work, the number of times a consumer repurchases, the number of words recalled.
+Count outcomes arise frequently in consumer behavior and financial research: the number of monthly purchases, the number of app sessions, the number of days between loan payments, the number of savings transactions in a quarter.
 
 Counts have two properties that make standard linear regression inappropriate:
-1. They are non-negative integers (you cannot have −3 absences)
+1. They are non-negative integers (you cannot have −3 purchases)
 2. Their variance often increases with their mean (heteroskedasticity is built-in)
 
 The **Poisson distribution** is the natural model for counts. The **Poisson mixed model** extends it to nested data.
@@ -29,27 +37,28 @@ $$\log(\mu_{ij}) = \beta_0 + \beta_1 X_{ij} + u_{0j}, \quad Y_{ij} \sim \text{Po
 The log link ensures predictions are always positive. Coefficients are interpreted as log rate ratios, or more intuitively as rate ratios after exponentiation.
 
 ```{r fit-poisson}
-n_participants <- 60
-n_days         <- 14
+# 60 customers tracked for 14 days; loyalty program assigned to half
+n_customers <- 60
+n_days      <- 14
 
-participant_effects <- rnorm(n_participants, 0, 0.5)
+customer_effects <- rnorm(n_customers, 0, 0.5)  # customer-level purchasing tendency
 
-df_count <- expand_grid(person = 1:n_participants, day = 1:n_days) |>
+df_count <- expand_grid(customer = 1:n_customers, day = 1:n_days) |>
   mutate(
-    treatment = rep(rbinom(n_participants, 1, 0.5), each = n_days),
-    p_eff     = rep(participant_effects, each = n_days),
-    log_mu    = 1.5 - 0.5 * treatment + p_eff,  # true rate ratio = exp(-0.5) ≈ 0.61
-    count     = rpois(n(), lambda = exp(log_mu)),
-    person    = factor(person)
+    loyalty = rep(rbinom(n_customers, 1, 0.5), each = n_days),  # loyalty program enrolled
+    c_eff   = rep(customer_effects, each = n_days),
+    log_mu  = 0.5 + 0.4 * loyalty + c_eff,  # true rate ratio = exp(0.4) ≈ 1.49
+    purchases = rpois(n(), lambda = exp(log_mu)),
+    customer  = factor(customer)
   )
 
-m_pois <- glmer(count ~ treatment + (1 | person),
+m_pois <- glmer(purchases ~ loyalty + (1 | customer),
                 family = poisson,
                 data   = df_count)
 
 broom.mixed::tidy(m_pois, effects = "fixed", exponentiate = TRUE) |>
   knitr::kable(digits = 3,
-    caption = "Rate ratios: treatment reduces count outcome to 61% of control")
+    caption = "Rate ratios: loyalty program increases daily purchase rate by ~1.5×")
 ```
 
 ## Overdispersion: When Poisson is Not Enough
@@ -67,49 +76,56 @@ cat("Dispersion statistic:", round(dispersion_stat, 3),
 When overdispersion is present, use the **negative binomial** model, which adds a free dispersion parameter:
 
 ```{r negative-binomial}
-# Simulate overdispersed count data
+# Simulate overdispersed purchase counts (purchasing behaviour is "bursty" — customers
+# either do nothing or make multiple purchases in a day, creating variance > mean)
 df_count_od <- df_count |>
-  mutate(count_od = rnbinom(n(), mu = exp(log_mu), size = 2))  # overdispersed
+  mutate(purchases_od = rnbinom(n(), mu = exp(log_mu), size = 2))  # overdispersed
 
-m_nb <- glmmTMB(count_od ~ treatment + (1 | person),
+m_nb <- glmmTMB(purchases_od ~ loyalty + (1 | customer),
                 family = nbinom2,
                 data   = df_count_od)
 
 broom.mixed::tidy(m_nb, effects = "fixed", exponentiate = TRUE) |>
   knitr::kable(digits = 3,
-    caption = "Negative binomial rate ratios (handles overdispersion)")
+    caption = "Negative binomial rate ratios: handles overdispersion from bursty purchasing")
 ```
 
 ## Zero-Inflation
 
-Some count outcomes have more zeros than any Poisson or negative binomial model can account for. This is common when zeros arise from two different processes: (1) the structural zero — a participant who never engages in the behavior regardless of conditions, and (2) the sampling zero — a participant who could engage but happened not to on this occasion.
+Some count outcomes have more zeros than any Poisson or negative binomial model can account for. This is common when zeros arise from two different processes: (1) the **structural zero** — a customer who never makes in-store purchases regardless of program (online-only shoppers, for example), and (2) the **sampling zero** — a customer who could purchase but happened not to on a given day.
 
 ```{r zero-inflation}
-# Zero-inflated count
+# Zero-inflated purchase counts:
+# Some customers are structurally non-purchasers (online-only, never enter stores)
 df_count_zi <- df_count |>
   mutate(
-    # Some people are "structural zeros" (never engage)
-    structural_zero = rbinom(n(), 1, 0.3),
-    count_zi = ifelse(structural_zero == 1, 0, count)
+    structural_zero = rbinom(n(), 1, 0.3),     # 30% are structural non-purchasers
+    purchases_zi    = ifelse(structural_zero == 1, 0, purchases)
   )
 
-cat("Proportion of zeros (standard Poisson):", mean(df_count$count == 0), "\n")
-cat("Proportion of zeros (zero-inflated):", mean(df_count_zi$count_zi == 0), "\n")
+cat("Proportion of zero-purchase days (standard Poisson):", mean(df_count$purchases == 0), "\n")
+cat("Proportion of zero-purchase days (zero-inflated):", mean(df_count_zi$purchases_zi == 0), "\n")
 
-m_zi <- glmmTMB(count_zi ~ treatment + (1 | person),
-                ziformula = ~1,   # intercept-only model for zero-inflation
+m_zi <- glmmTMB(purchases_zi ~ loyalty + (1 | customer),
+                ziformula = ~1,   # intercept-only model for structural-zero process
                 family    = poisson,
                 data      = df_count_zi)
 
 broom.mixed::tidy(m_zi, effects = "fixed", component = "cond", exponentiate = TRUE) |>
   knitr::kable(digits = 3,
-    caption = "Zero-inflated Poisson: count model conditional on non-structural-zero")
+    caption = "Zero-inflated Poisson: purchase rate for customers who ever purchase (conditional on non-structural-zero)")
 ```
 
 ## Assumptions
 
 ::: {.callout-warning icon=false}
 ## Assumption 1: Correct Distribution Family
+
+**What it means:** The Poisson model assumes mean equals variance. Real consumer behavior data violates this constantly: purchasing is "bursty" (some days customers buy nothing; occasionally they buy several items), creating variance that exceeds the mean. Choosing the wrong distribution family produces biased standard errors even if the mean structure is correctly specified.
+
+**JDM example:** Daily purchase counts for a loyalty program follow a negative binomial, not Poisson — high-engagement customers have both higher mean *and* higher day-to-day variance in purchasing. Fitting Poisson will underestimate standard errors and overstate the loyalty program's precision.
+
+**Warning sign:** Dispersion statistic above 1.5; rootogram showing the model systematically underpredicts high-count observations.
 
 | Distribution | When to use | Diagnosis |
 |-------------|-------------|-----------|
@@ -122,7 +138,25 @@ broom.mixed::tidy(m_zi, effects = "fixed", component = "cond", exponentiate = TR
 ::: {.callout-warning icon=false}
 ## Assumption 2: Log Link Linearity
 
-**What it means:** The log of the expected count is a linear function of the predictors. This is usually reasonable but should be checked for continuous predictors.
+**What it means:** The log of the expected purchase count is a linear function of the predictors. For binary predictors (loyalty enrolled vs. not), this is automatically satisfied. For continuous predictors (days since enrollment, purchase history), the relationship on the log scale may be nonlinear — an accelerating or leveling-off effect as engagement accumulates.
 
-**How to check:** Plot smoothed log-count against the continuous predictor to look for nonlinearity.
+**JDM example:** The effect of days since enrollment on purchase frequency may follow a learning curve — rapid early increase then plateau. A linear log-link term misses the saturation and will overpredict purchase frequency for long-tenured customers.
+
+**Warning sign:** Residual plots showing systematic curvature against a continuous predictor.
+
+**How to check:** Plot a smoothed log-count against the continuous predictor (`geom_smooth()` on log-transformed counts). If a strong curve is visible, add a polynomial term or use a spline.
 :::
+
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions About Your Count Model
+
+**Challenge 1 — "Did you check for overdispersion before choosing Poisson?"**
+The default `glmer(family = poisson)` assumes mean equals variance. A reviewer will ask for evidence that this holds in your data. Report the Pearson dispersion statistic. If it is above 1.5, you should be using a negative binomial model — the Poisson standard errors are anticonservative and your p-values overstate evidence for the loyalty program effect.
+
+**Challenge 2 — "How do you know the excess zeros are structural, not sampling?"**
+Zero-inflated models assume that some customers can never purchase (structural zeros). If the excess zeros are instead just sampling zeros — customers who could purchase but happened not to during the observation window — then the zero-inflation model is misspecified and will incorrectly partition the effect. Explain how you determined that a segment of customers are truly structural non-purchasers (e.g., online-only transaction history, never swiped a physical card), rather than low-frequency purchasers whose zeros are sampling artifacts.
+
+**Challenge 3 — "Is the rate ratio interpretable as a causal effect of the loyalty program?"**
+The loyalty program may have been offered to customers based on their prior purchase history — higher-frequency purchasers may be more likely to enroll. If so, the loyalty group is not comparable to the control group at baseline, and the rate ratio conflates loyalty program effects with pre-existing purchase tendency. Describe the enrollment mechanism. If enrollment was based on observable characteristics, control for prior purchase history; if it was quasi-random, explain the natural experiment.
+:::
+

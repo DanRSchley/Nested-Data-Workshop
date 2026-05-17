@@ -66,6 +66,58 @@ The key insight: **only compliers are affected by the instrument**. Never-takers
 
 Instrumental variables "zooms in" on compliers by scaling the ITT by the compliance rate.
 
+### Visual: What Happens to Each Type When Assignment Changes?
+
+```{r compliance-diagram, fig.width=8, fig.height=3.5}
+# Visual illustration of the four compliance types
+compliance_grid <- tibble(
+  type      = rep(c("Compliers", "Never-takers", "Always-takers", "Defiers (assumed absent)"), each = 2),
+  condition = rep(c("Z = 0 (Control)", "Z = 1 (Treatment)"), times = 4),
+  D         = c(0, 1,   # Compliers: 0 when control, 1 when treatment
+                0, 0,   # Never-takers: always 0
+                1, 1,   # Always-takers: always 1
+                1, 0),  # Defiers: opposite of assignment
+  affected  = c(TRUE, TRUE,   # Compliers are affected
+                FALSE, FALSE, # Never-takers not affected
+                FALSE, FALSE, # Always-takers not affected
+                TRUE, TRUE)   # Defiers are affected (but assumed away)
+) |>
+  mutate(
+    D_label    = ifelse(D == 1, "Uses tool (D=1)", "Does not use (D=0)"),
+    type       = factor(type, levels = c("Compliers", "Never-takers",
+                                         "Always-takers", "Defiers (assumed absent)")),
+    condition  = factor(condition, levels = c("Z = 0 (Control)", "Z = 1 (Treatment)"))
+  )
+
+fill_colors <- c("Uses tool (D=1)"    = "#1e3a5f",
+                 "Does not use (D=0)" = "#d9e8f5")
+text_colors <- c("Uses tool (D=1)"    = "white",
+                 "Does not use (D=0)" = "#1e3a5f")
+
+ggplot(compliance_grid,
+       aes(x = condition, y = type, fill = D_label)) +
+  geom_tile(color = "white", linewidth = 1.2, aes(alpha = ifelse(type == "Defiers (assumed absent)", 0.35, 1))) +
+  geom_text(aes(label = D_label, color = D_label), size = 3.4, fontface = "bold") +
+  # Highlight complier column change
+  annotate("rect", xmin = 1.45, xmax = 2.55, ymin = 0.5, ymax = 1.5,
+           fill = NA, color = "#e63946", linewidth = 1.5) +
+  annotate("text",  x = 2.62, y = 1, label = "\u2190 LATE\nidentified\nhere",
+           hjust = 0, size = 3.2, color = "#e63946", linewidth = 0.8) +
+  scale_fill_manual(values = fill_colors) +
+  scale_color_manual(values = text_colors) +
+  scale_alpha_identity() +
+  coord_cartesian(xlim = c(0.4, 2.9)) +
+  labs(
+    title    = "The four compliance types: what each group does when assignment changes",
+    subtitle = "IV identifies the effect for Compliers (red box) — the only group whose D changes with Z.\nNever- and Always-takers contribute noise; Defiers are assumed absent (monotonicity).",
+    x = NULL, y = NULL
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none",
+        panel.grid     = element_blank(),
+        axis.text.x    = element_text(face = "bold", size = 12))
+```
+
 ---
 
 ## Section 3: The LATE Formula
@@ -91,6 +143,20 @@ This simplification applies whenever the control condition makes treatment pract
 4. **Independence**: $Z$ is as good as randomly assigned (satisfied by design in an RCT).
 :::
 
+::: {.callout-warning icon=false}
+## What LATE Does Not Identify
+
+LATE is precise but narrow. A few things it does **not** tell you:
+
+- **The effect for never-takers.** People who would not activate the tool regardless of the offer are excluded from the LATE estimate. If uptake is lowest among the most financially distressed users — perhaps those who need it most — LATE reflects the effect for those already inclined to engage.
+
+- **The average treatment effect (ATE).** LATE = ATE only if compliance is universal (everyone assigned to treatment uses it). With partial compliance, LATE estimates the effect for compliers only.
+
+- **Transportability.** Compliers in this experiment may be a self-selected group (motivated, tech-comfortable, low inertia). The LATE from one context may not predict uptake effects in a population with different compliance rates.
+
+**The question LATE answers well:** "If we offer this tool and some people adopt it because of the offer, how much does adoption help those people?" That is often the right question for evaluating a real-world rollout.
+:::
+
 ---
 
 ## Section 4: Worked Example — Digital Budgeting Tool Experiment
@@ -107,6 +173,22 @@ savings_rate <- 10 + 8 * D + rnorm(n, 0, 6)    # true effect for compliers = 8
 
 df_nc <- tibble(id = 1:n, Z = factor(Z), D = factor(D), savings_rate)
 ```
+
+```{mermaid}
+flowchart TD
+    A["Randomized — N = 200"] --> B["Offered tool<br/>N = 100"]
+    A --> C["Control — no offer<br/>N = 100"]
+    B --> D["Activated tool<br/>Compliers ≈ 65"]
+    B --> E["Did not activate<br/>Never-takers ≈ 35"]
+    D --> F["Outcome measured<br/>D = 1: tool users"]
+    E --> G["Outcome measured<br/>D = 0: assigned but unused"]
+    C --> H["Outcome measured<br/>D = 0: no access"]
+    style D fill:#e8f5e9,stroke:#2d6a4f
+    style E fill:#fff3e0,stroke:#e67e22
+    style H fill:#f0f0f0,stroke:#888888
+```
+
+The ITT estimate contrasts everyone in the offered group (N=100) with everyone in the control group (N=100) — regardless of activation. The LATE estimate uses the offer as an instrument for actual activation, recovering the causal effect for the sub-population whose tool use changed because of the offer (the compliers — roughly 65 of the 100 offered participants). Never-takers and the control group both have D = 0, but for different reasons.
 
 ### Estimating all three quantities
 

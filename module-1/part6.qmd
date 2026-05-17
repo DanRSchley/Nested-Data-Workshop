@@ -14,6 +14,14 @@ set.seed(42)
 
 # Crossed Random Effects
 
+::: {.callout-note icon=false}
+## What Do Crossed Random Effects Solve?
+
+- **Question:** When every observation belongs simultaneously to two independent grouping factors — each participant evaluates every message; each customer is observed in every calendar month — how do we partition variance correctly across both dimensions?
+- **What goes wrong:** Ignoring one of the two grouping factors pushes that variance into the residual. The residual is artificially inflated, standard errors for your focal predictor are artificially deflated, and *p*-values are anti-conservatively small.
+- **The fix:** Model both grouping factors simultaneously — `(1 | participant) + (1 | message)` — so the model decomposes variance into participant differences, message differences, and residual noise. The result is correct standard errors and inference that generalises across both the participant sample and the message sample.
+:::
+
 Pure hierarchies assume each lower-level unit belongs to exactly one higher-level unit. But many real data structures — in both experimental consumer research and longitudinal panel research — have units that belong to *multiple* grouping factors simultaneously. This chapter covers two major instances of crossed random effects:
 
 1. **Within-subjects experiments**: participants × product messages (the consumer WTP problem)
@@ -24,6 +32,58 @@ Both cases share the same formal structure. Both produce badly wrong standard er
 ---
 
 ## Part A: Crossed Random Effects in Experimental Designs
+
+### Design Schematic: Crossed vs. Nested
+
+Before fitting a model, it helps to visualise the difference between a **nested** structure and a **crossed** structure. The distinction is about whether every participant evaluates every product (crossed) or each participant evaluates a unique subset of products (nested).
+
+```{r design-schematic, fig.width=9, fig.height=3.8}
+# 6 participants × 6 products for illustration
+n_p <- 6; n_m <- 6
+
+# Crossed: every participant evaluates every product
+df_crossed <- expand_grid(participant = 1:n_p, product = 1:n_m) |>
+  mutate(observed = TRUE, design = "Crossed (every P evaluates every product)")
+
+# Nested: each participant evaluates a unique set of 3 products (no overlap)
+df_nested <- bind_rows(
+  expand_grid(participant = 1:2, product = 1:3),
+  expand_grid(participant = 3:4, product = 4:6),
+  expand_grid(participant = 5:6, product = c(1, 3, 5))
+) |>
+  mutate(observed = TRUE, design = "Nested (each P evaluates a unique subset)")
+
+# Add unobserved cells to nested design for visual contrast
+df_nested_full <- expand_grid(participant = 1:n_p, product = 1:n_m) |>
+  left_join(df_nested |> mutate(observed = TRUE),
+            by = c("participant", "product")) |>
+  replace_na(list(observed = FALSE)) |>
+  mutate(design = "Nested (each P evaluates a unique subset)")
+
+bind_rows(
+  df_crossed |> mutate(observed = TRUE),
+  df_nested_full
+) |>
+  ggplot(aes(x = factor(product), y = factor(participant),
+             fill = observed)) +
+  geom_tile(color = "white", linewidth = 0.8) +
+  scale_fill_manual(values = c("TRUE" = "#2166ac", "FALSE" = "#f0f0f0"),
+                    labels = c("TRUE" = "Observed", "FALSE" = "Not observed"),
+                    name   = NULL) +
+  facet_wrap(~ design, ncol = 2) +
+  labs(
+    title    = "Crossed vs. nested: which cells are observed?",
+    subtitle = "Crossed designs fill the full participant \u00d7 product grid — every cell is blue.\nNested designs leave gaps — products are not shared across participants.",
+    x = "Product", y = "Participant"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "bottom",
+        panel.grid = element_blank())
+```
+
+In a **crossed design** the grid is fully filled: every participant–product cell is observed. Both grouping factors are fully shared, so variance can be cleanly partitioned into participant differences, product differences, and residual. In a **nested design** there is no product sharing across participants — you cannot separate "this product is generally liked" from "this participant generally likes things," because the two effects are aliased.
+
+**Why it matters for R syntax:** In a crossed design, `lme4` formula `(1 | participant) + (1 | product)` fits two independent random intercepts and partitions variance correctly. In a nested design with partial overlap, the same formula would be misspecified — crossed syntax on a partially nested structure can produce severely wrong standard errors. Always draw (or print) your data grid before choosing a formula.
 
 ### The Problem with Treating Messages as Fixed
 
@@ -355,6 +415,21 @@ In panel data, analysts often absorb month effects using **month dummy variables
 | **If RE 2 omitted** | Message variance inflates residual; discount SE too small | Month variance inflates residual; promo exposure SE too small |
 | **Predictor** | Discount depth (%) | Promotional exposure ($) |
 | **Fix** | `(1\|participant) + (1\|message)` | `(1\|customer) + (1\|month_fac)` |
+
+---
+
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions About Your Crossed Design
+
+**Challenge 1 — "Did you model message-level variance?"**
+If every participant evaluated every message, the standard error for your focal predictor (discount depth, framing condition) is wrong unless you include a message random effect. Expect reviewers familiar with Judd, Westfall, and Kenny (2012) to ask whether stimuli were treated as fixed or random. Have the SE comparison from `model_no_msgs` vs. `model_crossed` ready.
+
+**Challenge 2 — "Are your months exchangeable?"**
+A month random effect assumes each calendar month is an interchangeable draw from a population of possible months. If your panel spans a policy change, economic shock, or pandemic period, specific months are not exchangeable — some months have structurally different spending regimes. Reviewers will ask whether the normality/exchangeability assumption is defensible, or whether month fixed effects are more appropriate.
+
+**Challenge 3 — "Could a missing third factor explain your result?"**
+Your crossed model accounts for participants and messages (or customers and months). But is there a third crossed or nested factor you have not modeled — product category, pricing tier, geographic market? If a confounding characteristic of messages is correlated with your predictor (discount depth and whether the item is a luxury good), the crossed RE for messages does not remove that confound; it only absorbs the average message effect. A reviewer will ask what variation in the predictor is driving your result — within messages, or across messages?
+:::
 
 ---
 

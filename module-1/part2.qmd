@@ -10,18 +10,27 @@ library(broom.mixed)
 library(ggplot2)
 library(patchwork)
 library(performance)
+library(plm)
 set.seed(2024)
 ```
 
 # Random Intercepts
 
+::: {.callout-note icon=false}
+## What Do Random Intercepts Add Over Fixed Effects?
+
+- **Question:** Fixed effects remove between-unit variation by absorbing it into dummies. But what if you want to *estimate* how much units vary, make predictions for new units, or model the effect of unit-level predictors like household income or participant trait?
+- **What goes wrong with fixed effects:** Unit-level predictors are collinear with the unit dummies and cannot be estimated. New units have no intercept. The model learns nothing about the population distribution of unit effects.
+- **The fix:** Random intercepts treat unit-level deviations as draws from a normal distribution, enabling partial pooling, shrinkage toward the grand mean, and predictions for out-of-sample units — at the cost of requiring the random effects to be uncorrelated with the predictor.
+:::
+
 ## Beyond Absorbing Unit Differences
 
 Fixed effects remove between-unit variation by absorbing it into dummy variables. That works, but it destroys information:
 
-- You can no longer estimate the effect of unit-level predictors (firm size, participant trait anxiety)
+- You can no longer estimate the effect of unit-level predictors (household income tier, participant trait anxiety)
 - You cannot make predictions for new units not in your sample
-- You learn nothing about *how much* units differ from each other
+- You learn nothing about *how much* units differ from each other — the variance itself is scientifically informative
 
 **Random intercepts** take a different view. Instead of asking "what is the specific intercept of unit $j$?", the model asks "what is the distribution of intercepts across all units in the population?" It treats unit-level deviations as draws from a probability distribution rather than as fixed constants to be estimated.
 
@@ -35,7 +44,7 @@ This single shift — from "estimate each intercept" to "estimate the distributi
 
 Random intercept models are most naturally described in two levels.
 
-**Level 1** describes variation *within* units (within the same person across days; within the same participant across stimuli):
+**Level 1** describes variation *within* units (within the same household across months; within the same participant across stimuli):
 
 $$\underbrace{Y_{ij}}_{\substack{\text{outcome for} \\ \text{obs } i \text{ in} \\ \text{unit } j}} = \underbrace{\beta_{0j}}_{\substack{\text{unit-specific} \\ \text{intercept}}} + \underbrace{\beta_1}_{\substack{\text{slope}\\ \text{(fixed)}}} \underbrace{X_{ij}}_{\substack{\text{predictor}}} + \underbrace{\varepsilon_{ij}}_{\substack{\text{within-unit} \\ \text{residual}}}$$
 
@@ -47,11 +56,9 @@ where $u_{0j} \sim \mathcal{N}(0, \sigma^2_u)$ — the unit deviations are assum
 
 ### Combined (Single-Equation) Form
 
-Substituting Level 2 into Level 1, we get the combined model. Notice how the Level-1 intercept $\beta_{0j}$ is replaced by its Level-2 expression:
+Substituting Level 2 into Level 1:
 
 $$\underbrace{Y_{ij}}_{\text{outcome}} = \underbrace{\gamma_{00}}_{\substack{\text{grand mean} \\ \text{(fixed)}}} + \underbrace{u_{0j}}_{\substack{\text{unit random} \\ \text{intercept}}} + \underbrace{\beta_1 X_{ij}}_{\substack{\text{slope}\\ \text{(fixed)}}} + \underbrace{\varepsilon_{ij}}_{\substack{\text{within-unit} \\ \text{residual}}}$$
-
-The model has two types of components:
 
 | Component | Symbol | Type | What it captures |
 |-----------|--------|------|------------------|
@@ -70,112 +77,110 @@ $$Y_{ij} = \alpha_j + \beta_1 X_{ij} + \varepsilon_{ij}$$
 
 where $\alpha_j$ was estimated as a separate free parameter for each unit.
 
-The random-intercept model replaces the free $\alpha_j$ with $\gamma_{00} + u_{0j}$, imposing the constraint that unit deviations are *drawn from a normal distribution*. This constraint is what enables **partial pooling** (shrinkage) and allows between-unit inference — but it comes with an assumption (normality of the random effects) that the FE model does not require.
+The random-intercept model replaces the free $\alpha_j$ with $\gamma_{00} + u_{0j}$, imposing the constraint that unit deviations are *drawn from a normal distribution*. This constraint enables **partial pooling** (shrinkage) and allows between-unit inference — but it comes with the critical assumption (independence of random effects from predictors) that the FE model does not require.
 
 ---
 
 ## Two Examples: Longitudinal and Experimental
 
-The random-intercept model is equally natural in longitudinal and experimental settings. The structure is identical; only the substantive interpretation differs.
+### Example 1: Household Savings and Financial Disclosure (Longitudinal)
 
-### Example 1: Daily Mood and Sleep (Longitudinal/Repeated Measures)
-
-30 people each complete a mood diary for 7 days. We want to know: within a person, does sleeping more predict better mood the next day?
+30 households each complete a monthly financial diary for 7 months. We want to know: within a household, does reading more of the financial disclosure document predict higher savings that month?
 
 ```{r fit-random-intercept}
-n_people <- 30
-n_days   <- 7
+n_households <- 30
+n_months     <- 7
 
-person_intercepts <- rnorm(n_people, mean = 50, sd = 8)
+# Stable household-level baseline savings (between-household differences)
+hh_baseline <- rnorm(n_households, mean = 25, sd = 8)
 
-df_sleep <- expand_grid(
-  person = 1:n_people,
-  day    = 1:n_days
+df_diary <- expand_grid(
+  household = 1:n_households,
+  month     = 1:n_months
 ) |>
   mutate(
-    sleep  = rnorm(n(), mean = 7, sd = 1.5),
-    # True within-person effect of sleep on mood = 3 points per hour
-    mood   = person_intercepts[person] + 3 * (sleep - 7) + rnorm(n(), 0, 5),
-    person = factor(person)
+    disclosure = rnorm(n(), mean = 6, sd = 2),       # pages read (varies month-to-month)
+    # True within-household effect: 2 pct-points of savings per page read
+    savings    = hh_baseline[household] + 2 * (disclosure - 6) + rnorm(n(), 0, 5),
+    household  = factor(household)
   )
 
 # Fit random intercept model
-model_ri_sleep <- lmer(mood ~ sleep + (1 | person), data = df_sleep)
-summary(model_ri_sleep)
+model_ri_diary <- lmer(savings ~ disclosure + (1 | household), data = df_diary)
+summary(model_ri_diary)
 ```
 
 **Reading the output:**
 
-- $\hat\gamma_{00}$ (Intercept fixed effect): the grand mean mood across all people and days
-- $\hat\beta_1$ (sleep fixed effect): on average, one extra hour of sleep is associated with ~3 points higher mood, *within the same person*
-- $\hat\sigma_u$ (person random effect SD): how much people differ in their baseline mood
-- $\hat\sigma_\varepsilon$ (residual SD): how much a person's mood varies day-to-day, after accounting for sleep
+- $\hat\gamma_{00}$ (Intercept fixed effect): the grand mean savings rate across all households and months
+- $\hat\beta_1$ (disclosure fixed effect): on average, one extra page read is associated with ~2 percentage points higher savings, *within the same household*
+- $\hat\sigma_u$ (household random effect SD): how much households differ in their baseline savings rate
+- $\hat\sigma_\varepsilon$ (residual SD): how much a household's savings fluctuates month-to-month, after accounting for disclosure
 
 ```{r ri-interpret}
-broom.mixed::tidy(model_ri_sleep, effects = "fixed") |>
-  knitr::kable(digits = 3, caption = "Fixed effects: sleep → mood (within-person)")
+broom.mixed::tidy(model_ri_diary, effects = "fixed") |>
+  knitr::kable(digits = 3, caption = "Fixed effects: disclosure → savings (within-household)")
 
-broom.mixed::tidy(model_ri_sleep, effects = "ran_pars") |>
+broom.mixed::tidy(model_ri_diary, effects = "ran_pars") |>
   knitr::kable(digits = 3,
-    caption = "Variance components: how much do people differ vs. fluctuate?")
+    caption = "Variance components: how much do households differ vs. fluctuate?")
 ```
 
-### Example 2: Stimulus Ratings in a Judgment Study (Experimental)
+### Example 2: WTP and Price Framing (Experimental)
 
-50 participants each rate 20 charity appeal images on their emotional impact (0–100). Half the images feature children; half feature adults. We want to know: does featuring a child vs. an adult increase perceived emotional impact?
+50 participants each evaluate 20 product offers on their willingness to pay (WTP, 0–100). Half the offers use an "anchor high" framing (starting from a higher reference price); half use a neutral framing. We want to know: does anchor framing increase WTP?
 
 ```{r fit-random-intercept-exp}
 n_participants_exp <- 50
-n_images           <- 20
+n_offers           <- 20
 
-# Participants differ in baseline emotionality
+# Participants differ in baseline WTP
 participant_baseline <- rnorm(n_participants_exp, mean = 50, sd = 12)
 
-df_charity <- expand_grid(
+df_wtp <- expand_grid(
   participant = 1:n_participants_exp,
-  image       = 1:n_images
+  offer       = 1:n_offers
 ) |>
   mutate(
-    child_subject = rep(c(1, 0), n_images / 2)[image],  # 1 = child, 0 = adult
-    # True within-person effect of child subject = 8 points
-    impact = participant_baseline[participant] +
-             8 * child_subject + rnorm(n(), 0, 10),
+    anchor_frame = rep(c(1, 0), n_offers / 2)[offer],   # 1 = anchor-high, 0 = neutral
+    # True within-participant effect of anchor framing = 9 WTP points
+    wtp = participant_baseline[participant] +
+          9 * anchor_frame + rnorm(n(), 0, 10),
     participant = factor(participant)
   )
 
-model_ri_charity <- lmer(impact ~ child_subject + (1 | participant),
-                          data = df_charity)
+model_ri_wtp <- lmer(wtp ~ anchor_frame + (1 | participant), data = df_wtp)
 
-broom.mixed::tidy(model_ri_charity, effects = "fixed") |>
-  knitr::kable(digits = 3, caption = "Fixed effects: child subject → emotional impact")
+broom.mixed::tidy(model_ri_wtp, effects = "fixed") |>
+  knitr::kable(digits = 3, caption = "Fixed effects: anchor framing → WTP")
 
-broom.mixed::tidy(model_ri_charity, effects = "ran_pars") |>
+broom.mixed::tidy(model_ri_wtp, effects = "ran_pars") |>
   knitr::kable(digits = 3,
-    caption = "Variance components: participant differences vs. image-to-image variation")
+    caption = "Variance components: participant differences vs. offer-level variation")
 ```
 
-Notice the parallel: in the mood study, $u_{0j}$ captures person differences in *baseline mood*. In the charity study, $u_{0j}$ captures person differences in *baseline emotionality*. The math is identical. The interpretation is substantively different.
+Notice the parallel: in the diary study, $u_{0j}$ captures household differences in *baseline savings behaviour*. In the WTP study, $u_{0j}$ captures participant differences in *baseline WTP*. The math is identical; the interpretation is substantively different.
 
 ```{r ri-visualize}
 # Visualize random intercepts for both examples
-re_sleep   <- ranef(model_ri_sleep)$person[, 1]
-re_charity <- ranef(model_ri_charity)$participant[, 1]
+re_diary <- ranef(model_ri_diary)$household[, 1]
+re_wtp   <- ranef(model_ri_wtp)$participant[, 1]
 
-p1 <- tibble(unit = seq_along(re_sleep), re = sort(re_sleep)) |>
+p1 <- tibble(unit = seq_along(re_diary), re = sort(re_diary)) |>
   ggplot(aes(x = reorder(unit, re), y = re)) +
   geom_point(color = "#1e3a5f", size = 2) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
-  labs(title = "Study 1: Person random intercepts",
-       subtitle = "Each dot = one person's deviation from grand mean mood",
-       x = "Person (sorted)", y = expression(hat(u)[0*j])) +
+  labs(title = "Study 1: Household random intercepts",
+       subtitle = "Each dot = one household's deviation from grand-mean savings",
+       x = "Household (sorted)", y = expression(hat(u)[0*j])) +
   theme_minimal(base_size = 11) + theme(axis.text.x = element_blank())
 
-p2 <- tibble(unit = seq_along(re_charity), re = sort(re_charity)) |>
+p2 <- tibble(unit = seq_along(re_wtp), re = sort(re_wtp)) |>
   ggplot(aes(x = reorder(unit, re), y = re)) +
   geom_point(color = "#2d6a4f", size = 2) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
   labs(title = "Study 2: Participant random intercepts",
-       subtitle = "Each dot = one participant's deviation from grand mean emotionality",
+       subtitle = "Each dot = one participant's deviation from grand-mean WTP",
        x = "Participant (sorted)", y = expression(hat(u)[0*j])) +
   theme_minimal(base_size = 11) + theme(axis.text.x = element_blank())
 
@@ -186,24 +191,25 @@ p1 + p2
 
 ## The Assumptions of Random Intercept Models
 
-The same four assumptions apply to both the longitudinal and the experimental settings. Where the assumption plays out differently across contexts, both are discussed.
-
 ::: {.callout-warning icon=false}
 ## Assumption 1: Normality of Random Effects
 
-**The distributional claim:** The model assumes:
-$$u_{0j} \overset{iid}{\sim} \mathcal{N}(0,\ \sigma^2_u)$$
+**Plain-language meaning:** The household (or participant) deviations from the grand mean are assumed to form a bell-shaped distribution — not a two-humped distribution, not a skewed one, not a collection of discrete clusters.
 
-This is stronger than the FE model, which makes no distributional claim about the $\alpha_j$ parameters. Here, the unit deviations are required to be normally distributed around zero.
+**What the model assumes away:** That units might fall into distinct subgroups (high-savers vs. low-savers as distinct types) rather than lying along a smooth continuum.
 
-**In longitudinal data:** If your units are firms, some industries may have systematically higher satisfaction for structural reasons (not random deviations). A bimodal or skewed distribution of $u_{0j}$ can arise when there are latent subgroups.
+**JDM example (observational):** If financial literacy creates two discrete groups of households — those enrolled in an advice program (high baseline savers) and those not (low baseline savers) — the distribution of $u_{0j}$ will be bimodal, not normal. The model will estimate a single Gaussian that fits neither group well.
 
-**In experiments:** If participant emotionality is bimodal (high-empathy vs. low-empathy types), the normality assumption is violated. With many participants (n > 50), the model is reasonably robust to mild non-normality.
+**Experimental analog:** If participant emotionality is bimodal (high-empathy vs. low-empathy types), or if you have two demographically distinct participant pools (students vs. workers), the normality assumption may be violated.
 
-**How to check:**
+**Skeptical reviewer objection:** "Your random intercepts assume a single normal distribution of baseline savings. But you recruited from two income tiers — your random effects probably have two peaks. What does your distribution look like?"
+
+**Observable warning sign:** A bimodal or heavily skewed Q-Q plot of BLUP estimates.
+
+**What to check:**
 
 ```{r normality-re}
-re_vals <- ranef(model_ri_sleep)$person[, 1]
+re_vals <- ranef(model_ri_diary)$household[, 1]
 
 p_hist <- tibble(re = re_vals) |>
   ggplot(aes(x = re)) +
@@ -225,28 +231,84 @@ p_qq <- tibble(re = re_vals) |>
 p_hist + p_qq
 ```
 
-A Q-Q plot that follows the diagonal closely indicates the normality assumption is met. Heavy tails or S-curves indicate non-normality.
+**What claim survives even if violated:** The fixed-effect estimate $\hat\beta_1$ (the within-unit slope) is reasonably robust to mild non-normality of $u_{0j}$, especially with large $n$ (> 50 units). The random effect variance estimate $\hat\sigma_u^2$ is more sensitive.
 :::
 
 ::: {.callout-warning icon=false}
-## Assumption 2: Normality and Homoskedasticity of Level-1 Residuals
+## Assumption 2: Independence of Random Effects from Predictors — The Critical Assumption
 
-**The distributional claim:**
-$$\varepsilon_{ij} \overset{iid}{\sim} \mathcal{N}(0,\ \sigma^2_\varepsilon)$$
+**Plain-language meaning:** Households with higher baseline savings ($u_{0j} > 0$) should not systematically read more (or less) of the disclosure document. The random intercepts must be uncorrelated with the predictor.
 
-where $\sigma^2_\varepsilon$ is the same for every unit $j$ and every observation $i$ — that is, within-unit variation is constant.
+**What the model assumes away:** Any tendency for higher-baseline units to have systematically higher (or lower) predictor values. If wealthier households both save more *by default* and read disclosure more because they are more financially engaged, then $u_{0j}$ and $X_{ij}$ are positively correlated — and the random-effects estimator is biased upward.
 
-**In longitudinal data:** Mood variability might be higher for some people (high neuroticism → more volatile mood). This produces heteroskedastic residuals where $\sigma^2_\varepsilon$ differs by person.
+**JDM example (observational):** In the financial diary study: if households with stable high savings (large $u_{0j}$) tend to be precisely the households that engage most with disclosure (high average $\bar{X}_j$), the random-effects model will attribute some of the between-household sorting to the within-household slope. The fixed-effects model would remove this bias; the random-effects model does not.
 
-**In experiments:** Some stimuli might produce more variable responses than others (ambiguous images → higher disagreement). This would show up as heteroskedasticity across stimulus conditions.
+**Experimental analog:** When stimuli are randomly assigned, this assumption is satisfied by design for the treatment variable. In the WTP study, anchor framing is randomly assigned across offers, so participant baseline WTP cannot systematically predict which framing condition they see. Randomisation is what makes experiments safe for random effects.
 
-**How to check:** A residuals vs. fitted values plot. A funnel shape means variance increases with the fitted value (heteroskedasticity). A curve means the relationship is nonlinear.
+**Skeptical reviewer objection:** "Your random-effects estimate of the disclosure slope is larger than a within-demeaned fixed-effects estimate. That gap is the signature of correlated random effects. Have you run a Hausman test?"
+
+**Observable warning sign:** The RE estimate for the predictor is noticeably larger than the FE estimate. This gap — called the "Hausman discrepancy" — is the classic diagnostic.
+
+```{r hausman-and-diagram}
+# Hausman-style comparison: RE estimate vs. FE estimate
+df_diary_panel <- df_diary |>
+  mutate(hh_id = as.integer(household), month_id = month)
+df_pdata <- pdata.frame(df_diary_panel, index = c("hh_id", "month_id"))
+
+fe_plm <- plm(savings ~ disclosure, data = df_pdata, model = "within")
+re_plm <- plm(savings ~ disclosure, data = df_pdata, model = "random")
+
+cat("Fixed effects estimate:", round(coef(fe_plm)["disclosure"], 3), "\n")
+cat("Random effects estimate:", round(coef(re_plm)["disclosure"], 3), "\n")
+cat("\nHausman test:\n")
+print(phtest(fe_plm, re_plm))
+```
+
+**The independence diagram.** The key diagnostic is whether household-level averages of the predictor ($\bar{X}_j$) are correlated with the random intercepts ($\hat{u}_{0j}$):
+
+```{r re-independence-diagram}
+# Is the random intercept correlated with the household's mean disclosure?
+hh_means <- df_diary |>
+  group_by(household) |>
+  summarise(mean_disclosure = mean(disclosure), .groups = "drop") |>
+  mutate(re_estimate = ranef(model_ri_diary)$household[, 1])
+
+ggplot(hh_means, aes(x = mean_disclosure, y = re_estimate)) +
+  geom_point(size = 3, color = "#1e3a5f", alpha = 0.7) +
+  geom_smooth(method = "lm", color = "#e63946", se = TRUE, linewidth = 1.2) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  labs(
+    title    = "RE independence check: random intercept vs. household mean predictor",
+    subtitle = "A non-flat slope here = RE ⊥ X is violated — use fixed effects or cluster-mean centering",
+    x        = "Household mean disclosure engagement",
+    y        = expression("Random intercept " * hat(u)[0*j])
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+When this plot shows a strong positive slope, the random intercept and the predictor are correlated — the RE estimator is biased. In that case, use fixed effects (Part 1) or cluster-mean centering (Module 2).
+
+**What claim survives:** If the Hausman test is non-significant (FE and RE estimates agree), the RE estimates are unbiased and more efficient than FE estimates. The claim "controlling for stable household characteristics, each additional page of disclosure is associated with X points higher savings" stands.
+:::
+
+::: {.callout-warning icon=false}
+## Assumption 3: Normality and Homoskedasticity of Level-1 Residuals
+
+**Plain-language meaning:** After accounting for household baselines and the disclosure slope, the leftover month-to-month variation in savings is drawn from a normal distribution with the same spread for every household.
+
+**What the model assumes away:** That some households are inherently more volatile than others (heteroskedasticity), or that the residuals follow a skewed or heavy-tailed distribution.
+
+**JDM example:** Households with high income volatility (self-employed, commission-based earners) will have much larger month-to-month savings swings than salaried households. Their residual variance is larger — producing a funnel shape in the residuals-vs-fitted plot.
+
+**Experimental analog:** Some offers may produce more disagreement across participants (ambiguous pricing conditions → higher SD). This shows up as condition-specific heteroskedasticity.
+
+**What to check:** A residuals vs. fitted values plot. A funnel shape means variance increases with the fitted value (heteroskedasticity). A curve means the relationship is nonlinear.
 
 ```{r residual-checks}
-df_sleep <- df_sleep |>
-  mutate(fitted = fitted(model_ri_sleep), resid = residuals(model_ri_sleep))
+df_diary <- df_diary |>
+  mutate(fitted = fitted(model_ri_diary), resid = residuals(model_ri_diary))
 
-p_rv <- ggplot(df_sleep, aes(x = fitted, y = resid)) +
+p_rv <- ggplot(df_diary, aes(x = fitted, y = resid)) +
   geom_point(alpha = 0.3, color = "#1e3a5f") +
   geom_hline(yintercept = 0, linetype = "dashed") +
   geom_smooth(method = "loess", color = "#e63946", se = FALSE) +
@@ -255,7 +317,7 @@ p_rv <- ggplot(df_sleep, aes(x = fitted, y = resid)) +
        x = "Fitted values", y = "Residuals") +
   theme_minimal(base_size = 12)
 
-p_qq2 <- ggplot(df_sleep, aes(sample = resid)) +
+p_qq2 <- ggplot(df_diary, aes(sample = resid)) +
   stat_qq(color = "#1e3a5f", alpha = 0.5) +
   stat_qq_line(color = "#e63946") +
   labs(title = "Q-Q: Level-1 residuals",
@@ -264,56 +326,27 @@ p_qq2 <- ggplot(df_sleep, aes(sample = resid)) +
 
 p_rv + p_qq2
 ```
-:::
 
-::: {.callout-warning icon=false}
-## Assumption 3: Independence of Random Effects from Predictors
-
-**The critical assumption:** The random intercepts $u_{0j}$ must be uncorrelated with the Level-1 predictor $X_{ij}$:
-
-$$\text{Cov}(u_{0j},\ X_{ij}) = 0$$
-
-**Why this is the key difference from fixed effects:** Fixed effects do not require this. They absorb unit-level variation without assuming anything about its relationship to $X$. Random effects assume the two are unrelated.
-
-**In longitudinal data:** If people who score high on baseline mood ($u_{0j} > 0$) tend to sleep *more* on average — perhaps because they have low anxiety — then $u_{0j}$ and $X_{ij}$ (sleep) are positively correlated. The random-effects estimator attributes some of this between-person relationship to the within-person slope, biasing $\hat\beta_1$ upward.
-
-**In experiments:** When stimuli are randomly assigned, this assumption is met by design for the treatment variable. However, if participants with higher baseline emotionality select into seeing more child images (selection into condition), the assumption fails. Randomization is what makes experiments safe for random effects.
-
-**How to check:** The Hausman test compares the FE and RE estimates. If they agree, the independence assumption is plausible. If the RE estimate is noticeably larger than the FE estimate, the random intercepts are probably correlated with the predictor.
-
-```{r hausman-test}
-library(plm)
-
-df_panel <- df_sleep |> mutate(person_id = as.integer(person))
-df_pdata <- pdata.frame(df_panel, index = c("person_id", "day"))
-
-fe_plm <- plm(mood ~ sleep, data = df_pdata, model = "within")
-re_plm <- plm(mood ~ sleep, data = df_pdata, model = "random")
-
-phtest(fe_plm, re_plm)
-```
-
-A non-significant Hausman test (p > 0.05) suggests the RE assumption is plausible. A significant result — especially when the FE estimate is substantially smaller than the RE estimate — means random intercepts are probably correlated with sleep, and you should use fixed effects or cluster-mean centering (Module 2).
+**What claim survives:** With large samples (≥ 100 observations), the fixed-effect estimates are reasonably robust to moderate heteroskedasticity. Use robust standard errors (cluster-robust at the household level) if heteroskedasticity is detected.
 :::
 
 ::: {.callout-warning icon=false}
 ## Assumption 4: Independence of Level-1 Residuals Within Units
 
-**The assumption:**
-$$\text{Cov}(\varepsilon_{ij},\ \varepsilon_{i'j}) = 0 \quad \text{for } i \neq i'$$
+**Plain-language meaning:** After conditioning on the household random intercept and the disclosure slope, the leftover month-to-month fluctuations are assumed to be independent of each other. Last month's unexpectedly high savings does not predict this month's savings beyond what the model accounts for.
 
-After conditioning on the random intercept and the fixed effects, the residuals at different observations within the same unit are assumed to be uncorrelated.
+**What the model assumes away:** Temporal autocorrelation in the residuals. The random intercept absorbs the *stable between-month baseline difference*, but it cannot capture temporal autocorrelation in the *within-household fluctuations* — the part that comes from spending habits, mood, or financial events carrying over from one month to the next.
 
-**In longitudinal data:** This assumption is almost never literally true. Mood on day $t$ predicts mood on day $t+1$. The random intercept absorbs the stable *between-day* baseline difference, but it cannot capture *temporal* autocorrelation in the within-day fluctuations. If yesterday's mood was unexpectedly high, today's is also likely to be above the person's mean — a pattern the random intercept cannot model.
+**JDM example:** A household that had an unexpectedly low-savings month (car repair) may continue saving less the next month (still recovering). The random intercept captures their stable low-savings baseline, but not the temporary carryover from the shock. This produces positive lag-1 autocorrelation in residuals.
 
-**In experiments:** This assumption is usually more defensible because stimuli are presented in random order and participants are asked to evaluate each one independently. However, contrast effects (rating a stimulus relative to the previous one) can induce trial-to-trial correlation.
+**Experimental analog:** This assumption is more defensible in experiments because stimuli are presented in random order and participants are asked to evaluate each one independently. However, contrast effects (rating relative to the previous offer) can induce trial-to-trial correlation.
 
-**How to check:** For longitudinal data, compute the lag-1 autocorrelation of residuals within each unit and examine the distribution:
+**What to check:** Compute lag-1 autocorrelation of residuals within each unit:
 
 ```{r autocorrelation-check}
-acf_df <- df_sleep |>
-  group_by(person) |>
-  arrange(day) |>
+acf_df <- df_diary |>
+  group_by(household) |>
+  arrange(month) |>
   summarise(lag1 = cor(head(resid, -1), tail(resid, -1)),
             .groups = "drop")
 
@@ -321,17 +354,17 @@ ggplot(acf_df, aes(x = lag1)) +
   geom_histogram(fill = "#1e3a5f", color = "white", bins = 15) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "#e63946") +
   labs(
-    title    = "Lag-1 autocorrelation of residuals, by person",
+    title    = "Lag-1 autocorrelation of residuals, by household",
     subtitle = "Distribution centered near 0 = independence assumption roughly met",
     x        = "Lag-1 autocorrelation",
-    y        = "Number of people"
+    y        = "Number of households"
   ) +
   theme_minimal(base_size = 13)
 ```
 
 If the distribution is substantially right-shifted (most values positive), residuals are serially correlated and you need to model the autocorrelation explicitly — see Module 4 (Autoregressive Structures).
 
-**In experiments**, you can do the same check ordered by trial number rather than time.
+**What claim survives:** Serial correlation inflates the precision of the fixed-effect estimate (standard errors are too small). The point estimate itself is still unbiased. Adding an AR(1) residual structure or cluster-robust standard errors corrects the inference.
 :::
 
 ---
@@ -351,22 +384,22 @@ $$\hat\beta_{0j} = \underbrace{\lambda_j \bar{Y}_j}_{\substack{\text{unit's own}
 where $\lambda_j = \frac{\sigma^2_u}{\sigma^2_u + \sigma^2_\varepsilon / n_j}$ is the **reliability** of unit $j$'s estimate. Units with many observations ($n_j$ large) or high ICC ($\sigma^2_u$ large relative to $\sigma^2_\varepsilon$) get reliability close to 1 — their own data dominates. Units with few observations get reliability close to 0 — the grand mean dominates.
 
 ```{r partial-pooling}
-unit_means <- df_sleep |>
-  group_by(person) |>
-  summarise(unpooled = mean(mood), n_obs = n(), .groups = "drop")
+unit_means <- df_diary |>
+  group_by(household) |>
+  summarise(unpooled = mean(savings), n_obs = n(), .groups = "drop")
 
 re_ests <- tibble(
-  person           = rownames(ranef(model_ri_sleep)$person),
-  random_intercept = ranef(model_ri_sleep)$person[, 1]
+  household        = rownames(ranef(model_ri_diary)$household),
+  random_intercept = ranef(model_ri_diary)$household[, 1]
 ) |>
   mutate(
-    grand_mean = fixef(model_ri_sleep)["(Intercept)"],
+    grand_mean = fixef(model_ri_diary)["(Intercept)"],
     pooled_re  = grand_mean + random_intercept
   )
 
 comparison <- left_join(
-  unit_means |> mutate(person = as.character(person)),
-  re_ests, by = "person"
+  unit_means |> mutate(household = as.character(household)),
+  re_ests, by = "household"
 )
 
 ggplot(comparison, aes(x = unpooled, y = pooled_re)) +
@@ -374,13 +407,13 @@ ggplot(comparison, aes(x = unpooled, y = pooled_re)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray50") +
   geom_hline(yintercept = mean(comparison$pooled_re),
              color = "#e63946", linetype = "dotted", linewidth = 1) +
-  annotate("text", x = min(comparison$unpooled) + 1,
+  annotate("text", x = min(comparison$unpooled) + 0.5,
            y = mean(comparison$pooled_re) + 1.5,
            label = "Grand mean", color = "#e63946", size = 3.5) +
   labs(
     title    = "Partial pooling: unpooled means vs. random-intercept estimates",
-    subtitle = "Estimates are pulled toward the grand mean (red line) — that is shrinkage",
-    x        = "Unpooled unit mean (no pooling)",
+    subtitle = "Estimates are pulled toward the grand mean (red) — that is shrinkage",
+    x        = "Unpooled household mean savings (no pooling)",
     y        = "Random-intercept estimate (partial pooling)"
   ) +
   theme_minimal(base_size = 13)
@@ -388,7 +421,18 @@ ggplot(comparison, aes(x = unpooled, y = pooled_re)) +
 
 Points fall below the diagonal for high units and above it for low units — every estimate is pulled toward the grand mean. This is not a flaw; it is the model being appropriately uncertain about extreme values based on limited within-unit data.
 
----
+::: {.callout-tip icon=false}
+## Reviewer Challenge: Three Questions About Your Random Intercepts
+
+**Challenge 1 — "Why random effects rather than fixed effects?"**
+The key difference is Assumption 2 (RE ⊥ X). If households that are better savers also engage more with disclosure — a plausible self-selection story — the random-effects estimate is upwardly biased. A Hausman test can diagnose this, but a reviewer may simply ask: "Is there any reason to expect that household-level savings habits correlate with their disclosure engagement? If so, why use random effects?" Have your Hausman test results and a substantive argument for why the assumption is plausible.
+
+**Challenge 2 — "What does the random intercept variance tell you?"**
+The ICC — the fraction of total variance attributable to between-household differences — is itself a scientific finding. If $\hat\sigma_u^2 / (\hat\sigma_u^2 + \hat\sigma_\varepsilon^2) = 0.40$, then 40% of the variance in monthly savings is explained by stable household characteristics, before any predictor enters. Reviewers will ask what this means substantively and whether it is consistent with prior literature. Report and interpret $\hat\sigma_u$ alongside $\hat\beta_1$.
+
+**Challenge 3 — "Did you check the normality of your random effects?"**
+With 30 households, the Q-Q plot for random intercepts only has 30 points — departures from normality are hard to detect with confidence. A reviewer will note that your inference for $\hat\sigma_u^2$ depends heavily on the normality assumption, which is untestable with small $n$. A sensitivity analysis using a non-parametric bootstrap or Bayesian estimation with heavy-tailed priors on random effects can address this concern.
+:::
 
 ## Recommended Reading
 

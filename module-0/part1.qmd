@@ -49,49 +49,49 @@ The **independence assumption** — that each observation is an independent draw
 
 ## A Simple Demonstration
 
-Let's make this concrete. Suppose we study whether daily hours of sleep predict mood. We collect 7 days of data from 30 people: 210 observations total.
+Let's make this concrete. Suppose we study whether exposure to a weekly financial disclosure (showing expected returns) predicts willingness to invest. We collect 8 weeks of data from 30 households: 240 observations total.
 
 ```{r dgp-demo}
-# Simulate: 30 people, 7 days each
+# Simulate: 30 households, 8 weeks each
+# Each household has a stable investment willingness (random intercept)
+# and their own sensitivity to disclosure exposure (random slope)
 n_people <- 30
-n_days   <- 7
+n_weeks  <- 8
 
-# Each person has their own baseline mood (random intercept)
-# and their own sleep-mood relationship (random slope)
-person_intercepts <- rnorm(n_people, mean = 50, sd = 8)
-person_slopes     <- rnorm(n_people, mean = 3,  sd = 2)
+person_intercepts <- rnorm(n_people, mean = 50, sd = 10)
+person_slopes     <- rnorm(n_people, mean = 4,  sd = 2.5)
 
 df <- expand_grid(
   person = 1:n_people,
-  day    = 1:n_days
+  week   = 1:n_weeks
 ) |>
   mutate(
-    sleep = rnorm(n(), mean = 7, sd = 1.5),
-    mood  = person_intercepts[person] +
-            person_slopes[person] * (sleep - 7) +
-            rnorm(n(), 0, 5)
+    disclosure_exposure = rnorm(n(), mean = 5, sd = 2),    # how much of the disclosure each HH read
+    wtp_invest  = person_intercepts[person] +
+                  person_slopes[person] * (disclosure_exposure - 5) +
+                  rnorm(n(), 0, 6)
   )
 
 # Plot: pooled view (ignoring nesting) vs. within-person view
-p1 <- ggplot(df, aes(x = sleep, y = mood)) +
+p1 <- ggplot(df, aes(x = disclosure_exposure, y = wtp_invest)) +
   geom_point(alpha = 0.3, color = "#1e3a5f") +
   geom_smooth(method = "lm", color = "#e63946", se = TRUE) +
   labs(
-    title  = "Pooled (ignoring nesting)",
-    x      = "Hours of sleep",
-    y      = "Mood (0-100)",
-    caption = "Each dot is one person-day"
+    title   = "Pooled (ignoring nesting)",
+    x       = "Disclosure exposure (0–10)",
+    y       = "Willingness to invest (0–100)",
+    caption = "Each dot is one household-week"
   ) +
   theme_minimal(base_size = 13)
 
-p2 <- ggplot(df, aes(x = sleep, y = mood, group = person)) +
+p2 <- ggplot(df, aes(x = disclosure_exposure, y = wtp_invest, group = person)) +
   geom_line(aes(color = factor(person)), alpha = 0.5, show.legend = FALSE) +
   geom_point(alpha = 0.2, size = 0.8) +
   labs(
-    title  = "Within-person (respecting nesting)",
-    x      = "Hours of sleep",
-    y      = "Mood (0-100)",
-    caption = "Each line is one person's 7-day trajectory"
+    title   = "Within-household (respecting nesting)",
+    x       = "Disclosure exposure (0–10)",
+    y       = "Willingness to invest (0–100)",
+    caption = "Each line is one household's 8-week trajectory"
   ) +
   theme_minimal(base_size = 13) +
   scale_color_viridis_d()
@@ -100,9 +100,29 @@ library(patchwork)
 p1 + p2
 ```
 
-The left panel treats all 210 observations as independent. It shows *something* — there's an upward slope — but it blurs together two very different sources of variation: (1) people who generally sleep more also tend to have higher baseline mood, and (2) on days when a given person sleeps more, their mood is higher. These are distinct phenomena. The right panel begins to separate them.
+The left panel treats all 240 observations as independent. It shows an upward slope — but it blurs together two very different sources of variation:
 
-The data-generating process here has clear structure: a person-level layer (baseline mood, general sleep habits) and a day-level layer (deviation from that baseline). Ignoring that structure does not just make our estimates less precise. It can make them wrong.
+1. **Between-household difference**: households that are generally more financially confident also tend to engage more with disclosures *and* have higher baseline investment willingness. The positive slope in the pooled view partly reflects this selection.
+
+2. **Within-household effect**: on weeks when a given household reads more of the disclosure, their investment willingness is higher. This is the causal question the researcher actually wants to answer.
+
+These are distinct phenomena. The right panel begins to separate them — each household's trajectory shows the within-household exposure–willingness relationship. The pooled view conflates both.
+
+The DGP here has two levels: a stable household-level layer (baseline investment preferences, financial literacy) and a week-level layer (deviation from that baseline in response to varying disclosure exposure). Ignoring this structure produces an estimate that mixes the causal question (disclosure effect within households) with the selection question (which households engage more overall).
+
+::: {.callout-note icon=false}
+## Why Repeated Choices Are Not Simply More Sample Size
+
+A common intuition: "I have 30 participants each making 8 choices — that's 240 data points. More data means more power."
+
+This is only true if the 240 choices are 240 independent pieces of evidence. They are not. Within each household, the 8 choices share the household's stable risk preferences, income level, and financial context. Those shared influences inflate the similarity among the household's rows.
+
+The effective sample size is not 240 — it is somewhere between 30 (fully redundant observations within households) and 240 (fully independent observations). The exact number depends on the ICC: how much of the variance in investment willingness is at the household level versus the week level.
+
+If the ICC is 0.30 and each household has 8 observations, the design effect is approximately $1 + (8-1) \times 0.30 = 3.1$. Your 240 observations behave like roughly $240 / 3.1 \approx 77$ independent observations. Adding more participants builds real precision; adding more weeks from the same households builds less.
+:::
+
+The data-generating process has clear structure, and ignoring that structure does not just make estimates less precise — it can make them wrong.
 
 ## The Three Questions
 

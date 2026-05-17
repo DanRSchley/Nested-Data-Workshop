@@ -12,22 +12,43 @@ set.seed(42)
 
 # Autoregressive Structures
 
+::: {.callout-note icon=false}
+## The Persistence Question
+
+> **Does today's observation carry information about tomorrow's, beyond what the model's fixed effects already explain?** If yes — if yesterday's daily spending predicts today's after controlling for income and season — the residuals are serially correlated, and treating them as independent is a misspecification.
+>
+> **What goes wrong if you ignore it?** Standard errors are biased. More importantly, you are asserting a DGP where financial behavior has no memory — each day is a fresh draw. That assertion is almost never true.
+>
+> **What does AR(1) buy you?** A correct representation of the persistence structure. And a meaningful interpretation: the autoregressive coefficient tells you how much of today's deviation from the trend was already visible in yesterday's deviation.
+:::
+
 ## The Memory of Time
 
-Some outcomes carry their history with them. Mood at 9am predicts mood at 10am. Anxiety on Monday affects anxiety on Tuesday. GDP in quarter 1 predicts GDP in quarter 2. This temporal dependency — the "memory" of the process — is not just nuisance variance. It is a feature of the DGP that your model must account for.
+Some outcomes carry their history. Today's daily spending predicts tomorrow's. This week's savings rate predicts next week's. A consumer's current risk perception reflects last week's perception, adjusted for new information. This temporal dependence — the "memory" of the process — is not just a nuisance. It is a feature of the DGP that your model must account for.
 
-When you ignore serial dependence and treat residuals as independent, your standard errors are biased and your inference is wrong. More importantly, you are misrepresenting the process: you are claiming the outcome at each time point arises fresh, unconnected from what came before.
+When you ignore serial dependence and treat residuals as independent:
+
+1. Your standard errors are biased — usually too small if residuals are positively correlated
+2. You are misrepresenting the process — claiming the outcome at each time point arises fresh, unconnected from what came before
+3. You cannot distinguish **persistence** (genuine temporal carry-over) from **trend** (a steady directional shift)
 
 ## What AR(1) Means
 
-In an **autoregressive order 1** (AR(1)) process, each observation is a linear function of the immediately preceding observation plus random noise:
+In an **autoregressive order-1** (AR(1)) process, each observation is a linear function of the immediately preceding observation plus random noise:
 
 $$Y_t = \phi \cdot Y_{t-1} + \varepsilon_t, \quad \varepsilon_t \sim \mathcal{N}(0, \sigma^2_\varepsilon)$$
 
-The parameter $\phi$ is the **autoregressive coefficient** — how strongly the past predicts the present. When $\phi = 0$, observations are independent. When $\phi = 0.9$, yesterday's value strongly predicts today's.
+The parameter $\phi$ is the **autoregressive coefficient** — how strongly the past predicts the present. When $\phi = 0$, observations are independent. When $\phi = 0.8$, yesterday's financial state strongly predicts today's.
 
-```{r ar1-example}
-# Simulate AR(1) process for one person over 30 days
+**JDM examples where AR(1) is plausible:**
+
+- **Daily risk perception**: a spike in risk perception triggered by a market event slowly decays back toward a person's baseline over subsequent days
+- **Weekly savings rate**: savings behavior in one week partially inertially carries forward to the next
+- **Daily spending**: expenditure patterns show week-to-week habit inertia
+- **Price sensitivity across promotional cycles**: a consumer's sensitivity in one promotional period partially predicts their sensitivity in the next
+
+```{r ar1-example, fig.width=9, fig.height=4}
+# Simulate AR(1) process for one person: 30 days of daily risk perception
 phi   <- 0.75
 sigma <- 3
 n_t   <- 30
@@ -36,16 +57,17 @@ Y <- numeric(n_t)
 Y[1] <- rnorm(1, 50, 5)
 for (t in 2:n_t) Y[t] <- phi * Y[t-1] + rnorm(1, 0, sigma)
 
-p1 <- tibble(t = 1:n_t, Y = Y) |>
-  ggplot(aes(x = t, y = Y)) +
+p1 <- tibble(day = 1:n_t, risk_perception = Y) |>
+  ggplot(aes(x = day, y = risk_perception)) +
   geom_line(color = "#1e3a5f", linewidth = 1) +
   geom_point(size = 2, color = "#1e3a5f", alpha = 0.7) +
-  labs(title = paste0("AR(1) process: φ = ", phi),
-       subtitle = "Each value depends on the previous",
-       x = "Day", y = "Outcome") +
+  labs(
+    title    = paste0("Daily risk perception: AR(1) with φ = ", phi),
+    subtitle = "Each day's value depends on the previous — shows smooth persistence",
+    x = "Day", y = "Risk perception"
+  ) +
   theme_minimal(base_size = 13)
 
-# ACF plot
 acf_vals <- acf(Y, plot = FALSE, lag.max = 10)
 p2 <- tibble(lag = 0:10, acf = acf_vals$acf[,1,1]) |>
   filter(lag > 0) |>
@@ -54,50 +76,102 @@ p2 <- tibble(lag = 0:10, acf = acf_vals$acf[,1,1]) |>
   geom_hline(yintercept = 0, color = "black") +
   geom_hline(yintercept = c(-1, 1) * 1.96 / sqrt(n_t),
              linetype = "dashed", color = "#e63946") +
-  labs(title = "Autocorrelation function (ACF)",
-       subtitle = "Should decay exponentially for AR(1)",
-       x = "Lag", y = "ACF") +
+  labs(
+    title    = "Autocorrelation function (ACF)",
+    subtitle = "Geometric decay is the signature of AR(1)",
+    x = "Lag (days)", y = "ACF"
+  ) +
   theme_minimal(base_size = 13)
 
-library(patchwork)
 p1 + p2
 ```
 
+The geometric decay in the ACF — strong at lag 1, weaker at lag 2, gradually dying out — is the signature pattern of an AR(1) process.
+
+---
+
+## Trend Versus Persistence: A Critical Distinction
+
+AR(1) is about **persistence** — today's deviation from the trend carries into tomorrow. This is fundamentally different from a **trend** — a systematic directional movement over time. Confusing the two leads to a common misspecification:
+
+```{r trend-vs-persistence, fig.width=9, fig.height=4}
+t_vals <- 1:30
+# Trend: mean drifts upward, residuals are independent
+y_trend <- 40 + 0.8 * t_vals + rnorm(30, 0, 3)
+
+# Persistence: stationary mean, AR(1) residuals
+phi_p <- 0.8
+y_pers <- numeric(30)
+y_pers[1] <- 50
+for (t in 2:30) y_pers[t] <- 50 * (1 - phi_p) + phi_p * y_pers[t-1] + rnorm(1, 0, 3)
+
+p_trend <- tibble(day = t_vals, y = y_trend) |>
+  ggplot(aes(x = day, y = y)) +
+  geom_line(color = "#e67e22", linewidth = 1) +
+  geom_smooth(method = "lm", se = FALSE, color = "#c0392b", linetype = "dashed") +
+  labs(
+    title    = "Trend (not AR)",
+    subtitle = "Mean drifts. Residuals are independent.",
+    x = "Day", y = "Outcome"
+  ) +
+  theme_minimal(base_size = 12)
+
+p_pers <- tibble(day = t_vals, y = y_pers) |>
+  ggplot(aes(x = day, y = y)) +
+  geom_line(color = "#1e3a5f", linewidth = 1) +
+  geom_hline(yintercept = 50, linetype = "dashed", color = "#888") +
+  labs(
+    title    = "Persistence (AR(1))",
+    subtitle = "Stationary mean. Residuals carry memory.",
+    x = "Day", y = "Outcome"
+  ) +
+  theme_minimal(base_size = 12)
+
+p_trend + p_pers
+```
+
+A trend series looks like it has AR(1) structure — it autocorrelates — but the correct model includes time as a fixed effect, after which the residuals may be independent. AR(1) applies to the **residuals around the trend**, not to the raw series.
+
+**JDM diagnostic question:** Is the serial correlation in your outcome driven by a steady directional shift (trend), or by short-term inertia around a stable mean (persistence)? The answer determines whether you need a trend term in your fixed effects, an AR(1) residual structure, or both.
+
+---
+
 ## Detecting Autocorrelation in Your Residuals
 
-The first diagnostic step: after fitting a model without an AR structure, check whether the residuals show serial dependence.
+The key diagnostic step: after fitting a model without an AR structure, check whether the residuals show serial dependence.
 
-```{r detect-autocorr}
+```{r detect-autocorr, fig.width=7, fig.height=4}
 n_people <- 40
 n_days   <- 20
 
-# Simulate multilevel AR(1) data
+# Simulate multilevel AR(1): daily spending over 20 days
 df_ar <- expand_grid(person = 1:n_people, day = 1:n_days) |>
   arrange(person, day) |>
   group_by(person) |>
   mutate(
-    baseline  = rnorm(1, 50, 6),
-    ar_resid  = {
+    baseline = rnorm(1, 50, 6),
+    ar_resid = {
       r <- numeric(n_days); r[1] <- rnorm(1, 0, 3)
       for (t in 2:n_days) r[t] <- 0.7 * r[t-1] + rnorm(1, 0, 3)
       r
     },
-    Y = baseline + 2 * day / n_days + ar_resid
+    daily_spending = baseline + 2 * day / n_days + ar_resid
   ) |>
   ungroup() |>
   mutate(person = factor(person))
 
-# Fit naive model (ignores AR structure)
-m_naive <- lme(Y ~ day, random = ~1 | person, data = df_ar)
+# Naive model without AR structure
+m_naive <- lme(daily_spending ~ day,
+               random = ~1 | person,
+               data   = df_ar)
 
-# Check residual ACF
+# Lag-1 autocorrelation of residuals per person
 residuals_df <- data.frame(
   resid  = residuals(m_naive, type = "normalized"),
   person = df_ar$person,
   day    = df_ar$day
 )
 
-# Lag-1 autocorrelation per person
 lag1_by_person <- residuals_df |>
   group_by(person) |>
   arrange(day) |>
@@ -108,31 +182,32 @@ ggplot(lag1_by_person, aes(x = lag1)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "#e63946") +
   labs(
     title    = "Lag-1 autocorrelation of residuals (naive model)",
-    subtitle = "Most values are positive — indicates AR structure in the residuals",
-    x        = "Lag-1 autocorrelation",
+    subtitle = "Most values positive — AR structure in residuals that the model is ignoring",
+    x        = "Lag-1 autocorrelation of residuals",
     y        = "Count"
   ) +
   theme_minimal(base_size = 13)
 ```
 
-Most lag-1 autocorrelations are positive — strong evidence of serial dependence that the naive model is ignoring.
+Most lag-1 residual autocorrelations are positive — strong evidence of serial dependence that the naive model is incorrectly treating as zero.
+
+---
 
 ## Specifying AR(1) in nlme
 
 ```{r fit-ar1}
-# Correct model: AR(1) residual structure
-m_ar1 <- lme(Y ~ day,
+m_ar1 <- lme(daily_spending ~ day,
              random      = ~1 | person,
              correlation = corAR1(form = ~day | person),
              data        = df_ar)
 
-# Compare AIC
 tibble(
-  Model = c("Naive (no AR)", "AR(1)"),
+  Model = c("Naive (independent residuals)", "AR(1) residuals"),
   AIC   = c(AIC(m_naive), AIC(m_ar1)),
   BIC   = c(BIC(m_naive), BIC(m_ar1))
 ) |>
-  knitr::kable(digits = 1, caption = "AR(1) substantially improves model fit")
+  knitr::kable(digits = 1,
+    caption = "AR(1) substantially improves model fit (lower AIC/BIC = better)")
 ```
 
 ```{r ar1-estimate}
@@ -140,26 +215,42 @@ tibble(
 intervals(m_ar1, which = "var-cov")$corStruct
 ```
 
-## The Assumptions of AR(1) Models
+---
+
+## Assumptions
 
 ::: {.callout-warning icon=false}
-## Assumption 1: Stationarity
+## Assumption: Stationarity
 
-**What it means:** The mean and variance of the process are constant over time, and the autocorrelation depends only on the lag, not the absolute time point. An AR(1) process is stationary when $|\phi| < 1$.
+**Plain-language meaning:** The mean and variance of the process are constant over time, and the autocorrelation depends only on the lag size — not on where you are in the study timeline. An AR(1) with $|\phi| < 1$ is stationary by construction.
 
-**How to check:** Plot the mean and variance of your outcome at each time point. Systematic trends violate stationarity. Fit a detrended model (including time as a fixed effect) and check whether residuals are stationary.
+**What the model is assuming away:** Any systematic drift in the mean (trend) or variance (heteroskedasticity over time). If consumers' risk perception is trending upward across a study because financial anxiety is increasing nationwide, the process is non-stationary.
 
-**What to do if violated:** Include time trends as fixed effects. Consider differencing the outcome (analyzing change scores rather than raw scores).
+**JDM example:** If daily risk perception increases during a financial crisis period within the study window, the mean is trending. AR(1) applied naively will have non-stationary residuals.
+
+**Experimental analog:** In a daily diary experiment running across 8 weeks, if the pre-post intervention change creates a structural break in the mean, the AR(1) process applies separately within the pre- and post-intervention periods.
+
+**What a skeptical reviewer might say:** "You applied AR(1) to a 12-week panel of financial diary data — but the data spans both the pre-policy and post-policy period. Did you account for the structural break in the mean at the policy change date?"
+
+**Observable warning sign:** Wave-by-wave mean plots that show a systematic trend; ACF of raw residuals that does not decay to zero (persistent autocorrelation at long lags).
+
+**What to check:** Include time as a fixed effect first. Examine whether residual ACF shows geometric decay (AR(1)) or long-run persistence (non-stationary). Use unit root tests if trend is suspected.
+
+**What claim survives if the assumption is doubtful:** The sign and rough magnitude of the treatment effect are usually robust. The AR coefficient estimate and its confidence interval may be biased.
 :::
 
 ::: {.callout-warning icon=false}
-## Assumption 2: Only Lag-1 Dependence
+## Assumption: Lag-1 Dependence Only
 
-**What it means:** AR(1) assumes that $Y_{t-2}$ predicts $Y_t$ *only through* $Y_{t-1}$ — once you condition on yesterday, the day before yesterday adds no additional predictive power.
+**Plain-language meaning:** AR(1) assumes that $Y_{t-2}$ predicts $Y_t$ *only through* $Y_{t-1}$ — once you know yesterday's value, knowing the day before yesterday adds nothing.
 
-**How to check:** Examine the partial autocorrelation function (PACF). If the PACF shows significant values at lag 2 or beyond, you need AR(2) or a higher-order model.
+**What the model is assuming away:** Longer-range memory. A consumer's spending behavior this week may depend on both last week *and* two weeks ago — a second-order AR process.
 
-```{r pacf-check}
+**JDM example:** Promotional spending behavior may have a two-week purchase cycle: today's spending is influenced by purchases from both last week (direct) and two weeks ago (restock timing), requiring AR(2).
+
+**What to check:** Examine the partial autocorrelation function (PACF). If significant spikes appear at lag 2 or beyond after fitting AR(1), the model needs a higher order.
+
+```{r pacf-check, fig.width=7, fig.height=3.5}
 pacf_vals <- pacf(Y, plot = FALSE, lag.max = 10)
 tibble(lag = 1:10, pacf = pacf_vals$acf[,1,1]) |>
   ggplot(aes(x = lag, y = pacf)) +
@@ -167,8 +258,28 @@ tibble(lag = 1:10, pacf = pacf_vals$acf[,1,1]) |>
   geom_hline(yintercept = 0) +
   geom_hline(yintercept = c(-1, 1) * 1.96 / sqrt(n_t),
              linetype = "dashed", color = "#e63946") +
-  labs(title = "Partial ACF: only lag 1 significant = AR(1) is sufficient",
-       x = "Lag", y = "Partial ACF") +
+  labs(
+    title    = "Partial ACF: only lag-1 significant = AR(1) is sufficient",
+    subtitle = "Spikes at lag 2+ would indicate AR(2) or higher order",
+    x = "Lag", y = "Partial ACF"
+  ) +
   theme_minimal(base_size = 13)
 ```
+:::
+
+---
+
+## Reviewer Challenge
+
+::: {.callout-tip}
+## What a Reviewer Would Ask
+
+**Challenge 1:** "Your AR(1) coefficient is $\hat{\phi} = 0.72$. Does that mean consumers' financial decisions are mostly determined by their previous decision rather than your manipulation?"
+A high AR(1) coefficient means the baseline level of the process is persistent — which is expected for daily financial behavior. The treatment effect is estimated *on top of* this persistence, as a departure from the AR trajectory. The AR coefficient describes the DGP's background noise structure, not the causal mechanism.
+
+**Challenge 2:** "How do you distinguish AR(1) persistence from an unmodeled time trend that creates the appearance of autocorrelation?"
+By including time as a fixed effect first. AR(1) persistence appears in residuals after removing trends. If the apparent AR disappears once time is included as a covariate, the "persistence" was actually a trend. Inspect the partial ACF after including time in the model — if lag-1 PACF is no longer significant, the trend was the source of apparent autocorrelation.
+
+**Challenge 3:** "You estimated AR(1) for a daily 20-day series per person. With only 20 observations per person, how stable is the per-person autocorrelation estimate?"
+Individual-level AR estimates are indeed noisy with short series. The `nlme` approach pools information across persons (assuming common AR structure), which is more stable than person-specific estimates. This is an advantage of the multilevel AR approach over fitting AR models separately per person.
 :::

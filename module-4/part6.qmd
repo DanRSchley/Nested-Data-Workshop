@@ -14,66 +14,66 @@ set.seed(2024)
 
 ## Two Variables, Evolving Together
 
-Suppose you want to understand the relationship between anxiety and depression over time. Does anxiety precede and predict depression? Does depression feed back into anxiety? Or do they mutually reinforce each other?
+Suppose you want to understand the relationship between financial stress and risky borrowing behavior over time. Does financial stress push people toward riskier borrowing? Or does risky borrowing create financial strain? Or do they mutually reinforce each other?
 
 To answer this, you need data on both variables at multiple time points, and you need a model that can disentangle the *temporal ordering* of their relationship. The **cross-lagged panel model (CLPM)** is the standard tool for this question.
 
 ## The Classic CLPM
 
-In a two-wave, two-variable CLPM with variables A (anxiety) and D (depression):
+In a two-wave, two-variable CLPM with variables S (financial stress) and B (risky borrowing):
 
-$$A_{t+1} = a_{AA} \cdot A_t + a_{DA} \cdot D_t + \varepsilon_{A,t+1}$$
-$$D_{t+1} = a_{DD} \cdot D_t + a_{AD} \cdot A_t + \varepsilon_{D,t+1}$$
+$$S_{t+1} = a_{SS} \cdot S_t + a_{SB} \cdot B_t + \varepsilon_{S,t+1}$$
+$$B_{t+1} = a_{BB} \cdot B_t + a_{BS} \cdot S_t + \varepsilon_{B,t+1}$$
 
 Four parameters:
-- $a_{AA}$, $a_{DD}$: **autoregressive effects** — stability of each variable over time
-- $a_{DA}$: **cross-lagged effect** of D at time $t$ on A at time $t+1$
-- $a_{AD}$: **cross-lagged effect** of A at time $t$ on D at time $t+1$
+- $a_{SS}$, $a_{BB}$: **autoregressive effects** — stability of each variable over time
+- $a_{SB}$: **cross-lagged effect** of B at time $t$ on S at time $t+1$
+- $a_{BS}$: **cross-lagged effect** of S at time $t$ on B at time $t+1$
 
 ```{r clpm-setup}
 # Simulate 3-wave panel data
 n <- 200
 n_waves <- 3
 
-# True DGP: anxiety -> depression (not the reverse)
-A <- matrix(NA, n, n_waves)
-D <- matrix(NA, n, n_waves)
+# True DGP: financial stress -> risky borrowing (not the reverse)
+S <- matrix(NA, n, n_waves)
+B <- matrix(NA, n, n_waves)
 
-A[, 1] <- rnorm(n, 50, 8)
-D[, 1] <- rnorm(n, 45, 7)
+S[, 1] <- rnorm(n, 50, 8)   # baseline financial stress
+B[, 1] <- rnorm(n, 45, 7)   # baseline borrowing propensity
 
 for (t in 2:n_waves) {
-  A[, t] <- 0.6 * A[, t-1] + 0.1 * D[, t-1] + rnorm(n, 0, 5)  # small D->A effect
-  D[, t] <- 0.6 * D[, t-1] + 0.3 * A[, t-1] + rnorm(n, 0, 5)  # strong A->D effect
+  S[, t] <- 0.6 * S[, t-1] + 0.1 * B[, t-1] + rnorm(n, 0, 5)  # small B->S effect
+  B[, t] <- 0.6 * B[, t-1] + 0.3 * S[, t-1] + rnorm(n, 0, 5)  # strong S->B effect
 }
 
-df_clpm <- as.data.frame(cbind(A, D)) |>
-  setNames(c(paste0("A", 1:3), paste0("D", 1:3)))
+df_clpm <- as.data.frame(cbind(S, B)) |>
+  setNames(c(paste0("S", 1:3), paste0("B", 1:3)))
 ```
 
 ```{r fit-clpm}
 # Classic CLPM in lavaan
 clpm_model <- '
   # Autoregressive effects
-  A2 ~ a_AA * A1
-  A3 ~ a_AA * A2
-  D2 ~ a_DD * D1
-  D3 ~ a_DD * D2
+  S2 ~ a_SS * S1
+  S3 ~ a_SS * S2
+  B2 ~ a_BB * B1
+  B3 ~ a_BB * B2
 
   # Cross-lagged effects
-  A2 ~ a_DA * D1
-  A3 ~ a_DA * D2
-  D2 ~ a_AD * A1
-  D3 ~ a_AD * A2
+  S2 ~ a_SB * B1
+  S3 ~ a_SB * B2
+  B2 ~ a_BS * S1
+  B3 ~ a_BS * S2
 
   # Residual covariances (within same wave)
-  A2 ~~ D2
-  A3 ~~ D3
+  S2 ~~ B2
+  S3 ~~ B3
 
   # Variance of wave 1
-  A1 ~~ A1
-  D1 ~~ D1
-  A1 ~~ D1
+  S1 ~~ S1
+  B1 ~~ B1
+  S1 ~~ B1
 '
 
 m_clpm <- sem(clpm_model, data = df_clpm)
@@ -81,62 +81,166 @@ parameterEstimates(m_clpm) |>
   filter(op == "~") |>
   select(lhs, rhs, label, est, se, pvalue) |>
   knitr::kable(digits = 3,
-    caption = "CLPM: cross-lagged path from A→D is strong; D→A is weak")
+    caption = "CLPM: cross-lagged path from S→B is strong; B→S is weak")
 ```
 
-Good news: the CLPM detects the true asymmetric relationship (anxiety predicts future depression, not the other way around).
+Good news: the CLPM detects the true asymmetric relationship (financial stress predicts future risky borrowing, not the other way around).
 
 ## The Problem with Classic CLPM
 
-The classic CLPM conflates **within-person dynamics** with **between-person differences**. Consider: people who are chronically anxious tend to also be chronically depressed (stable between-person correlation). The cross-lagged paths in the classic CLPM pick up both this stable between-person covariation *and* the genuine within-person dynamic — they cannot be separated.
+The classic CLPM conflates **within-person dynamics** with **between-person differences**. Consider: people who are chronically financially stressed tend to also engage in chronically riskier borrowing (stable between-person correlation). The cross-lagged paths in the classic CLPM pick up both this stable between-person covariation *and* the genuine within-person dynamic — they cannot be separated.
 
-This means even if there is **no within-person causal relationship** between anxiety and depression (i.e., changes in anxiety within a person do not cause changes in depression), the classic CLPM can show significant "cross-lagged" effects simply because chronically anxious people are also chronically depressed.
+This means even if there is **no within-person causal relationship** between financial stress and risky borrowing (i.e., changes in financial stress within a person do not cause changes in borrowing behavior), the classic CLPM can show significant "cross-lagged" effects simply because chronically stressed people also tend to borrow more riskily.
+
+### The Same Observed Pattern, Three Different Stories
+
+The same observed correlations between financial stress and risky borrowing across waves are consistent with three completely different causal stories. The classic CLPM cannot distinguish them without extending the model.
+
+```{r clpm-stories, echo=FALSE, fig.width=11, fig.height=3.6, message=FALSE, warning=FALSE}
+make_clpm_panel <- function(arrows_df, title, note) {
+  nodes <- tibble(
+    label = c("S₁", "B₁", "S₂", "B₂", "S₃", "B₃"),
+    x     = c(1, 1, 3, 3, 5, 5),
+    y     = c(2, 1, 2, 1, 2, 1)
+  )
+  p <- ggplot() +
+    geom_point(data = nodes, aes(x = x, y = y),
+               shape = 21, size = 14, fill = "#deebf7",
+               color = "#1e3a5f", stroke = 1.3) +
+    geom_text(data = nodes, aes(x = x, y = y, label = label),
+              size = 3.0, fontface = "bold", color = "#1e3a5f")
+  for (i in seq_len(nrow(arrows_df))) {
+    p <- p + annotate("segment",
+                      x     = arrows_df$x1[i], xend = arrows_df$x2[i],
+                      y     = arrows_df$y1[i], yend = arrows_df$y2[i],
+                      arrow = arrow(length = unit(0.18, "cm"), type = "closed"),
+                      color = arrows_df$col[i], linewidth = 1.0,
+                      linetype = arrows_df$lty[i])
+  }
+  p + annotate("text", x = 3, y = 0.45, label = note,
+               hjust = 0.5, size = 2.6, color = "gray30", lineheight = 1.3) +
+    labs(title = title) +
+    xlim(0.2, 5.8) + ylim(0.25, 2.7) +
+    theme_void(base_size = 10) +
+    theme(plot.title = element_text(face = "bold", size = 9.5, hjust = 0.5,
+                                    margin = margin(b = 3)))
+}
+
+# AR arrows common to all panels (autoregressive stability)
+ar <- tibble(x1 = c(1.5,1.5,3.5,3.5), x2 = c(2.5,2.5,4.5,4.5),
+             y1 = c(2,1,2,1),          y2 = c(2,1,2,1),
+             col = rep("#888888", 4),  lty = rep("solid", 4))
+
+# Story A: S→B only
+a_arrows <- bind_rows(ar,
+  tibble(x1=c(1.4,3.4), x2=c(2.6,4.6), y1=c(1.85,1.85), y2=c(1.15,1.15),
+         col=rep("#e63946",2), lty=rep("solid",2)))
+p_a <- make_clpm_panel(a_arrows,
+  "Story A: stress \u2192 risky borrowing",
+  "Within-person: stress changes cause\nborrowing changes one wave later")
+
+# Story B: B→S only
+b_arrows <- bind_rows(ar,
+  tibble(x1=c(1.4,3.4), x2=c(2.6,4.6), y1=c(1.15,1.15), y2=c(1.85,1.85),
+         col=rep("#2d6a4f",2), lty=rep("solid",2)))
+p_b <- make_clpm_panel(b_arrows,
+  "Story B: risky borrowing \u2192 stress",
+  "Within-person: borrowing changes cause\nstress changes one wave later")
+
+# Story C: stable trait causes both (RI), no within-person dynamic
+ri_nodes <- tibble(
+  label = c("RI_S", "RI_B"),
+  x = c(2, 2), y = c(2.5, 0.6)
+)
+p_c <- ggplot() +
+  geom_point(data = tibble(label=c("S₁","B₁","S₂","B₂","S₃","B₃"),
+                           x=c(1,1,3,3,5,5), y=c(2,1,2,1,2,1)),
+             aes(x=x,y=y), shape=21, size=14, fill="#deebf7",
+             color="#1e3a5f", stroke=1.3) +
+  geom_text(data = tibble(label=c("S₁","B₁","S₂","B₂","S₃","B₃"),
+                           x=c(1,1,3,3,5,5), y=c(2,1,2,1,2,1)),
+            aes(x=x,y=y,label=label), size=3.0, fontface="bold", color="#1e3a5f") +
+  geom_point(data = ri_nodes, aes(x=x,y=y),
+             shape=21, size=14, fill="#f3e5f5", color="#9b59b6", stroke=1.3) +
+  geom_text(data = ri_nodes, aes(x=x, y=y, label=label),
+            size=2.5, fontface="bold", color="#9b59b6") +
+  annotate("segment", x=1.95, xend=1.05, y=2.43, yend=2.07, color="#9b59b6",
+           linewidth=1.0, linetype="dashed",
+           arrow=arrow(length=unit(0.17,"cm"),type="closed")) +
+  annotate("segment", x=1.95, xend=3.05, y=2.43, yend=2.07, color="#9b59b6",
+           linewidth=1.0, linetype="dashed",
+           arrow=arrow(length=unit(0.17,"cm"),type="closed")) +
+  annotate("segment", x=1.95, xend=4.95, y=2.43, yend=2.07, color="#9b59b6",
+           linewidth=1.0, linetype="dashed",
+           arrow=arrow(length=unit(0.17,"cm"),type="closed")) +
+  annotate("segment", x=1.95, xend=1.05, y=0.63, yend=0.97, color="#9b59b6",
+           linewidth=1.0, linetype="dashed",
+           arrow=arrow(length=unit(0.17,"cm"),type="closed")) +
+  annotate("segment", x=1.95, xend=3.05, y=0.63, yend=0.97, color="#9b59b6",
+           linewidth=1.0, linetype="dashed",
+           arrow=arrow(length=unit(0.17,"cm"),type="closed")) +
+  annotate("segment", x=1.95, xend=4.95, y=0.63, yend=0.97, color="#9b59b6",
+           linewidth=1.0, linetype="dashed",
+           arrow=arrow(length=unit(0.17,"cm"),type="closed")) +
+  annotate("text", x=3, y=0.45,
+           label="Between-person: chronic stress-proneness\nand chronic risk-taking co-occur (no within-person dynamic)",
+           hjust=0.5, size=2.6, color="gray30", lineheight=1.3) +
+  labs(title = "Story C: stable trait drives both variables") +
+  xlim(0.2, 5.8) + ylim(0.25, 2.75) +
+  theme_void(base_size=10) +
+  theme(plot.title=element_text(face="bold", size=9.5, hjust=0.5,
+                                margin=margin(b=3)))
+
+p_a + p_b + p_c
+```
+
+All three stories produce **the same bivariate correlation pattern** between $S_t$ and $B_{t+1}$, and between $B_t$ and $S_{t+1}$. The classic CLPM cannot distinguish them because it does not separate stable between-person covariation (Story C) from genuine within-person dynamics (Stories A and B). The RI-CLPM separates these sources explicitly, making it the correct model for the within-person question.
 
 ## The Random Intercept CLPM (RI-CLPM)
 
 Hamaker, Kuiper, & Grasman (2015) proposed the **Random Intercept CLPM**, which solves this by separating two sources of variation:
 
-1. **Between-person:** Stable trait levels (random intercepts) that explain why some people are chronically higher on A or D
+1. **Between-person:** Stable trait levels (random intercepts) that explain why some people are chronically higher on S or B
 2. **Within-person:** Fluctuations around each person's stable level, and the cross-lagged dynamics *among those fluctuations*
 
 ```{r ri-clpm}
 ri_clpm_model <- '
   # Random intercepts (stable between-person levels)
-  RI_A =~ 1*A1 + 1*A2 + 1*A3
-  RI_D =~ 1*D1 + 1*D2 + 1*D3
+  RI_S =~ 1*S1 + 1*S2 + 1*S3
+  RI_B =~ 1*B1 + 1*B2 + 1*B3
 
   # Within-person components (deviations from stable level)
-  wA1 =~ 1*A1; wA2 =~ 1*A2; wA3 =~ 1*A3
-  wD1 =~ 1*D1; wD2 =~ 1*D2; wD3 =~ 1*D3
+  wS1 =~ 1*S1; wS2 =~ 1*S2; wS3 =~ 1*S3
+  wB1 =~ 1*B1; wB2 =~ 1*B2; wB3 =~ 1*B3
 
   # Constrain observed variances to 0 (all captured by RI + within)
-  A1 ~~ 0*A1; A2 ~~ 0*A2; A3 ~~ 0*A3
-  D1 ~~ 0*D1; D2 ~~ 0*D2; D3 ~~ 0*D3
+  S1 ~~ 0*S1; S2 ~~ 0*S2; S3 ~~ 0*S3
+  B1 ~~ 0*B1; B2 ~~ 0*B2; B3 ~~ 0*B3
 
   # Within-person cross-lagged dynamics
-  wA2 ~ a_AA*wA1 + a_DA*wD1
-  wA3 ~ a_AA*wA2 + a_DA*wD2
-  wD2 ~ a_DD*wD1 + a_AD*wA1
-  wD3 ~ a_DD*wD2 + a_AD*wA2
+  wS2 ~ a_SS*wS1 + a_SB*wB1
+  wS3 ~ a_SS*wS2 + a_SB*wB2
+  wB2 ~ a_BB*wB1 + a_BS*wS1
+  wB3 ~ a_BB*wB2 + a_BS*wS2
 
   # Random intercept variances and covariance
-  RI_A ~~ RI_A; RI_D ~~ RI_D; RI_A ~~ RI_D
+  RI_S ~~ RI_S; RI_B ~~ RI_B; RI_S ~~ RI_B
 
   # Within-person residual variances
-  wA1 ~~ wA1; wD1 ~~ wD1
-  wA2 ~~ wA2; wD2 ~~ wD2
-  wA3 ~~ wA3; wD3 ~~ wD3
-  wA2 ~~ wD2; wA3 ~~ wD3
+  wS1 ~~ wS1; wB1 ~~ wB1
+  wS2 ~~ wS2; wB2 ~~ wB2
+  wS3 ~~ wS3; wB3 ~~ wB3
+  wS2 ~~ wB2; wS3 ~~ wB3
 
   # Mean structure
-  RI_A ~ 1; RI_D ~ 1
-  wA1 ~ 0; wD1 ~ 0
+  RI_S ~ 1; RI_B ~ 1
+  wS1 ~ 0; wB1 ~ 0
 '
 
 m_ri_clpm <- sem(ri_clpm_model, data = df_clpm, estimator = "ML")
 
 parameterEstimates(m_ri_clpm) |>
-  filter(op == "~", lhs %in% c("wA2","wA3","wD2","wD3")) |>
+  filter(op == "~", lhs %in% c("wS2","wS3","wB2","wB3")) |>
   select(lhs, rhs, label, est, se, pvalue) |>
   knitr::kable(digits = 3,
     caption = "RI-CLPM: within-person cross-lagged effects (controls for stable between-person differences)")
@@ -162,7 +266,7 @@ parameterEstimates(m_ri_clpm) |>
 ::: {.callout-warning icon=false}
 ## Assumption: No Omitted Dynamics
 
-**What it means:** Both models assume all relevant variables are included. An omitted third variable that drives both A and D could produce spurious cross-lagged effects.
+**What it means:** Both models assume all relevant variables are included. An omitted third variable that drives both S and B could produce spurious cross-lagged effects.
 
 **How to check:** Think carefully about what else changes over time that could explain both variables. Include plausible third variables as additional nodes.
 :::

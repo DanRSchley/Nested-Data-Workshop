@@ -348,3 +348,98 @@ Conditional $R^2$ includes variance explained by the random effects. It is not a
 
 Reporting "we used a mixed model" without specifying the random effects structure (intercept only? random slopes for condition?) makes the analysis non-reproducible. Another researcher cannot verify or extend your work without knowing the exact model formula.
 :::
+
+---
+
+## Part 8: What Goes in the Paper vs. the Appendix
+
+One of the most practical reporting questions: which parts of the multilevel analysis belong in the main text, and which belong in a supplementary appendix?
+
+::: {.callout-tip icon=false}
+## Paper vs. Appendix Decision Guide
+
+**Main text (always include):**
+- The model formula (written out, not just stated as "mixed model")
+- Fixed effect estimates with standard errors and *p*-values for all tested hypotheses
+- ICC of the primary outcome
+- Whether random slopes were tested for the focal predictor
+- Effect size (conditional *d*, OR, RR) with confidence interval
+- Software and key package versions
+
+**Main text (include when substantively important):**
+- Variance components ($\tau^2_{00}$, $\sigma^2_\varepsilon$) when the research question concerns between-unit variability
+- Marginal and conditional R²
+- Hausman test result (when FE vs. RE choice was non-obvious)
+- Predicted probabilities or counts at theoretically meaningful covariate values (for GLMM)
+
+**Appendix (include as standard robustness evidence):**
+- Full model comparison table (null model, main model, saturated model)
+- Alternative random effects specifications (e.g., random slopes added or removed)
+- Sensitivity analysis results (e.g., influential cluster removal, model with and without outlier branches)
+- Multiple imputation details and pooled results when missing data is non-trivial
+- CMC decomposition results when pooled and within estimates differ
+
+**Appendix (include when facing potential reviewer objections):**
+- Fixed effects equivalent model output alongside the random effects model (when exchangeability may be questioned)
+- Model diagnostics: residual QQ plots, random effects normality plots, variance homogeneity checks
+- Alternative distributional families (Poisson vs. negative binomial for count outcomes)
+- Falsification tests (for IV, RDD, DiD contexts)
+:::
+
+---
+
+## Part 9: Preempting Common Reviewer Misunderstandings
+
+Reviewers who are not mixed-model specialists raise predictable objections. Here is a field guide for the most common ones.
+
+::: {.callout-note icon=false}
+## Reviewer: "Why not just use repeated-measures ANOVA?"
+
+**What they mean:** RM-ANOVA is the familiar tool for within-subjects designs.
+
+**Why MLM is better:** RM-ANOVA requires complete cases (it drops participants with any missing observations). It cannot include continuous time-varying covariates. It assumes compound symmetry or sphericity (homogeneous variance across all time-lag pairs) — an assumption that rarely holds in practice. Mixed models handle all of these naturally.
+
+**How to respond:** "We used a mixed model rather than RM-ANOVA because (a) 18% of participants had incomplete data at one or more waves, (b) we included continuous within-person time-varying covariates, and (c) preliminary Mauchly tests indicated sphericity was violated."
+:::
+
+::: {.callout-note icon=false}
+## Reviewer: "Your ICC is small — why does clustering matter?"
+
+**What they mean:** An ICC of 0.05 looks negligible.
+
+**Why it still matters:** The relevant quantity is the design effect: DEFF = 1 + (cluster size − 1) × ICC. With 20 observations per cluster and ICC = 0.05, DEFF = 1.95 — your effective N is roughly half your nominal N, and standard errors are inflated by √1.95 ≈ 40%. A "small" ICC with large clusters is a large problem.
+
+**How to respond:** "Although the ICC was modest (0.05), clusters contained an average of *n* = 22 observations each, producing a design effect of 2.05. Ignoring clustering would have underestimated standard errors by approximately 43% and inflated Type I error for the focal comparison."
+:::
+
+::: {.callout-note icon=false}
+## Reviewer: "Why random effects rather than fixed effects? Did you test for this?"
+
+**What they mean:** They are invoking the RE vs. FE concern from the Hausman tradition.
+
+**Why the question matters:** If cluster-level random effects are correlated with predictors, RE estimates are biased. FE removes this problem at the cost of between-cluster comparisons.
+
+**How to respond:** "We assessed the random effects assumption with the Hausman test [χ²(*df*) = X.XX, *p* = .XX], which did not support systematic differences between FE and RE estimates. Additionally, our primary predictor was experimentally assigned within clusters, ensuring orthogonality between treatment and cluster random effects by design."
+:::
+
+::: {.callout-note icon=false}
+## Reviewer: "Why don't you include random slopes? Barr et al. (2013) say you should."
+
+**What they mean:** They have read the "keep it maximal" literature.
+
+**When they are right:** For a within-subjects predictor (every participant experiences every condition), a random slope for that predictor is theoretically warranted. Omitting it increases Type I error.
+
+**When to push back:** Maximal models frequently fail to converge with real data. If the random slope variance was estimated near zero and the LRT comparing models was non-significant (*p* > .10), the simpler model is defensible.
+
+**How to respond:** "We tested a model with a by-participant random slope for condition; the slope variance was estimated near zero (σ² = 0.003) and the likelihood ratio test did not support the more complex structure (χ²(2) = 0.84, *p* = .66). We retained the simpler random-intercept model following Matuschek et al. (2017)."
+:::
+
+::: {.callout-note icon=false}
+## Reviewer: "Your random effects are not normally distributed — doesn't that invalidate the model?"
+
+**What they mean:** They checked a caterpillar plot and saw non-normality in the BLUP residuals.
+
+**Why this is usually not fatal:** The normality assumption in mixed models is on the *population distribution of random effects*, not on the finite-sample BLUPs. Small-to-moderate deviations from normality have limited impact on fixed-effect estimates and standard errors, especially with moderate to large numbers of clusters.
+
+**How to respond:** "The random effects normality assumption was examined via QQ plots of the conditional modes (BLUPs). We observed [mild left skew / a few outlier clusters], but simulation studies (e.g., Maas & Hox, 2004) show that fixed-effect estimates in MLM are robust to moderate violations of the random-effects normality assumption. Results were substantively unchanged when [the three outlier clusters were excluded / a robust estimation method was used]."
+:::
