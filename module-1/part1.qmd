@@ -34,13 +34,13 @@ Consider two studies:
 
 **Study B (Experimental):** You run a within-subjects experiment. Each of 80 participants evaluates 12 product descriptions — 6 under a "scarcity" framing ("only 3 left!") and 6 under a neutral framing. Each participant sees both conditions.
 
-Both studies share the same fundamental structure: **multiple observations nested within the same unit** (household, participant). And both share the same fundamental problem: unit-level differences confound the estimate of the effect you care about.
+Both studies share the same fundamental structure: **multiple observations nested within the same unit** (household, participant). But the problem each creates is different.
 
-In Study A, financially literate households read more disclosure *and* save more — so the disclosure engagement effect is confounded with literacy.
+In Study A, financially literate households read more disclosure *and* save more — so the disclosure engagement effect is **confounded with literacy**. Ignoring nesting produces a biased estimate.
 
-In Study B, some participants are just more easily persuaded than others — so the framing effect is confounded with individual persuadability.
+In Study B, condition is randomly assigned, so individual persuadability does not systematically correlate with the scarcity condition. The problem is not bias — it is **dependence**: ratings from the same participant are not independent observations. A pooled regression treats each rating as an independent draw and underestimates uncertainty. Standard errors are too small, confidence intervals too narrow, and Type I error rates are inflated.
 
-Fixed effects solve both problems in exactly the same way.
+Fixed effects address both problems by absorbing all stable person-level characteristics — eliminating the literacy confound in Study A and recovering correct within-person standard errors in Study B.
 
 ---
 
@@ -115,7 +115,7 @@ broom::tidy(naive_hh) |>
 n_participants <- 80
 n_ratings      <- 12   # 6 scarcity, 6 neutral
 
-# The confound: participants differ in baseline persuadability
+# Nesting: participants differ in baseline persuadability; condition is randomly assigned within person
 persuadability <- rnorm(n_participants, 50, 10)
 
 df_exp <- expand_grid(

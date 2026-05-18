@@ -22,7 +22,7 @@ Every model we have used in this module so far assumes something about your outc
 
 But many longitudinal outcomes in consumer behavior and financial research are not continuous. They are **binary** — did the customer make a purchase this week? Did they make a late payment this month? Did they adopt the recommended savings allocation? Or they are **counts** — how many times did a customer open the app this week? How many transactions did they make? How many overdraft events occurred this month?
 
-When the DGP generates binary or count data, a linear mixed model imposes a structure that does not match the outcome's constraints. Predicted probabilities can fall outside [0, 1]. Residuals cannot be normally distributed. For probability and rate interpretation — or any inference that depends on the correct scale — an LMM is the wrong tool. (LMMs can sometimes approximate mean-structure questions in balanced designs, but for constrained predictions and proper uncertainty quantification a GLMM is the appropriate primary model.)
+When the DGP generates binary or count data, a linear mixed model imposes a structure that does not match the outcome's constraints. Predicted probabilities can fall outside [0, 1]. Residuals cannot be normally distributed. The Gaussian linear model is misspecified for binary and count outcomes — it does not respect the bounded, discrete DGP. Predicted probabilities can fall outside [0, 1], the mean-variance relationship is wrong, and standard errors and effect interpretations can be misleading. A GLMM is the appropriate primary model.
 
 **Generalized Linear Mixed Models (GLMMs)** extend the mixed model framework to non-normal outcomes. They combine:
 
@@ -34,7 +34,7 @@ The longitudinal setting makes GLMMs especially important, because tracking peop
 
 ### Why Not Just Use a Linear Mixed Model?
 
-The chart below shows what happens when you fit a linear mixed model to a binary outcome versus a logistic mixed model. Both models are fit to the same data: 60 customers, binary purchase outcome, one predictor (loyalty program × baseline purchase tendency). The problem is immediate: the linear model produces **predicted probabilities below 0** for customers with low baseline purchase tendency, and potentially above 1 for customers with high tendency and program membership. These are impossible predicted probabilities — and they make confidence intervals and counterfactual predictions meaningless.
+The chart below shows what happens when you fit a linear mixed model to a binary outcome versus a logistic mixed model. Both models are fit to the same data: 60 customers, binary purchase outcome, one predictor (loyalty program × baseline purchase tendency). The problem is immediate: the linear model produces **predicted probabilities below 0** for customers with low baseline purchase tendency, and potentially above 1 for customers with high tendency and program membership. These are impossible predicted probabilities — and they make confidence intervals and counterfactual predictions unreliable.
 
 ```{r lm-vs-glmm-illustration, echo=FALSE, fig.width=10, fig.height=4.2, message=FALSE, warning=FALSE}
 set.seed(99)

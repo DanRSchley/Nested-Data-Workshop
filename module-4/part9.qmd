@@ -47,7 +47,7 @@ Whether an observation is missing is independent of everything — both observed
 
 ### Missing At Random (MAR)
 
-Whether an observation is missing depends on **observed variables** in the dataset, but not on the missing value itself after conditioning on those variables. Modern methods (FIML via `lmer`, multiple imputation) are valid under MAR.
+Whether an observation is missing depends on **observed variables** in the dataset, but not on the missing value itself after conditioning on those variables. Modern methods (available-case maximum likelihood via `lmer`, multiple imputation) can be valid under MAR when the model is correctly specified and predictors of missingness are included. Note: `lmer` uses all observed outcomes under the model's likelihood — this is not identical to SEM-style FIML but shares the core MAR property.
 
 *JDM example:* Households with higher baseline debt are more likely to drop out of a financial diary study. Higher debt is observed. Once you condition on observed baseline debt, dropout is independent of the *unobserved future* financial behavior. The dropout is predictable from what you have — but it is not driven by the unseen future outcome.
 
@@ -76,7 +76,7 @@ Under MAR, the cause of dropout sits in your observed data — you can model it.
 ::: {.callout-warning icon=false}
 ## Assumption: MAR or Better
 
-**Plain-language meaning:** Multiple imputation and FIML via `lmer` are only valid if the data are MAR — missing for reasons explainable by observed variables — or MCAR. If dropout is driven by the unobserved outcome trajectory, these methods reduce but cannot eliminate bias.
+**Plain-language meaning:** Multiple imputation and available-case ML via `lmer` are only valid if the data are MAR — missing for reasons explainable by observed variables — or MCAR. If dropout is driven by the unobserved outcome trajectory, these methods reduce but cannot eliminate bias.
 
 **What the model is assuming away:** The possibility that the financially distressed households who disappeared from wave 3 had *worse outcomes than predicted from their observed characteristics* — and dropped out specifically because of that unobserved worsening.
 

@@ -173,7 +173,7 @@ m_correct_2 <- lm(Y_intention ~ X_promo + Z_wealth)
 # Sophisticated investors avoid advice (prefer self-directed) AND perform better
 # True X effect = +0.5 (advice genuinely helps); sophistication biases estimate downward
 Z_sophist     <- rnorm(n, 50, 10)
-X_advice      <- -0.5 * Z_sophist + rnorm(n, 0, 6)   # sophisticated investors avoid advice
+X_advice      <- -0.5 * Z_sophist + rnorm(n, 0, 2)   # sophisticated investors avoid advice
 Y_returns     <- 0.4 * Z_sophist + 0.5 * X_advice + rnorm(n, 0, 8)
 
 m_biased_3  <- lm(Y_returns ~ X_advice)

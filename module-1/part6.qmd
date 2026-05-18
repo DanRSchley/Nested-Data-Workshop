@@ -382,7 +382,7 @@ In panel data, analysts often absorb month effects using **month dummy variables
 ::: {.callout-warning icon=false}
 ## Assumption: Month Effects are Exchangeable
 
-**What it means:** The month random intercepts $w_{0t}$ are assumed to be i.i.d. draws from $\mathcal{N}(0, \sigma^2_{\text{month}})$. This implies no autocorrelation across months — a high-spending month does not predict the next month will also be high.
+**What it means:** The month random intercepts $w_{0t}$ are assumed to be i.i.d. draws from $\mathcal{N}(0, \sigma^2_{\text{month}})$. This treats month-level shocks as exchangeable rather than temporally structured. Serial dependence can still remain unless explicitly modeled.
 
 **When it fails:** In the presence of multi-month trends (sustained seasonal spending cycles, economic expansions or contractions), month effects are correlated over time. The remedy is to include a linear time trend as a fixed effect, or to model AR(1) residual structure (covered in Module 4).
 :::

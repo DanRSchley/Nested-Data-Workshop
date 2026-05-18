@@ -92,21 +92,56 @@ In a within-subjects experiment, the same decomposition applies — but now the 
 
 **The between-person effect** ($\beta_B$): Do participants who are exposed to more story-based appeals (by random assignment variation) tend to donate more overall? This would pick up trait-level empathizers who respond to everything more generously.
 
-With random assignment, $\beta_B$ should be near zero — randomization ensures that more story-exposed participants are not systematically more empathetic. A large $\beta_B$ is a red flag.
+With clean randomization, $\beta_B$ should be near zero — randomization ensures that more story-exposed participants are not systematically more empathetic. A large $\beta_B$ is a red flag for randomization failure.
 
-```{r experiment-demo}
+We show two scenarios below: one with successful randomization and one with a compromised design where high-empathy participants receive slightly more story appeals.
+
+```{r experiment-setup}
+set.seed(42)
 n_p_exp <- 80; n_appeals <- 10
 
-# Some participants are trait high-empathy: they donate more AND
-# in this (imperfect) design, happen to see more story appeals
 person_empathy     <- rnorm(n_p_exp, 50, 10)
-person_story_prop  <- 0.5 + 0.01 * (person_empathy - 50) + rnorm(n_p_exp, 0, 0.05)
-person_story_prop  <- pmin(pmax(person_story_prop, 0), 1)
 person_base_donate <- 40 + 0.8 * person_empathy + rnorm(n_p_exp, 0, 8)
+```
 
-df_exp <- expand_grid(participant = 1:n_p_exp, appeal = 1:n_appeals) |>
+### Sub-example A: Clean Randomization
+
+Story vs. statistics assignment is 50/50 for every participant, independent of empathy.
+
+```{r experiment-clean}
+df_exp_a <- expand_grid(participant = 1:n_p_exp, appeal = 1:n_appeals) |>
   mutate(
-    story = rbinom(n(), 1, person_story_prop[participant]),
+    # Clean randomization: fixed 50% probability regardless of empathy
+    story  = rbinom(n(), 1, 0.5),
+    donate = person_base_donate[participant] +
+             5 * (story - 0.5) +
+             rnorm(n(), 0, 6),
+    participant = factor(participant)
+  ) |>
+  group_by(participant) |>
+  mutate(story_mean = mean(story), story_cmc = story - story_mean) |>
+  ungroup()
+
+m_exp_a <- lmer(donate ~ story_cmc + story_mean + (1 | participant), data = df_exp_a)
+broom.mixed::tidy(m_exp_a, effects = "fixed") |> filter(term != "(Intercept)") |>
+  mutate(mechanism = c("Within-person (causal effect)", "Between-person (trait confound)")) |>
+  select(mechanism, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+    caption = "Sub-example A — clean randomization: within ≈ 5 (treatment effect recovered); between ≈ 0 (randomization succeeded)")
+```
+
+### Sub-example B: Compromised Design
+
+High-empathy participants are assigned slightly more story appeals — mimicking a design flaw where appeal type is not fully randomized (e.g., sequential block assignment that correlates with participant order and trait).
+
+```{r experiment-compromised}
+# High-empathy participants see slightly more story appeals
+person_story_prop <- 0.5 + 0.02 * (person_empathy - 50) + rnorm(n_p_exp, 0, 0.05)
+person_story_prop <- pmin(pmax(person_story_prop, 0), 1)
+
+df_exp_b <- expand_grid(participant = 1:n_p_exp, appeal = 1:n_appeals) |>
+  mutate(
+    story  = rbinom(n(), 1, person_story_prop[participant]),
     donate = person_base_donate[participant] +
              5 * (story - person_story_prop[participant]) +
              rnorm(n(), 0, 6),
@@ -116,15 +151,15 @@ df_exp <- expand_grid(participant = 1:n_p_exp, appeal = 1:n_appeals) |>
   mutate(story_mean = mean(story), story_cmc = story - story_mean) |>
   ungroup()
 
-m_exp <- lmer(donate ~ story_cmc + story_mean + (1 | participant), data = df_exp)
-broom.mixed::tidy(m_exp, effects = "fixed") |> filter(term != "(Intercept)") |>
+m_exp_b <- lmer(donate ~ story_cmc + story_mean + (1 | participant), data = df_exp_b)
+broom.mixed::tidy(m_exp_b, effects = "fixed") |> filter(term != "(Intercept)") |>
   mutate(mechanism = c("Within-person (causal effect)", "Between-person (trait confound)")) |>
   select(mechanism, estimate, std.error, p.value) |>
   knitr::kable(digits = 3,
-    caption = "Story vs. stats: within ≈ 5 (treatment effect); between ≈ near zero (good randomization)")
+    caption = "Sub-example B — compromised randomization: between-person term inflated by empathy-exposure correlation")
 ```
 
-With good randomization, $\beta_B \approx 0$ and $\beta_W$ recovers the true treatment effect. A significant $\beta_B$ would suggest a randomization failure or a design confound — worth always checking in within-subjects designs.
+In Sub-example A, $\beta_B \approx 0$ and $\beta_W$ recovers the true treatment effect of 5. In Sub-example B, $\beta_B$ departs from zero because high-empathy participants — who donate more in general — happened to see more story appeals. The within-person estimate is still protected by cluster-mean centering, but the between-person estimate reflects both the story effect and the underlying empathy gradient. A significant $\beta_B$ in your own data would suggest a randomization failure or a design confound — worth always checking in within-subjects designs.
 
 ---
 

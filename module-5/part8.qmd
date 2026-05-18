@@ -18,16 +18,16 @@ set.seed(42)
 ::: {.callout-note icon=false}
 ## The Experimental Recovery Question
 
-> **If this experiment had gone perfectly — full compliance, zero attrition, no crossover — what would randomization have identified?** An unbiased average treatment effect (ATE) for all participants.
+> **If this experiment had gone perfectly — full compliance, zero attrition, no crossover — what would randomization have identified?** An average treatment effect (ATE) for all participants — provided there is no interference, no differential attrition, and measurement is stable.
 >
 > **What complication prevents that here?** Non-compliance: some assigned participants do not receive treatment, so the treated group is a self-selected subset of the assigned group.
 >
-> **What is the next-best estimand?** The intent-to-treat effect (ITT) — unbiased but diluted — or the local average treatment effect (LATE) for compliers, recovered via instrumental variables with assignment as the instrument.
+> **What is the next-best estimand?** The intent-to-treat effect (ITT) — unbiased under random assignment and no differential attrition, but diluted — or the local average treatment effect (LATE) for compliers, recovered via instrumental variables with assignment as the instrument.
 :::
 
 ## Section 1: The Compliance Problem
 
-Random assignment guarantees unbiased **intent-to-treat (ITT)** estimates — the effect of being offered or assigned to treatment. But ITT is not always the quantity of interest.
+Random assignment supports **intent-to-treat (ITT)** estimates that are unbiased under standard conditions (no differential attrition, exclusion restriction, no interference) — the effect of being offered or assigned to treatment. But ITT is not always the quantity of interest.
 
 Consider a randomized budgeting tool experiment: half the participants are given access to a digital budgeting tool, the other half to a standard information email. At 3 months, the ITT estimate is the effect of *being offered* the tool — but if only 65% of offered participants actually activated it, the ITT averages together the tool's effect with a zero effect for the 35% who never engaged. The ITT underestimates the effect of the budgeting tool itself for people who would comply.
 
