@@ -107,68 +107,63 @@ df_did <- expand_grid(branch = 1:n_branches, wave = 1:n_waves) |>
 :::
 
 ```{r parallel-trends-illustration, echo=FALSE, fig.width=10, fig.height=4.2, message=FALSE, warning=FALSE}
-# Conceptual illustration: what parallel trends looks like when it holds vs. fails
-t_pts   <- 0:5
-cut_t   <- 2.5
+# Conceptual illustration: parallel trends holds vs. fails
+# Two separate plots combined with patchwork (avoids facet_wrap gtable issue in ggplot2 4.x)
+t_pts <- 0:5
+cut_t <- 2.5
 
-df_pt_obs <- bind_rows(
-  # Valid case: same pre-trend slope
+col_vals <- c("Treated" = "#1e3a5f", "Control" = "#aec6e8", "Counterfactual" = "#e67e00")
+lty_vals <- c("Treated" = "solid",   "Control" = "solid",   "Counterfactual" = "dashed")
+
+# --- Left panel: parallel trends holds ---
+df_h <- bind_rows(
   tibble(t = t_pts, group = "Treated",
-         y = 50 + 2 * t_pts + ifelse(t_pts > cut_t, 10, 0),
-         case = "Parallel trends HOLDS (valid DiD)"),
+         y = 50 + 2 * t_pts + ifelse(t_pts > cut_t, 10, 0)),
   tibble(t = t_pts, group = "Control",
-         y = 40 + 2 * t_pts,
-         case = "Parallel trends HOLDS (valid DiD)"),
-  # Failure case: treated group already on steeper trajectory
-  tibble(t = t_pts, group = "Treated",
-         y = 50 + 4 * t_pts + ifelse(t_pts > cut_t, 4, 0),
-         case = "Parallel trends FAILS (invalid DiD)"),
-  tibble(t = t_pts, group = "Control",
-         y = 40 + 2 * t_pts,
-         case = "Parallel trends FAILS (invalid DiD)")
+         y = 40 + 2 * t_pts)
 )
+df_hc <- tibble(t = t_pts[t_pts > cut_t], group = "Counterfactual",
+                y = 50 + 2 * t_pts[t_pts > cut_t])
 
-df_counter <- bind_rows(
-  tibble(t = t_pts[t_pts > cut_t], group = "Counterfactual\n(unobserved)",
-         y = 50 + 2 * t_pts[t_pts > cut_t],
-         case = "Parallel trends HOLDS (valid DiD)"),
-  tibble(t = t_pts[t_pts > cut_t], group = "Counterfactual\n(unobserved)",
-         y = 50 + 4 * t_pts[t_pts > cut_t],
-         case = "Parallel trends FAILS (invalid DiD)")
-)
-
-ggplot() +
-  geom_vline(aes(xintercept = cut_t), linetype = "dotted", color = "gray50",
-             linewidth = 1.0) +
-  geom_line(data = df_pt_obs,
-            aes(x = t, y = y, color = group, linetype = group),
-            linewidth = 1.3) +
-  geom_line(data = df_counter,
-            aes(x = t, y = y, color = group, linetype = group),
-            linewidth = 1.0) +
+p_holds <- ggplot() +
+  geom_vline(xintercept = cut_t, linetype = "dotted", color = "gray50", linewidth = 1.0) +
+  geom_line(data = df_h,  aes(x = t, y = y, color = group, linetype = group), linewidth = 1.3) +
+  geom_line(data = df_hc, aes(x = t, y = y, color = group, linetype = group), linewidth = 1.0) +
   annotate("text", x = cut_t + 0.1, y = 43, label = "Treatment\nonset",
            hjust = 0, size = 2.9, color = "gray40") +
-  facet_wrap(~case) +
-  scale_color_manual(
-    values = c("Treated"    = "#1e3a5f",
-               "Control"    = "#aec6e8",
-               "Counterfactual\n(unobserved)" = "#e67e00")
-  ) +
-  scale_linetype_manual(
-    values = c("Treated"    = "solid",
-               "Control"    = "solid",
-               "Counterfactual\n(unobserved)" = "dashed")
-  ) +
-  labs(
-    title    = "Parallel trends: valid DiD (left) vs. invalid DiD (right)",
-    subtitle = "Orange dashed = what treated group would have done absent treatment.\nLeft: pre-slopes are equal — DiD captures only the jump.\nRight: treated group was already diverging — DiD conflates policy effect with pre-existing momentum.",
-    x        = "Time period",
-    y        = "Outcome",
-    color    = NULL, linetype = NULL
-  ) +
-  theme_minimal(base_size = 12) +
-  theme(legend.position = "bottom",
-        strip.text = element_text(face = "bold", size = 10))
+  scale_color_manual(values = col_vals) +
+  scale_linetype_manual(values = lty_vals) +
+  labs(title = "Parallel trends HOLDS (valid DiD)",
+       subtitle = "Pre-slopes equal — DiD captures only the jump",
+       x = "Time period", y = "Outcome", color = NULL, linetype = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "bottom", plot.title = element_text(face = "bold", size = 10))
+
+# --- Right panel: parallel trends fails ---
+df_f <- bind_rows(
+  tibble(t = t_pts, group = "Treated",
+         y = 50 + 4 * t_pts + ifelse(t_pts > cut_t, 4, 0)),
+  tibble(t = t_pts, group = "Control",
+         y = 40 + 2 * t_pts)
+)
+df_fc <- tibble(t = t_pts[t_pts > cut_t], group = "Counterfactual",
+                y = 50 + 4 * t_pts[t_pts > cut_t])
+
+p_fails <- ggplot() +
+  geom_vline(xintercept = cut_t, linetype = "dotted", color = "gray50", linewidth = 1.0) +
+  geom_line(data = df_f,  aes(x = t, y = y, color = group, linetype = group), linewidth = 1.3) +
+  geom_line(data = df_fc, aes(x = t, y = y, color = group, linetype = group), linewidth = 1.0) +
+  annotate("text", x = cut_t + 0.1, y = 43, label = "Treatment\nonset",
+           hjust = 0, size = 2.9, color = "gray40") +
+  scale_color_manual(values = col_vals) +
+  scale_linetype_manual(values = lty_vals) +
+  labs(title = "Parallel trends FAILS (invalid DiD)",
+       subtitle = "Treated group already on steeper trajectory — DiD conflates\npolicy effect with pre-existing momentum",
+       x = "Time period", y = "Outcome", color = NULL, linetype = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "bottom", plot.title = element_text(face = "bold", size = 10))
+
+p_holds + p_fails + plot_layout(guides = "collect") & theme(legend.position = "bottom")
 ```
 
 In the left panel, both groups rise at the same rate before treatment — the DiD estimate cleanly captures only the jump caused by the policy. In the right panel, treated units were already on a steeper trajectory. The DiD estimate would be inflated because part of the post-period gap would have materialised even without the nudge. The pre-trend test and event study distinguish these two situations.
