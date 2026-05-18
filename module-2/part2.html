@@ -513,7 +513,11 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#the-mundlak-device" id="toc-the-mundlak-device" class="nav-link" data-scroll-target="#the-mundlak-device">The Mundlak Device</a></li>
   <li><a href="#example-1-the-easterlin-paradox-gdp-and-wellbeing" id="toc-example-1-the-easterlin-paradox-gdp-and-wellbeing" class="nav-link" data-scroll-target="#example-1-the-easterlin-paradox-gdp-and-wellbeing">Example 1: The Easterlin Paradox — GDP and Wellbeing</a></li>
-  <li><a href="#example-2-within-subjects-experiments-trait-vs.-state-effects" id="toc-example-2-within-subjects-experiments-trait-vs.-state-effects" class="nav-link" data-scroll-target="#example-2-within-subjects-experiments-trait-vs.-state-effects">Example 2: Within-Subjects Experiments — Trait vs.&nbsp;State Effects</a></li>
+  <li><a href="#example-2-within-subjects-experiments-trait-vs.-state-effects" id="toc-example-2-within-subjects-experiments-trait-vs.-state-effects" class="nav-link" data-scroll-target="#example-2-within-subjects-experiments-trait-vs.-state-effects">Example 2: Within-Subjects Experiments — Trait vs.&nbsp;State Effects</a>
+  <ul class="collapse">
+  <li><a href="#sub-example-a-clean-randomization" id="toc-sub-example-a-clean-randomization" class="nav-link" data-scroll-target="#sub-example-a-clean-randomization">Sub-example A: Clean Randomization</a></li>
+  <li><a href="#sub-example-b-compromised-design" id="toc-sub-example-b-compromised-design" class="nav-link" data-scroll-target="#sub-example-b-compromised-design">Sub-example B: Compromised Design</a></li>
+  </ul></li>
   <li><a href="#example-3-ecological-fallacy-education-and-fertility" id="toc-example-3-ecological-fallacy-education-and-fertility" class="nav-link" data-scroll-target="#example-3-ecological-fallacy-education-and-fertility">Example 3: Ecological Fallacy — Education and Fertility</a></li>
   <li><a href="#example-4-convergent-effects-consumer-financial-information-exposure-and-savings" id="toc-example-4-convergent-effects-consumer-financial-information-exposure-and-savings" class="nav-link" data-scroll-target="#example-4-convergent-effects-consumer-financial-information-exposure-and-savings">Example 4: Convergent Effects — Consumer Financial Information Exposure and Savings</a></li>
   <li><a href="#testing-whether-within-and-between-effects-are-equal" id="toc-testing-whether-within-and-between-effects-are-equal" class="nav-link" data-scroll-target="#testing-whether-within-and-between-effects-are-equal">Testing Whether Within and Between Effects Are Equal</a></li>
@@ -654,41 +658,47 @@ window.Quarto = {
 <p><strong>Design:</strong> 80 participants each evaluate 10 charity appeals. Half feature statistical evidence; half feature personal stories. Outcome: whether they donate (continuous willingness-to-donate scale, 0–100).</p>
 <p><strong>The within-person effect</strong> (<span class="math inline">\(\beta_W\)</span>): For a given participant, do story-based appeals get higher donations than statistical appeals — compared to that participant’s <em>own average</em> donation?</p>
 <p><strong>The between-person effect</strong> (<span class="math inline">\(\beta_B\)</span>): Do participants who are exposed to more story-based appeals (by random assignment variation) tend to donate more overall? This would pick up trait-level empathizers who respond to everything more generously.</p>
-<p>With random assignment, <span class="math inline">\(\beta_B\)</span> should be near zero — randomization ensures that more story-exposed participants are not systematically more empathetic. A large <span class="math inline">\(\beta_B\)</span> is a red flag.</p>
+<p>With clean randomization, <span class="math inline">\(\beta_B\)</span> should be near zero — randomization ensures that more story-exposed participants are not systematically more empathetic. A large <span class="math inline">\(\beta_B\)</span> is a red flag for randomization failure.</p>
+<p>We show two scenarios below: one with successful randomization and one with a compromised design where high-empathy participants receive slightly more story appeals.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n_p_exp <span class="ot">&lt;-</span> <span class="dv">80</span>; n_appeals <span class="ot">&lt;-</span> <span class="dv">10</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Some participants are trait high-empathy: they donate more AND</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># in this (imperfect) design, happen to see more story appeals</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>person_empathy     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_p_exp, <span class="dv">50</span>, <span class="dv">10</span>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>person_story_prop  <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">+</span> <span class="fl">0.01</span> <span class="sc">*</span> (person_empathy <span class="sc">-</span> <span class="dv">50</span>) <span class="sc">+</span> <span class="fu">rnorm</span>(n_p_exp, <span class="dv">0</span>, <span class="fl">0.05</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>person_story_prop  <span class="ot">&lt;-</span> <span class="fu">pmin</span>(<span class="fu">pmax</span>(person_story_prop, <span class="dv">0</span>), <span class="dv">1</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>person_base_donate <span class="ot">&lt;-</span> <span class="dv">40</span> <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> person_empathy <span class="sc">+</span> <span class="fu">rnorm</span>(n_p_exp, <span class="dv">0</span>, <span class="dv">8</span>)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>df_exp <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_p_exp, <span class="at">appeal =</span> <span class="dv">1</span><span class="sc">:</span>n_appeals) <span class="sc">|&gt;</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">story =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, person_story_prop[participant]),</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">donate =</span> person_base_donate[participant] <span class="sc">+</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>             <span class="dv">5</span> <span class="sc">*</span> (story <span class="sc">-</span> person_story_prop[participant]) <span class="sc">+</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>             <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">6</span>),</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant =</span> <span class="fu">factor</span>(participant)</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(participant) <span class="sc">|&gt;</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">story_mean =</span> <span class="fu">mean</span>(story), <span class="at">story_cmc =</span> story <span class="sc">-</span> story_mean) <span class="sc">|&gt;</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>m_exp <span class="ot">&lt;-</span> <span class="fu">lmer</span>(donate <span class="sc">~</span> story_cmc <span class="sc">+</span> story_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant), <span class="at">data =</span> df_exp)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_exp, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mechanism =</span> <span class="fu">c</span>(<span class="st">"Within-person (causal effect)"</span>, <span class="st">"Between-person (trait confound)"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(mechanism, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Story vs. stats: within ≈ 5 (treatment effect); between ≈ near zero (good randomization)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n_p_exp <span class="ot">&lt;-</span> <span class="dv">80</span>; n_appeals <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>person_empathy     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_p_exp, <span class="dv">50</span>, <span class="dv">10</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>person_base_donate <span class="ot">&lt;-</span> <span class="dv">40</span> <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> person_empathy <span class="sc">+</span> <span class="fu">rnorm</span>(n_p_exp, <span class="dv">0</span>, <span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="sub-example-a-clean-randomization" class="level3">
+<h3 class="anchored" data-anchor-id="sub-example-a-clean-randomization">Sub-example A: Clean Randomization</h3>
+<p>Story vs.&nbsp;statistics assignment is 50/50 for every participant, independent of empathy.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_exp_a <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_p_exp, <span class="at">appeal =</span> <span class="dv">1</span><span class="sc">:</span>n_appeals) <span class="sc">|&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Clean randomization: fixed 50% probability regardless of empathy</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">story  =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, <span class="fl">0.5</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">donate =</span> person_base_donate[participant] <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>             <span class="dv">5</span> <span class="sc">*</span> (story <span class="sc">-</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>             <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">6</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant =</span> <span class="fu">factor</span>(participant)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(participant) <span class="sc">|&gt;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">story_mean =</span> <span class="fu">mean</span>(story), <span class="at">story_cmc =</span> story <span class="sc">-</span> story_mean) <span class="sc">|&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>m_exp_a <span class="ot">&lt;-</span> <span class="fu">lmer</span>(donate <span class="sc">~</span> story_cmc <span class="sc">+</span> story_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant), <span class="at">data =</span> df_exp_a)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_exp_a, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mechanism =</span> <span class="fu">c</span>(<span class="st">"Within-person (causal effect)"</span>, <span class="st">"Between-person (trait confound)"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(mechanism, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Sub-example A — clean randomization: within ≈ 5 (treatment effect recovered); between ≈ 0 (randomization succeeded)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Story vs.&nbsp;stats: within ≈ 5 (treatment effect); between ≈ near zero (good randomization)</caption>
+<caption>Sub-example A — clean randomization: within ≈ 5 (treatment effect recovered); between ≈ 0 (randomization succeeded)</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">mechanism</th>
@@ -700,22 +710,81 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Within-person (causal effect)</td>
-<td style="text-align: right;">4.569</td>
-<td style="text-align: right;">0.462</td>
+<td style="text-align: right;">5.321</td>
+<td style="text-align: right;">0.444</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Between-person (trait confound)</td>
+<td style="text-align: right;">14.938</td>
+<td style="text-align: right;">10.292</td>
+<td style="text-align: right;">0.151</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="sub-example-b-compromised-design" class="level3">
+<h3 class="anchored" data-anchor-id="sub-example-b-compromised-design">Sub-example B: Compromised Design</h3>
+<p>High-empathy participants are assigned slightly more story appeals — mimicking a design flaw where appeal type is not fully randomized (e.g., sequential block assignment that correlates with participant order and trait).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># High-empathy participants see slightly more story appeals</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>person_story_prop <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">+</span> <span class="fl">0.02</span> <span class="sc">*</span> (person_empathy <span class="sc">-</span> <span class="dv">50</span>) <span class="sc">+</span> <span class="fu">rnorm</span>(n_p_exp, <span class="dv">0</span>, <span class="fl">0.05</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>person_story_prop <span class="ot">&lt;-</span> <span class="fu">pmin</span>(<span class="fu">pmax</span>(person_story_prop, <span class="dv">0</span>), <span class="dv">1</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>df_exp_b <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_p_exp, <span class="at">appeal =</span> <span class="dv">1</span><span class="sc">:</span>n_appeals) <span class="sc">|&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">story  =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, person_story_prop[participant]),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">donate =</span> person_base_donate[participant] <span class="sc">+</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>             <span class="dv">5</span> <span class="sc">*</span> (story <span class="sc">-</span> person_story_prop[participant]) <span class="sc">+</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>             <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">6</span>),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant =</span> <span class="fu">factor</span>(participant)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(participant) <span class="sc">|&gt;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">story_mean =</span> <span class="fu">mean</span>(story), <span class="at">story_cmc =</span> story <span class="sc">-</span> story_mean) <span class="sc">|&gt;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>m_exp_b <span class="ot">&lt;-</span> <span class="fu">lmer</span>(donate <span class="sc">~</span> story_cmc <span class="sc">+</span> story_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant), <span class="at">data =</span> df_exp_b)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_exp_b, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mechanism =</span> <span class="fu">c</span>(<span class="st">"Within-person (causal effect)"</span>, <span class="st">"Between-person (trait confound)"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(mechanism, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Sub-example B — compromised randomization: between-person term inflated by empathy-exposure correlation"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Sub-example B — compromised randomization: between-person term inflated by empathy-exposure correlation</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">mechanism</th>
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">std.error</th>
+<th style="text-align: right;">p.value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Within-person (causal effect)</td>
+<td style="text-align: right;">4.799</td>
+<td style="text-align: right;">0.479</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Between-person (trait confound)</td>
-<td style="text-align: right;">27.913</td>
-<td style="text-align: right;">5.476</td>
+<td style="text-align: right;">33.081</td>
+<td style="text-align: right;">4.046</td>
 <td style="text-align: right;">0</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>With good randomization, <span class="math inline">\(\beta_B \approx 0\)</span> and <span class="math inline">\(\beta_W\)</span> recovers the true treatment effect. A significant <span class="math inline">\(\beta_B\)</span> would suggest a randomization failure or a design confound — worth always checking in within-subjects designs.</p>
+<p>In Sub-example A, <span class="math inline">\(\beta_B \approx 0\)</span> and <span class="math inline">\(\beta_W\)</span> recovers the true treatment effect of 5. In Sub-example B, <span class="math inline">\(\beta_B\)</span> departs from zero because high-empathy participants — who donate more in general — happened to see more story appeals. The within-person estimate is still protected by cluster-mean centering, but the between-person estimate reflects both the story effect and the underlying empathy gradient. A significant <span class="math inline">\(\beta_B\)</span> in your own data would suggest a randomization failure or a design confound — worth always checking in within-subjects designs.</p>
 <hr>
+</section>
 </section>
 <section id="example-3-ecological-fallacy-education-and-fertility" class="level2">
 <h2 class="anchored" data-anchor-id="example-3-ecological-fallacy-education-and-fertility">Example 3: Ecological Fallacy — Education and Fertility</h2>
@@ -726,28 +795,28 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>n_countries_ef <span class="ot">&lt;-</span> <span class="dv">50</span>; n_years_ef <span class="ot">&lt;-</span> <span class="dv">8</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>country_edu_avg <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_countries_ef, <span class="dv">60</span>, <span class="dv">12</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>country_fert_base <span class="ot">&lt;-</span> <span class="fl">4.5</span> <span class="sc">-</span> <span class="fl">0.05</span> <span class="sc">*</span> country_edu_avg <span class="sc">+</span> <span class="fu">rnorm</span>(n_countries_ef, <span class="dv">0</span>, <span class="fl">0.4</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>df_ef <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">country =</span> <span class="dv">1</span><span class="sc">:</span>n_countries_ef, <span class="at">year =</span> <span class="dv">1</span><span class="sc">:</span>n_years_ef) <span class="sc">|&gt;</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">education =</span> country_edu_avg[country] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fertility =</span> country_fert_base[country] <span class="sc">-</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>                <span class="fl">0.01</span> <span class="sc">*</span> (education <span class="sc">-</span> country_edu_avg[country]) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.2</span>),</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">country   =</span> <span class="fu">factor</span>(country)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">|&gt;</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">edu_mean =</span> <span class="fu">mean</span>(education), <span class="at">edu_cmc =</span> education <span class="sc">-</span> edu_mean) <span class="sc">|&gt;</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>m_ef <span class="ot">&lt;-</span> <span class="fu">lmer</span>(fertility <span class="sc">~</span> edu_cmc <span class="sc">+</span> edu_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> country), <span class="at">data =</span> df_ef)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_ef, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mechanism =</span> <span class="fu">c</span>(<span class="st">"Within-country over time"</span>, <span class="st">"Between-country cross-section"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(mechanism, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Education → fertility: both negative, but between is 5× larger due to structural confounds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n_countries_ef <span class="ot">&lt;-</span> <span class="dv">50</span>; n_years_ef <span class="ot">&lt;-</span> <span class="dv">8</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>country_edu_avg <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_countries_ef, <span class="dv">60</span>, <span class="dv">12</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>country_fert_base <span class="ot">&lt;-</span> <span class="fl">4.5</span> <span class="sc">-</span> <span class="fl">0.05</span> <span class="sc">*</span> country_edu_avg <span class="sc">+</span> <span class="fu">rnorm</span>(n_countries_ef, <span class="dv">0</span>, <span class="fl">0.4</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>df_ef <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">country =</span> <span class="dv">1</span><span class="sc">:</span>n_countries_ef, <span class="at">year =</span> <span class="dv">1</span><span class="sc">:</span>n_years_ef) <span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">education =</span> country_edu_avg[country] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fertility =</span> country_fert_base[country] <span class="sc">-</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                <span class="fl">0.01</span> <span class="sc">*</span> (education <span class="sc">-</span> country_edu_avg[country]) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.2</span>),</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">country   =</span> <span class="fu">factor</span>(country)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(country) <span class="sc">|&gt;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">edu_mean =</span> <span class="fu">mean</span>(education), <span class="at">edu_cmc =</span> education <span class="sc">-</span> edu_mean) <span class="sc">|&gt;</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>m_ef <span class="ot">&lt;-</span> <span class="fu">lmer</span>(fertility <span class="sc">~</span> edu_cmc <span class="sc">+</span> edu_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> country), <span class="at">data =</span> df_ef)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_ef, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mechanism =</span> <span class="fu">c</span>(<span class="st">"Within-country over time"</span>, <span class="st">"Between-country cross-section"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(mechanism, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Education → fertility: both negative, but between is 5× larger due to structural confounds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -763,13 +832,13 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Within-country over time</td>
-<td style="text-align: right;">-0.010</td>
+<td style="text-align: right;">-0.008</td>
 <td style="text-align: right;">0.002</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Between-country cross-section</td>
-<td style="text-align: right;">-0.051</td>
+<td style="text-align: right;">-0.048</td>
 <td style="text-align: right;">0.004</td>
 <td style="text-align: right;">0</td>
 </tr>
@@ -787,28 +856,28 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>n_cust  <span class="ot">&lt;-</span> <span class="dv">100</span>; n_months_c <span class="ot">&lt;-</span> <span class="dv">8</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>cust_coach_avg  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_cust, <span class="dv">3</span>, <span class="dv">1</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>cust_save_base  <span class="ot">&lt;-</span> <span class="dv">20</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> cust_coach_avg <span class="sc">+</span> <span class="fu">rnorm</span>(n_cust, <span class="dv">0</span>, <span class="dv">5</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>df_coach <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">customer =</span> <span class="dv">1</span><span class="sc">:</span>n_cust, <span class="at">month =</span> <span class="dv">1</span><span class="sc">:</span>n_months_c) <span class="sc">|&gt;</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">coaching =</span> <span class="fu">pmax</span>(<span class="dv">0</span>, cust_coach_avg[customer] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.8</span>)),</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">savings  =</span> cust_save_base[customer] <span class="sc">+</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>               <span class="fl">2.5</span> <span class="sc">*</span> (coaching <span class="sc">-</span> cust_coach_avg[customer]) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">customer =</span> <span class="fu">factor</span>(customer)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(customer) <span class="sc">|&gt;</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">coach_mean =</span> <span class="fu">mean</span>(coaching), <span class="at">coach_cmc =</span> coaching <span class="sc">-</span> coach_mean) <span class="sc">|&gt;</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>m_coach <span class="ot">&lt;-</span> <span class="fu">lmer</span>(savings <span class="sc">~</span> coach_cmc <span class="sc">+</span> coach_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> customer), <span class="at">data =</span> df_coach)</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_coach, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mechanism =</span> <span class="fu">c</span>(<span class="st">"Within-customer (coaching → savings)"</span>, <span class="st">"Between-customer (engagement level)"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(mechanism, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Coaching → savings: within ≈ between ≈ 3. Pooled model is approximately correct here."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>n_cust  <span class="ot">&lt;-</span> <span class="dv">100</span>; n_months_c <span class="ot">&lt;-</span> <span class="dv">8</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>cust_coach_avg  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_cust, <span class="dv">3</span>, <span class="dv">1</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>cust_save_base  <span class="ot">&lt;-</span> <span class="dv">20</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> cust_coach_avg <span class="sc">+</span> <span class="fu">rnorm</span>(n_cust, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>df_coach <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">customer =</span> <span class="dv">1</span><span class="sc">:</span>n_cust, <span class="at">month =</span> <span class="dv">1</span><span class="sc">:</span>n_months_c) <span class="sc">|&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">coaching =</span> <span class="fu">pmax</span>(<span class="dv">0</span>, cust_coach_avg[customer] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.8</span>)),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">savings  =</span> cust_save_base[customer] <span class="sc">+</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>               <span class="fl">2.5</span> <span class="sc">*</span> (coaching <span class="sc">-</span> cust_coach_avg[customer]) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">customer =</span> <span class="fu">factor</span>(customer)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(customer) <span class="sc">|&gt;</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">coach_mean =</span> <span class="fu">mean</span>(coaching), <span class="at">coach_cmc =</span> coaching <span class="sc">-</span> coach_mean) <span class="sc">|&gt;</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>m_coach <span class="ot">&lt;-</span> <span class="fu">lmer</span>(savings <span class="sc">~</span> coach_cmc <span class="sc">+</span> coach_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> customer), <span class="at">data =</span> df_coach)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_coach, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mechanism =</span> <span class="fu">c</span>(<span class="st">"Within-customer (coaching → savings)"</span>, <span class="st">"Between-customer (engagement level)"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(mechanism, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Coaching → savings: within ≈ between ≈ 3. Pooled model is approximately correct here."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -824,14 +893,14 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Within-customer (coaching → savings)</td>
-<td style="text-align: right;">2.496</td>
-<td style="text-align: right;">0.193</td>
+<td style="text-align: right;">2.303</td>
+<td style="text-align: right;">0.196</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Between-customer (engagement level)</td>
-<td style="text-align: right;">1.786</td>
-<td style="text-align: right;">0.477</td>
+<td style="text-align: right;">2.848</td>
+<td style="text-align: right;">0.486</td>
 <td style="text-align: right;">0</td>
 </tr>
 </tbody>
@@ -847,8 +916,8 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test on the Easterlin model: are within and between GDP effects equal?</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">linearHypothesis</span>(m_mundlak, <span class="st">"gdp_cmc = gdp_mean"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test on the Easterlin model: are within and between GDP effects equal?</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">linearHypothesis</span>(m_mundlak, <span class="st">"gdp_cmc = gdp_mean"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div class="kable-table">

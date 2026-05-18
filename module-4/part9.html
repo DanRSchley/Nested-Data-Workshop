@@ -597,7 +597,7 @@ window.Quarto = {
 </section>
 <section id="missing-at-random-mar" class="level3">
 <h3 class="anchored" data-anchor-id="missing-at-random-mar">Missing At Random (MAR)</h3>
-<p>Whether an observation is missing depends on <strong>observed variables</strong> in the dataset, but not on the missing value itself after conditioning on those variables. Modern methods (FIML via <code>lmer</code>, multiple imputation) are valid under MAR.</p>
+<p>Whether an observation is missing depends on <strong>observed variables</strong> in the dataset, but not on the missing value itself after conditioning on those variables. Modern methods (available-case maximum likelihood via <code>lmer</code>, multiple imputation) can be valid under MAR when the model is correctly specified and predictors of missingness are included. Note: <code>lmer</code> uses all observed outcomes under the model’s likelihood — this is not identical to SEM-style FIML but shares the core MAR property.</p>
 <p><em>JDM example:</em> Households with higher baseline debt are more likely to drop out of a financial diary study. Higher debt is observed. Once you condition on observed baseline debt, dropout is independent of the <em>unobserved future</em> financial behavior. The dropout is predictable from what you have — but it is not driven by the unseen future outcome.</p>
 </section>
 <section id="missing-not-at-random-mnar" class="level3">
@@ -638,7 +638,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Plain-language meaning:</strong> Multiple imputation and FIML via <code>lmer</code> are only valid if the data are MAR — missing for reasons explainable by observed variables — or MCAR. If dropout is driven by the unobserved outcome trajectory, these methods reduce but cannot eliminate bias.</p>
+<p><strong>Plain-language meaning:</strong> Multiple imputation and available-case ML via <code>lmer</code> are only valid if the data are MAR — missing for reasons explainable by observed variables — or MCAR. If dropout is driven by the unobserved outcome trajectory, these methods reduce but cannot eliminate bias.</p>
 <p><strong>What the model is assuming away:</strong> The possibility that the financially distressed households who disappeared from wave 3 had <em>worse outcomes than predicted from their observed characteristics</em> — and dropped out specifically because of that unobserved worsening.</p>
 <p><strong>JDM example:</strong> If app users disengage specifically after large overdraft events (which are unobserved in your data), their missing wave 3 savings behavior is not explained by their observed baseline debt level. The dropout is MNAR.</p>
 <p><strong>What a skeptical reviewer might say:</strong> “Your imputation is valid under MAR — but why would a financial diary dropout be MAR? The people who stop logging finances are arguably the ones whose finances are getting worse in ways your baseline measures don’t fully capture.”</p>

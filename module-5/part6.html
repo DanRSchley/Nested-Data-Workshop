@@ -571,7 +571,7 @@ window.Quarto = {
 <div class="callout-body-container callout-body">
 <blockquote class="blockquote">
 <p><strong>What kind of outcome variable does your experiment produce?</strong> Choices (opted in / opted out), counts (number of risky choices out of 10), or proportions (share of gambles taken) are not continuous normal outcomes. Fitting a linear model to them misspecifies the DGP.</p>
-<p><strong>What goes wrong with a linear mixed model?</strong> Predicted probabilities can fall outside [0, 1]. Residual variance depends on the mean in a structured, non-random way. Parameter estimates are biased, especially near the boundaries.</p>
+<p><strong>What goes wrong with a linear mixed model?</strong> Predicted probabilities can fall outside [0, 1]. The Gaussian model imposes the wrong mean-variance relationship and does not respect the binary or count DGP. Predicted probabilities can fall outside [0, 1], and inferences can be misleading, especially near the boundaries.</p>
 <p><strong>What is the fix?</strong> Generalized Linear Mixed Models (GLMMs) — logistic for binary, Poisson or negative binomial for counts — with the same random effects structure as the continuous case.</p>
 </blockquote>
 </div>

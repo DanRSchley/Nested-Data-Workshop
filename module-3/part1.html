@@ -708,7 +708,7 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Sophisticated investors avoid advice (prefer self-directed) AND perform better</span></span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># True X effect = +0.5 (advice genuinely helps); sophistication biases estimate downward</span></span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>Z_sophist     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">50</span>, <span class="dv">10</span>)</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>X_advice      <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">0.5</span> <span class="sc">*</span> Z_sophist <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">6</span>)   <span class="co"># sophisticated investors avoid advice</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>X_advice      <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">0.5</span> <span class="sc">*</span> Z_sophist <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">2</span>)   <span class="co"># sophisticated investors avoid advice</span></span>
 <span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>Y_returns     <span class="ot">&lt;-</span> <span class="fl">0.4</span> <span class="sc">*</span> Z_sophist <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> X_advice <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">8</span>)</span>
 <span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>m_biased_3  <span class="ot">&lt;-</span> <span class="fu">lm</span>(Y_returns <span class="sc">~</span> X_advice)</span>
@@ -782,16 +782,16 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <tr class="odd">
 <td style="text-align: left;">Investment advice (true=0.5)</td>
 <td style="text-align: left;">Omits Z</td>
-<td style="text-align: right;">0.196</td>
-<td style="text-align: right;">0.049</td>
-<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">-0.122</td>
+<td style="text-align: right;">0.068</td>
+<td style="text-align: right;">0.072</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Investment advice (true=0.5)</td>
 <td style="text-align: left;">Includes Z</td>
-<td style="text-align: right;">0.459</td>
-<td style="text-align: right;">0.059</td>
-<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.377</td>
+<td style="text-align: right;">0.177</td>
+<td style="text-align: right;">0.034</td>
 </tr>
 </tbody>
 </table>

@@ -576,10 +576,10 @@ window.Quarto = {
 <p>Consider two studies:</p>
 <p><strong>Study A (Longitudinal):</strong> You track 30 households across 8 monthly waves in a financial coaching program. Each month, you record how many pages of the financial disclosure document they reviewed and how much they saved. Households differ in underlying financial literacy: more literate households engage more with disclosure <em>and</em> save more regardless of engagement. The disclosure effect is confounded with literacy.</p>
 <p><strong>Study B (Experimental):</strong> You run a within-subjects experiment. Each of 80 participants evaluates 12 product descriptions — 6 under a “scarcity” framing (“only 3 left!”) and 6 under a neutral framing. Each participant sees both conditions.</p>
-<p>Both studies share the same fundamental structure: <strong>multiple observations nested within the same unit</strong> (household, participant). And both share the same fundamental problem: unit-level differences confound the estimate of the effect you care about.</p>
-<p>In Study A, financially literate households read more disclosure <em>and</em> save more — so the disclosure engagement effect is confounded with literacy.</p>
-<p>In Study B, some participants are just more easily persuaded than others — so the framing effect is confounded with individual persuadability.</p>
-<p>Fixed effects solve both problems in exactly the same way.</p>
+<p>Both studies share the same fundamental structure: <strong>multiple observations nested within the same unit</strong> (household, participant). But the problem each creates is different.</p>
+<p>In Study A, financially literate households read more disclosure <em>and</em> save more — so the disclosure engagement effect is <strong>confounded with literacy</strong>. Ignoring nesting produces a biased estimate.</p>
+<p>In Study B, condition is randomly assigned, so individual persuadability does not systematically correlate with the scarcity condition. The problem is not bias — it is <strong>dependence</strong>: ratings from the same participant are not independent observations. A pooled regression treats each rating as an independent draw and underestimates uncertainty. Standard errors are too small, confidence intervals too narrow, and Type I error rates are inflated.</p>
+<p>Fixed effects address both problems by absorbing all stable person-level characteristics — eliminating the literacy confound in Study A and recovering correct within-person standard errors in Study B.</p>
 <hr>
 </section>
 <section id="the-model" class="level2">
@@ -673,7 +673,7 @@ window.Quarto = {
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n_participants <span class="ot">&lt;-</span> <span class="dv">80</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>n_ratings      <span class="ot">&lt;-</span> <span class="dv">12</span>   <span class="co"># 6 scarcity, 6 neutral</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The confound: participants differ in baseline persuadability</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Nesting: participants differ in baseline persuadability; condition is randomly assigned within person</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>persuadability <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">50</span>, <span class="dv">10</span>)</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>df_exp <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>

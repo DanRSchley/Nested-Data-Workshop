@@ -570,15 +570,15 @@ window.Quarto = {
 </div>
 <div class="callout-body-container callout-body">
 <blockquote class="blockquote">
-<p><strong>If this experiment had gone perfectly — full compliance, zero attrition, no crossover — what would randomization have identified?</strong> An unbiased average treatment effect (ATE) for all participants.</p>
+<p><strong>If this experiment had gone perfectly — full compliance, zero attrition, no crossover — what would randomization have identified?</strong> An average treatment effect (ATE) for all participants — provided there is no interference, no differential attrition, and measurement is stable.</p>
 <p><strong>What complication prevents that here?</strong> Non-compliance: some assigned participants do not receive treatment, so the treated group is a self-selected subset of the assigned group.</p>
-<p><strong>What is the next-best estimand?</strong> The intent-to-treat effect (ITT) — unbiased but diluted — or the local average treatment effect (LATE) for compliers, recovered via instrumental variables with assignment as the instrument.</p>
+<p><strong>What is the next-best estimand?</strong> The intent-to-treat effect (ITT) — unbiased under random assignment and no differential attrition, but diluted — or the local average treatment effect (LATE) for compliers, recovered via instrumental variables with assignment as the instrument.</p>
 </blockquote>
 </div>
 </div>
 <section id="section-1-the-compliance-problem" class="level2">
 <h2 class="anchored" data-anchor-id="section-1-the-compliance-problem">Section 1: The Compliance Problem</h2>
-<p>Random assignment guarantees unbiased <strong>intent-to-treat (ITT)</strong> estimates — the effect of being offered or assigned to treatment. But ITT is not always the quantity of interest.</p>
+<p>Random assignment supports <strong>intent-to-treat (ITT)</strong> estimates that are unbiased under standard conditions (no differential attrition, exclusion restriction, no interference) — the effect of being offered or assigned to treatment. But ITT is not always the quantity of interest.</p>
 <p>Consider a randomized budgeting tool experiment: half the participants are given access to a digital budgeting tool, the other half to a standard information email. At 3 months, the ITT estimate is the effect of <em>being offered</em> the tool — but if only 65% of offered participants actually activated it, the ITT averages together the tool’s effect with a zero effect for the 35% who never engaged. The ITT underestimates the effect of the budgeting tool itself for people who would comply.</p>
 <p>This is the <strong>compliance problem</strong>: the treatment assigned (<span class="math inline">\(Z\)</span>) diverges from the treatment received (<span class="math inline">\(D\)</span>).</p>
 <p>Four estimands address this situation, each answering a different question:</p>
