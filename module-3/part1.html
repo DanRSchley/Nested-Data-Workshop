@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>19&nbsp; Endogeneity: Why Regression Lies (and How to Catch It) – Nested Data Structures</title>
+<title>Endogeneity: Why Regression Lies (and How to Catch It) – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -139,6 +140,14 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-3/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-3/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -150,7 +159,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Inferential Threats &amp; Identification</a></li><li class="breadcrumb-item"><a href="../module-3/part1.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Inferential Threats &amp; Identification</a></li><li class="breadcrumb-item"><a href="../module-3/part1.html"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -180,8 +189,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -195,32 +203,27 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -236,44 +239,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -289,26 +285,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -324,44 +316,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -377,68 +362,57 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -454,62 +428,52 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -525,14 +489,12 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -547,20 +509,21 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#endogeneity-why-regression-lies-and-how-to-catch-it" id="toc-endogeneity-why-regression-lies-and-how-to-catch-it" class="nav-link active" data-scroll-target="#endogeneity-why-regression-lies-and-how-to-catch-it"><span class="header-section-number">20</span> Endogeneity: Why Regression Lies (and How to Catch It)</a>
+  <li><a href="#endogeneity-why-regression-lies-and-how-to-catch-it" id="toc-endogeneity-why-regression-lies-and-how-to-catch-it" class="nav-link active" data-scroll-target="#endogeneity-why-regression-lies-and-how-to-catch-it">Endogeneity: Why Regression Lies (and How to Catch It)</a>
   <ul class="collapse">
-  <li><a href="#the-fundamental-problem-of-causal-inference" id="toc-the-fundamental-problem-of-causal-inference" class="nav-link" data-scroll-target="#the-fundamental-problem-of-causal-inference"><span class="header-section-number">20.1</span> The Fundamental Problem of Causal Inference</a></li>
-  <li><a href="#what-is-endogeneity" id="toc-what-is-endogeneity" class="nav-link" data-scroll-target="#what-is-endogeneity"><span class="header-section-number">20.2</span> What is Endogeneity?</a></li>
-  <li><a href="#source-1-omitted-variable-bias-ovb" id="toc-source-1-omitted-variable-bias-ovb" class="nav-link" data-scroll-target="#source-1-omitted-variable-bias-ovb"><span class="header-section-number">20.3</span> Source 1: Omitted Variable Bias (OVB)</a>
+  <li><a href="#the-fundamental-problem-of-causal-inference" id="toc-the-fundamental-problem-of-causal-inference" class="nav-link" data-scroll-target="#the-fundamental-problem-of-causal-inference">The Fundamental Problem of Causal Inference</a></li>
+  <li><a href="#what-is-endogeneity" id="toc-what-is-endogeneity" class="nav-link" data-scroll-target="#what-is-endogeneity">What is Endogeneity?</a></li>
+  <li><a href="#source-1-omitted-variable-bias-ovb" id="toc-source-1-omitted-variable-bias-ovb" class="nav-link" data-scroll-target="#source-1-omitted-variable-bias-ovb">Source 1: Omitted Variable Bias (OVB)</a>
   <ul class="collapse">
-  <li><a href="#the-bias-formula" id="toc-the-bias-formula" class="nav-link" data-scroll-target="#the-bias-formula"><span class="header-section-number">20.3.1</span> The Bias Formula</a></li>
-  <li><a href="#three-demonstrations" id="toc-three-demonstrations" class="nav-link" data-scroll-target="#three-demonstrations"><span class="header-section-number">20.3.2</span> Three Demonstrations</a></li>
+  <li><a href="#the-bias-formula" id="toc-the-bias-formula" class="nav-link" data-scroll-target="#the-bias-formula">The Bias Formula</a></li>
+  <li><a href="#same-observables-two-stories" id="toc-same-observables-two-stories" class="nav-link" data-scroll-target="#same-observables-two-stories">Same Observables, Two Stories</a></li>
+  <li><a href="#three-demonstrations" id="toc-three-demonstrations" class="nav-link" data-scroll-target="#three-demonstrations">Three Demonstrations</a></li>
   </ul></li>
-  <li><a href="#source-2-simultaneity-reverse-causality" id="toc-source-2-simultaneity-reverse-causality" class="nav-link" data-scroll-target="#source-2-simultaneity-reverse-causality"><span class="header-section-number">20.4</span> Source 2: Simultaneity / Reverse Causality</a></li>
-  <li><a href="#source-3-selection-effects" id="toc-source-3-selection-effects" class="nav-link" data-scroll-target="#source-3-selection-effects"><span class="header-section-number">20.5</span> Source 3: Selection Effects</a></li>
-  <li><a href="#source-4-collider-bias" id="toc-source-4-collider-bias" class="nav-link" data-scroll-target="#source-4-collider-bias"><span class="header-section-number">20.6</span> Source 4: Collider Bias</a></li>
-  <li><a href="#pearls-causal-framework-three-types-of-paths" id="toc-pearls-causal-framework-three-types-of-paths" class="nav-link" data-scroll-target="#pearls-causal-framework-three-types-of-paths"><span class="header-section-number">20.7</span> Pearl’s Causal Framework: Three Types of Paths</a></li>
-  <li><a href="#the-backdoor-criterion" id="toc-the-backdoor-criterion" class="nav-link" data-scroll-target="#the-backdoor-criterion"><span class="header-section-number">20.8</span> The Backdoor Criterion</a></li>
+  <li><a href="#source-2-simultaneity-reverse-causality" id="toc-source-2-simultaneity-reverse-causality" class="nav-link" data-scroll-target="#source-2-simultaneity-reverse-causality">Source 2: Simultaneity / Reverse Causality</a></li>
+  <li><a href="#source-3-selection-effects" id="toc-source-3-selection-effects" class="nav-link" data-scroll-target="#source-3-selection-effects">Source 3: Selection Effects</a></li>
+  <li><a href="#source-4-collider-bias" id="toc-source-4-collider-bias" class="nav-link" data-scroll-target="#source-4-collider-bias">Source 4: Collider Bias</a></li>
+  <li><a href="#pearls-causal-framework-three-types-of-paths" id="toc-pearls-causal-framework-three-types-of-paths" class="nav-link" data-scroll-target="#pearls-causal-framework-three-types-of-paths">Pearl’s Causal Framework: Three Types of Paths</a></li>
+  <li><a href="#the-backdoor-criterion" id="toc-the-backdoor-criterion" class="nav-link" data-scroll-target="#the-backdoor-criterion">The Backdoor Criterion</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -568,9 +531,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Inferential Threats &amp; Identification</a></li><li class="breadcrumb-item"><a href="../module-3/part1.html"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Inferential Threats &amp; Identification</a></li><li class="breadcrumb-item"><a href="../module-3/part1.html"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -587,16 +550,16 @@ window.Quarto = {
 </header>
 
 
-<section id="endogeneity-why-regression-lies-and-how-to-catch-it" class="level1" data-number="20">
-<h1 data-number="20"><span class="header-section-number">20</span> Endogeneity: Why Regression Lies (and How to Catch It)</h1>
-<section id="the-fundamental-problem-of-causal-inference" class="level2" data-number="20.1">
-<h2 data-number="20.1" class="anchored" data-anchor-id="the-fundamental-problem-of-causal-inference"><span class="header-section-number">20.1</span> The Fundamental Problem of Causal Inference</h2>
+<section id="endogeneity-why-regression-lies-and-how-to-catch-it" class="level1">
+<h1>Endogeneity: Why Regression Lies (and How to Catch It)</h1>
+<section id="the-fundamental-problem-of-causal-inference" class="level2">
+<h2 class="anchored" data-anchor-id="the-fundamental-problem-of-causal-inference">The Fundamental Problem of Causal Inference</h2>
 <p>Before introducing regression at all, consider the true object of scientific interest: the <strong>causal effect</strong> of X on Y for a specific unit <span class="math inline">\(i\)</span>.</p>
 <p>Under the <strong>potential outcomes framework</strong> (Rubin, 1974), every unit has two potential outcomes:</p>
 <p><span class="math display">\[
 \underbrace{\tau_i}_{\substack{\text{causal effect} \\ \text{for unit } i}} = \underbrace{Y_i(1)}_{\substack{\text{outcome if} \\ \text{treated}}} - \underbrace{Y_i(0)}_{\substack{\text{outcome if} \\ \text{not treated}}}
 \]</span></p>
-<p>The fundamental problem: <strong>we can never observe both <span class="math inline">\(Y_i(1)\)</span> and <span class="math inline">\(Y_i(0)\)</span> for the same unit at the same time.</strong> A person either received psychotherapy or they did not. A country either adopted a carbon tax or it did not. We observe one potential outcome and must infer the other.</p>
+<p>The fundamental problem: <strong>we can never observe both <span class="math inline">\(Y_i(1)\)</span> and <span class="math inline">\(Y_i(0)\)</span> for the same unit at the same time.</strong> A household either received a financial coaching program or it did not. A country either adopted a mandatory disclosure policy or it did not. We observe one potential outcome and must infer the other.</p>
 <p>Regression estimates the <strong>average treatment effect</strong> (ATE):</p>
 <p><span class="math display">\[
 \text{ATE} = E[\tau_i] = E[Y_i(1) - Y_i(0)]
@@ -605,8 +568,8 @@ window.Quarto = {
 <p>When this independence fails — when who gets X is related to Y through pathways other than X itself — the regression coefficient is <strong>endogenous</strong> and does not estimate the causal effect.</p>
 <hr>
 </section>
-<section id="what-is-endogeneity" class="level2" data-number="20.2">
-<h2 data-number="20.2" class="anchored" data-anchor-id="what-is-endogeneity"><span class="header-section-number">20.2</span> What is Endogeneity?</h2>
+<section id="what-is-endogeneity" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-endogeneity">What is Endogeneity?</h2>
 <p><strong>Endogeneity</strong> means your predictor X is correlated with the error term <span class="math inline">\(\varepsilon\)</span> in your regression:</p>
 <p><span class="math display">\[
 Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, \varepsilon_i) \neq 0
@@ -615,11 +578,11 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <p>There are four main sources.</p>
 <hr>
 </section>
-<section id="source-1-omitted-variable-bias-ovb" class="level2" data-number="20.3">
-<h2 data-number="20.3" class="anchored" data-anchor-id="source-1-omitted-variable-bias-ovb"><span class="header-section-number">20.3</span> Source 1: Omitted Variable Bias (OVB)</h2>
+<section id="source-1-omitted-variable-bias-ovb" class="level2">
+<h2 class="anchored" data-anchor-id="source-1-omitted-variable-bias-ovb">Source 1: Omitted Variable Bias (OVB)</h2>
 <p>A variable Z influences both X and Y, but Z is not in your model. The path Z → Y gets attributed to X because X and Z are correlated.</p>
-<section id="the-bias-formula" class="level3" data-number="20.3.1">
-<h3 data-number="20.3.1" class="anchored" data-anchor-id="the-bias-formula"><span class="header-section-number">20.3.1</span> The Bias Formula</h3>
+<section id="the-bias-formula" class="level3">
+<h3 class="anchored" data-anchor-id="the-bias-formula">The Bias Formula</h3>
 <p>The expected value of the biased coefficient is:</p>
 <p><span class="math display">\[
 \underbrace{E[\hat{\beta}_1]}_{\substack{\text{what we} \\ \text{estimate}}} = \underbrace{\beta_1}_{\substack{\text{true} \\ \text{effect}}} + \underbrace{\delta_{ZY}}_{\substack{Z \text{'s effect} \\ \text{on } Y}} \cdot \underbrace{\tilde{\rho}_{XZ}}_{\substack{\text{correlation of} \\ X \text{ and } Z}}
@@ -699,8 +662,23 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 </div>
 </div>
 </section>
-<section id="three-demonstrations" class="level3" data-number="20.3.2">
-<h3 data-number="20.3.2" class="anchored" data-anchor-id="three-demonstrations"><span class="header-section-number">20.3.2</span> Three Demonstrations</h3>
+<section id="same-observables-two-stories" class="level3">
+<h3 class="anchored" data-anchor-id="same-observables-two-stories">Same Observables, Two Stories</h3>
+<p>The same scatter of data points can support two completely different causal interpretations. The visualization below shows this directly: in panel (A), pooled data suggest that budget-tool use predicts higher savings. In panel (B), the same points are colored by financial literacy tertile — and within each literacy group, the relationship disappears. Financial literacy drives <em>both</em> budget-tool use and savings; the pooled slope is pure confounding.</p>
+<p>When you have not measured the confounder — which is the typical case — you see only panel (A) and cannot make the comparison that panel (B) reveals.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part1_files/figure-html/same-obs-two-stories-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This is the OVB core: the observed X–Y correlation in the left panel is entirely explained by Z. When Z is unmeasured, the naive estimate is a biased blend of the (zero) true effect and the Z-driven confounding. The simulations below show this numerically across three financial services examples.</p>
+</section>
+<section id="three-demonstrations" class="level3">
+<h3 class="anchored" data-anchor-id="three-demonstrations">Three Demonstrations</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -776,43 +754,43 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <tr class="odd">
 <td style="text-align: left;">Budget tracker (true=0)</td>
 <td style="text-align: left;">Omits Z</td>
-<td style="text-align: right;">0.543</td>
-<td style="text-align: right;">0.067</td>
+<td style="text-align: right;">0.512</td>
+<td style="text-align: right;">0.071</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Budget tracker (true=0)</td>
 <td style="text-align: left;">Includes Z</td>
-<td style="text-align: right;">-0.052</td>
-<td style="text-align: right;">0.070</td>
-<td style="text-align: right;">0.457</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Promotion (true=0.15)</td>
-<td style="text-align: left;">Omits Z</td>
-<td style="text-align: right;">0.398</td>
-<td style="text-align: right;">0.052</td>
-<td style="text-align: right;">0.000</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Promotion (true=0.15)</td>
-<td style="text-align: left;">Includes Z</td>
-<td style="text-align: right;">0.130</td>
-<td style="text-align: right;">0.053</td>
-<td style="text-align: right;">0.014</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Investment advice (true=0.5)</td>
-<td style="text-align: left;">Omits Z</td>
-<td style="text-align: right;">0.206</td>
 <td style="text-align: right;">0.051</td>
+<td style="text-align: right;">0.076</td>
+<td style="text-align: right;">0.503</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Promotion (true=0.15)</td>
+<td style="text-align: left;">Omits Z</td>
+<td style="text-align: right;">0.428</td>
+<td style="text-align: right;">0.056</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Promotion (true=0.15)</td>
+<td style="text-align: left;">Includes Z</td>
+<td style="text-align: right;">0.076</td>
+<td style="text-align: right;">0.053</td>
+<td style="text-align: right;">0.150</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Investment advice (true=0.5)</td>
+<td style="text-align: left;">Omits Z</td>
+<td style="text-align: right;">0.196</td>
+<td style="text-align: right;">0.049</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Investment advice (true=0.5)</td>
 <td style="text-align: left;">Includes Z</td>
-<td style="text-align: right;">0.553</td>
-<td style="text-align: right;">0.060</td>
+<td style="text-align: right;">0.459</td>
+<td style="text-align: right;">0.059</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 </tbody>
@@ -832,15 +810,32 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 </div>
 <div class="callout-body-container callout-body">
 <p><strong>How to check:</strong> Draw a causal diagram. List every plausible cause of Y. Ask: is any of these also correlated with X? This requires substantive reasoning about the DGP — you cannot test it purely from data.</p>
-<p><strong>In nested data:</strong> OVB is especially insidious because the omitted variable often varies at a higher level. Studying whether neighborhood green space predicts depression while omitting neighborhood income biases your estimate; the omitted variable is a neighborhood-level characteristic that clustering creates.</p>
+<p><strong>In nested data:</strong> OVB is especially insidious because the omitted variable often varies at a higher level. Studying whether branch-level disclosure intensity predicts household savings while omitting branch-level financial literacy programming biases your estimate; the omitted variable is a branch-level characteristic that clustering creates — households within high-intensity-disclosure branches are also more likely to receive financial coaching.</p>
 <p><strong>What to do:</strong> Add the variable if measurable. Use fixed effects to absorb all stable unit-level confounders. Use IV, RDD, or DiD if the confound is unmeasurable (covered in Parts 2–6).</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Reviewer Challenge: Omitted Variable Bias
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><em>“Your interpretation assumes you have controlled for all common causes of X and Y. What unmeasured variable could simultaneously predict your predictor and your outcome?”</em></p>
+</blockquote>
+<p><strong>Pattern that invites the challenge:</strong> When X and Y are both desirable outcomes (higher savings AND higher engagement; better decisions AND more information), reviewers will ask what stable individual characteristic could explain both.</p>
+<p><strong>What to show:</strong> The OVB bias formula tells you the <em>direction</em> of the problem even without the data: Sign(Z→X) × Sign(Z→Y) = sign of your bias. Report this logic explicitly. If you have plausible confounders, bound the bias using coefficient stability (Oster, 2019) or sensitivity analysis (E-values).</p>
 </div>
 </div>
 <hr>
 </section>
 </section>
-<section id="source-2-simultaneity-reverse-causality" class="level2" data-number="20.4">
-<h2 data-number="20.4" class="anchored" data-anchor-id="source-2-simultaneity-reverse-causality"><span class="header-section-number">20.4</span> Source 2: Simultaneity / Reverse Causality</h2>
+<section id="source-2-simultaneity-reverse-causality" class="level2">
+<h2 class="anchored" data-anchor-id="source-2-simultaneity-reverse-causality">Source 2: Simultaneity / Reverse Causality</h2>
 <p>X causes Y, but Y also causes X. The causal arrow runs in both directions, creating a feedback loop that OLS cannot untangle.</p>
 <div class="cell">
 <details class="code-fold">
@@ -848,26 +843,27 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>n_sim <span class="ot">&lt;-</span> <span class="dv">300</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Social support → depression (negative), but depression → social withdrawal (negative)</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate equilibrium: both processes are real</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>time_pts <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">t    =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">support =</span> <span class="fu">c</span>(<span class="dv">60</span>, <span class="dv">55</span>, <span class="dv">52</span>, <span class="dv">50</span>, <span class="dv">49</span>, <span class="dv">48</span>, <span class="dv">47</span>, <span class="dv">47</span>, <span class="dv">47</span>, <span class="dv">47</span>) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">2</span>),</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">depression =</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">38</span>, <span class="dv">40</span>, <span class="dv">41</span>, <span class="dv">42</span>, <span class="dv">43</span>, <span class="dv">43</span>, <span class="dv">43</span>, <span class="dv">43</span>) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">2</span>)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>p_sim <span class="ot">&lt;-</span> time_pts <span class="sc">|&gt;</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>t) <span class="sc">|&gt;</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> t, <span class="at">y =</span> value, <span class="at">color =</span> name, <span class="at">group =</span> name)) <span class="sc">+</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#e63946"</span>, <span class="st">"#1e3a5f"</span>),</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Depression"</span>, <span class="st">"Social Support"</span>)) <span class="sc">+</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Simultaneity: support → depression AND depression → support"</span>,</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"OLS on cross-sectional data picks up both arrows simultaneously"</span>,</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Time"</span>, <span class="at">y =</span> <span class="st">"Level"</span>, <span class="at">color =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>p_sim</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Consumer trust → financial engagement (positive), but engagement → trust (positive)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate equilibrium: customer who engages more trusts the institution more,</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># but the institution also targets more-trusting customers with higher engagement offers</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>time_pts <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">t          =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">engagement =</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">38</span>, <span class="dv">40</span>, <span class="dv">41</span>, <span class="dv">42</span>, <span class="dv">43</span>, <span class="dv">43</span>, <span class="dv">43</span>, <span class="dv">43</span>) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">2</span>),</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">trust      =</span> <span class="fu">c</span>(<span class="dv">60</span>, <span class="dv">55</span>, <span class="dv">52</span>, <span class="dv">50</span>, <span class="dv">49</span>, <span class="dv">48</span>, <span class="dv">47</span>, <span class="dv">47</span>, <span class="dv">47</span>, <span class="dv">47</span>) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">2</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>p_sim <span class="ot">&lt;-</span> time_pts <span class="sc">|&gt;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>t) <span class="sc">|&gt;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> t, <span class="at">y =</span> value, <span class="at">color =</span> name, <span class="at">group =</span> name)) <span class="sc">+</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#e63946"</span>, <span class="st">"#1e3a5f"</span>),</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Platform Engagement"</span>, <span class="st">"Consumer Trust"</span>)) <span class="sc">+</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Simultaneity: trust → engagement AND engagement → trust"</span>,</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"OLS on cross-sectional data picks up both arrows simultaneously"</span>,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Time"</span>, <span class="at">y =</span> <span class="st">"Level"</span>, <span class="at">color =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>p_sim</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -877,8 +873,8 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 </div>
 </div>
 </div>
-<p><strong>Psychology example:</strong> Social support reduces depression — but depression also causes people to withdraw from social networks. A cross-sectional regression of depression on social support picks up both directions simultaneously and gives a confounded estimate.</p>
-<p>The same dynamic is common in consumer markets: advertising drives sales (brand awareness → purchase), but sales revenue funds advertising (revenue → ad budget). A cross-sectional regression of sales on advertising spending cannot identify whether awareness causes purchases or revenue enables advertising. Longitudinal designs with lagged predictors are required.</p>
+<p><strong>JDM example:</strong> Consumer trust in a financial institution increases platform engagement — but engagement also builds trust (repeated positive experiences reinforce confidence). A cross-sectional regression of engagement on trust picks up both directions simultaneously and gives a confounded estimate.</p>
+<p>The same dynamic appears in advertising: promotional messaging drives purchase intent (awareness → intention), but purchase history drives the volume of targeted promotions a customer receives (purchase history → ad targeting). A cross-sectional regression of purchase intent on messaging frequency cannot identify whether messaging causes intent or prior purchasing causes targeting. Longitudinal designs with lagged predictors are required.</p>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -893,19 +889,53 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <p><strong>What to do:</strong> - Use <strong>lagged predictors</strong> (<span class="math inline">\(X_{t-1}\)</span> predicting <span class="math inline">\(Y_t\)</span>) in panel data - Use <strong>instrumental variables</strong> (Part 2) to isolate the causal direction - Use <strong>cross-lagged panel models</strong> (Module 4, Part 6) which model both causal arrows explicitly</p>
 </div>
 </div>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Reviewer Challenge: Reverse Causality
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><em>“Your model assumes X causes Y, but couldn’t Y cause X? What tells us the arrow runs in the direction you claim?”</em></p>
+</blockquote>
+<p><strong>Pattern that invites the challenge:</strong> Cross-sectional data, outcomes that could plausibly influence the predictor, or settings where timing is ambiguous (e.g., both variables are measured at the same moment).</p>
+<p><strong>What to show:</strong> Lagged predictors (<span class="math inline">\(X_{t-1}\)</span> predicting <span class="math inline">\(Y_t\)</span>) rule out same-period reverse causality. Natural experiments or randomized instruments that shift X but cannot respond to Y rule out the reverse path. The cross-lagged panel model (Module 4, Part 6) makes both causal arrows estimable.</p>
+</div>
+</div>
 <hr>
 </section>
-<section id="source-3-selection-effects" class="level2" data-number="20.5">
-<h2 data-number="20.5" class="anchored" data-anchor-id="source-3-selection-effects"><span class="header-section-number">20.5</span> Source 3: Selection Effects</h2>
+<section id="source-3-selection-effects" class="level2">
+<h2 class="anchored" data-anchor-id="source-3-selection-effects">Source 3: Selection Effects</h2>
 <p>The observations in your dataset are not a random sample of the population. Who ends up in your data — and which treatment they receive — is systematically related to both X and Y.</p>
-<p><strong>Self-selection:</strong> People who choose to undergo therapy are systematically different from those who don’t — they may be more motivated to change, have better social support, or have less severe disorders. Comparing therapy-goers to non-therapy-goers conflates the effect of therapy with all these pre-existing differences.</p>
-<p><strong>Survivorship bias:</strong> You only observe firms that survived long enough to be in your dataset. Failed firms are absent. Conclusions about firm strategy drawn from survivors are biased because you are conditioning on survival.</p>
-<p><strong>Attrition in longitudinal studies:</strong> Participants who drop out of a study are often systematically different from completers. If the sickest patients drop out of a clinical trial, the observed treatment effect among completers overstates the population-level effect.</p>
+<p><strong>Self-selection:</strong> Customers who choose to open a premium bank account are systematically different from those who don’t — they may be more financially literate, more savings-oriented, or already wealthier. Comparing premium account holders to standard customers conflates the effect of the account type with all these pre-existing differences.</p>
+<p><strong>Survivorship bias:</strong> You only observe the financial products that survived long enough to be in your dataset. Products that were discontinued due to poor uptake are absent. Conclusions about product design drawn from current survivors are biased because you are conditioning on market survival.</p>
+<p><strong>Attrition in longitudinal studies:</strong> Participants who drop out of a financial diary study are often systematically different from completers. If the most financially distressed households stop reporting because their situation is worsening, the observed trajectory among completers overstates average financial health improvement.</p>
 <p>This source of endogeneity is covered in depth in Part 3.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Reviewer Challenge: Selection Effects
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><em>“Who is in your sample, and why? Are the people you observed the same as the population your theory is about?”</em></p>
+</blockquote>
+<p><strong>Pattern that invites the challenge:</strong> Studies of platform users, program participants, survey respondents, or experimental volunteers — any setting where participation is voluntary or observable only for a subset.</p>
+<p><strong>What to show:</strong> Compare baseline characteristics of participants to the eligible population (if known). Report participation rates. In longitudinal designs, compare baseline characteristics of completers to dropouts. If selective participation seems likely, use IPW (Module 3, Part 6) or bound the estimate under selection-on-observables.</p>
+</div>
+</div>
 <hr>
 </section>
-<section id="source-4-collider-bias" class="level2" data-number="20.6">
-<h2 data-number="20.6" class="anchored" data-anchor-id="source-4-collider-bias"><span class="header-section-number">20.6</span> Source 4: Collider Bias</h2>
+<section id="source-4-collider-bias" class="level2">
+<h2 class="anchored" data-anchor-id="source-4-collider-bias">Source 4: Collider Bias</h2>
 <p>This source is frequently overlooked but is just as dangerous as the others. <strong>Conditioning on a collider</strong> — a variable caused by <em>both</em> X and Y — creates a spurious association between X and Y even when none exists.</p>
 <p>A <strong>collider</strong> is a variable C where two causal arrows “collide”:</p>
 <p><span class="math display">\[X \rightarrow C \leftarrow Y\]</span></p>
@@ -1025,10 +1055,27 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <p><strong>Common mistake:</strong> “Kitchen sink” regressions that add every available covariate. If any of those covariates is a collider, adding it <em>creates</em> bias where none existed.</p>
 </div>
 </div>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Reviewer Challenge: Collider / Bad Control Bias
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><em>“The variable you added to your model — are you sure it’s a confounder and not a collider? Could controlling for it have opened a backdoor path rather than closed one?”</em></p>
+</blockquote>
+<p><strong>Pattern that invites the challenge:</strong> “Kitchen sink” regressions; controlling for behavioral outcomes that happen after X; restricting samples based on an outcome-related criterion (only analyzing purchasers, only active users, only completers).</p>
+<p><strong>What to show:</strong> Draw the causal diagram. For every covariate included, confirm it is caused by neither X nor Y (confounder), not caused by both (collider), and not on the causal path from X to Y (mediator). If uncertain, run the analysis with and without the suspect variable.</p>
+</div>
+</div>
 <hr>
 </section>
-<section id="pearls-causal-framework-three-types-of-paths" class="level2" data-number="20.7">
-<h2 data-number="20.7" class="anchored" data-anchor-id="pearls-causal-framework-three-types-of-paths"><span class="header-section-number">20.7</span> Pearl’s Causal Framework: Three Types of Paths</h2>
+<section id="pearls-causal-framework-three-types-of-paths" class="level2">
+<h2 class="anchored" data-anchor-id="pearls-causal-framework-three-types-of-paths">Pearl’s Causal Framework: Three Types of Paths</h2>
 <p>Judea Pearl’s causal graph (DAG) framework provides a systematic way to identify endogeneity. Every causal graph has three fundamental path structures:</p>
 <div class="cell">
 <details class="code-fold">
@@ -1046,36 +1093,46 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.25</span>, <span class="st">"cm"</span>)),</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                      <span class="at">color =</span> edges_df<span class="sc">$</span>color[i], <span class="at">linewidth =</span> <span class="fl">1.2</span>)</span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  p <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> title, <span class="at">subtitle =</span> note) <span class="sc">+</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlim</span>(<span class="fl">0.3</span>, <span class="fl">3.7</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="fl">0.4</span>, <span class="fl">2.6</span>) <span class="sc">+</span> <span class="fu">theme_void</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">11</span>),</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>          <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>, <span class="at">color =</span> <span class="st">"gray40"</span>))</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>nodes_fork <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">label =</span> <span class="fu">c</span>(<span class="st">"Z"</span>, <span class="st">"X"</span>, <span class="st">"Y"</span>), <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>edges_fork <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x1=</span><span class="fu">c</span>(<span class="fl">1.8</span>,<span class="fl">2.2</span>), <span class="at">x2=</span><span class="fu">c</span>(<span class="fl">1.2</span>,<span class="fl">2.8</span>), <span class="at">y1=</span><span class="fu">c</span>(<span class="fl">1.9</span>,<span class="fl">1.9</span>), <span class="at">y2=</span><span class="fu">c</span>(<span class="fl">1.1</span>,<span class="fl">1.1</span>),</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>                     <span class="at">color =</span> <span class="fu">c</span>(<span class="st">"#e63946"</span>,<span class="st">"#e63946"</span>))</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>p_fork <span class="ot">&lt;-</span> <span class="fu">make_dag_panel</span>(nodes_fork, edges_fork, <span class="st">"Fork (Confounder)"</span>,</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Z → X and Z → Y</span><span class="sc">\n</span><span class="st">Creates spurious X-Y correlation</span><span class="sc">\n</span><span class="st">Example: financial literacy (Z) → engagement</span><span class="sc">\n</span><span class="st">with disclosure format (X) and → risky choice (Y)</span><span class="sc">\n</span><span class="st">Fix: control for Z"</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Place note text inside the plot area (below nodes) — avoids patchwork overflow</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(note)) {</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    p <span class="ot">&lt;-</span> p <span class="sc">+</span> <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">2</span>, <span class="at">y =</span> <span class="fl">1.1</span>, <span class="at">label =</span> note,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                      <span class="at">size =</span> <span class="fl">2.55</span>, <span class="at">color =</span> <span class="st">"gray30"</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">vjust =</span> <span class="dv">1</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>                      <span class="at">lineheight =</span> <span class="fl">1.3</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  p <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> title) <span class="sc">+</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlim</span>(<span class="fl">0.3</span>, <span class="fl">3.7</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="fl">0.1</span>, <span class="fl">2.8</span>) <span class="sc">+</span> <span class="fu">theme_void</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">11</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">margin =</span> <span class="fu">margin</span>(<span class="at">b =</span> <span class="dv">4</span>)))</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>nodes_chain <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">label =</span> <span class="fu">c</span>(<span class="st">"X"</span>, <span class="st">"M"</span>, <span class="st">"Y"</span>), <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>edges_chain <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x1=</span><span class="fu">c</span>(<span class="fl">1.2</span>,<span class="fl">2.2</span>), <span class="at">x2=</span><span class="fu">c</span>(<span class="fl">1.8</span>,<span class="fl">2.8</span>), <span class="at">y1=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">y2=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),</span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>                      <span class="at">color =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>,<span class="st">"#1e3a5f"</span>))</span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>p_chain <span class="ot">&lt;-</span> <span class="fu">make_dag_panel</span>(nodes_chain, edges_chain, <span class="st">"Chain (Mediator)"</span>,</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="st">"X → M → Y</span><span class="sc">\n</span><span class="st">M is on the causal path</span><span class="sc">\n</span><span class="st">Example: default enrollment (X) → savings habit (M)</span><span class="sc">\n</span><span class="st">→ long-term savings (Y)</span><span class="sc">\n</span><span class="st">Fix: do NOT control for M"</span>)</span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>nodes_coll <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">label =</span> <span class="fu">c</span>(<span class="st">"X"</span>, <span class="st">"C"</span>, <span class="st">"Y"</span>), <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>edges_coll <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x1=</span><span class="fu">c</span>(<span class="fl">1.2</span>,<span class="fl">2.8</span>), <span class="at">x2=</span><span class="fu">c</span>(<span class="fl">1.8</span>,<span class="fl">2.2</span>), <span class="at">y1=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">y2=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>),</span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>                     <span class="at">color =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>,<span class="st">"#1e3a5f"</span>))</span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>p_coll <span class="ot">&lt;-</span> <span class="fu">make_dag_panel</span>(nodes_coll, edges_coll, <span class="st">"Collider"</span>,</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="st">"X → C ← Y</span><span class="sc">\n</span><span class="st">Condition on C = open backdoor</span><span class="sc">\n</span><span class="st">Example: promotional sensitivity (X) →</span><span class="sc">\n</span><span class="st">platform activity (C) ← consumer wealth (Y)</span><span class="sc">\n</span><span class="st">Fix: do NOT control for C"</span>)</span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>p_fork <span class="sc">+</span> p_chain <span class="sc">+</span> p_coll</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Nodes shifted upward so text annotation sits cleanly below them</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>nodes_fork  <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">label =</span> <span class="fu">c</span>(<span class="st">"Z"</span>, <span class="st">"X"</span>, <span class="st">"Y"</span>), <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="fl">2.3</span>, <span class="fl">1.6</span>, <span class="fl">1.6</span>))</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>edges_fork  <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x1 =</span> <span class="fu">c</span>(<span class="fl">1.85</span>, <span class="fl">2.15</span>), <span class="at">x2 =</span> <span class="fu">c</span>(<span class="fl">1.2</span>,  <span class="fl">2.8</span>),</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y1 =</span> <span class="fu">c</span>(<span class="fl">2.20</span>, <span class="fl">2.20</span>), <span class="at">y2 =</span> <span class="fu">c</span>(<span class="fl">1.70</span>, <span class="fl">1.70</span>),</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>                      <span class="at">color =</span> <span class="fu">c</span>(<span class="st">"#e63946"</span>, <span class="st">"#e63946"</span>))</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>p_fork <span class="ot">&lt;-</span> <span class="fu">make_dag_panel</span>(nodes_fork, edges_fork, <span class="st">"Fork (Confounder)"</span>,</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Z → X  and  Z → Y</span><span class="sc">\n</span><span class="st">Creates spurious X-Y correlation</span><span class="sc">\n</span><span class="st">Ex: literacy (Z) → disclosure (X)</span><span class="sc">\n</span><span class="st">   and risky choice (Y)</span><span class="sc">\n</span><span class="st">Fix: control for Z"</span>)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>nodes_chain <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">label =</span> <span class="fu">c</span>(<span class="st">"X"</span>, <span class="st">"M"</span>, <span class="st">"Y"</span>), <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="fl">1.7</span>, <span class="fl">1.7</span>, <span class="fl">1.7</span>))</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>edges_chain <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x1 =</span> <span class="fu">c</span>(<span class="fl">1.2</span>, <span class="fl">2.2</span>), <span class="at">x2 =</span> <span class="fu">c</span>(<span class="fl">1.8</span>, <span class="fl">2.8</span>),</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y1 =</span> <span class="fu">c</span>(<span class="fl">1.7</span>, <span class="fl">1.7</span>), <span class="at">y2 =</span> <span class="fu">c</span>(<span class="fl">1.7</span>, <span class="fl">1.7</span>),</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>                      <span class="at">color =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#1e3a5f"</span>))</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>p_chain <span class="ot">&lt;-</span> <span class="fu">make_dag_panel</span>(nodes_chain, edges_chain, <span class="st">"Chain (Mediator)"</span>,</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  <span class="st">"X → M → Y</span><span class="sc">\n</span><span class="st">M is on the causal path</span><span class="sc">\n</span><span class="st">Ex: auto-enroll (X) → savings habit (M)</span><span class="sc">\n</span><span class="st">   → long-term savings (Y)</span><span class="sc">\n</span><span class="st">Fix: do NOT control for M"</span>)</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>nodes_coll  <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">label =</span> <span class="fu">c</span>(<span class="st">"X"</span>, <span class="st">"C"</span>, <span class="st">"Y"</span>), <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="fl">1.7</span>, <span class="fl">1.7</span>, <span class="fl">1.7</span>))</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>edges_coll  <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x1 =</span> <span class="fu">c</span>(<span class="fl">1.2</span>, <span class="fl">2.8</span>), <span class="at">x2 =</span> <span class="fu">c</span>(<span class="fl">1.8</span>, <span class="fl">2.2</span>),</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y1 =</span> <span class="fu">c</span>(<span class="fl">1.7</span>, <span class="fl">1.7</span>), <span class="at">y2 =</span> <span class="fu">c</span>(<span class="fl">1.7</span>, <span class="fl">1.7</span>),</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>                      <span class="at">color =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#1e3a5f"</span>))</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>p_coll <span class="ot">&lt;-</span> <span class="fu">make_dag_panel</span>(nodes_coll, edges_coll, <span class="st">"Collider"</span>,</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>  <span class="st">"X → C ← Y</span><span class="sc">\n</span><span class="st">Conditioning on C opens a backdoor</span><span class="sc">\n</span><span class="st">Ex: promo sensitivity (X) →</span><span class="sc">\n</span><span class="st">platform activity (C) ← wealth (Y)</span><span class="sc">\n</span><span class="st">Fix: do NOT control for C"</span>)</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>p_fork <span class="sc">+</span> p_chain <span class="sc">+</span> p_coll</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="part1_files/figure-html/dag-structures-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="part1_files/figure-html/dag-structures-1.png" class="img-fluid figure-img" width="960"></p>
 </figure>
 </div>
 </div>
@@ -1119,8 +1176,8 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
 <p>The goal of every identification strategy in the rest of this module is to <strong>block all backdoor paths</strong> (forks) without blocking causal paths (chains) and without conditioning on colliders.</p>
 <hr>
 </section>
-<section id="the-backdoor-criterion" class="level2" data-number="20.8">
-<h2 data-number="20.8" class="anchored" data-anchor-id="the-backdoor-criterion"><span class="header-section-number">20.8</span> The Backdoor Criterion</h2>
+<section id="the-backdoor-criterion" class="level2">
+<h2 class="anchored" data-anchor-id="the-backdoor-criterion">The Backdoor Criterion</h2>
 <p>A set of variables S satisfies Pearl’s <strong>backdoor criterion</strong> for estimating the effect of X on Y if:</p>
 <ol type="1">
 <li>S blocks every path between X and Y that has an arrow <em>into</em> X (i.e., all backdoor paths)</li>
@@ -1292,7 +1349,7 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1621,13 +1678,13 @@ Y_i = \beta_0 + \beta_1 X_i + \varepsilon_i \quad \text{where } \text{Cov}(X_i, 
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../module-3/intro.html" class="pagination-link" aria-label="Overview">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span>
+      <a href="../module-3/intro.html" class="pagination-link" aria-label="Module 3: Inferential Threats &amp; Identification">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../module-3/part2.html" class="pagination-link" aria-label="Instrumental Variables">
-        <span class="nav-page-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Instrumental Variables</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

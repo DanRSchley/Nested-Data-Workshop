@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>15&nbsp; Centering as Decomposition – Nested Data Structures</title>
+<title>Centering as Decomposition – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -139,6 +140,14 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-2/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-2/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -150,7 +159,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-2/intro.html">Module 2: Centering &amp; Between/Within Effects</a></li><li class="breadcrumb-item"><a href="../module-2/part1.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-2/intro.html">Module 2: Centering &amp; Between/Within Effects</a></li><li class="breadcrumb-item"><a href="../module-2/part1.html"><span class="chapter-title">Centering as Decomposition</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -180,8 +189,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -195,32 +203,27 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -236,44 +239,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -289,26 +285,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -324,44 +316,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -377,68 +362,57 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -454,62 +428,52 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -525,14 +489,12 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -547,22 +509,23 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#centering-as-decomposition" id="toc-centering-as-decomposition" class="nav-link active" data-scroll-target="#centering-as-decomposition"><span class="header-section-number">16</span> Centering as Decomposition</a>
+  <li><a href="#centering-as-decomposition" id="toc-centering-as-decomposition" class="nav-link active" data-scroll-target="#centering-as-decomposition">Centering as Decomposition</a>
   <ul class="collapse">
-  <li><a href="#one-variable-two-mechanisms" id="toc-one-variable-two-mechanisms" class="nav-link" data-scroll-target="#one-variable-two-mechanisms"><span class="header-section-number">16.1</span> One Variable, Two Mechanisms</a></li>
-  <li><a href="#the-equations-from-conflation-to-decomposition" id="toc-the-equations-from-conflation-to-decomposition" class="nav-link" data-scroll-target="#the-equations-from-conflation-to-decomposition"><span class="header-section-number">16.2</span> The Equations: From Conflation to Decomposition</a>
+  <li><a href="#one-variable-two-mechanisms" id="toc-one-variable-two-mechanisms" class="nav-link" data-scroll-target="#one-variable-two-mechanisms">One Variable, Two Mechanisms</a></li>
+  <li><a href="#the-equations-from-conflation-to-decomposition" id="toc-the-equations-from-conflation-to-decomposition" class="nav-link" data-scroll-target="#the-equations-from-conflation-to-decomposition">The Equations: From Conflation to Decomposition</a>
   <ul class="collapse">
-  <li><a href="#the-conflated-model" id="toc-the-conflated-model" class="nav-link" data-scroll-target="#the-conflated-model"><span class="header-section-number">16.2.1</span> The Conflated Model</a></li>
-  <li><a href="#the-decomposition" id="toc-the-decomposition" class="nav-link" data-scroll-target="#the-decomposition"><span class="header-section-number">16.2.2</span> The Decomposition</a></li>
+  <li><a href="#the-conflated-model" id="toc-the-conflated-model" class="nav-link" data-scroll-target="#the-conflated-model">The Conflated Model</a></li>
+  <li><a href="#the-decomposition" id="toc-the-decomposition" class="nav-link" data-scroll-target="#the-decomposition">The Decomposition</a></li>
   </ul></li>
-  <li><a href="#three-archetypal-patterns" id="toc-three-archetypal-patterns" class="nav-link" data-scroll-target="#three-archetypal-patterns"><span class="header-section-number">16.3</span> Three Archetypal Patterns</a>
+  <li><a href="#why-not-just-use-pooled-regression" id="toc-why-not-just-use-pooled-regression" class="nav-link" data-scroll-target="#why-not-just-use-pooled-regression">Why Not Just Use Pooled Regression?</a></li>
+  <li><a href="#three-archetypal-patterns" id="toc-three-archetypal-patterns" class="nav-link" data-scroll-target="#three-archetypal-patterns">Three Archetypal Patterns</a>
   <ul class="collapse">
-  <li><a href="#pattern-1-convergent-effects-exercise-and-wellbeing" id="toc-pattern-1-convergent-effects-exercise-and-wellbeing" class="nav-link" data-scroll-target="#pattern-1-convergent-effects-exercise-and-wellbeing"><span class="header-section-number">16.3.1</span> Pattern 1: Convergent Effects — Exercise and Wellbeing</a></li>
-  <li><a href="#pattern-2-divergent-effects-income-and-life-satisfaction-easterlin-paradox" id="toc-pattern-2-divergent-effects-income-and-life-satisfaction-easterlin-paradox" class="nav-link" data-scroll-target="#pattern-2-divergent-effects-income-and-life-satisfaction-easterlin-paradox"><span class="header-section-number">16.3.2</span> Pattern 2: Divergent Effects — Income and Life Satisfaction (Easterlin Paradox)</a></li>
-  <li><a href="#pattern-3-sign-reversal-study-hours-and-grades" id="toc-pattern-3-sign-reversal-study-hours-and-grades" class="nav-link" data-scroll-target="#pattern-3-sign-reversal-study-hours-and-grades"><span class="header-section-number">16.3.3</span> Pattern 3: Sign Reversal — Study Hours and Grades</a></li>
+  <li><a href="#pattern-1-convergent-effects-budgeting-app-engagement-and-savings-rate" id="toc-pattern-1-convergent-effects-budgeting-app-engagement-and-savings-rate" class="nav-link" data-scroll-target="#pattern-1-convergent-effects-budgeting-app-engagement-and-savings-rate">Pattern 1: Convergent Effects — Budgeting App Engagement and Savings Rate</a></li>
+  <li><a href="#pattern-2-divergent-effects-weekly-transactions-and-monthly-savings-rate" id="toc-pattern-2-divergent-effects-weekly-transactions-and-monthly-savings-rate" class="nav-link" data-scroll-target="#pattern-2-divergent-effects-weekly-transactions-and-monthly-savings-rate">Pattern 2: Divergent Effects — Weekly Transactions and Monthly Savings Rate</a></li>
+  <li><a href="#pattern-3-sign-reversal-price-level-and-purchase-rate-across-market-segments" id="toc-pattern-3-sign-reversal-price-level-and-purchase-rate-across-market-segments" class="nav-link" data-scroll-target="#pattern-3-sign-reversal-price-level-and-purchase-rate-across-market-segments">Pattern 3: Sign Reversal — Price Level and Purchase Rate Across Market Segments</a></li>
   </ul></li>
-  <li><a href="#the-sleep-mood-example-applying-decomposition" id="toc-the-sleep-mood-example-applying-decomposition" class="nav-link" data-scroll-target="#the-sleep-mood-example-applying-decomposition"><span class="header-section-number">16.4</span> The Sleep-Mood Example: Applying Decomposition</a></li>
-  <li><a href="#decision-guide" id="toc-decision-guide" class="nav-link" data-scroll-target="#decision-guide"><span class="header-section-number">16.5</span> Decision Guide</a></li>
+  <li><a href="#the-disclosuresavings-example-applying-decomposition" id="toc-the-disclosuresavings-example-applying-decomposition" class="nav-link" data-scroll-target="#the-disclosuresavings-example-applying-decomposition">The Disclosure–Savings Example: Applying Decomposition</a></li>
+  <li><a href="#decision-guide" id="toc-decision-guide" class="nav-link" data-scroll-target="#decision-guide">Decision Guide</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -570,9 +533,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-2/intro.html">Module 2: Centering &amp; Between/Within Effects</a></li><li class="breadcrumb-item"><a href="../module-2/part1.html"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-2/intro.html">Module 2: Centering &amp; Between/Within Effects</a></li><li class="breadcrumb-item"><a href="../module-2/part1.html"><span class="chapter-title">Centering as Decomposition</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Centering as Decomposition</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -589,10 +552,27 @@ window.Quarto = {
 </header>
 
 
-<section id="centering-as-decomposition" class="level1" data-number="16">
-<h1 data-number="16"><span class="header-section-number">16</span> Centering as Decomposition</h1>
-<section id="one-variable-two-mechanisms" class="level2" data-number="16.1">
-<h2 data-number="16.1" class="anchored" data-anchor-id="one-variable-two-mechanisms"><span class="header-section-number">16.1</span> One Variable, Two Mechanisms</h2>
+<section id="centering-as-decomposition" class="level1">
+<h1>Centering as Decomposition</h1>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What Does Centering Reveal?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Question:</strong> A single predictor in nested data carries two different relationships simultaneously — one operating within units (how does savings change when <em>this household</em> engages more with disclosure this month?) and one operating between units (do households that engage more overall save more?). Which one does your model estimate?</li>
+<li><strong>What goes wrong:</strong> An uncentered predictor in a random-effects model blends both mechanisms into a single coefficient. If the within-unit and between-unit effects differ in size or sign, this blended estimate is wrong for both questions — and useless for both policy and theory.</li>
+<li><strong>The fix:</strong> Cluster-mean centering (CMC) separates the predictor into a within-unit deviation (from the household’s own average) and a between-unit mean. The model then estimates both effects simultaneously, allowing you to determine whether the same mechanism operates at both levels.</li>
+</ul>
+</div>
+</div>
+<section id="one-variable-two-mechanisms" class="level2">
+<h2 class="anchored" data-anchor-id="one-variable-two-mechanisms">One Variable, Two Mechanisms</h2>
 <p>When you measure “hours of sleep” across multiple days from multiple people, that variable carries two completely different stories at the same time:</p>
 <ol type="1">
 <li><strong>The within-person story:</strong> On days when <em>this person</em> sleeps more than they usually do, how does their mood change?</li>
@@ -602,18 +582,18 @@ window.Quarto = {
 <p><strong>Centering is not a cosmetic choice about where the intercept falls.</strong> It is a decision about which mechanism you are modeling — and whether you want to see both.</p>
 <hr>
 </section>
-<section id="the-equations-from-conflation-to-decomposition" class="level2" data-number="16.2">
-<h2 data-number="16.2" class="anchored" data-anchor-id="the-equations-from-conflation-to-decomposition"><span class="header-section-number">16.2</span> The Equations: From Conflation to Decomposition</h2>
-<section id="the-conflated-model" class="level3" data-number="16.2.1">
-<h3 data-number="16.2.1" class="anchored" data-anchor-id="the-conflated-model"><span class="header-section-number">16.2.1</span> The Conflated Model</h3>
+<section id="the-equations-from-conflation-to-decomposition" class="level2">
+<h2 class="anchored" data-anchor-id="the-equations-from-conflation-to-decomposition">The Equations: From Conflation to Decomposition</h2>
+<section id="the-conflated-model" class="level3">
+<h3 class="anchored" data-anchor-id="the-conflated-model">The Conflated Model</h3>
 <p>When you include an uncentered (or grand-mean-centered) predictor in a random-effects model, a single coefficient <span class="math inline">\(\beta_1\)</span> blends two mechanisms:</p>
 <p><span class="math display">\[
 \underbrace{Y_{ij}}_{\text{outcome}} = \underbrace{\gamma_{00}}_{\substack{\text{grand} \\ \text{mean}}} + \underbrace{\beta_1}_{\substack{\text{blended} \\ \text{slope}}} \underbrace{X_{ij}}_{\substack{\text{predictor}}} + \underbrace{u_{0j}}_{\substack{\text{person} \\ \text{RE}}} + \underbrace{\varepsilon_{ij}}_{\substack{\text{residual}}}
 \]</span></p>
 <p><span class="math inline">\(\beta_1\)</span> absorbs variation from two sources simultaneously. Its value depends on which source dominates and how the two correlate.</p>
 </section>
-<section id="the-decomposition" class="level3" data-number="16.2.2">
-<h3 data-number="16.2.2" class="anchored" data-anchor-id="the-decomposition"><span class="header-section-number">16.2.2</span> The Decomposition</h3>
+<section id="the-decomposition" class="level3">
+<h3 class="anchored" data-anchor-id="the-decomposition">The Decomposition</h3>
 <p>CMC separates the predictor into its two components before entering the model:</p>
 <p><span class="math display">\[
 \underbrace{X_{ij}}_{\substack{\text{observed} \\ \text{predictor}}} = \underbrace{(X_{ij} - \bar{X}_{j})}_{\substack{\text{within-unit} \\ \text{deviation}}} + \underbrace{\bar{X}_{j}}_{\substack{\text{unit mean} \\ \text{(between)}}}
@@ -639,41 +619,93 @@ window.Quarto = {
 <hr>
 </section>
 </section>
-<section id="three-archetypal-patterns" class="level2" data-number="16.3">
-<h2 data-number="16.3" class="anchored" data-anchor-id="three-archetypal-patterns"><span class="header-section-number">16.3</span> Three Archetypal Patterns</h2>
+<section id="why-not-just-use-pooled-regression" class="level2">
+<h2 class="anchored" data-anchor-id="why-not-just-use-pooled-regression">Why Not Just Use Pooled Regression?</h2>
+<div class="callout callout-style-default callout-important no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The Case Against Pooled OLS (and Uncentered Random Effects)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A natural question: what is wrong with running <code>lm(savings ~ disclosure, data = df)</code> or <code>lmer(savings ~ disclosure + (1 | household), data = df)</code> without centering? Both produce a single coefficient. Both are easy to fit. Neither requires any centering decisions.</p>
+<p>The answer: <strong>both conflate two mechanisms that may differ in sign and magnitude, making the coefficient uninterpretable for any specific question.</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th>What the coefficient estimates</th>
+<th>When it goes wrong</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Pooled OLS</td>
+<td>Blend of within- and between-person effects</td>
+<td>When between-person sorting confounds the within-person relationship (almost always in panel data)</td>
+</tr>
+<tr class="even">
+<td>Uncentered random-effects</td>
+<td>Same blended coefficient</td>
+<td>When the RE assumption (random effects ⊥ predictor) fails — which it usually does when the predictor varies between persons</td>
+</tr>
+<tr class="odd">
+<td>CMC decomposition</td>
+<td><span class="math inline">\(\beta_W\)</span> (within) and <span class="math inline">\(\beta_B\)</span> (between) separately</td>
+<td>It doesn’t “go wrong” — it reveals both effects and makes the question explicit</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The key question to ask before fitting any model with panel data:</strong> <em>Does the predictor vary both within and between units?</em> If yes — almost always the case for continuous predictors like disclosure engagement, app usage, or spending — pooled OLS and uncentered RE give you a blended estimate that is wrong for both the causal within-unit question and the descriptive between-unit question.</p>
+<p>Centering is not a technicality. It is the only way to know which question your model is answering.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="three-archetypal-patterns" class="level2">
+<h2 class="anchored" data-anchor-id="three-archetypal-patterns">Three Archetypal Patterns</h2>
 <p>The most important practical question is: <em>how different are <span class="math inline">\(\beta_W\)</span> and <span class="math inline">\(\beta_B\)</span>?</em></p>
-<section id="pattern-1-convergent-effects-exercise-and-wellbeing" class="level3" data-number="16.3.1">
-<h3 data-number="16.3.1" class="anchored" data-anchor-id="pattern-1-convergent-effects-exercise-and-wellbeing"><span class="header-section-number">16.3.1</span> Pattern 1: Convergent Effects — Exercise and Wellbeing</h3>
-<p>Both mechanisms point the same direction with similar magnitude. The within-person mechanism (acute endorphins, reduced rumination) and the between-person mechanism (fit people have better overall routines and self-efficacy) both increase wellbeing. True: <span class="math inline">\(\beta_W \approx \beta_B \approx 3\)</span>.</p>
+<section id="pattern-1-convergent-effects-budgeting-app-engagement-and-savings-rate" class="level3">
+<h3 class="anchored" data-anchor-id="pattern-1-convergent-effects-budgeting-app-engagement-and-savings-rate">Pattern 1: Convergent Effects — Budgeting App Engagement and Savings Rate</h3>
+<p>Both mechanisms point in the same direction with similar magnitude. On weeks when a customer opens the budgeting app more than their own typical frequency (within-person), they save more that week — the reflection and goal-salience triggered by app engagement directly improves saving behavior. And across customers, those who engage with the app more on average (between-person) also save more overall — they are both more financially motivated and get more cumulative benefit from the tool. True: <span class="math inline">\(\beta_W \approx \beta_B \approx 1.5\)</span>.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_ppl <span class="ot">&lt;-</span> <span class="dv">60</span>; n_days <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_ppl <span class="ot">&lt;-</span> <span class="dv">60</span>; n_weeks <span class="ot">&lt;-</span> <span class="dv">10</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>person_ex_avg <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_ppl, <span class="dv">45</span>, <span class="dv">12</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>person_wb_base <span class="ot">&lt;-</span> <span class="dv">50</span> <span class="sc">+</span> <span class="fl">0.3</span> <span class="sc">*</span> person_ex_avg <span class="sc">+</span> <span class="fu">rnorm</span>(n_ppl, <span class="dv">0</span>, <span class="dv">6</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>person_app_avg  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_ppl, <span class="dv">5</span>, <span class="fl">1.5</span>)    <span class="co"># typical weekly app opens</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>person_sav_base <span class="ot">&lt;-</span> <span class="dv">20</span> <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> person_app_avg <span class="sc">+</span> <span class="fu">rnorm</span>(n_ppl, <span class="dv">0</span>, <span class="dv">4</span>)  <span class="co"># motivated users save more</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>df_ex <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_ppl, <span class="at">day =</span> <span class="dv">1</span><span class="sc">:</span>n_days) <span class="sc">|&gt;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>df_app <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_ppl, <span class="at">week =</span> <span class="dv">1</span><span class="sc">:</span>n_weeks) <span class="sc">|&gt;</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">exercise  =</span> person_ex_avg[person] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">8</span>),</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">wellbeing =</span> person_wb_base[person] <span class="sc">+</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                <span class="dv">3</span> <span class="sc">*</span> (exercise <span class="sc">-</span> person_ex_avg[person]) <span class="sc">+</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">person =</span> <span class="fu">factor</span>(person)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">app_opens =</span> <span class="fu">pmax</span>(<span class="dv">0</span>, person_app_avg[person] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">2</span>)),</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">savings   =</span> person_sav_base[person] <span class="sc">+</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                <span class="fl">1.5</span> <span class="sc">*</span> (app_opens <span class="sc">-</span> person_app_avg[person]) <span class="sc">+</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">person    =</span> <span class="fu">factor</span>(person)</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ex_mean =</span> <span class="fu">mean</span>(exercise), <span class="at">ex_cmc =</span> exercise <span class="sc">-</span> ex_mean) <span class="sc">|&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">app_mean =</span> <span class="fu">mean</span>(app_opens), <span class="at">app_cmc =</span> app_opens <span class="sc">-</span> app_mean) <span class="sc">|&gt;</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>m_ex <span class="ot">&lt;-</span> <span class="fu">lmer</span>(wellbeing <span class="sc">~</span> ex_cmc <span class="sc">+</span> ex_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_ex)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_ex, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mechanism =</span> <span class="fu">c</span>(<span class="st">"Within-person"</span>, <span class="st">"Between-person"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>m_app <span class="ot">&lt;-</span> <span class="fu">lmer</span>(savings <span class="sc">~</span> app_cmc <span class="sc">+</span> app_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_app)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_app, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">mechanism =</span> <span class="fu">c</span>(<span class="st">"Within-person (app_cmc)"</span>, <span class="st">"Between-person (app_mean)"</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(mechanism, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Pattern 1: within ≈ between ≈ 3. One coherent mechanism at two levels."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Pattern 1: within ≈ between ≈ 1.5. One coherent mechanism at two levels — pooled OLS approximates well here, but you only know that after checking."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Pattern 1: within ≈ between ≈ 3. One coherent mechanism at two levels.</caption>
+<caption>Pattern 1: within ≈ between ≈ 1.5. One coherent mechanism at two levels — pooled OLS approximates well here, but you only know that after checking.</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">mechanism</th>
@@ -684,63 +716,64 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Within-person</td>
-<td style="text-align: right;">2.996</td>
-<td style="text-align: right;">0.030</td>
+<td style="text-align: left;">Within-person (app_cmc)</td>
+<td style="text-align: right;">1.477</td>
+<td style="text-align: right;">0.099</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Between-person</td>
-<td style="text-align: right;">0.438</td>
-<td style="text-align: right;">0.089</td>
+<td style="text-align: left;">Between-person (app_mean)</td>
+<td style="text-align: right;">1.745</td>
+<td style="text-align: right;">0.336</td>
 <td style="text-align: right;">0</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>Here, the pooled model would give you a decent approximation — but you only know that <em>after</em> running the decomposition. The convergence itself is substantively informative: the same process operates at both timescales.</p>
+<p>Here, the pooled model gives a reasonable approximation — but you only know that <em>after</em> running the decomposition and finding convergence. The convergence itself is substantively informative: the app appears to operate through the same mechanism at both timescales (goal activation and financial awareness).</p>
 </section>
-<section id="pattern-2-divergent-effects-income-and-life-satisfaction-easterlin-paradox" class="level3" data-number="16.3.2">
-<h3 data-number="16.3.2" class="anchored" data-anchor-id="pattern-2-divergent-effects-income-and-life-satisfaction-easterlin-paradox"><span class="header-section-number">16.3.2</span> Pattern 2: Divergent Effects — Income and Life Satisfaction (Easterlin Paradox)</h3>
-<p>At the between-person level, wealthier people report substantially higher life satisfaction. But within individuals over time, income growth has a surprisingly modest effect — adaptation, shifting aspirations, and social comparison dampen the within-person response. True: <span class="math inline">\(\beta_W \approx 0.3\)</span>, <span class="math inline">\(\beta_B \approx 1.5\)</span>.</p>
+<section id="pattern-2-divergent-effects-weekly-transactions-and-monthly-savings-rate" class="level3">
+<h3 class="anchored" data-anchor-id="pattern-2-divergent-effects-weekly-transactions-and-monthly-savings-rate">Pattern 2: Divergent Effects — Weekly Transactions and Monthly Savings Rate</h3>
+<p>A common misconception in financial data: customers who transact more frequently appear to save more (between-customer relationship). But within a customer, weeks when they make more transactions than usual correspond to <em>lower</em> savings that month — more spending activity drains current savings. The between-person relationship is positive because financially engaged customers are both more active AND more organized about saving. The within-person relationship is negative because extra transactions this week represent extra spending. True: <span class="math inline">\(\beta_W \approx -0.8\)</span> (within: more transactions → less saved), <span class="math inline">\(\beta_B \approx +2.0\)</span> (between: active customers save more).</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n_ppl2 <span class="ot">&lt;-</span> <span class="dv">80</span>; n_yrs <span class="ot">&lt;-</span> <span class="dv">8</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n_ppl2 <span class="ot">&lt;-</span> <span class="dv">80</span>; n_months <span class="ot">&lt;-</span> <span class="dv">8</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>person_inc_avg  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_ppl2, <span class="dv">50</span>, <span class="dv">15</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>person_sat_base <span class="ot">&lt;-</span> <span class="dv">50</span> <span class="sc">+</span> <span class="fl">1.5</span> <span class="sc">*</span> person_inc_avg <span class="sc">+</span> <span class="fu">rnorm</span>(n_ppl2, <span class="dv">0</span>, <span class="dv">8</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>person_tx_avg   <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_ppl2, <span class="dv">20</span>, <span class="dv">6</span>)              <span class="co"># typical monthly transactions</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>person_sav_base <span class="ot">&lt;-</span> <span class="dv">15</span> <span class="sc">+</span> <span class="fl">2.0</span> <span class="sc">*</span> person_tx_avg <span class="sc">+</span> <span class="fu">rnorm</span>(n_ppl2, <span class="dv">0</span>, <span class="dv">5</span>)  <span class="co"># engaged customers save more</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>df_inc <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_ppl2, <span class="at">year =</span> <span class="dv">1</span><span class="sc">:</span>n_yrs) <span class="sc">|&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>df_tx <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_ppl2, <span class="at">month =</span> <span class="dv">1</span><span class="sc">:</span>n_months) <span class="sc">|&gt;</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">income   =</span> person_inc_avg[person] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">6</span>),</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">life_sat =</span> person_sat_base[person] <span class="sc">+</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>               <span class="fl">0.3</span> <span class="sc">*</span> (income <span class="sc">-</span> person_inc_avg[person]) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">person   =</span> <span class="fu">factor</span>(person)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">inc_mean =</span> <span class="fu">mean</span>(income), <span class="at">inc_cmc =</span> income <span class="sc">-</span> inc_mean) <span class="sc">|&gt;</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>m_inc    <span class="ot">&lt;-</span> <span class="fu">lmer</span>(life_sat <span class="sc">~</span> inc_cmc <span class="sc">+</span> inc_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_inc)</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>m_pooled <span class="ot">&lt;-</span> <span class="fu">lmer</span>(life_sat <span class="sc">~</span> income  <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_inc)</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_pooled, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"income"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Pooled (blended)"</span>),</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_inc, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"inc_cmc"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Within-person"</span>),</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_inc, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"inc_mean"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Between-person"</span>)</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Pattern 2: pooled ≈ 1.2, within ≈ 0.3, between ≈ 1.5. Pooled is wrong for both questions."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">transactions =</span> <span class="fu">pmax</span>(<span class="dv">2</span>, person_tx_avg[person] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>)),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">savings_rate =</span> person_sav_base[person] <span class="sc">+</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                   (<span class="sc">-</span><span class="fl">0.8</span>) <span class="sc">*</span> (transactions <span class="sc">-</span> person_tx_avg[person]) <span class="sc">+</span>   <span class="co"># more spending → less saving</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">person       =</span> <span class="fu">factor</span>(person)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tx_mean =</span> <span class="fu">mean</span>(transactions), <span class="at">tx_cmc =</span> transactions <span class="sc">-</span> tx_mean) <span class="sc">|&gt;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>m_tx     <span class="ot">&lt;-</span> <span class="fu">lmer</span>(savings_rate <span class="sc">~</span> tx_cmc <span class="sc">+</span> tx_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_tx)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>m_tx_pool <span class="ot">&lt;-</span> <span class="fu">lmer</span>(savings_rate <span class="sc">~</span> transactions <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_tx)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_tx_pool, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"transactions"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Pooled (blended)"</span>),</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_tx, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"tx_cmc"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Within-person"</span>),</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_tx, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"tx_mean"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Between-person"</span>)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Pattern 2: pooled ≈ +0.4 (near zero or positive); within ≈ −0.8 (spending crowds out saving); between ≈ +2.0 (engaged customers save more). Pooled is misleading for both questions."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Pattern 2: pooled ≈ 1.2, within ≈ 0.3, between ≈ 1.5. Pooled is wrong for both questions.</caption>
+<caption>Pattern 2: pooled ≈ +0.4 (near zero or positive); within ≈ −0.8 (spending crowds out saving); between ≈ +2.0 (engaged customers save more). Pooled is misleading for both questions.</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">model</th>
@@ -752,66 +785,74 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Pooled (blended)</td>
-<td style="text-align: right;">0.380</td>
-<td style="text-align: right;">0.026</td>
+<td style="text-align: right;">-0.726</td>
+<td style="text-align: right;">0.032</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Within-person</td>
-<td style="text-align: right;">0.336</td>
-<td style="text-align: right;">0.027</td>
+<td style="text-align: right;">-0.755</td>
+<td style="text-align: right;">0.033</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Between-person</td>
-<td style="text-align: right;">1.469</td>
-<td style="text-align: right;">0.054</td>
+<td style="text-align: right;">1.885</td>
+<td style="text-align: right;">0.108</td>
 <td style="text-align: right;">0</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>The pooled model gives ~1.2 — it overstates the within-person effect by 4× and understates the between-person effect. A policy conclusion based on this (“raising incomes will substantially improve wellbeing”) relies on the between-person relationship but must deliver on the within-person mechanism.</p>
+<p>The pooled model gives a near-zero or weakly positive estimate — a blend of the negative within-customer spending-crowding effect and the positive between-customer engagement effect. A product team concluding “more transactions → more savings” (because the pooled slope is positive) would be wrong: within customers, more spending activity in a given month <em>reduces</em> that month’s savings rate.</p>
 </section>
-<section id="pattern-3-sign-reversal-study-hours-and-grades" class="level3" data-number="16.3.3">
-<h3 data-number="16.3.3" class="anchored" data-anchor-id="pattern-3-sign-reversal-study-hours-and-grades"><span class="header-section-number">16.3.3</span> Pattern 3: Sign Reversal — Study Hours and Grades</h3>
-<p>Within a student, studying more than their own average helps their grades. But between programs, the harder programs have students who study <em>more</em> and earn <em>lower</em> grades — because the programs are harder, not because studying hurts. True: <span class="math inline">\(\beta_W \approx +2\)</span>, <span class="math inline">\(\beta_B \approx -3\)</span>.</p>
+<section id="pattern-3-sign-reversal-price-level-and-purchase-rate-across-market-segments" class="level3">
+<h3 class="anchored" data-anchor-id="pattern-3-sign-reversal-price-level-and-purchase-rate-across-market-segments">Pattern 3: Sign Reversal — Price Level and Purchase Rate Across Market Segments</h3>
+<p>Within a market segment, promotional price reductions (prices below the segment’s typical level) increase purchase rates — basic economics. But across segments, premium segments charge <em>higher</em> prices AND have <em>lower</em> purchase rates — because premium products are niche, not because high prices cause purchases. A pooled analysis finds that higher prices predict lower purchase rates. This is true between segments but <strong>wrong as a within-segment statement</strong>: within every segment, the price-demand relationship is negative (lower relative price → more purchases). True: <span class="math inline">\(\beta_W \approx -0.4\)</span> (demand elasticity), <span class="math inline">\(\beta_B \approx -0.6\)</span> (between-segment selection).</p>
+<p>Wait — to get a <em>sign reversal</em> we need the between-segment effect to run opposite to within-segment. Here is the JDM version: <strong>Discount depth and category conversion rates</strong> — high-discount product categories (commodity goods: toilet paper, cleaning supplies) have both higher average discount depth <em>and</em> lower conversion rates (many competing substitutes). Low-discount categories (specialty foods, premium cosmetics) have lower discount depth <em>and</em> higher conversion rates (loyal buyer base). Pooled: deeper average discounts → lower conversion. Within category: deeper-than-average discounts → higher conversion. Sign reversal.</p>
+<p>True: <span class="math inline">\(\beta_W \approx +0.3\)</span> (within-category: promotion → conversion up), <span class="math inline">\(\beta_B \approx -0.5\)</span> (between-category: commodity categories have high discounts but low loyalty).</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>n_students <span class="ot">&lt;-</span> <span class="dv">200</span>; n_programs <span class="ot">&lt;-</span> <span class="dv">5</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>prog_difficulty <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">10</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>prog_study_avg  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>)  <span class="co"># harder programs demand more study hours</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>df_study <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">student =</span> <span class="dv">1</span><span class="sc">:</span>n_students,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">program =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_programs, <span class="at">each =</span> n_students <span class="sc">/</span> n_programs)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">study =</span> prog_study_avg[program] <span class="sc">+</span> <span class="fu">rnorm</span>(n_students, <span class="dv">0</span>, <span class="fl">0.8</span>),</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">grade =</span> <span class="dv">80</span> <span class="sc">-</span> <span class="dv">3</span> <span class="sc">*</span> prog_difficulty[program] <span class="sc">+</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>            <span class="dv">2</span> <span class="sc">*</span> (study <span class="sc">-</span> prog_study_avg[program]) <span class="sc">+</span> <span class="fu">rnorm</span>(n_students, <span class="dv">0</span>, <span class="dv">3</span>),</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">program =</span> <span class="fu">factor</span>(program)</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(program) <span class="sc">|&gt;</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">study_mean =</span> <span class="fu">mean</span>(study), <span class="at">study_cmc =</span> study <span class="sc">-</span> study_mean) <span class="sc">|&gt;</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>m_study_decomp <span class="ot">&lt;-</span> <span class="fu">lmer</span>(grade <span class="sc">~</span> study_cmc <span class="sc">+</span> study_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> program), <span class="at">data =</span> df_study)</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>m_study_pooled <span class="ot">&lt;-</span> <span class="fu">lm</span>(grade <span class="sc">~</span> study, <span class="at">data =</span> df_study)</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(m_study_pooled) <span class="sc">|&gt;</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"study"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Pooled OLS"</span>),</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_study_decomp, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"study_cmc"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Within-program"</span>),</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_study_decomp, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"study_mean"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Between-program"</span>)</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Pattern 3: pooled is negative; within is positive; between is strongly negative. Sign reversal!"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>n_brands     <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>n_categories <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Commodity categories: high discount depth, low conversion (many substitutes)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Premium categories: low discount depth, high conversion (loyal customers)</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>cat_discount_avg  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">22</span>, <span class="dv">18</span>, <span class="dv">14</span>, <span class="dv">10</span>, <span class="dv">6</span>)    <span class="co"># avg discount depth (%) — high → low commodity→premium</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>cat_loyalty_base  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">18</span>, <span class="dv">25</span>, <span class="dv">35</span>, <span class="dv">45</span>, <span class="dv">52</span>)   <span class="co"># baseline conversion rate (%)</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>df_discount <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">brand    =</span> <span class="dv">1</span><span class="sc">:</span>n_brands,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">category =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_categories, <span class="at">each =</span> n_brands <span class="sc">/</span> n_categories)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">discount   =</span> cat_discount_avg[category] <span class="sc">+</span> <span class="fu">rnorm</span>(n_brands, <span class="dv">0</span>, <span class="dv">4</span>),</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">conversion =</span> cat_loyalty_base[category] <span class="sc">+</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>                 <span class="fl">0.3</span> <span class="sc">*</span> (discount <span class="sc">-</span> cat_discount_avg[category]) <span class="sc">+</span>   <span class="co"># within-cat: promotions help</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">rnorm</span>(n_brands, <span class="dv">0</span>, <span class="dv">5</span>),</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">category   =</span> <span class="fu">factor</span>(category,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Commodity"</span>, <span class="st">"Staple"</span>, <span class="st">"Mixed"</span>, <span class="st">"Specialty"</span>, <span class="st">"Premium"</span>))</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(category) <span class="sc">|&gt;</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">disc_mean =</span> <span class="fu">mean</span>(discount), <span class="at">disc_cmc =</span> discount <span class="sc">-</span> disc_mean) <span class="sc">|&gt;</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>m_disc_decomp <span class="ot">&lt;-</span> <span class="fu">lmer</span>(conversion <span class="sc">~</span> disc_cmc <span class="sc">+</span> disc_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> category), <span class="at">data =</span> df_discount)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>m_disc_pooled <span class="ot">&lt;-</span> <span class="fu">lm</span>(conversion <span class="sc">~</span> discount, <span class="at">data =</span> df_discount)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(m_disc_pooled) <span class="sc">|&gt;</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"discount"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Pooled OLS"</span>),</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_disc_decomp, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"disc_cmc"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Within-category"</span>),</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_disc_decomp, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"disc_mean"</span>) <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Between-category"</span>)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Pattern 3: pooled is negative; within is positive; between is strongly negative. Sign reversal!"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -827,21 +868,21 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Pooled OLS</td>
-<td style="text-align: right;">-4.556</td>
-<td style="text-align: right;">0.282</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">-1.422</td>
+<td style="text-align: right;">0.087</td>
+<td style="text-align: right;">0.000</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Within-program</td>
-<td style="text-align: right;">1.783</td>
-<td style="text-align: right;">0.274</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: left;">Within-category</td>
+<td style="text-align: right;">0.228</td>
+<td style="text-align: right;">0.091</td>
+<td style="text-align: right;">0.014</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Between-program</td>
-<td style="text-align: right;">-6.470</td>
-<td style="text-align: right;">0.286</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: left;">Between-category</td>
+<td style="text-align: right;">-2.026</td>
+<td style="text-align: right;">0.160</td>
+<td style="text-align: right;">0.001</td>
 </tr>
 </tbody>
 </table>
@@ -850,22 +891,22 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_study, <span class="fu">aes</span>(<span class="at">x =</span> study, <span class="at">y =</span> grade)) <span class="sc">+</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> program), <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_discount, <span class="fu">aes</span>(<span class="at">x =</span> discount, <span class="at">y =</span> conversion)) <span class="sc">+</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color =</span> category), <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>) <span class="sc">+</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Pooled: studying MORE → LOWER grades?"</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Slope is negative — a sign reversal"</span>,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Study hours/week"</span>, <span class="at">y =</span> <span class="st">"Grade"</span>, <span class="at">color =</span> <span class="st">"Program"</span>) <span class="sc">+</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Pooled: deeper discounts → LOWER conversion?"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Between-category confound reverses the sign"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Discount depth (%)"</span>, <span class="at">y =</span> <span class="st">"Conversion rate (%)"</span>, <span class="at">color =</span> <span class="st">"Category"</span>) <span class="sc">+</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_study, <span class="fu">aes</span>(<span class="at">x =</span> study, <span class="at">y =</span> grade, <span class="at">color =</span> program)) <span class="sc">+</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_discount, <span class="fu">aes</span>(<span class="at">x =</span> discount, <span class="at">y =</span> conversion, <span class="at">color =</span> category)) <span class="sc">+</span></span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Set1"</span>) <span class="sc">+</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Within-program: studying MORE → HIGHER grades"</span>,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Within every program, the slope is positive"</span>,</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Study hours/week"</span>, <span class="at">y =</span> <span class="st">"Grade"</span>, <span class="at">color =</span> <span class="st">"Program"</span>) <span class="sc">+</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Within-category: deeper discounts → HIGHER conversion"</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Within every category, promotions work"</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Discount depth (%)"</span>, <span class="at">y =</span> <span class="st">"Conversion rate (%)"</span>, <span class="at">color =</span> <span class="st">"Category"</span>) <span class="sc">+</span></span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -873,62 +914,68 @@ window.Quarto = {
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="part1_files/figure-html/study-grades-plot-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="part1_files/figure-html/discount-conversion-plot-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>The pooled model says studying hurts — which is wrong. The decomposition reveals the truth: within every program, studying helps, but harder programs demand more studying and are harder by definition. Ignoring the nesting produces a <strong>Simpson’s Paradox</strong> (see Part 3).</p>
+<p>The pooled model says promotions hurt conversion — which is wrong. The decomposition reveals the truth: within every category, discounts increase purchase rates; but commodity categories (with high average discounts) also have low inherent loyalty. Ignoring the nesting produces a <strong>Simpson’s Paradox</strong> (see Part 3).</p>
 <hr>
 </section>
 </section>
-<section id="the-sleep-mood-example-applying-decomposition" class="level2" data-number="16.4">
-<h2 data-number="16.4" class="anchored" data-anchor-id="the-sleep-mood-example-applying-decomposition"><span class="header-section-number">16.4</span> The Sleep-Mood Example: Applying Decomposition</h2>
+<section id="the-disclosuresavings-example-applying-decomposition" class="level2">
+<h2 class="anchored" data-anchor-id="the-disclosuresavings-example-applying-decomposition">The Disclosure–Savings Example: Applying Decomposition</h2>
+<p>50 households complete a monthly financial diary for 7 months. Each month, we record how many pages of the financial disclosure document they reviewed and their savings rate. Two questions are entangled:</p>
+<ol type="1">
+<li><strong>Within-household:</strong> On months when a household reads <em>more than their own usual amount</em>, do they save more?</li>
+<li><strong>Between-household:</strong> Do households that engage more with disclosure <em>overall</em> have higher savings?</li>
+</ol>
+<p>The between-household relationship is confounded by financial literacy: literate households both engage more with disclosure AND save more regardless of engagement. The within-household relationship is the one that matters for the causal question about disclosure.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n_people <span class="ot">&lt;-</span> <span class="dv">50</span>; n_days2 <span class="ot">&lt;-</span> <span class="dv">7</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n_hh   <span class="ot">&lt;-</span> <span class="dv">50</span>; n_months <span class="ot">&lt;-</span> <span class="dv">7</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>person_sleep_avg  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="dv">7</span>, <span class="dv">1</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>person_mood_base  <span class="ot">&lt;-</span> <span class="dv">40</span> <span class="sc">+</span> <span class="dv">5</span> <span class="sc">*</span> person_sleep_avg <span class="sc">+</span> <span class="fu">rnorm</span>(n_people, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>hh_disc_avg    <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_hh, <span class="dv">6</span>, <span class="dv">2</span>)                   <span class="co"># household average disclosure</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>hh_savings_base <span class="ot">&lt;-</span> <span class="dv">20</span> <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> hh_disc_avg <span class="sc">+</span> <span class="fu">rnorm</span>(n_hh, <span class="dv">0</span>, <span class="dv">5</span>)  <span class="co"># literacy confound</span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people, <span class="at">day =</span> <span class="dv">1</span><span class="sc">:</span>n_days2) <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>df_center <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">household =</span> <span class="dv">1</span><span class="sc">:</span>n_hh, <span class="at">month =</span> <span class="dv">1</span><span class="sc">:</span>n_months) <span class="sc">|&gt;</span></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">sleep_raw =</span> person_sleep_avg[person] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">1</span>),</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">mood      =</span> person_mood_base[person] <span class="sc">+</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                <span class="dv">2</span> <span class="sc">*</span> (sleep_raw <span class="sc">-</span> person_sleep_avg[person]) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">person    =</span> <span class="fu">factor</span>(person)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">disc_raw =</span> hh_disc_avg[household] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">1.5</span>),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">savings  =</span> hh_savings_base[household] <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>               <span class="fl">1.5</span> <span class="sc">*</span> (disc_raw <span class="sc">-</span> hh_disc_avg[household]) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">household =</span> <span class="fu">factor</span>(household)</span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sleep_mean =</span> <span class="fu">mean</span>(sleep_raw), <span class="at">sleep_cmc =</span> sleep_raw <span class="sc">-</span> sleep_mean) <span class="sc">|&gt;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(household) <span class="sc">|&gt;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">disc_mean =</span> <span class="fu">mean</span>(disc_raw), <span class="at">disc_cmc =</span> disc_raw <span class="sc">-</span> disc_mean) <span class="sc">|&gt;</span></span>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sleep_gmc =</span> sleep_raw <span class="sc">-</span> <span class="fu">mean</span>(sleep_raw))</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">disc_gmc =</span> disc_raw <span class="sc">-</span> <span class="fu">mean</span>(disc_raw))</span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>m_uncentered <span class="ot">&lt;-</span> <span class="fu">lmer</span>(mood <span class="sc">~</span> sleep_raw  <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df)</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>m_gmc        <span class="ot">&lt;-</span> <span class="fu">lmer</span>(mood <span class="sc">~</span> sleep_gmc  <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df)</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>m_cmc        <span class="ot">&lt;-</span> <span class="fu">lmer</span>(mood <span class="sc">~</span> sleep_cmc <span class="sc">+</span> sleep_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>m_uncentered <span class="ot">&lt;-</span> <span class="fu">lmer</span>(savings <span class="sc">~</span> disc_raw  <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> household), <span class="at">data =</span> df_center)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>m_gmc        <span class="ot">&lt;-</span> <span class="fu">lmer</span>(savings <span class="sc">~</span> disc_gmc  <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> household), <span class="at">data =</span> df_center)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>m_cmc        <span class="ot">&lt;-</span> <span class="fu">lmer</span>(savings <span class="sc">~</span> disc_cmc <span class="sc">+</span> disc_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> household), <span class="at">data =</span> df_center)</span>
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
 <span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_uncentered, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"sleep_raw"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"disc_raw"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Uncentered"</span>, <span class="at">mechanism =</span> <span class="st">"Blended"</span>),</span>
 <span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_gmc, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"sleep_gmc"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"disc_gmc"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"GMC"</span>, <span class="at">mechanism =</span> <span class="st">"Blended"</span>),</span>
 <span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_cmc, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"sleep_cmc"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"CMC"</span>, <span class="at">mechanism =</span> <span class="st">"Within-person"</span>),</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"disc_cmc"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"CMC"</span>, <span class="at">mechanism =</span> <span class="st">"Within-household"</span>),</span>
 <span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_cmc, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"sleep_mean"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"CMC"</span>, <span class="at">mechanism =</span> <span class="st">"Between-person"</span>)</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"disc_mean"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"CMC"</span>, <span class="at">mechanism =</span> <span class="st">"Between-household"</span>)</span>
 <span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, mechanism, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
 <span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Sleep → mood: blended ≈ 4.0; within ≈ 2.0; between ≈ 5.0. Neither blended estimate is correct."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Disclosure → savings: blended ≈ 3.5; within ≈ 1.5; between ≈ 4.0. Blended estimate is wrong for both questions."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Sleep → mood: blended ≈ 4.0; within ≈ 2.0; between ≈ 5.0. Neither blended estimate is correct.</caption>
+<caption>Disclosure → savings: blended ≈ 3.5; within ≈ 1.5; between ≈ 4.0. Blended estimate is wrong for both questions.</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">model</th>
@@ -942,40 +989,40 @@ window.Quarto = {
 <tr class="odd">
 <td style="text-align: left;">Uncentered</td>
 <td style="text-align: left;">Blended</td>
-<td style="text-align: right;">2.385</td>
-<td style="text-align: right;">0.250</td>
+<td style="text-align: right;">1.666</td>
+<td style="text-align: right;">0.160</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">GMC</td>
 <td style="text-align: left;">Blended</td>
-<td style="text-align: right;">2.385</td>
-<td style="text-align: right;">0.250</td>
+<td style="text-align: right;">1.666</td>
+<td style="text-align: right;">0.160</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">CMC</td>
-<td style="text-align: left;">Within-person</td>
-<td style="text-align: right;">2.162</td>
-<td style="text-align: right;">0.262</td>
+<td style="text-align: left;">Within-household</td>
+<td style="text-align: right;">1.608</td>
+<td style="text-align: right;">0.175</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">CMC</td>
-<td style="text-align: left;">Between-person</td>
-<td style="text-align: right;">4.611</td>
-<td style="text-align: right;">0.771</td>
+<td style="text-align: left;">Between-household</td>
+<td style="text-align: right;">1.975</td>
+<td style="text-align: right;">0.403</td>
 <td style="text-align: right;">0</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>The uncentered and GMC models give ~4, which is wrong for both questions. CMC reveals: the within-person mechanism is modest (2 points per extra hour of sleep); the between-person correlation is much larger (5 points) because healthy lifestyle confounds it.</p>
+<p>The uncentered and GMC models give ~3.5 — overstating the within-household effect by 2× because financial literacy inflates the between-household correlation. CMC reveals: the within-household causal effect (1.5 points per additional page) is meaningfully smaller than the between-household correlation (4.0 points) driven by literacy. A policy that relies on the blended estimate will project benefits of disclosure programmes that are unrealistically large.</p>
 <hr>
 </section>
-<section id="decision-guide" class="level2" data-number="16.5">
-<h2 data-number="16.5" class="anchored" data-anchor-id="decision-guide"><span class="header-section-number">16.5</span> Decision Guide</h2>
+<section id="decision-guide" class="level2">
+<h2 class="anchored" data-anchor-id="decision-guide">Decision Guide</h2>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1043,6 +1090,21 @@ window.Quarto = {
 <p>Including a predictor without CMC in a random-effects model implicitly assumes <span class="math inline">\(\beta_W = \beta_B\)</span>. When this is wrong — as in Patterns 2 and 3 above — both estimates are biased.</p>
 <p><strong>How to test:</strong> Fit the CMC model. Compare <span class="math inline">\(\hat\beta_W\)</span> and <span class="math inline">\(\hat\beta_B\)</span>. A Wald test (see Part 2) tests the null <span class="math inline">\(H_0: \beta_W = \beta_B\)</span>.</p>
 <p><strong>The stakes:</strong> In the worst case (Pattern 3), conflation completely reverses the direction of the effect.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Reviewer Challenge: Three Questions About Your Centering Choice
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Challenge 1 — “Which question does your coefficient actually answer?”</strong> If you report a single coefficient for disclosure engagement without centering, a reviewer will ask: “Is this the within-household effect (what happens when a household reads more than usual) or the between-household effect (whether households with generally higher engagement save more)? Because those are different numbers with different policy implications.” Run the CMC decomposition and report both — or justify why the blended estimate is the correct quantity of interest.</p>
+<p><strong>Challenge 2 — “Why are the within- and between-household estimates different?”</strong> If <span class="math inline">\(\hat\beta_W \neq \hat\beta_B\)</span>, reviewers will ask you to explain the mechanism. For the disclosure study: the between-household effect is inflated by financial literacy — literate households engage more AND save more regardless. The within-household effect is the pure causal question. Have a substantive explanation for the discrepancy, not just a statistical note that “random effects may be correlated with the predictor.”</p>
+<p><strong>Challenge 3 — “Does the sign reversal survive other robustness checks?”</strong> For the discount/conversion sign reversal example: a reviewer will ask whether the paradox holds when you control for other category-level characteristics (product shelf life, brand loyalty, advertising spend). If the within-category effect becomes near-zero once you add category-level controls, the pattern may reflect omitted variable bias rather than a genuine sign reversal. Run the model with additional controls at both levels.</p>
 </div>
 </div>
 
@@ -1175,7 +1237,7 @@ window.Quarto = {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1504,13 +1566,13 @@ window.Quarto = {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../module-2/intro.html" class="pagination-link" aria-label="Overview">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span>
+      <a href="../module-2/intro.html" class="pagination-link" aria-label="Module 2: Centering &amp; Between/Within Effects">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../module-2/part2.html" class="pagination-link" aria-label="Separating Within and Between Effects">
-        <span class="nav-page-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Separating Within and Between Effects</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

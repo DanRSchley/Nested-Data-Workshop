@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>34&nbsp; Missing Data in Longitudinal Studies – Nested Data Structures</title>
+<title>Missing Data in Longitudinal Studies – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -107,6 +108,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -139,6 +143,14 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-4/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-4/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -150,7 +162,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part9.html"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part9.html"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -180,8 +192,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -195,32 +206,27 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -236,44 +242,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -289,26 +288,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -324,44 +319,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -377,68 +365,57 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -454,62 +431,52 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -525,14 +492,12 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -547,24 +512,26 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#missing-data-in-longitudinal-studies" id="toc-missing-data-in-longitudinal-studies" class="nav-link active" data-scroll-target="#missing-data-in-longitudinal-studies"><span class="header-section-number">35</span> Missing Data in Longitudinal Studies</a>
+  <li><a href="#missing-data-in-longitudinal-studies" id="toc-missing-data-in-longitudinal-studies" class="nav-link active" data-scroll-target="#missing-data-in-longitudinal-studies">Missing Data in Longitudinal Studies</a>
   <ul class="collapse">
-  <li><a href="#why-longitudinal-data-are-especially-prone-to-missingness" id="toc-why-longitudinal-data-are-especially-prone-to-missingness" class="nav-link" data-scroll-target="#why-longitudinal-data-are-especially-prone-to-missingness"><span class="header-section-number">35.1</span> Why Longitudinal Data Are Especially Prone to Missingness</a></li>
-  <li><a href="#the-three-mechanisms-of-missing-data" id="toc-the-three-mechanisms-of-missing-data" class="nav-link" data-scroll-target="#the-three-mechanisms-of-missing-data"><span class="header-section-number">35.2</span> The Three Mechanisms of Missing Data</a>
+  <li><a href="#why-longitudinal-data-are-especially-prone-to-missingness" id="toc-why-longitudinal-data-are-especially-prone-to-missingness" class="nav-link" data-scroll-target="#why-longitudinal-data-are-especially-prone-to-missingness">Why Longitudinal Data Are Especially Prone to Missingness</a></li>
+  <li><a href="#the-three-mechanisms-of-missing-data" id="toc-the-three-mechanisms-of-missing-data" class="nav-link" data-scroll-target="#the-three-mechanisms-of-missing-data">The Three Mechanisms of Missing Data</a>
   <ul class="collapse">
-  <li><a href="#missing-completely-at-random-mcar" id="toc-missing-completely-at-random-mcar" class="nav-link" data-scroll-target="#missing-completely-at-random-mcar"><span class="header-section-number">35.2.1</span> Missing Completely At Random (MCAR)</a></li>
-  <li><a href="#missing-at-random-mar" id="toc-missing-at-random-mar" class="nav-link" data-scroll-target="#missing-at-random-mar"><span class="header-section-number">35.2.2</span> Missing At Random (MAR)</a></li>
-  <li><a href="#missing-not-at-random-mnar" id="toc-missing-not-at-random-mnar" class="nav-link" data-scroll-target="#missing-not-at-random-mnar"><span class="header-section-number">35.2.3</span> Missing Not At Random (MNAR)</a></li>
+  <li><a href="#missing-completely-at-random-mcar" id="toc-missing-completely-at-random-mcar" class="nav-link" data-scroll-target="#missing-completely-at-random-mcar">Missing Completely At Random (MCAR)</a></li>
+  <li><a href="#missing-at-random-mar" id="toc-missing-at-random-mar" class="nav-link" data-scroll-target="#missing-at-random-mar">Missing At Random (MAR)</a></li>
+  <li><a href="#missing-not-at-random-mnar" id="toc-missing-not-at-random-mnar" class="nav-link" data-scroll-target="#missing-not-at-random-mnar">Missing Not At Random (MNAR)</a></li>
+  <li><a href="#the-marmnar-distinction-visualized" id="toc-the-marmnar-distinction-visualized" class="nav-link" data-scroll-target="#the-marmnar-distinction-visualized">The MAR/MNAR Distinction Visualized</a></li>
   </ul></li>
-  <li><a href="#step-1-diagnosing-missingness" id="toc-step-1-diagnosing-missingness" class="nav-link" data-scroll-target="#step-1-diagnosing-missingness"><span class="header-section-number">35.3</span> Step 1: Diagnosing Missingness</a></li>
-  <li><a href="#step-2-complete-case-vs.-available-case-analysis" id="toc-step-2-complete-case-vs.-available-case-analysis" class="nav-link" data-scroll-target="#step-2-complete-case-vs.-available-case-analysis"><span class="header-section-number">35.4</span> Step 2: Complete-Case vs.&nbsp;Available-Case Analysis</a></li>
-  <li><a href="#step-3-multiple-imputation" id="toc-step-3-multiple-imputation" class="nav-link" data-scroll-target="#step-3-multiple-imputation"><span class="header-section-number">35.5</span> Step 3: Multiple Imputation</a>
+  <li><a href="#step-1-diagnosing-missingness" id="toc-step-1-diagnosing-missingness" class="nav-link" data-scroll-target="#step-1-diagnosing-missingness">Step 1: Diagnosing Missingness</a></li>
+  <li><a href="#step-2-complete-case-vs.-available-case-analysis" id="toc-step-2-complete-case-vs.-available-case-analysis" class="nav-link" data-scroll-target="#step-2-complete-case-vs.-available-case-analysis">Step 2: Complete-Case vs.&nbsp;Available-Case Analysis</a></li>
+  <li><a href="#step-3-multiple-imputation" id="toc-step-3-multiple-imputation" class="nav-link" data-scroll-target="#step-3-multiple-imputation">Step 3: Multiple Imputation</a>
   <ul class="collapse">
-  <li><a href="#rubins-rules" id="toc-rubins-rules" class="nav-link" data-scroll-target="#rubins-rules"><span class="header-section-number">35.5.1</span> Rubin’s Rules</a></li>
+  <li><a href="#rubins-rules" id="toc-rubins-rules" class="nav-link" data-scroll-target="#rubins-rules">Rubin’s Rules</a></li>
   </ul></li>
-  <li><a href="#step-4-sensitivity-analysis-for-mnar" id="toc-step-4-sensitivity-analysis-for-mnar" class="nav-link" data-scroll-target="#step-4-sensitivity-analysis-for-mnar"><span class="header-section-number">35.6</span> Step 4: Sensitivity Analysis for MNAR</a></li>
-  <li><a href="#step-5-full-information-maximum-likelihood-fiml" id="toc-step-5-full-information-maximum-likelihood-fiml" class="nav-link" data-scroll-target="#step-5-full-information-maximum-likelihood-fiml"><span class="header-section-number">35.7</span> Step 5: Full Information Maximum Likelihood (FIML)</a></li>
-  <li><a href="#a-decision-framework-for-missing-data" id="toc-a-decision-framework-for-missing-data" class="nav-link" data-scroll-target="#a-decision-framework-for-missing-data"><span class="header-section-number">35.8</span> A Decision Framework for Missing Data</a></li>
+  <li><a href="#step-4-sensitivity-analysis-for-mnar" id="toc-step-4-sensitivity-analysis-for-mnar" class="nav-link" data-scroll-target="#step-4-sensitivity-analysis-for-mnar">Step 4: Sensitivity Analysis for MNAR</a></li>
+  <li><a href="#step-5-full-information-maximum-likelihood-fiml" id="toc-step-5-full-information-maximum-likelihood-fiml" class="nav-link" data-scroll-target="#step-5-full-information-maximum-likelihood-fiml">Step 5: Full Information Maximum Likelihood (FIML)</a></li>
+  <li><a href="#decision-framework" id="toc-decision-framework" class="nav-link" data-scroll-target="#decision-framework">Decision Framework</a></li>
+  <li><a href="#reviewer-challenge" id="toc-reviewer-challenge" class="nav-link" data-scroll-target="#reviewer-challenge">Reviewer Challenge</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -572,9 +539,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part9.html"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part9.html"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Missing Data in Longitudinal Studies</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -591,32 +558,76 @@ window.Quarto = {
 </header>
 
 
-<section id="missing-data-in-longitudinal-studies" class="level1" data-number="35">
-<h1 data-number="35"><span class="header-section-number">35</span> Missing Data in Longitudinal Studies</h1>
-<section id="why-longitudinal-data-are-especially-prone-to-missingness" class="level2" data-number="35.1">
-<h2 data-number="35.1" class="anchored" data-anchor-id="why-longitudinal-data-are-especially-prone-to-missingness"><span class="header-section-number">35.1</span> Why Longitudinal Data Are Especially Prone to Missingness</h2>
-<p>Cross-sectional surveys have one chance to collect data. Longitudinal studies have multiple waves — and at each wave, participants can fail to provide data. This creates a missingness structure that is both richer and more dangerous than in cross-sectional research.</p>
-<p>Consider a 4-wave panel study. Even if each wave has 90% completion, only <span class="math inline">\(0.9^4 \approx 66\%\)</span> of participants complete all four waves. With 80% completion per wave: <span class="math inline">\(0.8^4 \approx 41\%\)</span>. The complete-case sample — participants with data at all waves — can be a small and highly selected subset of the original enrollment.</p>
-<p>This matters because <strong>why people drop out is rarely random</strong>. Participants who are struggling are more likely to drop out. Participants who improved may feel they no longer need to participate. These are mechanisms that create <strong>systematic relationships between missingness and the outcome</strong> — exactly the conditions that bias estimates.</p>
+<section id="missing-data-in-longitudinal-studies" class="level1">
+<h1>Missing Data in Longitudinal Studies</h1>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Dropout Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>Who is missing from your data at wave 3, and why?</strong> If the people who stopped participating are systematically different from those who stayed — more financially stressed, more discouraged, more disengaged — then your wave 3 sample is not a representative snapshot of the population you enrolled. It is a survivor sample.</p>
+<p><strong>What does that do to your estimates?</strong> It creates selection into the observed sample that is correlated with the outcome trajectory. The estimated treatment effect on completers may not reflect the true effect on the full enrolled sample.</p>
+<p><strong>What can be done about it?</strong> Depends entirely on the mechanism. Under MAR (dropout predictable from observed variables), available-case estimation via <code>lmer</code> or multiple imputation is valid. Under MNAR (dropout driven by the unobserved outcome itself), no standard method fully corrects the bias — you need sensitivity analysis.</p>
+</blockquote>
+</div>
+</div>
+<section id="why-longitudinal-data-are-especially-prone-to-missingness" class="level2">
+<h2 class="anchored" data-anchor-id="why-longitudinal-data-are-especially-prone-to-missingness">Why Longitudinal Data Are Especially Prone to Missingness</h2>
+<p>Cross-sectional studies have one chance to collect data. Longitudinal studies have multiple waves — and at each wave, participants can fail to provide data. Even modest per-wave dropout compounds dramatically:</p>
+<ul>
+<li>90% retention per wave × 4 waves = 66% completing all waves</li>
+<li>80% retention per wave × 4 waves = 41% completing all waves</li>
+</ul>
+<p>The complete-case sample — participants with data at every wave — can be a small, highly selected subset of the original enrollment.</p>
+<p><strong>The central problem:</strong> Why people drop out is rarely random. Financially stressed households are more likely to disengage from financial diary studies precisely because their situation is worsening and they are avoiding measurement. App users with the worst savings outcomes are often the least engaged users — and the first to stop logging. These are mechanisms that create systematic relationships between missingness and the outcome trajectory.</p>
 <hr>
 </section>
-<section id="the-three-mechanisms-of-missing-data" class="level2" data-number="35.2">
-<h2 data-number="35.2" class="anchored" data-anchor-id="the-three-mechanisms-of-missing-data"><span class="header-section-number">35.2</span> The Three Mechanisms of Missing Data</h2>
-<p>Missing data mechanisms determine how severe the bias is and what can be done about it. Following Rubin (1976), there are three:</p>
-<section id="missing-completely-at-random-mcar" class="level3" data-number="35.2.1">
-<h3 data-number="35.2.1" class="anchored" data-anchor-id="missing-completely-at-random-mcar"><span class="header-section-number">35.2.1</span> Missing Completely At Random (MCAR)</h3>
-<p>Whether an observation is missing is <strong>independent of everything</strong> — both observed and unobserved variables. This is effectively a random subsample of the full data. Complete-case analysis is unbiased under MCAR, but still inefficient (you lose information).</p>
-<p><em>Example:</em> A participant’s data are missing because their file was accidentally deleted by the research assistant. The deletion has nothing to do with their health status, demographics, or outcomes.</p>
+<section id="the-three-mechanisms-of-missing-data" class="level2">
+<h2 class="anchored" data-anchor-id="the-three-mechanisms-of-missing-data">The Three Mechanisms of Missing Data</h2>
+<section id="missing-completely-at-random-mcar" class="level3">
+<h3 class="anchored" data-anchor-id="missing-completely-at-random-mcar">Missing Completely At Random (MCAR)</h3>
+<p>Whether an observation is missing is independent of everything — both observed and unobserved variables. Complete-case analysis is unbiased under MCAR, but still inefficient.</p>
+<p><em>JDM example:</em> Data are missing because a server outage prevented 15% of responses from being saved at wave 2. The outage has nothing to do with who the participants are or how they were responding.</p>
 </section>
-<section id="missing-at-random-mar" class="level3" data-number="35.2.2">
-<h3 data-number="35.2.2" class="anchored" data-anchor-id="missing-at-random-mar"><span class="header-section-number">35.2.2</span> Missing At Random (MAR)</h3>
-<p>Whether an observation is missing depends on <strong>observed variables</strong> in the dataset, but not on the missing value itself after conditioning on those observed variables. This is a conditional independence assumption: missingness is predictable from what you have.</p>
-<p><em>Example:</em> Older participants are more likely to drop out of a study, and older participants also tend to have worse health at baseline. Once you condition on age (an observed variable), missingness is independent of the unobserved future health. Modern imputation methods (Multiple Imputation, Full Information Maximum Likelihood) are valid under MAR.</p>
+<section id="missing-at-random-mar" class="level3">
+<h3 class="anchored" data-anchor-id="missing-at-random-mar">Missing At Random (MAR)</h3>
+<p>Whether an observation is missing depends on <strong>observed variables</strong> in the dataset, but not on the missing value itself after conditioning on those variables. Modern methods (FIML via <code>lmer</code>, multiple imputation) are valid under MAR.</p>
+<p><em>JDM example:</em> Households with higher baseline debt are more likely to drop out of a financial diary study. Higher debt is observed. Once you condition on observed baseline debt, dropout is independent of the <em>unobserved future</em> financial behavior. The dropout is predictable from what you have — but it is not driven by the unseen future outcome.</p>
 </section>
-<section id="missing-not-at-random-mnar" class="level3" data-number="35.2.3">
-<h3 data-number="35.2.3" class="anchored" data-anchor-id="missing-not-at-random-mnar"><span class="header-section-number">35.2.3</span> Missing Not At Random (MNAR)</h3>
-<p>Whether an observation is missing depends on <strong>the missing value itself</strong>, even after conditioning on all observed variables. This is the dangerous case — no standard analysis fully corrects for it.</p>
-<p><em>Example:</em> Participants drop out because their depression worsened — and worse depression directly predicts dropout, over and above any observed baseline predictors. Your observed data systematically underrepresent the bad outcomes.</p>
+<section id="missing-not-at-random-mnar" class="level3">
+<h3 class="anchored" data-anchor-id="missing-not-at-random-mnar">Missing Not At Random (MNAR)</h3>
+<p>Whether an observation is missing depends on <strong>the missing value itself</strong>, even after conditioning on all observed variables. This is the dangerous case.</p>
+<p><em>JDM example:</em> App users stop logging their transactions <strong>because</strong> their spending worsened — and the worsened spending that caused them to disengage is the exact outcome you would have measured. The missingness is caused by the unobserved outcome. No standard method corrects for this.</p>
+</section>
+<section id="the-marmnar-distinction-visualized" class="level3">
+<h3 class="anchored" data-anchor-id="the-marmnar-distinction-visualized">The MAR/MNAR Distinction Visualized</h3>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+    A["Enrolled participants\nN = 200"] --&gt; B["Wave 2 complete\nN = 160"]
+    A --&gt; C["Dropped out at wave 2\nN = 40"]
+    B --&gt; D["Wave 3 complete\nN = 128"]
+    B --&gt; E["Dropped out at wave 3\nN = 32"]
+    C --&gt; F_mar["MAR: dropout predicted by\nobserved baseline debt"]
+    C --&gt; F_mnar["MNAR: dropout caused by\nunobserved spending shock"]
+    style F_mar fill:#e8f5e9,stroke:#2d6a4f
+    style F_mnar fill:#fce4ec,stroke:#c0392b
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>Under MAR, the cause of dropout sits in your observed data — you can model it. Under MNAR, the cause is invisible — it is the thing you failed to measure.</p>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -627,87 +638,88 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Multiple imputation and FIML are only valid if the data are MAR (or MCAR). If data are MNAR, these methods reduce but do not eliminate bias. There is no fully satisfying solution to MNAR missingness — it requires either selection models (joint model for outcome and dropout), pattern mixture models, or sensitivity analyses that bound the possible bias.</p>
-<p><strong>How to check:</strong> You cannot directly test MNAR from observed data (it involves the unobserved values). Proxy indicators: do dropouts differ from completers on observed baseline variables? Does the rate of dropout vary by initial outcome level? These patterns are consistent with MNAR, though not diagnostic.</p>
+<p><strong>Plain-language meaning:</strong> Multiple imputation and FIML via <code>lmer</code> are only valid if the data are MAR — missing for reasons explainable by observed variables — or MCAR. If dropout is driven by the unobserved outcome trajectory, these methods reduce but cannot eliminate bias.</p>
+<p><strong>What the model is assuming away:</strong> The possibility that the financially distressed households who disappeared from wave 3 had <em>worse outcomes than predicted from their observed characteristics</em> — and dropped out specifically because of that unobserved worsening.</p>
+<p><strong>JDM example:</strong> If app users disengage specifically after large overdraft events (which are unobserved in your data), their missing wave 3 savings behavior is not explained by their observed baseline debt level. The dropout is MNAR.</p>
+<p><strong>What a skeptical reviewer might say:</strong> “Your imputation is valid under MAR — but why would a financial diary dropout be MAR? The people who stop logging finances are arguably the ones whose finances are getting worse in ways your baseline measures don’t fully capture.”</p>
+<p><strong>Observable warning sign:</strong> Significant differences in observed baseline variables between completers and dropouts (consistent with MAR, but also consistent with MNAR); dropout rates that increase across waves; dropout concentrated in the control arm.</p>
+<p><strong>What to check:</strong> Compare observed baseline characteristics between completers and dropouts. If they differ, MAR is possible but MNAR cannot be ruled out. Run sensitivity analysis to bound the MNAR bias.</p>
 </div>
 </div>
 <hr>
 </section>
 </section>
-<section id="step-1-diagnosing-missingness" class="level2" data-number="35.3">
-<h2 data-number="35.3" class="anchored" data-anchor-id="step-1-diagnosing-missingness"><span class="header-section-number">35.3</span> Step 1: Diagnosing Missingness</h2>
-<p>Before imputing or excluding, understand the pattern and mechanism.</p>
+<section id="step-1-diagnosing-missingness" class="level2">
+<h2 class="anchored" data-anchor-id="step-1-diagnosing-missingness">Step 1: Diagnosing Missingness</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate 4-wave panel study with dropout</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_people <span class="ot">&lt;-</span> <span class="dv">150</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n_waves  <span class="ot">&lt;-</span> <span class="dv">4</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>person_baseline <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="dv">50</span>, <span class="dv">10</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>person_trt      <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> n_people <span class="sc">/</span> <span class="dv">2</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate complete data</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>df_complete <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people, <span class="at">wave =</span> <span class="dv">1</span><span class="sc">:</span>n_waves) <span class="sc">|&gt;</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">baseline  =</span> person_baseline[person],</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">treatment =</span> person_trt[person],</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y_true    =</span> baseline <span class="sc">-</span> <span class="dv">3</span> <span class="sc">*</span> (wave <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="dv">5</span> <span class="sc">*</span> treatment <span class="sc">*</span> (wave <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">person    =</span> <span class="fu">factor</span>(person)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Introduce MAR missingness: higher dropout for people with worse baseline</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>dropout_prob <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">+</span> <span class="fl">0.03</span> <span class="sc">*</span> (<span class="dv">50</span> <span class="sc">-</span> person_baseline) <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> (df_complete<span class="sc">$</span>wave <span class="sc">-</span> <span class="dv">1</span>))</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>missing_flag <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="fu">nrow</span>(df_complete), <span class="dv">1</span>, dropout_prob)</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>df_obs <span class="ot">&lt;-</span> df_complete <span class="sc">|&gt;</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Y_obs =</span> <span class="fu">ifelse</span>(missing_flag <span class="sc">==</span> <span class="dv">1</span>, <span class="cn">NA</span>, Y_true))</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Missingness rates by wave</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>df_obs <span class="sc">|&gt;</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(wave) <span class="sc">|&gt;</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_total   =</span> <span class="fu">n</span>(),</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_missing =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(Y_obs)),</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">pct_missing =</span> <span class="fu">mean</span>(<span class="fu">is.na</span>(Y_obs)) <span class="sc">*</span> <span class="dv">100</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">1</span>, <span class="at">caption =</span> <span class="st">"Missingness rates per wave"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_people <span class="ot">&lt;-</span> <span class="dv">150</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_waves  <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>person_baseline <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="dv">50</span>, <span class="dv">10</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>person_trt      <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> n_people <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df_full <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people, <span class="at">wave =</span> <span class="dv">1</span><span class="sc">:</span>n_waves) <span class="sc">|&gt;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">baseline  =</span> person_baseline[person],</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">treatment =</span> person_trt[person],</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">Y_true    =</span> baseline <span class="sc">-</span> <span class="dv">3</span> <span class="sc">*</span> (wave <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="dv">5</span> <span class="sc">*</span> treatment <span class="sc">*</span> (wave <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">person    =</span> <span class="fu">factor</span>(person)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># MAR mechanism: households with lower baseline savings drop out more over time</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>dropout_prob <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="dv">2</span> <span class="sc">+</span> <span class="fl">0.03</span> <span class="sc">*</span> (<span class="dv">50</span> <span class="sc">-</span> person_baseline[<span class="fu">as.integer</span>(df_full<span class="sc">$</span>person)])</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>                          <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> (df_full<span class="sc">$</span>wave <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>missing_flag <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="fu">nrow</span>(df_full), <span class="dv">1</span>, dropout_prob)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>df_obs <span class="ot">&lt;-</span> df_full <span class="sc">|&gt;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Y_obs =</span> <span class="fu">ifelse</span>(missing_flag <span class="sc">==</span> <span class="dv">1</span>, <span class="cn">NA</span>, Y_true))</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>df_obs <span class="sc">|&gt;</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(wave) <span class="sc">|&gt;</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_total   =</span> <span class="fu">n</span>(),</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_missing =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(Y_obs)),</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">pct_miss  =</span> <span class="fu">round</span>(<span class="fu">mean</span>(<span class="fu">is.na</span>(Y_obs)) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Missingness rates per wave — attrition compounds across waves"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Missingness rates per wave</caption>
+<caption>Missingness rates per wave — attrition compounds across waves</caption>
 <thead>
 <tr class="header">
 <th style="text-align: right;">wave</th>
 <th style="text-align: right;">n_total</th>
 <th style="text-align: right;">n_missing</th>
-<th style="text-align: right;">pct_missing</th>
+<th style="text-align: right;">pct_miss</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">150</td>
-<td style="text-align: right;">16</td>
-<td style="text-align: right;">10.7</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">10.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">150</td>
-<td style="text-align: right;">27</td>
-<td style="text-align: right;">18.0</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">17.3</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
 <td style="text-align: right;">150</td>
-<td style="text-align: right;">36</td>
-<td style="text-align: right;">24.0</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">22.7</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">150</td>
-<td style="text-align: right;">47</td>
-<td style="text-align: right;">31.3</td>
+<td style="text-align: right;">49</td>
+<td style="text-align: right;">32.7</td>
 </tr>
 </tbody>
 </table>
@@ -716,85 +728,82 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Who is missing? Compare baseline scores of completers vs. dropouts</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df_person_missing <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person, baseline, treatment) <span class="sc">|&gt;</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">complete =</span> <span class="fu">all</span>(<span class="sc">!</span><span class="fu">is.na</span>(Y_obs)),</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_observed =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(Y_obs)),</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_person_missing, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(n_observed), <span class="at">y =</span> baseline)) <span class="sc">+</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"#1e3a5f"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Baseline score by number of waves observed"</span>,</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Lower baseline → more dropout (MAR mechanism)"</span>,</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Number of waves with data"</span>,</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Baseline score"</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(wave) <span class="sc">|&gt;</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">pct_missing =</span> <span class="fu">mean</span>(<span class="fu">is.na</span>(Y_obs)) <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> wave, <span class="at">y =</span> pct_missing)) <span class="sc">+</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"#e63946"</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Missingness rate by wave"</span>,</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Attrition compounds across waves"</span>,</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Wave"</span>, <span class="at">y =</span> <span class="st">"% Missing"</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df_person_miss <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person, baseline, treatment) <span class="sc">|&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_observed =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(Y_obs)),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups    =</span> <span class="st">"drop"</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_person_miss, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(n_observed), <span class="at">y =</span> baseline)) <span class="sc">+</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">fill =</span> <span class="st">"#1e3a5f"</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Baseline score by waves observed"</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Lower baseline → more dropout (MAR mechanism visible here)"</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Number of waves observed"</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Baseline savings score"</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(wave) <span class="sc">|&gt;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">pct_missing =</span> <span class="fu">mean</span>(<span class="fu">is.na</span>(Y_obs)) <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> wave, <span class="at">y =</span> pct_missing)) <span class="sc">+</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"#e67e22"</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Missingness rate by wave"</span>,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Compounding attrition across waves"</span>,</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Wave"</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"% missing"</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>p1 <span class="sc">+</span> p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="part9_files/figure-html/missing-pattern-plot-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="part9_files/figure-html/missing-pattern-plot-1.png" class="img-fluid figure-img" width="864"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>The diagnostic pattern confirms the MAR mechanism: people with lower baseline scores drop out more over time. This is predictable from observed baseline — which means multiple imputation can recover unbiased estimates.</p>
+<p>The diagnostic pattern confirms MAR: households with lower baseline savings drop out more over time. This is predictable from the observed baseline, so multiple imputation and FIML can recover unbiased estimates.</p>
 <hr>
 </section>
-<section id="step-2-complete-case-vs.-available-case-analysis" class="level2" data-number="35.4">
-<h2 data-number="35.4" class="anchored" data-anchor-id="step-2-complete-case-vs.-available-case-analysis"><span class="header-section-number">35.4</span> Step 2: Complete-Case vs.&nbsp;Available-Case Analysis</h2>
-<p><strong>Complete-case analysis</strong> uses only observations with no missing values at any wave. It is simple but biased when dropouts differ from completers.</p>
-<p><strong>Available-case analysis</strong> uses all available data at each wave (mixed model with <code>lmer</code> uses this by default). It is more efficient than complete-case and is unbiased under MAR when the model is correctly specified — because the random effects model uses all available information to recover the full trajectory.</p>
+<section id="step-2-complete-case-vs.-available-case-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-complete-case-vs.-available-case-analysis">Step 2: Complete-Case vs.&nbsp;Available-Case Analysis</h2>
+<p><strong>Complete-case analysis</strong>: use only participants with data at every wave. Simple, but biased when dropouts differ from completers — and they almost always do in financial panel studies.</p>
+<p><strong>Available-case analysis</strong>: use all available data at each wave. <code>lmer</code> uses this by default (FIML-like estimation), and it is unbiased under MAR when the model correctly includes the observed predictors of dropout.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Approach 1: Complete cases only</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df_complete_only <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Complete cases only</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df_cc <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(Y_obs)) <span class="sc">==</span> n_waves) <span class="sc">|&gt;</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>m_cc <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Y_obs <span class="sc">~</span> wave <span class="sc">*</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_complete_only)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Approach 2: Available case (lmer handles missingness automatically)</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>m_ac <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Y_obs <span class="sc">~</span> wave <span class="sc">*</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_obs)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_cc, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(term, <span class="st">"wave.*treatment"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">approach =</span> <span class="st">"Complete-case"</span>),</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_ac, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(term, <span class="st">"wave.*treatment"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">approach =</span> <span class="st">"Available-case (lmer)"</span>)</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(approach, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Treatment × wave interaction: complete-case vs. available-case. True effect ≈ 5."</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>m_cc <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Y_obs <span class="sc">~</span> wave <span class="sc">*</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_cc)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>m_ac <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Y_obs <span class="sc">~</span> wave <span class="sc">*</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_obs)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_cc, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="fu">str_detect</span>(term, <span class="st">"wave.*treatment"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">approach =</span> <span class="st">"Complete-case"</span>),</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_ac, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="fu">str_detect</span>(term, <span class="st">"wave.*treatment"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">approach =</span> <span class="st">"Available-case (lmer)"</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(approach, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Treatment × wave interaction: complete-case vs. available-case. True effect ≈ 5. Available-case is closer under MAR."</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Treatment × wave interaction: complete-case vs.&nbsp;available-case. True effect ≈ 5.</caption>
+<caption>Treatment × wave interaction: complete-case vs.&nbsp;available-case. True effect ≈ 5. Available-case is closer under MAR.</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">approach</th>
@@ -806,30 +815,30 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Complete-case</td>
-<td style="text-align: right;">4.282</td>
-<td style="text-align: right;">0.625</td>
+<td style="text-align: right;">4.253</td>
+<td style="text-align: right;">0.565</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Available-case (lmer)</td>
-<td style="text-align: right;">4.897</td>
-<td style="text-align: right;">0.449</td>
+<td style="text-align: right;">4.776</td>
+<td style="text-align: right;">0.444</td>
 <td style="text-align: right;">0</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>Because dropout is MAR (related to baseline, which is in the model), the available-case estimate from <code>lmer</code> is close to the truth. The complete-case estimate may be biased if the subset of completers is systematically different.</p>
+<p>Because dropout is MAR (related to observed baseline), the available-case estimate from <code>lmer</code> is close to the truth. The complete-case estimate may be biased — the completer subset over-represents households with higher baseline savings, distorting the treatment effect estimate.</p>
 <hr>
 </section>
-<section id="step-3-multiple-imputation" class="level2" data-number="35.5">
-<h2 data-number="35.5" class="anchored" data-anchor-id="step-3-multiple-imputation"><span class="header-section-number">35.5</span> Step 3: Multiple Imputation</h2>
-<p>Multiple Imputation (MI) is a principled approach for MAR data. The procedure has three steps:</p>
+<section id="step-3-multiple-imputation" class="level2">
+<h2 class="anchored" data-anchor-id="step-3-multiple-imputation">Step 3: Multiple Imputation</h2>
+<p>Multiple Imputation (MI) is a principled approach for MAR data with three steps:</p>
 <ol type="1">
-<li><strong>Impute:</strong> Create <span class="math inline">\(m\)</span> plausible complete datasets, each with missing values filled in by draws from the posterior predictive distribution given observed data.</li>
-<li><strong>Analyze:</strong> Run your analysis model on each of the <span class="math inline">\(m\)</span> complete datasets.</li>
-<li><strong>Pool:</strong> Combine estimates using Rubin’s rules, which correctly propagate the uncertainty from imputation into the final standard errors.</li>
+<li><strong>Impute</strong>: Create <span class="math inline">\(m\)</span> plausible complete datasets, with missing values filled by draws from the posterior predictive distribution given observed data</li>
+<li><strong>Analyze</strong>: Run your analysis model on each of the <span class="math inline">\(m\)</span> complete datasets</li>
+<li><strong>Pool</strong>: Combine estimates using Rubin’s rules, propagating imputation uncertainty into the final standard errors</li>
 </ol>
 <div class="callout callout-style-default callout-note no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -837,63 +846,50 @@ window.Quarto = {
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>A note on MI for longitudinal outcomes
+<span class="screen-reader-only">Note</span>MI for Longitudinal Outcomes
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>For repeated-measures longitudinal outcomes (where the missing data <em>are</em> the outcome at specific waves), <strong>FIML via <code>lmer()</code> with all available observations is usually the preferred approach under MAR</strong> — it directly maximizes the likelihood over observed data without requiring an imputation model for the outcome itself. Full multilevel MI that respects the time-series structure of the data (e.g., using <code>mice</code> with <code>2l.pan</code> or Bayesian multilevel imputation) is technically superior when auxiliary variables not in the analysis model predict missingness, but it is considerably more complex to implement correctly.</p>
-<p>The illustration below uses a <strong>simplified person-level imputation strategy</strong> as a didactic toy example to show the Rubin’s rules pooling mechanics. It is <em>not</em> a recommended best-practice workflow for longitudinal outcomes — it imputes a person-level mean and reuses it across waves, which distorts the within-person variance and time trajectory. Use FIML (<code>lmer</code> on all observed data) or a proper multilevel MI package for applied work.</p>
+<p>For repeated-measures longitudinal outcomes where the missing data <em>are</em> the outcome at specific waves, <strong>FIML via <code>lmer()</code> using all available observations is usually the preferred approach under MAR</strong> — it directly maximizes the likelihood over observed data without requiring a separate imputation model.</p>
+<p>Full multilevel MI that respects the time-series structure (e.g., <code>mice</code> with <code>2l.pan</code> or Bayesian multilevel imputation) is technically superior when auxiliary variables not in the analysis model predict missingness. But it is considerably more complex to implement correctly.</p>
+<p>The illustration below uses a simplified person-level imputation to demonstrate Rubin’s rules pooling mechanics. It is a <strong>didactic toy example</strong>, not a recommended workflow for longitudinal outcomes.</p>
 </div>
 </div>
-<p>For longitudinal data with person-level predictors, the didactic illustration imputes at the <strong>person level</strong> (one row per person, using person-level summaries) to show the pooling mechanics in a tractable form.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create person-level summary for imputation</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>df_person <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person, treatment, baseline) <span class="sc">|&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_Y =</span> <span class="fu">mean</span>(Y_obs, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),  <span class="co"># observed mean (available data)</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Impute mean_Y at the person level using predictive mean matching</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>imp <span class="ot">&lt;-</span> <span class="fu">mice</span>(</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  df_person <span class="sc">|&gt;</span> <span class="fu">select</span>(treatment, baseline, mean_Y),</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"pmm"</span>,</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">m      =</span> <span class="dv">20</span>,</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">maxit  =</span> <span class="dv">10</span>,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">print  =</span> <span class="cn">FALSE</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge back into long format and analyze</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>results_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, <span class="cf">function</span>(k) {</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Complete dataset k</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  df_imp_person <span class="ot">&lt;-</span> <span class="fu">complete</span>(imp, k) <span class="sc">|&gt;</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">person =</span> df_person<span class="sc">$</span>person)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df_person <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person, treatment, baseline) <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_Y =</span> <span class="fu">mean</span>(Y_obs, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>imp <span class="ot">&lt;-</span> <span class="fu">mice</span>(</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  df_person <span class="sc">|&gt;</span> <span class="fu">select</span>(treatment, baseline, mean_Y),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">"pmm"</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">m      =</span> <span class="dv">20</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">maxit  =</span> <span class="dv">10</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">print  =</span> <span class="cn">FALSE</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>results_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, <span class="cf">function</span>(k) {</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  df_imp_person <span class="ot">&lt;-</span> <span class="fu">complete</span>(imp, k) <span class="sc">|&gt;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">person =</span> df_person<span class="sc">$</span>person)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  df_long_imp <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(df_imp_person <span class="sc">|&gt;</span> <span class="fu">select</span>(person, <span class="at">mean_Y_imp =</span> mean_Y), <span class="at">by =</span> <span class="st">"person"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Y_mi =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(Y_obs), mean_Y_imp <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">3</span>), Y_obs))</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lmer</span>(Y_mi <span class="sc">~</span> wave <span class="sc">*</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_long_imp, <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Merge imputed mean back — for MI we impute the full longitudinal dataset</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># by filling in person-level missing observations proportionally</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  df_long_imp <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">left_join</span>(df_imp_person <span class="sc">|&gt;</span> <span class="fu">select</span>(person, <span class="at">mean_Y_imp =</span> mean_Y),</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>              <span class="at">by =</span> <span class="st">"person"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">Y_mi =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(Y_obs), mean_Y_imp <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">3</span>), Y_obs)</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lmer</span>(Y_mi <span class="sc">~</span> wave <span class="sc">*</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_long_imp, <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Pool results using Rubin's rules</span></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>pooled <span class="ot">&lt;-</span> <span class="fu">pool</span>(results_list)</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pooled) <span class="sc">|&gt;</span></span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"wave:treatment"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"MI pooled estimate: treatment × wave interaction. True effect ≈ 5."</span></span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>pooled <span class="ot">&lt;-</span> <span class="fu">pool</span>(results_list)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(pooled) <span class="sc">|&gt;</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"wave:treatment"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"MI pooled estimate: treatment × wave interaction. True effect ≈ 5."</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -909,105 +905,86 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">wave:treatment</td>
-<td style="text-align: right;">3.535</td>
-<td style="text-align: right;">0.367</td>
+<td style="text-align: right;">3.511</td>
+<td style="text-align: right;">0.359</td>
 <td style="text-align: right;">0</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<section id="rubins-rules" class="level3" data-number="35.5.1">
-<h3 data-number="35.5.1" class="anchored" data-anchor-id="rubins-rules"><span class="header-section-number">35.5.1</span> Rubin’s Rules</h3>
-<p>The pooled estimate from <span class="math inline">\(m\)</span> imputations is the simple average: <span class="math display">\[\hat{\beta}_{pool} = \frac{1}{m} \sum_{k=1}^m \hat{\beta}_k\]</span></p>
-<p>The pooled variance combines <strong>within-imputation variance</strong> (average of the <span class="math inline">\(m\)</span> standard errors) and <strong>between-imputation variance</strong> (variability across the <span class="math inline">\(m\)</span> estimates):</p>
-<p><span class="math display">\[V_{pool} = \bar{W} + \left(1 + \frac{1}{m}\right) B\]</span></p>
-<p>where <span class="math inline">\(\bar{W} = \frac{1}{m}\sum V_k\)</span> is the average within-imputation variance and <span class="math inline">\(B = \frac{1}{m-1}\sum(\hat\beta_k - \hat\beta_{pool})^2\)</span> is the between-imputation variance. The term <span class="math inline">\((1 + 1/m)B\)</span> inflates the standard error to reflect the extra uncertainty from imputing the missing values.</p>
+<section id="rubins-rules" class="level3">
+<h3 class="anchored" data-anchor-id="rubins-rules">Rubin’s Rules</h3>
+<p>The pooled estimate from <span class="math inline">\(m\)</span> imputations is the average: <span class="math display">\[\hat{\beta}_{pool} = \frac{1}{m} \sum_{k=1}^m \hat{\beta}_k\]</span></p>
+<p>The pooled variance combines <strong>within-imputation variance</strong> and <strong>between-imputation variance</strong>: <span class="math display">\[V_{pool} = \bar{W} + \left(1 + \frac{1}{m}\right) B\]</span></p>
+<p>The between-imputation variance <span class="math inline">\(B\)</span> captures uncertainty from the imputed values themselves. Unlike complete-case analysis, MI correctly accounts for the fact that imputed values are estimated, not observed — standard errors are appropriately wider.</p>
 <hr>
 </section>
 </section>
-<section id="step-4-sensitivity-analysis-for-mnar" class="level2" data-number="35.6">
-<h2 data-number="35.6" class="anchored" data-anchor-id="step-4-sensitivity-analysis-for-mnar"><span class="header-section-number">35.6</span> Step 4: Sensitivity Analysis for MNAR</h2>
-<p>Multiple imputation assumes MAR. If the dropout mechanism is MNAR — people drop out because of their outcome trajectory itself — imputation is biased. The appropriate response is a <strong>sensitivity analysis</strong> that asks: “How large would the MNAR bias have to be to change my conclusions?”</p>
-<p>A simple approach: <strong>worst-case analysis</strong> with a tipping point calculation.</p>
+<section id="step-4-sensitivity-analysis-for-mnar" class="level2">
+<h2 class="anchored" data-anchor-id="step-4-sensitivity-analysis-for-mnar">Step 4: Sensitivity Analysis for MNAR</h2>
+<p>When you suspect MNAR, the honest response is not to claim the problem is solved — it is to characterize how much the MNAR mechanism would need to deviate before your conclusions change.</p>
+<p><strong>Tipping point analysis:</strong> Shift the imputed missing values by a parameter <span class="math inline">\(\delta\)</span> (representing how much worse the dropouts’ outcomes were relative to MAR predictions) and observe when the key estimate loses significance.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Worst-case sensitivity: what if dropouts had worse outcomes?</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Shift imputed values by a sensitivity parameter delta</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>delta_values <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">10</span>, <span class="dv">0</span>, <span class="at">by =</span> <span class="dv">2</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>sensitivity_results <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(delta_values, <span class="cf">function</span>(delta) {</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  results_delta <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="cf">function</span>(k) {</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    df_imp_person <span class="ot">&lt;-</span> <span class="fu">complete</span>(imp, k) <span class="sc">|&gt;</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">person =</span> df_person<span class="sc">$</span>person)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    df_long_imp <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">left_join</span>(df_imp_person <span class="sc">|&gt;</span> <span class="fu">select</span>(person, <span class="at">mean_Y_imp =</span> mean_Y), <span class="at">by =</span> <span class="st">"person"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">Y_mi =</span> <span class="fu">ifelse</span>(</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>          <span class="fu">is.na</span>(Y_obs),</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>          mean_Y_imp <span class="sc">+</span> delta <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">3</span>),  <span class="co"># shift imputed values by delta</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>          Y_obs</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>      )</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>delta_values <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">10</span>, <span class="dv">0</span>, <span class="at">by =</span> <span class="dv">2</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>sensitivity_results <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_dfr</span>(delta_values, <span class="cf">function</span>(delta) {</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  results_delta <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="cf">function</span>(k) {</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    df_imp_person <span class="ot">&lt;-</span> <span class="fu">complete</span>(imp, k) <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">person =</span> df_person<span class="sc">$</span>person)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    df_long_imp <span class="ot">&lt;-</span> df_obs <span class="sc">|&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">left_join</span>(df_imp_person <span class="sc">|&gt;</span> <span class="fu">select</span>(person, <span class="at">mean_Y_imp =</span> mean_Y), <span class="at">by =</span> <span class="st">"person"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">Y_mi =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>          <span class="fu">is.na</span>(Y_obs),</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>          mean_Y_imp <span class="sc">+</span> delta <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">3</span>),   <span class="co"># delta = MNAR shift</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>          Y_obs</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lmer</span>(Y_mi <span class="sc">~</span> wave <span class="sc">*</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_long_imp, <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  })</span>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lmer</span>(Y_mi <span class="sc">~</span> wave <span class="sc">*</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_long_imp, <span class="at">REML =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  pooled_delta <span class="ot">&lt;-</span> <span class="fu">pool</span>(results_delta)</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  est <span class="ot">&lt;-</span> <span class="fu">summary</span>(pooled_delta) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"wave:treatment"</span>)</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">delta =</span> delta, <span class="at">estimate =</span> est<span class="sc">$</span>estimate, <span class="at">p_value =</span> est<span class="sc">$</span>p.value)</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sensitivity_results, <span class="fu">aes</span>(<span class="at">x =</span> delta, <span class="at">y =</span> estimate)) <span class="sc">+</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>) <span class="sc">+</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Sensitivity analysis: MNAR robustness check"</span>,</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Delta = assumed shift in imputed outcomes for dropouts (0 = MAR; negative = dropouts did worse)"</span>,</span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"MNAR shift parameter (delta)"</span>,</span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Estimated treatment × time interaction"</span></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  pooled_d <span class="ot">&lt;-</span> <span class="fu">pool</span>(results_delta)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  est <span class="ot">&lt;-</span> <span class="fu">summary</span>(pooled_d) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"wave:treatment"</span>)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">delta =</span> delta, <span class="at">estimate =</span> est<span class="sc">$</span>estimate, <span class="at">p_value =</span> est<span class="sc">$</span>p.value)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sensitivity_results, <span class="fu">aes</span>(<span class="at">x =</span> delta, <span class="at">y =</span> estimate)) <span class="sc">+</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> estimate <span class="sc">-</span> <span class="dv">1</span>, <span class="at">ymax =</span> estimate <span class="sc">+</span> <span class="dv">1</span>), <span class="at">alpha =</span> <span class="fl">0.1</span>, <span class="at">fill =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>) <span class="sc">+</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"MNAR sensitivity analysis: tipping point for treatment × time effect"</span>,</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Delta = assumed additional penalty for dropouts (0 = MAR; negative = dropouts fared worse)"</span>,</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"MNAR shift parameter δ (units worse than MAR prediction)"</span>,</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Estimated treatment × time interaction"</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="part9_files/figure-html/sensitivity-analysis-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="part9_files/figure-html/sensitivity-analysis-1.png" class="img-fluid figure-img" width="768"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>The <strong>tipping point</strong> is the value of <span class="math inline">\(\delta\)</span> at which the main conclusion changes (e.g., the treatment effect becomes non-significant). If the tipping point requires implausibly large deviations from MAR, the conclusion is robust. If the tipping point is small, the finding is fragile.</p>
+<p>The tipping point is the <span class="math inline">\(\delta\)</span> at which the estimate drops to zero (or the p-value crosses 0.05). If that requires implausibly large deviations from MAR — for example, assuming dropouts averaged 8 units worse than their observed predictors suggest — the conclusion is relatively robust to MNAR. If the tipping point is <span class="math inline">\(\delta = -2\)</span>, the finding is fragile.</p>
 <hr>
 </section>
-<section id="step-5-full-information-maximum-likelihood-fiml" class="level2" data-number="35.7">
-<h2 data-number="35.7" class="anchored" data-anchor-id="step-5-full-information-maximum-likelihood-fiml"><span class="header-section-number">35.7</span> Step 5: Full Information Maximum Likelihood (FIML)</h2>
-<p>An alternative to multiple imputation is <strong>Full Information Maximum Likelihood (FIML)</strong>. Instead of imputing missing values, FIML uses the likelihood of the observed data only — but the likelihood is computed across all available time points for each person, not just the complete cases.</p>
-<p>In practice, <code>lmer</code> already implements FIML-like estimation when you use all available observations (available-case analysis). For structural equation models with missing data, the <code>lavaan</code> package’s <code>missing = "fiml"</code> argument provides explicit FIML.</p>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># FIML in lavaan (for SEM applications)</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lavaan)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Example: two-wave cross-lagged model with FIML for missingness</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>model_fiml <span class="ot">&lt;-</span> <span class="st">"</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="st">  Y2 ~ Y1 + X1</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="st">  X2 ~ X1 + Y1</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="st">"</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>fit_fiml <span class="ot">&lt;-</span> <span class="fu">sem</span>(model_fiml, <span class="at">data =</span> your_data, <span class="at">missing =</span> <span class="st">"fiml"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</details>
-</div>
-<p>FIML and MI give asymptotically equivalent results under MAR when both are correctly specified. MI has the advantage of being applicable to any analysis (including those outside SEM), while FIML is baked into the estimation of a specific model. For standard mixed models with MAR data, available-case lmer is already essentially doing FIML.</p>
+<section id="step-5-full-information-maximum-likelihood-fiml" class="level2">
+<h2 class="anchored" data-anchor-id="step-5-full-information-maximum-likelihood-fiml">Step 5: Full Information Maximum Likelihood (FIML)</h2>
+<p>An alternative to MI is <strong>Full Information Maximum Likelihood (FIML)</strong>. Instead of imputing missing values, FIML uses the likelihood of the observed data — but the likelihood is computed across all available time points for each person.</p>
+<p>In practice, <strong><code>lmer</code> on all available observations already implements FIML-like estimation</strong>. For structural equation models with missing data, <code>lavaan</code>’s <code>missing = "fiml"</code> argument provides explicit FIML.</p>
+<p>FIML and MI give asymptotically equivalent results under MAR when both are correctly specified. For standard mixed models with MAR data, available-case <code>lmer</code> is the simpler and preferred approach.</p>
 <hr>
 </section>
-<section id="a-decision-framework-for-missing-data" class="level2" data-number="35.8">
-<h2 data-number="35.8" class="anchored" data-anchor-id="a-decision-framework-for-missing-data"><span class="header-section-number">35.8</span> A Decision Framework for Missing Data</h2>
+<section id="decision-framework" class="level2">
+<h2 class="anchored" data-anchor-id="decision-framework">Decision Framework</h2>
 <div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1019,15 +996,15 @@ window.Quarto = {
 </div>
 <div class="callout-body-container callout-body">
 <ol type="1">
-<li><strong>Diagnose:</strong> What is the rate of missingness by wave? Do dropouts differ from completers on observed variables?</li>
-<li><strong>Classify mechanism:</strong> MCAR (rare), MAR (common, treatable), or MNAR (common, serious)?</li>
-<li><strong>Choose primary analysis:</strong>
+<li><p><strong>Diagnose</strong>: What is the missingness rate by wave? Do dropouts differ from completers on observed baseline characteristics?</p></li>
+<li><p><strong>Classify mechanism</strong>: MCAR (server outage, lost data), MAR (dropout predicted by observed variables), or MNAR (dropout driven by the very outcome being studied)?</p></li>
+<li><p><strong>Choose primary analysis</strong>:</p>
 <ul>
-<li>Available-case <code>lmer</code> is unbiased under MAR and correctly specified models</li>
-<li>MI adds efficiency and allows including auxiliary variables that predict missingness but are not substantively of interest</li>
+<li>Under MCAR or MAR: available-case <code>lmer</code> is unbiased (as long as the model includes observed predictors of dropout as covariates)</li>
+<li>Add MI when auxiliary variables predict missingness beyond the main model</li>
 </ul></li>
-<li><strong>Run sensitivity analysis:</strong> Tipping point analysis quantifies how much MNAR bias would be needed to invalidate conclusions.</li>
-<li><strong>Report:</strong> Report the missingness rate, the mechanism assumption, the analytic approach, and the sensitivity analysis. Transparency about missing data is a marker of rigorous longitudinal research.</li>
+<li><p><strong>Run sensitivity analysis</strong>: Tipping-point analysis shows how much MNAR bias would reverse your conclusions. Report the tipping point explicitly.</p></li>
+<li><p><strong>Report</strong>: State the missingness rate, the mechanism assumption, the analytic approach, and the sensitivity analysis. Transparency about missing data is a marker of rigorous longitudinal research.</p></li>
 </ol>
 </div>
 </div>
@@ -1054,14 +1031,14 @@ window.Quarto = {
 <td style="text-align: center;">Unbiased</td>
 <td style="text-align: center;">Unbiased</td>
 <td style="text-align: center;">Unbiased</td>
-<td>Any method works; MI more efficient</td>
+<td>Any method works</td>
 </tr>
 <tr class="even">
 <td>MAR</td>
 <td style="text-align: center;"><strong>Biased</strong></td>
 <td style="text-align: center;">Unbiased*</td>
 <td style="text-align: center;">Unbiased</td>
-<td>*requires model to include MAR predictors</td>
+<td>*requires observed MAR predictors in model</td>
 </tr>
 <tr class="odd">
 <td>MNAR</td>
@@ -1072,6 +1049,25 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
+<hr>
+</section>
+<section id="reviewer-challenge" class="level2">
+<h2 class="anchored" data-anchor-id="reviewer-challenge">Reviewer Challenge</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>What a Reviewer Would Ask
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Challenge 1:</strong> “You assumed MAR and used available-case estimation. But the most financially stressed households — the ones who dropped out — are exactly the ones whose trajectories matter most. If they dropped out because they’re worse off, that’s MNAR.” This is the hardest challenge in financial panel research. The appropriate response: (1) show that dropouts and completers differ on observed baseline characteristics (consistent with but not proving MAR), (2) include those observed characteristics in the model to control for predictable dropout, and (3) conduct a tipping point sensitivity analysis showing how much the MNAR effect would need to be to change conclusions.</p>
+<p><strong>Challenge 2:</strong> “Your multiple imputation imputed the wave 3 outcome — but what was the imputation model? Did it include baseline debt, income, and treatment status?” Correct specification of the imputation model is critical. The imputation model should include all variables in the analysis model <em>plus</em> any auxiliary variables that predict missingness. If baseline debt predicts dropout and is in the imputation model, the resulting imputations will correctly reflect the mechanism. If it is omitted, the imputations are misspecified.</p>
+<p><strong>Challenge 3:</strong> “With 35% missing at wave 4, can you trust any estimates from that wave?” High missingness does not automatically invalidate inference — what matters is the mechanism. Under well-supported MAR with a rich set of observed predictors, 35% missingness with <code>lmer</code> or MI can still produce unbiased estimates. But the uncertainty is larger (fewer observed data points), and MNAR sensitivity analysis is more important. Report the mechanism argument, not just the imputation procedure.</p>
+</div>
+</div>
 
 
 </section>
@@ -1202,7 +1198,7 @@ window.Quarto = {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1532,12 +1528,12 @@ window.Quarto = {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../module-4/part8.html" class="pagination-link" aria-label="Survival Analysis for Longitudinal Events">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../module-4/part10.html" class="pagination-link" aria-label="Applied Identification Strategies for Panel Data">
-        <span class="nav-page-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

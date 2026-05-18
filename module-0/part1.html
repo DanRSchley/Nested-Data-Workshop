@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>3&nbsp; The DGP Perspective – Nested Data Structures</title>
+<title>The DGP Perspective – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -108,8 +109,45 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-0/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-0/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -121,7 +159,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-0/intro.html">Module 0: All Data is Nested</a></li><li class="breadcrumb-item"><a href="../module-0/part1.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-0/intro.html">Module 0: All Data is Nested</a></li><li class="breadcrumb-item"><a href="../module-0/part1.html"><span class="chapter-title">The DGP Perspective</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -151,8 +189,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -166,32 +203,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -207,44 +239,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -260,26 +285,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -295,44 +316,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -348,68 +362,57 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -425,62 +428,52 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -496,14 +489,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -518,15 +509,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#the-data-generating-process" id="toc-the-data-generating-process" class="nav-link active" data-scroll-target="#the-data-generating-process"><span class="header-section-number">4</span> The Data-Generating Process</a>
+  <li><a href="#the-data-generating-process" id="toc-the-data-generating-process" class="nav-link active" data-scroll-target="#the-data-generating-process">The Data-Generating Process</a>
   <ul class="collapse">
-  <li><a href="#your-data-is-a-photograph" id="toc-your-data-is-a-photograph" class="nav-link" data-scroll-target="#your-data-is-a-photograph"><span class="header-section-number">4.1</span> Your Data is a Photograph</a></li>
-  <li><a href="#what-is-a-data-generating-process" id="toc-what-is-a-data-generating-process" class="nav-link" data-scroll-target="#what-is-a-data-generating-process"><span class="header-section-number">4.2</span> What is a Data-Generating Process?</a></li>
-  <li><a href="#why-the-dgp-is-almost-always-nested" id="toc-why-the-dgp-is-almost-always-nested" class="nav-link" data-scroll-target="#why-the-dgp-is-almost-always-nested"><span class="header-section-number">4.3</span> Why the DGP is Almost Always Nested</a></li>
-  <li><a href="#a-simple-demonstration" id="toc-a-simple-demonstration" class="nav-link" data-scroll-target="#a-simple-demonstration"><span class="header-section-number">4.4</span> A Simple Demonstration</a></li>
-  <li><a href="#the-three-questions" id="toc-the-three-questions" class="nav-link" data-scroll-target="#the-three-questions"><span class="header-section-number">4.5</span> The Three Questions</a></li>
-  <li><a href="#the-dgp-frame-vs.-the-fix-my-standard-errors-frame" id="toc-the-dgp-frame-vs.-the-fix-my-standard-errors-frame" class="nav-link" data-scroll-target="#the-dgp-frame-vs.-the-fix-my-standard-errors-frame"><span class="header-section-number">4.6</span> The DGP Frame vs.&nbsp;the “Fix My Standard Errors” Frame</a></li>
-  <li><a href="#recommended-reading" id="toc-recommended-reading" class="nav-link" data-scroll-target="#recommended-reading"><span class="header-section-number">4.7</span> Recommended Reading</a></li>
+  <li><a href="#your-data-is-a-photograph" id="toc-your-data-is-a-photograph" class="nav-link" data-scroll-target="#your-data-is-a-photograph">Your Data is a Photograph</a></li>
+  <li><a href="#what-is-a-data-generating-process" id="toc-what-is-a-data-generating-process" class="nav-link" data-scroll-target="#what-is-a-data-generating-process">What is a Data-Generating Process?</a></li>
+  <li><a href="#why-the-dgp-is-almost-always-nested" id="toc-why-the-dgp-is-almost-always-nested" class="nav-link" data-scroll-target="#why-the-dgp-is-almost-always-nested">Why the DGP is Almost Always Nested</a></li>
+  <li><a href="#a-simple-demonstration" id="toc-a-simple-demonstration" class="nav-link" data-scroll-target="#a-simple-demonstration">A Simple Demonstration</a></li>
+  <li><a href="#the-three-questions" id="toc-the-three-questions" class="nav-link" data-scroll-target="#the-three-questions">The Three Questions</a></li>
+  <li><a href="#the-dgp-frame-vs.-the-fix-my-standard-errors-frame" id="toc-the-dgp-frame-vs.-the-fix-my-standard-errors-frame" class="nav-link" data-scroll-target="#the-dgp-frame-vs.-the-fix-my-standard-errors-frame">The DGP Frame vs.&nbsp;the “Fix My Standard Errors” Frame</a></li>
+  <li><a href="#recommended-reading" id="toc-recommended-reading" class="nav-link" data-scroll-target="#recommended-reading">Recommended Reading</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -534,9 +525,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-0/intro.html">Module 0: All Data is Nested</a></li><li class="breadcrumb-item"><a href="../module-0/part1.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-0/intro.html">Module 0: All Data is Nested</a></li><li class="breadcrumb-item"><a href="../module-0/part1.html"><span class="chapter-title">The DGP Perspective</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">The DGP Perspective</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -553,17 +544,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="the-data-generating-process" class="level1" data-number="4">
-<h1 data-number="4"><span class="header-section-number">4</span> The Data-Generating Process</h1>
-<section id="your-data-is-a-photograph" class="level2" data-number="4.1">
-<h2 data-number="4.1" class="anchored" data-anchor-id="your-data-is-a-photograph"><span class="header-section-number">4.1</span> Your Data is a Photograph</h2>
+<section id="the-data-generating-process" class="level1">
+<h1>The Data-Generating Process</h1>
+<section id="your-data-is-a-photograph" class="level2">
+<h2 class="anchored" data-anchor-id="your-data-is-a-photograph">Your Data is a Photograph</h2>
 <p>Imagine you want to understand how rivers move. You walk up to a river and take a photograph. The photograph captures the river’s position at exactly that moment — the precise shape of the water, the location of each ripple, the exact color of the surface.</p>
 <p>Now: how much can you learn about the river from one photograph?</p>
 <p>You can learn something. You can see that it flows roughly north, that the banks are wide, that the water looks fast. But you cannot see the seasonal floods, the drought periods, the long-term shift of the channel, or the way the current varies across different cross-sections. One photograph freezes a moment in an ongoing process.</p>
 <p><strong>Your dataset is that photograph.</strong> The process that generated your data — the underlying mechanisms, the population of people, the range of contexts, the flow of time — is the river. Your job as a researcher is to infer as much as possible about the river from your one photograph. The models in this workshop are tools for doing that inference more honestly.</p>
 </section>
-<section id="what-is-a-data-generating-process" class="level2" data-number="4.2">
-<h2 data-number="4.2" class="anchored" data-anchor-id="what-is-a-data-generating-process"><span class="header-section-number">4.2</span> What is a Data-Generating Process?</h2>
+<section id="what-is-a-data-generating-process" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-a-data-generating-process">What is a Data-Generating Process?</h2>
 <p>A <strong>data-generating process</strong> (DGP) is the full set of mechanisms that produce your data. It includes:</p>
 <ul>
 <li>The population of units you are sampling (people, firms, countries, neurons)</li>
@@ -574,8 +565,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Your dataset is one realization of this process. A different sample, a different week, a different set of stimuli, would have given you different numbers — but from the same underlying process.</p>
 <p>The question that motivates nested data analysis is: <strong>what does this realization tell us about the process?</strong></p>
 </section>
-<section id="why-the-dgp-is-almost-always-nested" class="level2" data-number="4.3">
-<h2 data-number="4.3" class="anchored" data-anchor-id="why-the-dgp-is-almost-always-nested"><span class="header-section-number">4.3</span> Why the DGP is Almost Always Nested</h2>
+<section id="why-the-dgp-is-almost-always-nested" class="level2">
+<h2 class="anchored" data-anchor-id="why-the-dgp-is-almost-always-nested">Why the DGP is Almost Always Nested</h2>
 <p>Think about the last study you ran or analyzed. Ask yourself: where did the observations come from?</p>
 <ul>
 <li><strong>People</strong> are sampled from populations that have subgroups, histories, cultures, and contexts. A sample of Dutch students in 2024 is not the same as a sample of American workers in 1990, even if both studies measure “risk preference.”</li>
@@ -586,52 +577,52 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>In every case, observations are not independent draws from a flat distribution. They cluster. People who share a classroom share a teacher. Employees at the same firm share a manager, a culture, and an incentive structure. Responses to the same survey item at different times are correlated because the person has not changed that much between measurements.</p>
 <p>The <strong>independence assumption</strong> — that each observation is an independent draw, unrelated to all others — is almost never literally true. It is, at best, an approximation. And it is an approximation that can go badly wrong.</p>
 </section>
-<section id="a-simple-demonstration" class="level2" data-number="4.4">
-<h2 data-number="4.4" class="anchored" data-anchor-id="a-simple-demonstration"><span class="header-section-number">4.4</span> A Simple Demonstration</h2>
-<p>Let’s make this concrete. Suppose we study whether daily hours of sleep predict mood. We collect 7 days of data from 30 people: 210 observations total.</p>
+<section id="a-simple-demonstration" class="level2">
+<h2 class="anchored" data-anchor-id="a-simple-demonstration">A Simple Demonstration</h2>
+<p>Let’s make this concrete. Suppose we study whether exposure to a weekly financial disclosure (showing expected returns) predicts willingness to invest. We collect 8 weeks of data from 30 households: 240 observations total.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate: 30 people, 7 days each</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_people <span class="ot">&lt;-</span> <span class="dv">30</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n_days   <span class="ot">&lt;-</span> <span class="dv">7</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Each person has their own baseline mood (random intercept)</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># and their own sleep-mood relationship (random slope)</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>person_intercepts <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="at">mean =</span> <span class="dv">50</span>, <span class="at">sd =</span> <span class="dv">8</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>person_slopes     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="at">mean =</span> <span class="dv">3</span>,  <span class="at">sd =</span> <span class="dv">2</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate: 30 households, 8 weeks each</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Each household has a stable investment willingness (random intercept)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># and their own sensitivity to disclosure exposure (random slope)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>n_people <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>n_weeks  <span class="ot">&lt;-</span> <span class="dv">8</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>person_intercepts <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="at">mean =</span> <span class="dv">50</span>, <span class="at">sd =</span> <span class="dv">10</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>person_slopes     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="at">mean =</span> <span class="dv">4</span>,  <span class="at">sd =</span> <span class="fl">2.5</span>)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">day    =</span> <span class="dv">1</span><span class="sc">:</span>n_days</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">week   =</span> <span class="dv">1</span><span class="sc">:</span>n_weeks</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">sleep =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="at">mean =</span> <span class="dv">7</span>, <span class="at">sd =</span> <span class="fl">1.5</span>),</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">mood  =</span> person_intercepts[person] <span class="sc">+</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            person_slopes[person] <span class="sc">*</span> (sleep <span class="sc">-</span> <span class="dv">7</span>) <span class="sc">+</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>            <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">disclosure_exposure =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="at">mean =</span> <span class="dv">5</span>, <span class="at">sd =</span> <span class="dv">2</span>),    <span class="co"># how much of the disclosure each HH read</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">wtp_invest  =</span> person_intercepts[person] <span class="sc">+</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>                  person_slopes[person] <span class="sc">*</span> (disclosure_exposure <span class="sc">-</span> <span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">6</span>)</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot: pooled view (ignoring nesting) vs. within-person view</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> sleep, <span class="at">y =</span> mood)) <span class="sc">+</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> disclosure_exposure, <span class="at">y =</span> wtp_invest)) <span class="sc">+</span></span>
 <span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">title  =</span> <span class="st">"Pooled (ignoring nesting)"</span>,</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">x      =</span> <span class="st">"Hours of sleep"</span>,</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">y      =</span> <span class="st">"Mood (0-100)"</span>,</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Each dot is one person-day"</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">title   =</span> <span class="st">"Pooled (ignoring nesting)"</span>,</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">x       =</span> <span class="st">"Disclosure exposure (0–10)"</span>,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">y       =</span> <span class="st">"Willingness to invest (0–100)"</span>,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Each dot is one household-week"</span></span>
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> sleep, <span class="at">y =</span> mood, <span class="at">group =</span> person)) <span class="sc">+</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(<span class="at">x =</span> disclosure_exposure, <span class="at">y =</span> wtp_invest, <span class="at">group =</span> person)) <span class="sc">+</span></span>
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">color =</span> <span class="fu">factor</span>(person)), <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">size =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
 <span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">title  =</span> <span class="st">"Within-person (respecting nesting)"</span>,</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">x      =</span> <span class="st">"Hours of sleep"</span>,</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">y      =</span> <span class="st">"Mood (0-100)"</span>,</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Each line is one person's 7-day trajectory"</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">title   =</span> <span class="st">"Within-household (respecting nesting)"</span>,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">x       =</span> <span class="st">"Disclosure exposure (0–10)"</span>,</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">y       =</span> <span class="st">"Willingness to invest (0–100)"</span>,</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Each line is one household's 8-week trajectory"</span></span>
 <span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
 <span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>()</span>
@@ -647,11 +638,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>The left panel treats all 210 observations as independent. It shows <em>something</em> — there’s an upward slope — but it blurs together two very different sources of variation: (1) people who generally sleep more also tend to have higher baseline mood, and (2) on days when a given person sleeps more, their mood is higher. These are distinct phenomena. The right panel begins to separate them.</p>
-<p>The data-generating process here has clear structure: a person-level layer (baseline mood, general sleep habits) and a day-level layer (deviation from that baseline). Ignoring that structure does not just make our estimates less precise. It can make them wrong.</p>
+<p>The left panel treats all 240 observations as independent. It shows an upward slope — but it blurs together two very different sources of variation:</p>
+<ol type="1">
+<li><p><strong>Between-household difference</strong>: households that are generally more financially confident also tend to engage more with disclosures <em>and</em> have higher baseline investment willingness. The positive slope in the pooled view partly reflects this selection.</p></li>
+<li><p><strong>Within-household effect</strong>: on weeks when a given household reads more of the disclosure, their investment willingness is higher. This is the causal question the researcher actually wants to answer.</p></li>
+</ol>
+<p>These are distinct phenomena. The right panel begins to separate them — each household’s trajectory shows the within-household exposure–willingness relationship. The pooled view conflates both.</p>
+<p>The DGP here has two levels: a stable household-level layer (baseline investment preferences, financial literacy) and a week-level layer (deviation from that baseline in response to varying disclosure exposure). Ignoring this structure produces an estimate that mixes the causal question (disclosure effect within households) with the selection question (which households engage more overall).</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why Repeated Choices Are Not Simply More Sample Size
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A common intuition: “I have 30 participants each making 8 choices — that’s 240 data points. More data means more power.”</p>
+<p>This is only true if the 240 choices are 240 independent pieces of evidence. They are not. Within each household, the 8 choices share the household’s stable risk preferences, income level, and financial context. Those shared influences inflate the similarity among the household’s rows.</p>
+<p>The effective sample size is not 240 — it is somewhere between 30 (fully redundant observations within households) and 240 (fully independent observations). The exact number depends on the ICC: how much of the variance in investment willingness is at the household level versus the week level.</p>
+<p>If the ICC is 0.30 and each household has 8 observations, the design effect is approximately <span class="math inline">\(1 + (8-1) \times 0.30 = 3.1\)</span>. Your 240 observations behave like roughly <span class="math inline">\(240 / 3.1 \approx 77\)</span> independent observations. Adding more participants builds real precision; adding more weeks from the same households builds less.</p>
+</div>
+</div>
+<p>The data-generating process has clear structure, and ignoring that structure does not just make estimates less precise — it can make them wrong.</p>
 </section>
-<section id="the-three-questions" class="level2" data-number="4.5">
-<h2 data-number="4.5" class="anchored" data-anchor-id="the-three-questions"><span class="header-section-number">4.5</span> The Three Questions</h2>
+<section id="the-three-questions" class="level2">
+<h2 class="anchored" data-anchor-id="the-three-questions">The Three Questions</h2>
 <p>Every dataset you encounter deserves three questions before you run a single model:</p>
 <div class="callout callout-style-default callout-important no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -670,16 +683,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>These questions are not rhetorical. Answering them is the first step of every analysis in this workshop.</p>
 </section>
-<section id="the-dgp-frame-vs.-the-fix-my-standard-errors-frame" class="level2" data-number="4.6">
-<h2 data-number="4.6" class="anchored" data-anchor-id="the-dgp-frame-vs.-the-fix-my-standard-errors-frame"><span class="header-section-number">4.6</span> The DGP Frame vs.&nbsp;the “Fix My Standard Errors” Frame</h2>
+<section id="the-dgp-frame-vs.-the-fix-my-standard-errors-frame" class="level2">
+<h2 class="anchored" data-anchor-id="the-dgp-frame-vs.-the-fix-my-standard-errors-frame">The DGP Frame vs.&nbsp;the “Fix My Standard Errors” Frame</h2>
 <p>There is a narrow and a broad way to motivate multilevel models.</p>
 <p>The <strong>narrow frame</strong> says: clustered data violates the independence assumption, which inflates Type I error rates. You need multilevel models to get correct standard errors.</p>
 <p>This is true and important. But it is a surprisingly weak reason to care about these models. It frames them as a statistical correction — something you do defensively to avoid getting dinged in review.</p>
 <p>The <strong>broad frame</strong> says: your data has structure that reflects real processes. The variance at the person level is not nuisance to be corrected — it is scientifically interesting. How much does baseline mood vary across people? How much does the sleep-mood relationship vary? Who benefits most from sleep? These are not questions about standard errors. They are questions about the heterogeneity of human experience.</p>
 <p>The models in this workshop answer both frames. But the broad frame is the more interesting one, and it is the one that will make you a better researcher.</p>
 </section>
-<section id="recommended-reading" class="level2" data-number="4.7">
-<h2 data-number="4.7" class="anchored" data-anchor-id="recommended-reading"><span class="header-section-number">4.7</span> Recommended Reading</h2>
+<section id="recommended-reading" class="level2">
+<h2 class="anchored" data-anchor-id="recommended-reading">Recommended Reading</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 41%">
@@ -836,7 +849,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1166,12 +1179,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../module-0/intro.html" class="pagination-link" aria-label="Module 0: All Data is Nested">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Module 0: All Data is Nested</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../module-0/part2.html" class="pagination-link" aria-label="Types of Nested Structures">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Types of Nested Structures</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

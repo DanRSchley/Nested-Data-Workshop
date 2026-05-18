@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>20&nbsp; Instrumental Variables – Nested Data Structures</title>
+<title>Instrumental Variables – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -139,6 +140,14 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-3/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-3/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -150,7 +159,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Inferential Threats &amp; Identification</a></li><li class="breadcrumb-item"><a href="../module-3/part2.html"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Inferential Threats &amp; Identification</a></li><li class="breadcrumb-item"><a href="../module-3/part2.html"><span class="chapter-title">Instrumental Variables</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -180,8 +189,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -195,32 +203,27 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -236,44 +239,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -289,26 +285,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -324,44 +316,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -377,68 +362,57 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -454,62 +428,52 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -525,14 +489,12 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -547,28 +509,29 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#instrumental-variables" id="toc-instrumental-variables" class="nav-link active" data-scroll-target="#instrumental-variables"><span class="header-section-number">21</span> Instrumental Variables</a>
+  <li><a href="#instrumental-variables" id="toc-instrumental-variables" class="nav-link active" data-scroll-target="#instrumental-variables">Instrumental Variables</a>
   <ul class="collapse">
-  <li><a href="#when-endogeneity-cannot-be-removed-by-fixed-effects" id="toc-when-endogeneity-cannot-be-removed-by-fixed-effects" class="nav-link" data-scroll-target="#when-endogeneity-cannot-be-removed-by-fixed-effects"><span class="header-section-number">21.1</span> When Endogeneity Cannot Be Removed by Fixed Effects</a></li>
-  <li><a href="#the-three-iv-assumptions" id="toc-the-three-iv-assumptions" class="nav-link" data-scroll-target="#the-three-iv-assumptions"><span class="header-section-number">21.2</span> The Three IV Assumptions</a></li>
-  <li><a href="#section-3-longitudinal-iv-training-programs-and-firm-productivity" id="toc-section-3-longitudinal-iv-training-programs-and-firm-productivity" class="nav-link" data-scroll-target="#section-3-longitudinal-iv-training-programs-and-firm-productivity"><span class="header-section-number">21.3</span> Section 3: Longitudinal IV — Training Programs and Firm Productivity</a>
+  <li><a href="#when-endogeneity-cannot-be-removed-by-fixed-effects" id="toc-when-endogeneity-cannot-be-removed-by-fixed-effects" class="nav-link" data-scroll-target="#when-endogeneity-cannot-be-removed-by-fixed-effects">When Endogeneity Cannot Be Removed by Fixed Effects</a></li>
+  <li><a href="#the-iv-structure-permitted-and-forbidden-pathways" id="toc-the-iv-structure-permitted-and-forbidden-pathways" class="nav-link" data-scroll-target="#the-iv-structure-permitted-and-forbidden-pathways">The IV Structure: Permitted and Forbidden Pathways</a></li>
+  <li><a href="#the-three-iv-assumptions" id="toc-the-three-iv-assumptions" class="nav-link" data-scroll-target="#the-three-iv-assumptions">The Three IV Assumptions</a></li>
+  <li><a href="#section-3-longitudinal-iv-budgeting-tool-adoption-and-household-savings" id="toc-section-3-longitudinal-iv-budgeting-tool-adoption-and-household-savings" class="nav-link" data-scroll-target="#section-3-longitudinal-iv-budgeting-tool-adoption-and-household-savings">Section 3: Longitudinal IV — Budgeting Tool Adoption and Household Savings</a>
   <ul class="collapse">
-  <li><a href="#the-setup" id="toc-the-setup" class="nav-link" data-scroll-target="#the-setup"><span class="header-section-number">21.3.1</span> The Setup</a></li>
-  <li><a href="#first-stage-instrument-relevance" id="toc-first-stage-instrument-relevance" class="nav-link" data-scroll-target="#first-stage-instrument-relevance"><span class="header-section-number">21.3.2</span> First Stage: Instrument Relevance</a></li>
-  <li><a href="#ols-vs.-iv" id="toc-ols-vs.-iv" class="nav-link" data-scroll-target="#ols-vs.-iv"><span class="header-section-number">21.3.3</span> OLS vs.&nbsp;IV</a></li>
+  <li><a href="#the-setup" id="toc-the-setup" class="nav-link" data-scroll-target="#the-setup">The Setup</a></li>
+  <li><a href="#first-stage-instrument-relevance" id="toc-first-stage-instrument-relevance" class="nav-link" data-scroll-target="#first-stage-instrument-relevance">First Stage: Instrument Relevance</a></li>
+  <li><a href="#ols-vs.-iv" id="toc-ols-vs.-iv" class="nav-link" data-scroll-target="#ols-vs.-iv">OLS vs.&nbsp;IV</a></li>
   </ul></li>
-  <li><a href="#section-4-two-stage-least-squares-the-mechanics" id="toc-section-4-two-stage-least-squares-the-mechanics" class="nav-link" data-scroll-target="#section-4-two-stage-least-squares-the-mechanics"><span class="header-section-number">21.4</span> Section 4: Two-Stage Least Squares — The Mechanics</a>
+  <li><a href="#section-4-two-stage-least-squares-the-mechanics" id="toc-section-4-two-stage-least-squares-the-mechanics" class="nav-link" data-scroll-target="#section-4-two-stage-least-squares-the-mechanics">Section 4: Two-Stage Least Squares — The Mechanics</a>
   <ul class="collapse">
-  <li><a href="#connection-to-module-1-fixed-effects" id="toc-connection-to-module-1-fixed-effects" class="nav-link" data-scroll-target="#connection-to-module-1-fixed-effects"><span class="header-section-number">21.4.1</span> Connection to Module 1 Fixed Effects</a></li>
+  <li><a href="#connection-to-module-1-fixed-effects" id="toc-connection-to-module-1-fixed-effects" class="nav-link" data-scroll-target="#connection-to-module-1-fixed-effects">Connection to Module 1 Fixed Effects</a></li>
   </ul></li>
-  <li><a href="#section-5-experimental-iv-encouragement-designs-and-late" id="toc-section-5-experimental-iv-encouragement-designs-and-late" class="nav-link" data-scroll-target="#section-5-experimental-iv-encouragement-designs-and-late"><span class="header-section-number">21.5</span> Section 5: Experimental IV — Encouragement Designs and LATE</a>
+  <li><a href="#section-5-experimental-iv-encouragement-designs-and-late" id="toc-section-5-experimental-iv-encouragement-designs-and-late" class="nav-link" data-scroll-target="#section-5-experimental-iv-encouragement-designs-and-late">Section 5: Experimental IV — Encouragement Designs and LATE</a>
   <ul class="collapse">
-  <li><a href="#the-wald-estimator" id="toc-the-wald-estimator" class="nav-link" data-scroll-target="#the-wald-estimator"><span class="header-section-number">21.5.1</span> The Wald Estimator</a></li>
-  <li><a href="#compliance-classes" id="toc-compliance-classes" class="nav-link" data-scroll-target="#compliance-classes"><span class="header-section-number">21.5.2</span> Compliance Classes</a></li>
-  <li><a href="#simulation-online-mindfulness-intervention" id="toc-simulation-online-mindfulness-intervention" class="nav-link" data-scroll-target="#simulation-online-mindfulness-intervention"><span class="header-section-number">21.5.3</span> Simulation: Online Mindfulness Intervention</a></li>
+  <li><a href="#the-wald-estimator" id="toc-the-wald-estimator" class="nav-link" data-scroll-target="#the-wald-estimator">The Wald Estimator</a></li>
+  <li><a href="#compliance-classes" id="toc-compliance-classes" class="nav-link" data-scroll-target="#compliance-classes">Compliance Classes</a></li>
+  <li><a href="#simulation-financial-planning-tool-encouragement-design" id="toc-simulation-financial-planning-tool-encouragement-design" class="nav-link" data-scroll-target="#simulation-financial-planning-tool-encouragement-design">Simulation: Financial Planning Tool Encouragement Design</a></li>
   </ul></li>
-  <li><a href="#section-6-the-late-interpretation" id="toc-section-6-the-late-interpretation" class="nav-link" data-scroll-target="#section-6-the-late-interpretation"><span class="header-section-number">21.6</span> Section 6: The LATE Interpretation</a></li>
-  <li><a href="#section-7-finding-good-instruments" id="toc-section-7-finding-good-instruments" class="nav-link" data-scroll-target="#section-7-finding-good-instruments"><span class="header-section-number">21.7</span> Section 7: Finding Good Instruments</a></li>
+  <li><a href="#section-6-the-late-interpretation" id="toc-section-6-the-late-interpretation" class="nav-link" data-scroll-target="#section-6-the-late-interpretation">Section 6: The LATE Interpretation</a></li>
+  <li><a href="#section-7-finding-good-instruments" id="toc-section-7-finding-good-instruments" class="nav-link" data-scroll-target="#section-7-finding-good-instruments">Section 7: Finding Good Instruments</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -576,9 +539,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Inferential Threats &amp; Identification</a></li><li class="breadcrumb-item"><a href="../module-3/part2.html"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-3/intro.html">Module 3: Inferential Threats &amp; Identification</a></li><li class="breadcrumb-item"><a href="../module-3/part2.html"><span class="chapter-title">Instrumental Variables</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Instrumental Variables</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -595,22 +558,104 @@ window.Quarto = {
 </header>
 
 
-<section id="instrumental-variables" class="level1" data-number="21">
-<h1 data-number="21"><span class="header-section-number">21</span> Instrumental Variables</h1>
-<section id="when-endogeneity-cannot-be-removed-by-fixed-effects" class="level2" data-number="21.1">
-<h2 data-number="21.1" class="anchored" data-anchor-id="when-endogeneity-cannot-be-removed-by-fixed-effects"><span class="header-section-number">21.1</span> When Endogeneity Cannot Be Removed by Fixed Effects</h2>
+<section id="instrumental-variables" class="level1">
+<h1>Instrumental Variables</h1>
+<section id="when-endogeneity-cannot-be-removed-by-fixed-effects" class="level2">
+<h2 class="anchored" data-anchor-id="when-endogeneity-cannot-be-removed-by-fixed-effects">When Endogeneity Cannot Be Removed by Fixed Effects</h2>
 <p>Module 1’s fixed effects model removes time-invariant confounders by exploiting within-unit variation over time. But fixed effects are not a universal cure for endogeneity. Two failure modes are especially common.</p>
-<p><strong>In longitudinal panel research</strong>, the endogeneity can be time-varying: firms that are on an upward productivity trajectory are exactly the firms that invest in training programs. Firm fixed effects absorb stable firm quality, but they cannot absorb a time-varying quality shock that simultaneously drives training adoption and productivity. Even after demeaning, the estimate remains confounded.</p>
-<p><strong>In experiments</strong>, randomization solves endogeneity for assignment — but not always for treatment receipt. Participants assigned to a wellness intervention may never attend a session. Patients randomized to a drug may not take their pills. When compliance is imperfect, the simple comparison of assigned groups underestimates the effect of actually receiving the treatment.</p>
+<p><strong>In longitudinal panel research</strong>, the endogeneity can be time-varying: bank branches that are on an upward savings trajectory are exactly the branches most likely to adopt new financial planning tools — they have the motivated staff, engaged customer base, and organizational energy to implement them. Branch fixed effects absorb stable branch quality, but they cannot absorb a time-varying engagement shock that simultaneously drives tool adoption and savings improvement. Even after demeaning, the estimate remains confounded.</p>
+<p><strong>In experiments</strong>, randomization solves endogeneity for assignment — but not always for treatment receipt. Participants randomly offered access to a financial planning tool may never log in. Customers sent a disclosure summary may never open it. When compliance is imperfect, the simple comparison of assigned groups underestimates the effect of actually using the tool.</p>
 <p>In both cases, an <strong>instrument</strong> is a variable that provides exogenous variation in treatment uptake — variation that is not driven by the confounders affecting outcomes.</p>
 <ul>
-<li><p><strong>Longitudinal context:</strong> Distance from the firm’s headquarters to the nearest accredited training center provides exogenous variation in training adoption. Firms close to a training center adopt at higher rates not because of their productivity trajectory but because of geography. Distance does not directly affect productivity — only training adoption does.</p></li>
-<li><p><strong>Experimental context:</strong> Random assignment to an encouragement condition (a structured protocol with reminders) provides exogenous variation in actual program completion. Whether you were randomized to encouragement does not directly reduce stress — completing the sessions does.</p></li>
+<li><p><strong>Longitudinal context:</strong> The scheduled wave in which a branch received an IT infrastructure upgrade provides exogenous variation in financial planning tool adoption. Branches in Wave 1 adopted the tool at higher rates not because of their savings trajectory but because of administrative scheduling order. The rollout wave does not directly affect household savings — only the tool adoption it enables does.</p></li>
+<li><p><strong>Experimental context:</strong> Random assignment to an encouragement condition (a structured outreach protocol with personalized prompts) provides exogenous variation in actual financial tool use. Whether you were randomized to encouragement does not directly improve your savings decisions — logging in and engaging with the tool does.</p></li>
 </ul>
 <hr>
 </section>
-<section id="the-three-iv-assumptions" class="level2" data-number="21.2">
-<h2 data-number="21.2" class="anchored" data-anchor-id="the-three-iv-assumptions"><span class="header-section-number">21.2</span> The Three IV Assumptions</h2>
+<section id="the-iv-structure-permitted-and-forbidden-pathways" class="level2">
+<h2 class="anchored" data-anchor-id="the-iv-structure-permitted-and-forbidden-pathways">The IV Structure: Permitted and Forbidden Pathways</h2>
+<p>The instrumental variables strategy works by tracing exactly which paths between Z, X, and Y are permitted and which must be blocked. The diagram below shows this structure for the branch savings example.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Node positions</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>nodes <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"Z</span><span class="sc">\n</span><span class="st">(IT rollout</span><span class="sc">\n</span><span class="st">wave)"</span>, <span class="st">"X</span><span class="sc">\n</span><span class="st">(Tool</span><span class="sc">\n</span><span class="st">adoption)"</span>, <span class="st">"Y</span><span class="sc">\n</span><span class="st">(Savings</span><span class="sc">\n</span><span class="st">rate)"</span>, <span class="st">"U</span><span class="sc">\n</span><span class="st">(Branch</span><span class="sc">\n</span><span class="st">quality)"</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">2.5</span>, <span class="dv">5</span>, <span class="fl">2.5</span>),</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">2</span>,   <span class="dv">2</span>,  <span class="dv">2</span>,   <span class="dv">0</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>arrow_end <span class="ot">&lt;-</span> <span class="fl">0.45</span>   <span class="co"># shorten arrow ends to not overlap node circles</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- permitted arrows (blue) ---</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Z → X  (relevance)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x=</span><span class="fl">0.45</span>, <span class="at">xend=</span><span class="fl">2.05</span>, <span class="at">y=</span><span class="dv">2</span>, <span class="at">yend=</span><span class="dv">2</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>           <span class="at">arrow=</span><span class="fu">arrow</span>(<span class="at">length=</span><span class="fu">unit</span>(.<span class="dv">25</span>,<span class="st">"cm"</span>), <span class="at">type=</span><span class="st">"closed"</span>),</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>           <span class="at">color=</span><span class="st">"#1e3a5f"</span>, <span class="at">linewidth=</span><span class="fl">1.3</span>) <span class="sc">+</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># X → Y  (causal effect — what we identify)</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x=</span><span class="fl">2.95</span>, <span class="at">xend=</span><span class="fl">4.55</span>, <span class="at">y=</span><span class="dv">2</span>, <span class="at">yend=</span><span class="dv">2</span>,</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>           <span class="at">arrow=</span><span class="fu">arrow</span>(<span class="at">length=</span><span class="fu">unit</span>(.<span class="dv">25</span>,<span class="st">"cm"</span>), <span class="at">type=</span><span class="st">"closed"</span>),</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>           <span class="at">color=</span><span class="st">"#1e3a5f"</span>, <span class="at">linewidth=</span><span class="fl">1.3</span>) <span class="sc">+</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># U → X  (confound)</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x=</span><span class="fl">2.5</span>, <span class="at">xend=</span><span class="fl">2.5</span>, <span class="at">y=</span><span class="fl">0.45</span>, <span class="at">yend=</span><span class="fl">1.55</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>           <span class="at">arrow=</span><span class="fu">arrow</span>(<span class="at">length=</span><span class="fu">unit</span>(.<span class="dv">25</span>,<span class="st">"cm"</span>), <span class="at">type=</span><span class="st">"closed"</span>),</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>           <span class="at">color=</span><span class="st">"#888888"</span>, <span class="at">linewidth=</span><span class="dv">1</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># U → Y  (confound)</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x=</span><span class="fl">2.95</span>, <span class="at">xend=</span><span class="fl">4.55</span>, <span class="at">y=</span><span class="fl">0.2</span>, <span class="at">yend=</span><span class="fl">1.65</span>,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>           <span class="at">arrow=</span><span class="fu">arrow</span>(<span class="at">length=</span><span class="fu">unit</span>(.<span class="dv">25</span>,<span class="st">"cm"</span>), <span class="at">type=</span><span class="st">"closed"</span>),</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>           <span class="at">color=</span><span class="st">"#888888"</span>, <span class="at">linewidth=</span><span class="dv">1</span>, <span class="at">linetype=</span><span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- FORBIDDEN arrow: Z → Y (dashed red, exclusion violation) ---</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x=</span><span class="fl">0.45</span>, <span class="at">xend=</span><span class="fl">4.55</span>, <span class="at">y=</span><span class="fl">1.7</span>, <span class="at">yend=</span><span class="fl">1.7</span>,</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>           <span class="at">arrow=</span><span class="fu">arrow</span>(<span class="at">length=</span><span class="fu">unit</span>(.<span class="dv">25</span>,<span class="st">"cm"</span>), <span class="at">type=</span><span class="st">"closed"</span>),</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>           <span class="at">color=</span><span class="st">"#cc0000"</span>, <span class="at">linewidth=</span><span class="dv">1</span>, <span class="at">linetype=</span><span class="st">"dotted"</span>) <span class="sc">+</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span><span class="fl">2.5</span>, <span class="at">y=</span><span class="fl">1.45</span>, <span class="at">label=</span><span class="st">"FORBIDDEN</span><span class="sc">\n</span><span class="st">(exclusion restriction)"</span>,</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>           <span class="at">size=</span><span class="fl">3.2</span>, <span class="at">color=</span><span class="st">"#cc0000"</span>, <span class="at">fontface=</span><span class="st">"bold"</span>) <span class="sc">+</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- FORBIDDEN link: Z ↔ U (dashed orange, independence violation) ---</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x=</span><span class="fl">0.45</span>, <span class="at">xend=</span><span class="fl">2.1</span>, <span class="at">y=</span><span class="fl">1.65</span>, <span class="at">yend=</span><span class="fl">0.35</span>,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>           <span class="at">arrow=</span><span class="fu">arrow</span>(<span class="at">length=</span><span class="fu">unit</span>(.<span class="dv">25</span>,<span class="st">"cm"</span>), <span class="at">type=</span><span class="st">"closed"</span>),</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>           <span class="at">color=</span><span class="st">"#e67e00"</span>, <span class="at">linewidth=</span><span class="dv">1</span>, <span class="at">linetype=</span><span class="st">"dotted"</span>) <span class="sc">+</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span><span class="fl">0.7</span>, <span class="at">y=</span><span class="fl">0.85</span>, <span class="at">label=</span><span class="st">"FORBIDDEN</span><span class="sc">\n</span><span class="st">(independence)"</span>, <span class="at">hjust=</span><span class="dv">0</span>,</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>           <span class="at">size=</span><span class="fl">3.2</span>, <span class="at">color=</span><span class="st">"#e67e00"</span>, <span class="at">fontface=</span><span class="st">"bold"</span>) <span class="sc">+</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- node circles ---</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data=</span>nodes, <span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>y), <span class="at">shape=</span><span class="dv">21</span>, <span class="at">size=</span><span class="dv">14</span>,</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>             <span class="at">fill=</span><span class="fu">c</span>(<span class="st">"#d4e6f5"</span>,<span class="st">"#d4e6f5"</span>,<span class="st">"#d4e6f5"</span>,<span class="st">"#fce8cc"</span>),</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>             <span class="at">color=</span><span class="fu">c</span>(<span class="st">"#1e3a5f"</span>,<span class="st">"#1e3a5f"</span>,<span class="st">"#1e3a5f"</span>,<span class="st">"#a05000"</span>),</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>             <span class="at">stroke=</span><span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data=</span>nodes, <span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>y, <span class="at">label=</span>label), <span class="at">size=</span><span class="fl">3.3</span>, <span class="at">lineheight=</span><span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># --- path labels ---</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span><span class="fl">1.25</span>, <span class="at">y=</span><span class="fl">2.18</span>, <span class="at">label=</span><span class="st">"Relevance</span><span class="sc">\n</span><span class="st">(Z predicts X)"</span>,</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>           <span class="at">size=</span><span class="fl">3.2</span>, <span class="at">color=</span><span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span><span class="fl">3.75</span>, <span class="at">y=</span><span class="fl">2.18</span>, <span class="at">label=</span><span class="st">"Causal path</span><span class="sc">\n</span><span class="st">(what IV identifies)"</span>,</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>           <span class="at">size=</span><span class="fl">3.2</span>, <span class="at">color=</span><span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x=</span><span class="fl">3.5</span>,  <span class="at">y=</span><span class="fl">0.9</span>,  <span class="at">label=</span><span class="st">"Confounders</span><span class="sc">\n</span><span class="st">(U affects X and Y)"</span>,</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>           <span class="at">size=</span><span class="fl">3.2</span>, <span class="at">color=</span><span class="st">"#888888"</span>) <span class="sc">+</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">0.5</span>, <span class="fl">5.7</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="sc">-</span><span class="fl">0.4</span>, <span class="fl">2.8</span>) <span class="sc">+</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"IV causal diagram: permitted paths and forbidden pathways"</span>,</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Blue = valid paths (Z identifies X→Y effect)    Red/orange = paths that must be blocked for IV to be valid"</span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title    =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">13</span>, <span class="at">face=</span><span class="st">"bold"</span>),</span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">size=</span><span class="dv">11</span>, <span class="at">color=</span><span class="st">"#555555"</span>),</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.margin   =</span> <span class="fu">margin</span>(<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part2_files/figure-html/iv-dag-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The blue arrows show the structure IV exploits: Z creates exogenous variation in X (relevance), and X causally affects Y. The grey dashed arrows show the endogeneity problem: U confounds both X and Y, so naive OLS is biased. The <strong>red dotted arrow</strong> (Z → Y directly) is the <strong>exclusion restriction violation</strong> — if this path exists, Z affects Y through channels other than X, and the IV estimate is biased. The <strong>orange dotted arrow</strong> (Z → U) is the <strong>independence violation</strong> — if Z is correlated with the very confounders it is meant to bypass, it is not truly exogenous.</p>
+<p>When all three forbidden pathways are blocked, the IV estimate recovers the causal effect of X on Y.</p>
+<hr>
+</section>
+<section id="the-three-iv-assumptions" class="level2">
+<h2 class="anchored" data-anchor-id="the-three-iv-assumptions">The Three IV Assumptions</h2>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -623,8 +668,8 @@ window.Quarto = {
 <div class="callout-body-container callout-body">
 <p><strong>What it means:</strong> The instrument Z must actually cause the endogenous treatment X to change. An instrument that does not predict treatment is useless — it produces inflated standard errors and, when weak, can bias estimates in unpredictable directions.</p>
 <p><strong>How to check:</strong> Regress X on Z (the “first stage”). The F-statistic on Z must exceed 10. Below that threshold, the instrument is “weak.”</p>
-<p><strong>Longitudinal context:</strong> Distance to the nearest training center must meaningfully predict whether firms adopt the training program. Firms closer to a center should adopt at higher rates.</p>
-<p><strong>Experimental context:</strong> Being randomized to the encouragement condition must meaningfully predict actual program completion. If the encouragement protocol is so feeble that it does not increase uptake, it cannot serve as an instrument.</p>
+<p><strong>Longitudinal context:</strong> The IT rollout wave must meaningfully predict whether branches adopt the financial planning tool. Wave 1 branches should adopt at substantially higher rates than Wave 2 branches during the observation window.</p>
+<p><strong>Experimental context:</strong> Being randomized to the encouragement condition must meaningfully predict actual tool use. If the encouragement protocol is so feeble that it does not increase log-ins and engagement, it cannot serve as an instrument.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -639,8 +684,8 @@ window.Quarto = {
 <div class="callout-body-container callout-body">
 <p><strong>What it means:</strong> Z affects Y <em>only through</em> X — not through any other pathway. This is the core untestable assumption. No statistical test can verify it; it requires theoretical argument and domain knowledge.</p>
 <p><strong>How to scrutinize:</strong> Trace every conceivable path from Z to Y that bypasses X. Each such path is a potential violation.</p>
-<p><strong>Longitudinal context:</strong> Distance to a training center must not directly affect firm productivity. It should matter only because it affects whether the firm sends employees to training. A potential violation: firms near training centers may also be in denser urban areas with richer labor markets and better infrastructure — advantages that raise productivity regardless of training adoption.</p>
-<p><strong>Experimental context:</strong> Random assignment to the encouragement condition must not affect stress outcomes except through whether participants completed the mindfulness sessions. A potential violation: receiving reminder emails might itself reduce stress by making participants feel supported, even if they never attend a session — a direct path from Z to Y that bypasses D.</p>
+<p><strong>Longitudinal context:</strong> The IT rollout wave must not directly affect household savings rates. It should matter only because it determines which branches have the financial planning tool available. A potential violation: Wave 1 branches may have been selected because they were in larger, more urban markets — advantages that raise savings rates regardless of whether the tool is adopted.</p>
+<p><strong>Experimental context:</strong> Random assignment to the encouragement condition must not improve savings decisions except through actual tool use. A potential violation: receiving a personalized outreach message might itself prompt reflection on financial goals — a direct effect on savings behavior that bypasses the tool entirely, even if the participant never logs in.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -655,90 +700,91 @@ window.Quarto = {
 <div class="callout-body-container callout-body">
 <p><strong>What it means:</strong> Z is as-good-as-randomly assigned — it is not caused by the same confounders that affect X and Y.</p>
 <p><strong>How to check:</strong> Verify that Z is balanced across observable pre-treatment characteristics. In a natural experiment, check whether the instrument predicts baseline covariates.</p>
-<p><strong>Longitudinal context:</strong> Distance from headquarters to a training center should not be correlated with firm quality or productivity drivers. Firms did not systematically choose to locate near training centers because of their underlying productivity potential. In practice: check whether baseline productivity and firm size predict distance.</p>
-<p><strong>Experimental context:</strong> In a proper encouragement design, Z is genuinely randomized — independence holds by construction. The practical threat is post-randomization contamination (e.g., differential attrition by encouragement condition) or a failed randomization procedure.</p>
+<p><strong>Longitudinal context:</strong> The IT rollout wave should not be correlated with branch quality or growth trajectory. Branches did not self-select into Wave 1 based on their savings performance potential — the order was determined by infrastructure scheduling. In practice: check whether baseline savings rates and branch size predict wave assignment.</p>
+<p><strong>Experimental context:</strong> In a proper encouragement design, Z is genuinely randomized — independence holds by construction. The practical threat is post-randomization contamination (e.g., differential attrition by encouragement condition — less financially engaged customers more likely to drop out of the encouraged group) or a failed randomization procedure.</p>
 </div>
 </div>
 <hr>
 </section>
-<section id="section-3-longitudinal-iv-training-programs-and-firm-productivity" class="level2" data-number="21.3">
-<h2 data-number="21.3" class="anchored" data-anchor-id="section-3-longitudinal-iv-training-programs-and-firm-productivity"><span class="header-section-number">21.3</span> Section 3: Longitudinal IV — Training Programs and Firm Productivity</h2>
-<section id="the-setup" class="level3" data-number="21.3.1">
-<h3 data-number="21.3.1" class="anchored" data-anchor-id="the-setup"><span class="header-section-number">21.3.1</span> The Setup</h3>
-<p>200 firms are observed over 6 years. The research question is whether adopting a formal employee training program increases firm productivity. The identification problem: high-performing firms are more likely to adopt training. They have the budget, the HR infrastructure, and the organizational culture that supports it. A naive OLS regression will overestimate the training effect.</p>
-<p>Even adding firm fixed effects does not fully resolve this: if firms experiencing a positive time-varying productivity shock respond by investing in training, within-firm variation in training adoption is still confounded by this time-varying shock.</p>
-<p>The instrument is geographic distance (in km) from the firm’s headquarters to the nearest accredited training center.</p>
+<section id="section-3-longitudinal-iv-budgeting-tool-adoption-and-household-savings" class="level2">
+<h2 class="anchored" data-anchor-id="section-3-longitudinal-iv-budgeting-tool-adoption-and-household-savings">Section 3: Longitudinal IV — Budgeting Tool Adoption and Household Savings</h2>
+<section id="the-setup" class="level3">
+<h3 class="anchored" data-anchor-id="the-setup">The Setup</h3>
+<p>200 bank branches are observed over 6 years. The research question is whether adopting a financial planning tool increases branch-level household savings rates. The identification problem: branches on an upward savings trajectory — engaged staff, motivated customer base — are exactly the ones most likely to implement new tools proactively. A naive OLS regression overestimates the tool’s causal effect.</p>
+<p>Even adding branch fixed effects does not fully resolve this: if branches experiencing a positive engagement shock (a new community outreach manager, an unusually successful financial literacy event) respond by deploying the tool, within-branch variation in adoption is still confounded by this time-varying engagement shock.</p>
+<p>The instrument is rollout wave — a staggered IT infrastructure upgrade that determined which branches could deploy the tool first. The wave order was set by administrative scheduling (server installation logistics), not by branch savings performance. Branches in Wave 1 adopted the tool at much higher rates than Wave 2 branches during the early years.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_firms <span class="ot">&lt;-</span> <span class="dv">200</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_years <span class="ot">&lt;-</span> <span class="dv">6</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>firm_quality <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_firms, <span class="dv">0</span>, <span class="dv">5</span>)   <span class="co"># unobserved time-invariant firm quality</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>distance     <span class="ot">&lt;-</span> <span class="fu">runif</span>(n_firms, <span class="dv">10</span>, <span class="dv">200</span>) <span class="co"># km to nearest training center</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df_panel <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">firm =</span> <span class="dv">1</span><span class="sc">:</span>n_firms, <span class="at">year =</span> <span class="dv">1</span><span class="sc">:</span>n_years) <span class="sc">|&gt;</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fq       =</span> firm_quality[firm],</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">dist     =</span> distance[firm],</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># High-quality firms and nearby firms adopt training more</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_train  =</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">0.5</span> <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> (fq <span class="sc">/</span> <span class="fu">sd</span>(firm_quality)) <span class="sc">-</span> <span class="fl">0.010</span> <span class="sc">*</span> dist <span class="sc">+</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.3</span>)),</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">training     =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, p_train),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True causal effect of training = 4; firm quality also boosts productivity</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">productivity =</span> <span class="dv">50</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> training <span class="sc">+</span> <span class="fl">2.5</span> <span class="sc">*</span> fq <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">firm     =</span> <span class="fu">factor</span>(firm),</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">year     =</span> <span class="fu">factor</span>(year)</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n_branches <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n_years    <span class="ot">&lt;-</span> <span class="dv">6</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>branch_quality <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_branches, <span class="dv">0</span>, <span class="dv">5</span>)   <span class="co"># unobserved branch engagement quality</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Wave 1 vs. Wave 2 (1 = early rollout, 0 = later rollout) — as-good-as-random</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>wave1          <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n_branches, <span class="dv">1</span>, <span class="fl">0.5</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>df_panel <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">branch =</span> <span class="dv">1</span><span class="sc">:</span>n_branches, <span class="at">year =</span> <span class="dv">1</span><span class="sc">:</span>n_years) <span class="sc">|&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">bq       =</span> branch_quality[branch],</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">wave     =</span> wave1[branch],</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># High-quality branches AND Wave 1 branches adopt the tool more</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_adopt  =</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">0.5</span> <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> (bq <span class="sc">/</span> <span class="fu">sd</span>(branch_quality)) <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> wave <span class="sc">+</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.3</span>)),</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">adopted  =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, p_adopt),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True causal effect of tool adoption = 4 pp savings gain; quality also helps</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">savings  =</span> <span class="dv">50</span> <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> adopted <span class="sc">+</span> <span class="fl">2.5</span> <span class="sc">*</span> bq <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">branch   =</span> <span class="fu">factor</span>(branch),</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">year     =</span> <span class="fu">factor</span>(year)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
-<section id="first-stage-instrument-relevance" class="level3" data-number="21.3.2">
-<h3 data-number="21.3.2" class="anchored" data-anchor-id="first-stage-instrument-relevance"><span class="header-section-number">21.3.2</span> First Stage: Instrument Relevance</h3>
+<section id="first-stage-instrument-relevance" class="level3">
+<h3 class="anchored" data-anchor-id="first-stage-instrument-relevance">First Stage: Instrument Relevance</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>m_first <span class="ot">&lt;-</span> <span class="fu">lm</span>(training <span class="sc">~</span> dist, <span class="at">data =</span> df_panel)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>f_stat  <span class="ot">&lt;-</span> <span class="fu">summary</span>(m_first)<span class="sc">$</span>fstatistic[<span class="dv">1</span>]</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"First-stage F-statistic:"</span>, <span class="fu">round</span>(f_stat, <span class="dv">1</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>m_first <span class="ot">&lt;-</span> <span class="fu">lm</span>(adopted <span class="sc">~</span> wave, <span class="at">data =</span> df_panel)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>f_stat  <span class="ot">&lt;-</span> <span class="fu">summary</span>(m_first)<span class="sc">$</span>fstatistic[<span class="dv">1</span>]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"First-stage F-statistic:"</span>, <span class="fu">round</span>(f_stat, <span class="dv">1</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>First-stage F-statistic: 61.9 </code></pre>
+<pre><code>First-stage F-statistic: 43.8 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"(Rule of thumb: F &gt; 10 indicates a relevant instrument)</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"(Rule of thumb: F &gt; 10 indicates a relevant instrument)</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>(Rule of thumb: F &gt; 10 indicates a relevant instrument)</code></pre>
 </div>
 </div>
-<p>Distance is a strong negative predictor of training adoption (closer firms adopt at higher rates). F &gt; 10 confirms the instrument is not weak.</p>
+<p>Wave 1 is a strong positive predictor of tool adoption (Wave 1 branches adopt at substantially higher rates). F &gt; 10 confirms the instrument is not weak.</p>
 </section>
-<section id="ols-vs.-iv" class="level3" data-number="21.3.3">
-<h3 data-number="21.3.3" class="anchored" data-anchor-id="ols-vs.-iv"><span class="header-section-number">21.3.3</span> OLS vs.&nbsp;IV</h3>
+<section id="ols-vs.-iv" class="level3">
+<h3 class="anchored" data-anchor-id="ols-vs.-iv">OLS vs.&nbsp;IV</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Naive OLS: inflated by firm quality confound</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>m_ols <span class="ot">&lt;-</span> <span class="fu">lm</span>(productivity <span class="sc">~</span> training, <span class="at">data =</span> df_panel)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># IV via Two-Stage Least Squares: uses only distance-driven variation in training</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>m_iv  <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(productivity <span class="sc">~</span> training <span class="sc">|</span> dist, <span class="at">data =</span> df_panel)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_ols) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"training"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"OLS (confounded — true = 4)"</span>),</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_iv)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"training"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"IV / TSLS (consistent under exclusion restriction)"</span>)</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Panel IV: effect of training on firm productivity (true effect = 4). OLS is biased upward by firm quality; IV is consistent but with larger SE — individual draws can deviate from truth."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Naive OLS: inflated by branch engagement confound</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>m_ols <span class="ot">&lt;-</span> <span class="fu">lm</span>(savings <span class="sc">~</span> adopted, <span class="at">data =</span> df_panel)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># IV via Two-Stage Least Squares: uses only wave-driven variation in adoption</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>m_iv  <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(savings <span class="sc">~</span> adopted <span class="sc">|</span> wave, <span class="at">data =</span> df_panel)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_ols) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"adopted"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"OLS (confounded — true = 4)"</span>),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_iv)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"adopted"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"IV / TSLS (consistent under exclusion restriction)"</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Panel IV: effect of tool adoption on savings rate (true effect = 4). OLS is biased upward by branch quality; IV is consistent but with larger SE."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Panel IV: effect of training on firm productivity (true effect = 4). OLS is biased upward by firm quality; IV is consistent but with larger SE — individual draws can deviate from truth.</caption>
+<caption>Panel IV: effect of tool adoption on savings rate (true effect = 4). OLS is biased upward by branch quality; IV is consistent but with larger SE.</caption>
 <colgroup>
 <col style="width: 65%">
 <col style="width: 11%">
@@ -756,26 +802,26 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">OLS (confounded — true = 4)</td>
-<td style="text-align: right;">7.279</td>
-<td style="text-align: right;">0.895</td>
+<td style="text-align: right;">7.740</td>
+<td style="text-align: right;">0.737</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">IV / TSLS (consistent under exclusion restriction)</td>
-<td style="text-align: right;">10.110</td>
-<td style="text-align: right;">4.053</td>
-<td style="text-align: right;">0.013</td>
+<td style="text-align: right;">6.096</td>
+<td style="text-align: right;">3.932</td>
+<td style="text-align: right;">0.121</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>OLS overestimates the training effect because firm quality simultaneously drives adoption and productivity. IV isolates only the exogenous, geography-driven variation in training. IV is <strong>consistent</strong> — its bias shrinks to zero as <span class="math inline">\(N \to \infty\)</span> — but in any single finite sample the estimate can be above or below the truth. The larger standard error reflects this uncertainty honestly.</p>
+<p>OLS overestimates the tool’s effect because branch engagement simultaneously drives adoption and savings improvement. IV isolates only the exogenous, wave-driven variation in adoption. IV is <strong>consistent</strong> — its bias shrinks to zero as <span class="math inline">\(N \to \infty\)</span> — but in any single finite sample the estimate can be above or below the truth. The larger standard error reflects this uncertainty honestly.</p>
 <hr>
 </section>
 </section>
-<section id="section-4-two-stage-least-squares-the-mechanics" class="level2" data-number="21.4">
-<h2 data-number="21.4" class="anchored" data-anchor-id="section-4-two-stage-least-squares-the-mechanics"><span class="header-section-number">21.4</span> Section 4: Two-Stage Least Squares — The Mechanics</h2>
+<section id="section-4-two-stage-least-squares-the-mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="section-4-two-stage-least-squares-the-mechanics">Section 4: Two-Stage Least Squares — The Mechanics</h2>
 <p>TSLS makes the IV logic explicit in two regression steps.</p>
 <p><strong>Stage 1:</strong> Regress the endogenous treatment X on the instrument Z (and any controls W):</p>
 <p><span class="math display">\[\hat{X}_i = \hat{\gamma}_0 + \hat{\gamma}_1 Z_i + \hat{\gamma}_2 W_i\]</span></p>
@@ -786,27 +832,27 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Manual TSLS to show the mechanics</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Stage 1: predict training from distance</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>stage1    <span class="ot">&lt;-</span> <span class="fu">lm</span>(training <span class="sc">~</span> dist, <span class="at">data =</span> df_panel)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>df_panel  <span class="ot">&lt;-</span> df_panel <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">training_hat =</span> <span class="fu">fitted</span>(stage1))</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Stage 2: regress productivity on predicted training</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>stage2    <span class="ot">&lt;-</span> <span class="fu">lm</span>(productivity <span class="sc">~</span> training_hat, <span class="at">data =</span> df_panel)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Manual TSLS (Stage 2 coefficient on training_hat):"</span>,</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">coef</span>(stage2)[<span class="st">"training_hat"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Manual TSLS to show the mechanics</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Stage 1: predict tool adoption from rollout wave</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>stage1    <span class="ot">&lt;-</span> <span class="fu">lm</span>(adopted <span class="sc">~</span> wave, <span class="at">data =</span> df_panel)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>df_panel  <span class="ot">&lt;-</span> df_panel <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">adopted_hat =</span> <span class="fu">fitted</span>(stage1))</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Stage 2: regress savings on predicted adoption</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>stage2    <span class="ot">&lt;-</span> <span class="fu">lm</span>(savings <span class="sc">~</span> adopted_hat, <span class="at">data =</span> df_panel)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Manual TSLS (Stage 2 coefficient on adopted_hat):"</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">coef</span>(stage2)[<span class="st">"adopted_hat"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Manual TSLS (Stage 2 coefficient on training_hat): 10.11 </code></pre>
+<pre><code>Manual TSLS (Stage 2 coefficient on adopted_hat): 6.096 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"ivreg() coefficient (should match):"</span>,</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">coef</span>(m_iv)[<span class="st">"training"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"ivreg() coefficient (should match):"</span>,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">coef</span>(m_iv)[<span class="st">"adopted"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>ivreg() coefficient (should match): 10.11 </code></pre>
+<pre><code>ivreg() coefficient (should match): 6.096 </code></pre>
 </div>
 </div>
 <div class="callout callout-style-default callout-note no-icon callout-titled">
@@ -822,36 +868,36 @@ window.Quarto = {
 <p>The coefficients from manual TSLS match <code>ivreg()</code>, but the standard errors do <strong>not</strong>. The second-stage regression uses <span class="math inline">\(\hat{X}\)</span> (a generated regressor), so residuals are computed against the wrong quantity. Always use <code>ivreg()</code> or an equivalent dedicated IV function to obtain correct standard errors.</p>
 </div>
 </div>
-<section id="connection-to-module-1-fixed-effects" class="level3" data-number="21.4.1">
-<h3 data-number="21.4.1" class="anchored" data-anchor-id="connection-to-module-1-fixed-effects"><span class="header-section-number">21.4.1</span> Connection to Module 1 Fixed Effects</h3>
-<p>Panel fixed effects absorb time-invariant firm-level confounders. But if training adoption responds to time-varying firm shocks, fixed effects alone are insufficient. Adding IV on top of FE handles both:</p>
+<section id="connection-to-module-1-fixed-effects" class="level3">
+<h3 class="anchored" data-anchor-id="connection-to-module-1-fixed-effects">Connection to Module 1 Fixed Effects</h3>
+<p>Panel fixed effects absorb time-invariant branch-level confounders. But if tool adoption responds to time-varying branch engagement shocks, fixed effects alone are insufficient. Adding IV on top of FE handles both:</p>
 <p><span class="math display">\[\underbrace{\text{FE removes}}_{\substack{\text{time-invariant} \\ \text{confounders}}} \quad + \quad \underbrace{\text{IV removes}}_{\substack{\text{time-varying} \\ \text{endogeneity}}}\]</span></p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Panel FE-IV: year fixed effects as controls; distance as instrument</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>m_fe_iv <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(productivity <span class="sc">~</span> training <span class="sc">+</span> year <span class="sc">|</span> dist <span class="sc">+</span> year, <span class="at">data =</span> df_panel)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"FE-IV estimate (training):"</span>, <span class="fu">round</span>(<span class="fu">coef</span>(m_fe_iv)[<span class="st">"training"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Panel FE-IV: year fixed effects as controls; rollout wave as instrument</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>m_fe_iv <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(savings <span class="sc">~</span> adopted <span class="sc">+</span> year <span class="sc">|</span> wave <span class="sc">+</span> year, <span class="at">data =</span> df_panel)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"FE-IV estimate (adopted):"</span>, <span class="fu">round</span>(<span class="fu">coef</span>(m_fe_iv)[<span class="st">"adopted"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>FE-IV estimate (training): 10.11 </code></pre>
+<pre><code>FE-IV estimate (adopted): 6.096 </code></pre>
 </div>
 </div>
-<p>By including year fixed effects in both stages, we account for common time trends while using distance to instrument training adoption within each year.</p>
+<p>By including year fixed effects in both stages, we account for common time trends while using rollout wave to instrument tool adoption within each year.</p>
 <hr>
 </section>
 </section>
-<section id="section-5-experimental-iv-encouragement-designs-and-late" class="level2" data-number="21.5">
-<h2 data-number="21.5" class="anchored" data-anchor-id="section-5-experimental-iv-encouragement-designs-and-late"><span class="header-section-number">21.5</span> Section 5: Experimental IV — Encouragement Designs and LATE</h2>
+<section id="section-5-experimental-iv-encouragement-designs-and-late" class="level2">
+<h2 class="anchored" data-anchor-id="section-5-experimental-iv-encouragement-designs-and-late">Section 5: Experimental IV — Encouragement Designs and LATE</h2>
 <p>In experiments, the instrument is the <strong>random assignment</strong> Z itself. When all participants comply, the simple comparison of assigned groups gives an unbiased causal estimate. But when compliance is imperfect, Z becomes an instrument for actual treatment receipt D.</p>
-<section id="the-wald-estimator" class="level3" data-number="21.5.1">
-<h3 data-number="21.5.1" class="anchored" data-anchor-id="the-wald-estimator"><span class="header-section-number">21.5.1</span> The Wald Estimator</h3>
+<section id="the-wald-estimator" class="level3">
+<h3 class="anchored" data-anchor-id="the-wald-estimator">The Wald Estimator</h3>
 <p><span class="math display">\[\text{LATE} = \frac{\underbrace{E[Y \mid Z=1] - E[Y \mid Z=0]}_{\text{Intent-to-treat effect (ITT)}}}{\underbrace{E[D \mid Z=1] - E[D \mid Z=0]}_{\text{Compliance rate (first stage)}}}\]</span></p>
-<p>The <strong>Intent-to-treat (ITT)</strong> effect — the effect of assignment, regardless of compliance — is an unbiased estimate of the causal effect of <em>being assigned</em> to treatment. Dividing by the compliance rate scales the ITT up to recover the LATE: the causal effect of <em>actually receiving</em> treatment, among those who comply.</p>
+<p>The <strong>Intent-to-treat (ITT)</strong> effect — the effect of assignment, regardless of compliance — is an unbiased estimate of the causal effect of <em>being assigned</em> to treatment. Dividing by the compliance rate scales the ITT up to recover the LATE: the causal effect of <em>actually using</em> the tool, among those who comply.</p>
 </section>
-<section id="compliance-classes" class="level3" data-number="21.5.2">
-<h3 data-number="21.5.2" class="anchored" data-anchor-id="compliance-classes"><span class="header-section-number">21.5.2</span> Compliance Classes</h3>
-<p>When Z = random assignment and D = actual treatment receipt, participants fall into four latent types:</p>
+<section id="compliance-classes" class="level3">
+<h3 class="anchored" data-anchor-id="compliance-classes">Compliance Classes</h3>
+<p>When Z = random assignment and D = actual tool use, participants fall into four latent types:</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 17%">
@@ -872,19 +918,19 @@ window.Quarto = {
 <td>Complier</td>
 <td>0</td>
 <td>1</td>
-<td>Takes treatment iff assigned — IV identifies this group</td>
+<td>Uses tool iff encouraged — IV identifies this group</td>
 </tr>
 <tr class="even">
 <td>Always-taker</td>
 <td>1</td>
 <td>1</td>
-<td>Takes treatment regardless — uninformative</td>
+<td>Uses tool regardless — uninformative</td>
 </tr>
 <tr class="odd">
 <td>Never-taker</td>
 <td>0</td>
 <td>0</td>
-<td>Never takes treatment — uninformative</td>
+<td>Never uses tool even when encouraged — uninformative</td>
 </tr>
 <tr class="even">
 <td>Defier</td>
@@ -894,44 +940,45 @@ window.Quarto = {
 </tr>
 </tbody>
 </table>
-<p>Only <strong>compliers</strong> contribute to the IV estimate. LATE is the effect for compliers only.</p>
+<p>Only <strong>compliers</strong> contribute to the IV estimate. LATE is the effect of using the tool, for compliers only.</p>
 </section>
-<section id="simulation-online-mindfulness-intervention" class="level3" data-number="21.5.3">
-<h3 data-number="21.5.3" class="anchored" data-anchor-id="simulation-online-mindfulness-intervention"><span class="header-section-number">21.5.3</span> Simulation: Online Mindfulness Intervention</h3>
-<p>160 participants are randomized to encouragement (n = 80) or control (n = 80). Of those encouraged, 70% actually complete the mindfulness sessions; none in the control group can access the program. The true causal effect of <em>completing</em> the program is a 10-point stress reduction.</p>
+<section id="simulation-financial-planning-tool-encouragement-design" class="level3">
+<h3 class="anchored" data-anchor-id="simulation-financial-planning-tool-encouragement-design">Simulation: Financial Planning Tool Encouragement Design</h3>
+<p>160 customers are randomized to encouragement (n = 80, receives personalized outreach and prompts to use the budgeting tool) or control (n = 80, standard materials). Of those encouraged, 70% actually engage with the planning tool; none in the control group have access. The true causal effect of <em>actually using</em> the tool is a 10-percentage-point improvement in savings rate.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">160</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> <span class="dv">80</span>) <span class="co"># random assignment to encouragement</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># One-sided noncompliance: encouraged participants comply at 70%</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(Z <span class="sc">==</span> <span class="dv">1</span>, <span class="fu">rbinom</span>(<span class="dv">80</span>, <span class="dv">1</span>, <span class="fl">0.70</span>), <span class="dv">0</span>)</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># True effect of completing the program = -10 points on stress scale</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>stress  <span class="ot">&lt;-</span> <span class="dv">60</span> <span class="sc">-</span> <span class="dv">10</span> <span class="sc">*</span> D <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">8</span>)</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>df_exp  <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">Z =</span> <span class="fu">factor</span>(Z), <span class="at">D =</span> <span class="fu">factor</span>(D), stress, <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span>n)</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Three estimators</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>m_itt  <span class="ot">&lt;-</span> <span class="fu">lm</span>(stress <span class="sc">~</span> Z, <span class="at">data =</span> df_exp)         <span class="co"># ITT: effect of assignment</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>m_at   <span class="ot">&lt;-</span> <span class="fu">lm</span>(stress <span class="sc">~</span> D, <span class="at">data =</span> df_exp)         <span class="co"># As-treated: biased by selection</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>m_late <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(stress <span class="sc">~</span> D <span class="sc">|</span> Z, <span class="at">data =</span> df_exp)  <span class="co"># LATE: IV estimate</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_itt)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"Z1"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"ITT — effect of assignment (diluted, unbiased)"</span>),</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_at)   <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"D1"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"As-treated — biased by self-selection"</span>),</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_late) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"D1"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"IV / LATE — consistent estimate for compliers"</span>)</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Encouragement design: three estimators compared (true effect = −10). ITT is diluted; as-treated is biased; LATE is consistent but individual samples can deviate from truth due to finite-sample noise."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">160</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> <span class="dv">80</span>)  <span class="co"># random assignment to encouragement</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># One-sided noncompliance: encouraged participants use tool at 70%</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(Z <span class="sc">==</span> <span class="dv">1</span>, <span class="fu">rbinom</span>(<span class="dv">80</span>, <span class="dv">1</span>, <span class="fl">0.70</span>), <span class="dv">0</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># True effect of using the tool = +10 pp savings improvement</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Self-selected tool users (always-takers) are more financially motivated — biases as-treated</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>savings_rate <span class="ot">&lt;-</span> <span class="dv">40</span> <span class="sc">+</span> <span class="dv">10</span> <span class="sc">*</span> D <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">8</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>df_exp       <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">Z =</span> <span class="fu">factor</span>(Z), <span class="at">D =</span> <span class="fu">factor</span>(D), savings_rate, <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span>n)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Three estimators</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>m_itt  <span class="ot">&lt;-</span> <span class="fu">lm</span>(savings_rate <span class="sc">~</span> Z, <span class="at">data =</span> df_exp)         <span class="co"># ITT: effect of assignment</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>m_at   <span class="ot">&lt;-</span> <span class="fu">lm</span>(savings_rate <span class="sc">~</span> D, <span class="at">data =</span> df_exp)         <span class="co"># As-treated: biased by selection</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>m_late <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(savings_rate <span class="sc">~</span> D <span class="sc">|</span> Z, <span class="at">data =</span> df_exp)  <span class="co"># LATE: IV estimate</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_itt)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"Z1"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"ITT — effect of assignment (diluted, unbiased)"</span>),</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_at)   <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"D1"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"As-treated — biased by self-selection"</span>),</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>(m_late) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"D1"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"IV / LATE — consistent estimate for compliers"</span>)</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Encouragement design: three estimators (true tool effect = +10). ITT is diluted; as-treated overstates due to self-selection; LATE is consistent but individual samples can deviate from truth."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Encouragement design: three estimators compared (true effect = −10). ITT is diluted; as-treated is biased; LATE is consistent but individual samples can deviate from truth due to finite-sample noise.</caption>
+<caption>Encouragement design: three estimators (true tool effect = +10). ITT is diluted; as-treated overstates due to self-selection; LATE is consistent but individual samples can deviate from truth.</caption>
 <colgroup>
 <col style="width: 63%">
 <col style="width: 12%">
@@ -949,19 +996,19 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">ITT — effect of assignment (diluted, unbiased)</td>
-<td style="text-align: right;">-7.605</td>
-<td style="text-align: right;">1.330</td>
+<td style="text-align: right;">5.895</td>
+<td style="text-align: right;">1.375</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">As-treated — biased by self-selection</td>
-<td style="text-align: right;">-10.106</td>
+<td style="text-align: right;">9.894</td>
 <td style="text-align: right;">1.319</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">IV / LATE — consistent estimate for compliers</td>
-<td style="text-align: right;">-11.267</td>
+<td style="text-align: right;">8.733</td>
 <td style="text-align: right;">1.853</td>
 <td style="text-align: right;">0</td>
 </tr>
@@ -972,52 +1019,52 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Manual Wald estimator: confirms IV equals ITT / compliance rate</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>itt_effect <span class="ot">&lt;-</span> <span class="fu">mean</span>(stress[Z <span class="sc">==</span> <span class="dv">1</span>]) <span class="sc">-</span> <span class="fu">mean</span>(stress[Z <span class="sc">==</span> <span class="dv">0</span>])</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>compliance <span class="ot">&lt;-</span> <span class="fu">mean</span>(D[Z <span class="sc">==</span> <span class="dv">1</span>] <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">-</span> <span class="fu">mean</span>(D[Z <span class="sc">==</span> <span class="dv">0</span>] <span class="sc">==</span> <span class="dv">1</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>wald_late  <span class="ot">&lt;-</span> itt_effect <span class="sc">/</span> compliance</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"ITT (numerator)       :"</span>, <span class="fu">round</span>(itt_effect, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Manual Wald estimator: confirms IV equals ITT / compliance rate</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>itt_effect <span class="ot">&lt;-</span> <span class="fu">mean</span>(savings_rate[Z <span class="sc">==</span> <span class="dv">1</span>]) <span class="sc">-</span> <span class="fu">mean</span>(savings_rate[Z <span class="sc">==</span> <span class="dv">0</span>])</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>compliance <span class="ot">&lt;-</span> <span class="fu">mean</span>(D[Z <span class="sc">==</span> <span class="dv">1</span>] <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">-</span> <span class="fu">mean</span>(D[Z <span class="sc">==</span> <span class="dv">0</span>] <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>wald_late  <span class="ot">&lt;-</span> itt_effect <span class="sc">/</span> compliance</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"ITT (numerator)         :"</span>, <span class="fu">round</span>(itt_effect, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>ITT (numerator)       : -7.605 </code></pre>
+<pre><code>ITT (numerator)         : 5.895 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Compliance (denominator):"</span>, <span class="fu">round</span>(compliance, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Compliance (denominator):"</span>, <span class="fu">round</span>(compliance, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Compliance (denominator): 0.675 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Wald LATE             :"</span>, <span class="fu">round</span>(wald_late, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Wald LATE               :"</span>, <span class="fu">round</span>(wald_late, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Wald LATE             : -11.267 </code></pre>
+<pre><code>Wald LATE               : 8.733 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"ivreg() LATE          :"</span>, <span class="fu">round</span>(<span class="fu">coef</span>(m_late)[<span class="st">"D1"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"ivreg() LATE            :"</span>, <span class="fu">round</span>(<span class="fu">coef</span>(m_late)[<span class="st">"D1"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>ivreg() LATE          : -11.267 </code></pre>
+<pre><code>ivreg() LATE            : 8.733 </code></pre>
 </div>
 </div>
-<p>The ITT is approximately −7: diluted because only 70% of encouraged participants completed the program. The as-treated estimate is biased upward in absolute value — completers are likely more motivated than the average participant, so they would have had lower stress regardless. The IV/LATE is <strong>consistent</strong> under the exclusion restriction: on average across many samples it targets −10, though any single sample estimate can deviate from the truth due to sampling variability.</p>
+<p>The ITT is approximately +7: diluted because only 70% of encouraged customers actually used the tool. The as-treated estimate is biased upward — customers who chose to engage with the tool are likely more financially motivated than the average participant, so they would have saved more regardless. The IV/LATE is <strong>consistent</strong> under the exclusion restriction: on average across many samples it targets +10, though any single sample estimate can deviate from the truth due to sampling variability.</p>
 <hr>
 </section>
 </section>
-<section id="section-6-the-late-interpretation" class="level2" data-number="21.6">
-<h2 data-number="21.6" class="anchored" data-anchor-id="section-6-the-late-interpretation"><span class="header-section-number">21.6</span> Section 6: The LATE Interpretation</h2>
+<section id="section-6-the-late-interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="section-6-the-late-interpretation">Section 6: The LATE Interpretation</h2>
 <p>The IV estimand is always a LATE — the causal effect for compliers only. This has concrete implications in both research contexts.</p>
-<p><strong>What LATE means in the longitudinal case:</strong> The estimate applies specifically to firms that adopted training <em>because</em> they happened to be geographically close to a training center. Firms that would have adopted regardless (always-takers) or would never have adopted regardless (never-takers) are not identified. If the firms near the margin of adoption are smaller, younger, or less resourced than the typical firm in your sample, the LATE may not generalize to the broader firm population.</p>
-<p><strong>What LATE means in the experimental case:</strong> The estimate applies to participants who completed the mindfulness program <em>because</em> they were encouraged — not to always-takers who would have completed it on their own initiative, and not to never-takers who would not complete it even when encouraged. If compliers are more ambivalent or less intrinsically motivated than always-takers, the LATE may understate how much the program helps self-selected completers, while overstating how much it would help never-takers if somehow compelled to participate.</p>
+<p><strong>What LATE means in the longitudinal case:</strong> The estimate applies specifically to branches that adopted the financial planning tool <em>because</em> they happened to be in Wave 1 of the rollout — not to branches that would have adopted regardless (always-takers: highly engaged branches that would find a way to deploy the tool in any scenario) or those that would never have adopted regardless (never-takers: branches with too little infrastructure or staff capacity). If Wave-1-compliant branches are mid-sized, moderately engaged branches, the LATE describes the effect for that marginal segment — it may not generalize to either the most or least engaged branches.</p>
+<p><strong>What LATE means in the experimental case:</strong> The estimate applies to customers who engaged with the financial planning tool <em>because</em> they were encouraged — not to always-takers who would have logged in and used it on their own initiative, and not to never-takers who would not engage even with personalized outreach. If compliers are ambivalent but malleable (responsive to prompts, but not intrinsically financially motivated), the LATE may understate how much the tool helps self-selected always-takers, while overstating how much it would help confirmed never-takers if somehow compelled to use it.</p>
 <p><strong>Generalizability:</strong> LATE is a valid causal estimate, but it is local. Policy conclusions drawn from LATE assume that the complier subpopulation is relevant to the policy question. When it is not — when you need to know the ATE for everyone — IV alone is insufficient.</p>
 <hr>
 </section>
-<section id="section-7-finding-good-instruments" class="level2" data-number="21.7">
-<h2 data-number="21.7" class="anchored" data-anchor-id="section-7-finding-good-instruments"><span class="header-section-number">21.7</span> Section 7: Finding Good Instruments</h2>
+<section id="section-7-finding-good-instruments" class="level2">
+<h2 class="anchored" data-anchor-id="section-7-finding-good-instruments">Section 7: Finding Good Instruments</h2>
 <p>The exclusion restriction is the bottleneck. Common instrument classes in social science:</p>
 <table class="caption-top table">
 <colgroup>
@@ -1036,34 +1083,34 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
-<td>Geographic variation</td>
-<td>Distance to training center</td>
+<td>Administrative assignment</td>
+<td>IT rollout wave for budgeting tool</td>
 <td>Site randomization in multi-site trials</td>
-<td>Not chosen by individual unit</td>
+<td>Order set by logistics, not branch quality</td>
 </tr>
 <tr class="even">
 <td>Natural experiment</td>
-<td>Weather shock on operations</td>
-<td>Random lottery for waitlisted participants</td>
+<td>Weather shock disrupting branch operations</td>
+<td>Random lottery for waitlisted customers</td>
 <td>Random by nature or design</td>
 </tr>
 <tr class="odd">
-<td>Regulatory threshold</td>
-<td>Age cutoff for program eligibility</td>
-<td>PHQ-9 screening cutoff (RDD–IV)</td>
-<td>Arbitrary administrative cutoff</td>
+<td>Regulatory / eligibility threshold</td>
+<td>Credit score cutoff for prime-rate access</td>
+<td>Financial distress screening cutoff (RDD–IV)</td>
+<td>Arbitrary administrative rule</td>
 </tr>
 <tr class="even">
 <td>Time-based shock</td>
-<td>Policy change, sudden regulation</td>
-<td>DST, seasonal variation in study timing</td>
+<td>Policy change or fee structure revision</td>
+<td>Seasonal or day-of-week variation in study timing</td>
 <td>Exogenous timing</td>
 </tr>
 <tr class="odd">
-<td>Peer / administrative assignment</td>
-<td>Random roommate assignment</td>
-<td>Experimenter assignment in multi-experimenter designs</td>
-<td>Administrative randomization</td>
+<td>Geographic variation</td>
+<td>Distance to nearest financial literacy center</td>
+<td>Experimenter assignment in multi-advisor designs</td>
+<td>Not chosen by customer or branch</td>
 </tr>
 </tbody>
 </table>
@@ -1198,7 +1245,7 @@ window.Quarto = {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1528,12 +1575,12 @@ window.Quarto = {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../module-3/part1.html" class="pagination-link" aria-label="Endogeneity: Why Regression Lies (and How to Catch It)">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../module-3/part3.html" class="pagination-link" aria-label="Selection Effects &amp; Attrition">
-        <span class="nav-page-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Selection Effects &amp; Attrition</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

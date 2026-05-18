@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>42&nbsp; Binary and Count Outcomes in Experiments – Nested Data Structures</title>
+<title>Binary and Count Outcomes in Experiments – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -139,6 +140,14 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-5/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-5/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -150,7 +159,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-5/intro.html">Module 5: Experimental Designs with Nesting</a></li><li class="breadcrumb-item"><a href="../module-5/part6.html"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-5/intro.html">Module 5: Experimental Designs with Nesting</a></li><li class="breadcrumb-item"><a href="../module-5/part6.html"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -180,8 +189,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -195,32 +203,27 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -236,44 +239,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -289,26 +285,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -324,44 +316,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -377,68 +362,57 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -454,62 +428,52 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -525,14 +489,12 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -547,26 +509,28 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#binary-and-count-outcomes-in-experiments" id="toc-binary-and-count-outcomes-in-experiments" class="nav-link active" data-scroll-target="#binary-and-count-outcomes-in-experiments"><span class="header-section-number">43</span> Binary and Count Outcomes in Experiments</a>
+  <li><a href="#binary-and-count-outcomes-in-experiments" id="toc-binary-and-count-outcomes-in-experiments" class="nav-link active" data-scroll-target="#binary-and-count-outcomes-in-experiments">Binary and Count Outcomes in Experiments</a>
   <ul class="collapse">
-  <li><a href="#the-problem-when-experimental-outcomes-arent-continuous" id="toc-the-problem-when-experimental-outcomes-arent-continuous" class="nav-link" data-scroll-target="#the-problem-when-experimental-outcomes-arent-continuous"><span class="header-section-number">43.1</span> The Problem: When Experimental Outcomes Aren’t Continuous</a></li>
-  <li><a href="#part-1-binary-outcomes-in-experiments" id="toc-part-1-binary-outcomes-in-experiments" class="nav-link" data-scroll-target="#part-1-binary-outcomes-in-experiments"><span class="header-section-number">43.2</span> Part 1: Binary Outcomes in Experiments</a>
+  <li><a href="#when-experimental-outcomes-are-not-continuous" id="toc-when-experimental-outcomes-are-not-continuous" class="nav-link" data-scroll-target="#when-experimental-outcomes-are-not-continuous">When Experimental Outcomes Are Not Continuous</a></li>
+  <li><a href="#what-is-a-link-function-a-plain-language-visual" id="toc-what-is-a-link-function-a-plain-language-visual" class="nav-link" data-scroll-target="#what-is-a-link-function-a-plain-language-visual">What Is a Link Function? A Plain-Language Visual</a></li>
+  <li><a href="#part-1-binary-outcomes-logistic-mixed-model" id="toc-part-1-binary-outcomes-logistic-mixed-model" class="nav-link" data-scroll-target="#part-1-binary-outcomes-logistic-mixed-model">Part 1: Binary Outcomes — Logistic Mixed Model</a>
   <ul class="collapse">
-  <li><a href="#the-logistic-mixed-model-for-experiments" id="toc-the-logistic-mixed-model-for-experiments" class="nav-link" data-scroll-target="#the-logistic-mixed-model-for-experiments"><span class="header-section-number">43.2.1</span> The Logistic Mixed Model for Experiments</a></li>
-  <li><a href="#example-framing-effects-on-donation-decisions" id="toc-example-framing-effects-on-donation-decisions" class="nav-link" data-scroll-target="#example-framing-effects-on-donation-decisions"><span class="header-section-number">43.2.2</span> Example: Framing Effects on Donation Decisions</a></li>
-  <li><a href="#fitting-and-interpreting-the-model" id="toc-fitting-and-interpreting-the-model" class="nav-link" data-scroll-target="#fitting-and-interpreting-the-model"><span class="header-section-number">43.2.3</span> Fitting and Interpreting the Model</a></li>
-  <li><a href="#marginal-predicted-probabilities" id="toc-marginal-predicted-probabilities" class="nav-link" data-scroll-target="#marginal-predicted-probabilities"><span class="header-section-number">43.2.4</span> Marginal Predicted Probabilities</a></li>
-  <li><a href="#the-nonlinearity-of-marginal-effects" id="toc-the-nonlinearity-of-marginal-effects" class="nav-link" data-scroll-target="#the-nonlinearity-of-marginal-effects"><span class="header-section-number">43.2.5</span> The Nonlinearity of Marginal Effects</a></li>
+  <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model">The model</a></li>
+  <li><a href="#example-loss-framing-and-risky-financial-choices" id="toc-example-loss-framing-and-risky-financial-choices" class="nav-link" data-scroll-target="#example-loss-framing-and-risky-financial-choices">Example: Loss framing and risky financial choices</a></li>
+  <li><a href="#fitting-the-logistic-mixed-model" id="toc-fitting-the-logistic-mixed-model" class="nav-link" data-scroll-target="#fitting-the-logistic-mixed-model">Fitting the logistic mixed model</a></li>
+  <li><a href="#translating-to-the-probability-scale" id="toc-translating-to-the-probability-scale" class="nav-link" data-scroll-target="#translating-to-the-probability-scale">Translating to the probability scale</a></li>
+  <li><a href="#the-nonlinearity-of-marginal-effects" id="toc-the-nonlinearity-of-marginal-effects" class="nav-link" data-scroll-target="#the-nonlinearity-of-marginal-effects">The nonlinearity of marginal effects</a></li>
   </ul></li>
-  <li><a href="#part-2-count-outcomes-in-experiments" id="toc-part-2-count-outcomes-in-experiments" class="nav-link" data-scroll-target="#part-2-count-outcomes-in-experiments"><span class="header-section-number">43.3</span> Part 2: Count Outcomes in Experiments</a>
+  <li><a href="#part-2-count-outcomes-poisson-and-negative-binomial-mixed-models" id="toc-part-2-count-outcomes-poisson-and-negative-binomial-mixed-models" class="nav-link" data-scroll-target="#part-2-count-outcomes-poisson-and-negative-binomial-mixed-models">Part 2: Count Outcomes — Poisson and Negative Binomial Mixed Models</a>
   <ul class="collapse">
-  <li><a href="#the-poisson-mixed-model-for-experiments" id="toc-the-poisson-mixed-model-for-experiments" class="nav-link" data-scroll-target="#the-poisson-mixed-model-for-experiments"><span class="header-section-number">43.3.1</span> The Poisson Mixed Model for Experiments</a></li>
-  <li><a href="#example-prosocial-helping-counts-in-a-scarcity-experiment" id="toc-example-prosocial-helping-counts-in-a-scarcity-experiment" class="nav-link" data-scroll-target="#example-prosocial-helping-counts-in-a-scarcity-experiment"><span class="header-section-number">43.3.2</span> Example: Prosocial Helping Counts in a Scarcity Experiment</a></li>
-  <li><a href="#fitting-and-checking-the-count-model" id="toc-fitting-and-checking-the-count-model" class="nav-link" data-scroll-target="#fitting-and-checking-the-count-model"><span class="header-section-number">43.3.3</span> Fitting and Checking the Count Model</a></li>
-  <li><a href="#when-poisson-is-not-enough-overdispersion-in-experiments" id="toc-when-poisson-is-not-enough-overdispersion-in-experiments" class="nav-link" data-scroll-target="#when-poisson-is-not-enough-overdispersion-in-experiments"><span class="header-section-number">43.3.4</span> When Poisson Is Not Enough: Overdispersion in Experiments</a></li>
+  <li><a href="#the-model-1" id="toc-the-model-1" class="nav-link" data-scroll-target="#the-model-1">The model</a></li>
+  <li><a href="#example-information-disclosure-and-count-of-risky-choices" id="toc-example-information-disclosure-and-count-of-risky-choices" class="nav-link" data-scroll-target="#example-information-disclosure-and-count-of-risky-choices">Example: Information disclosure and count of risky choices</a></li>
+  <li><a href="#fitting-and-checking-the-count-model" id="toc-fitting-and-checking-the-count-model" class="nav-link" data-scroll-target="#fitting-and-checking-the-count-model">Fitting and checking the count model</a></li>
+  <li><a href="#when-poisson-is-not-enough-overdispersion" id="toc-when-poisson-is-not-enough-overdispersion" class="nav-link" data-scroll-target="#when-poisson-is-not-enough-overdispersion">When Poisson is not enough: overdispersion</a></li>
   </ul></li>
-  <li><a href="#part-3-mixed-factorial-designs-with-non-normal-outcomes" id="toc-part-3-mixed-factorial-designs-with-non-normal-outcomes" class="nav-link" data-scroll-target="#part-3-mixed-factorial-designs-with-non-normal-outcomes"><span class="header-section-number">43.4</span> Part 3: Mixed Factorial Designs with Non-Normal Outcomes</a></li>
-  <li><a href="#assumptions-and-diagnostics" id="toc-assumptions-and-diagnostics" class="nav-link" data-scroll-target="#assumptions-and-diagnostics"><span class="header-section-number">43.5</span> Assumptions and Diagnostics</a></li>
+  <li><a href="#part-3-mixed-factorial-designs-with-non-normal-outcomes" id="toc-part-3-mixed-factorial-designs-with-non-normal-outcomes" class="nav-link" data-scroll-target="#part-3-mixed-factorial-designs-with-non-normal-outcomes">Part 3: Mixed Factorial Designs with Non-Normal Outcomes</a></li>
+  <li><a href="#assumptions" id="toc-assumptions" class="nav-link" data-scroll-target="#assumptions">Assumptions</a></li>
+  <li><a href="#reviewer-challenge" id="toc-reviewer-challenge" class="nav-link" data-scroll-target="#reviewer-challenge">Reviewer Challenge</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -574,9 +538,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-5/intro.html">Module 5: Experimental Designs with Nesting</a></li><li class="breadcrumb-item"><a href="../module-5/part6.html"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-5/intro.html">Module 5: Experimental Designs with Nesting</a></li><li class="breadcrumb-item"><a href="../module-5/part6.html"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -593,74 +557,161 @@ window.Quarto = {
 </header>
 
 
-<section id="binary-and-count-outcomes-in-experiments" class="level1" data-number="43">
-<h1 data-number="43"><span class="header-section-number">43</span> Binary and Count Outcomes in Experiments</h1>
-<section id="the-problem-when-experimental-outcomes-arent-continuous" class="level2" data-number="43.1">
-<h2 data-number="43.1" class="anchored" data-anchor-id="the-problem-when-experimental-outcomes-arent-continuous"><span class="header-section-number">43.1</span> The Problem: When Experimental Outcomes Aren’t Continuous</h2>
-<p>The experimental designs covered in this module — between-subjects, within-subjects, and mixed factorial — all assumed a continuous, roughly normally distributed outcome. But many experimental outcomes in psychology, marketing, and behavioral science are not continuous:</p>
+<section id="binary-and-count-outcomes-in-experiments" class="level1">
+<h1>Binary and Count Outcomes in Experiments</h1>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Outcome Type Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>What kind of outcome variable does your experiment produce?</strong> Choices (opted in / opted out), counts (number of risky choices out of 10), or proportions (share of gambles taken) are not continuous normal outcomes. Fitting a linear model to them misspecifies the DGP.</p>
+<p><strong>What goes wrong with a linear mixed model?</strong> Predicted probabilities can fall outside [0, 1]. Residual variance depends on the mean in a structured, non-random way. Parameter estimates are biased, especially near the boundaries.</p>
+<p><strong>What is the fix?</strong> Generalized Linear Mixed Models (GLMMs) — logistic for binary, Poisson or negative binomial for counts — with the same random effects structure as the continuous case.</p>
+</blockquote>
+</div>
+</div>
+<section id="when-experimental-outcomes-are-not-continuous" class="level2">
+<h2 class="anchored" data-anchor-id="when-experimental-outcomes-are-not-continuous">When Experimental Outcomes Are Not Continuous</h2>
+<p>JDM experiments frequently produce non-continuous outcomes:</p>
 <ul>
-<li><strong>Behavioral choices</strong>: Did the participant donate? Choose the prosocial option? Click the ad?</li>
-<li><strong>Count behaviors</strong>: How many times did the participant help a confederate? How many words did they produce? How many items did they correctly recall?</li>
-<li><strong>Errors and successes</strong>: How many trials did the participant complete correctly?</li>
+<li><strong>Binary choices</strong>: Did the participant opt into the default? Choose the risky gamble? Adopt the recommended product?</li>
+<li><strong>Counts within a block</strong>: How many of 10 gambles did the participant accept? How many disclosure warnings did the consumer respond to?</li>
+<li><strong>Binary flags</strong>: Did the household enroll in automatic savings? Did the participant choose the gain-framed option?</li>
 </ul>
-<p>Fitting a linear mixed model to a binary or count outcome is not just inefficient — it misspecifies the DGP. Predicted probabilities can exceed 1 or fall below 0. Residuals are structured (they depend on the mean), not random. Parameter estimates are biased.</p>
-<p><strong>Generalized Linear Mixed Models (GLMMs)</strong> extend the experimental mixed model framework to handle these outcome types correctly. The nesting structure (observations within participants, participants within conditions or groups) is handled identically to the continuous case. The difference is in the <strong>link function</strong> and <strong>distributional family</strong>.</p>
+<p>Fitting a standard linear mixed model to these outcomes is not just statistically suboptimal — it misspecifies the data-generating process. The probability of opting in cannot genuinely be negative, but a linear model will predict it below zero for low-baseline participants. The count of risky choices in a 10-gamble block is bounded above at 10, but a linear model will sometimes predict above that bound.</p>
+<p><strong>Generalized Linear Mixed Models (GLMMs)</strong> handle this correctly. The nesting structure — observations within participants, participants possibly nested in groups or crossed with stimuli — is modeled with the same random effects as before. The difference is the <strong>link function</strong> (which maps the linear predictor to the outcome scale) and the <strong>distributional family</strong> (which describes how the outcomes are distributed given the mean).</p>
 <hr>
 </section>
-<section id="part-1-binary-outcomes-in-experiments" class="level2" data-number="43.2">
-<h2 data-number="43.2" class="anchored" data-anchor-id="part-1-binary-outcomes-in-experiments"><span class="header-section-number">43.2</span> Part 1: Binary Outcomes in Experiments</h2>
-<section id="the-logistic-mixed-model-for-experiments" class="level3" data-number="43.2.1">
-<h3 data-number="43.2.1" class="anchored" data-anchor-id="the-logistic-mixed-model-for-experiments"><span class="header-section-number">43.2.1</span> The Logistic Mixed Model for Experiments</h3>
-<p>For a binary outcome <span class="math inline">\(Y_{ij} \in \{0,1\}\)</span> at trial <span class="math inline">\(i\)</span> for participant <span class="math inline">\(j\)</span>, in a two-condition within-subjects design:</p>
-<p><span class="math display">\[\text{logit}\bigl(P(Y_{ij} = 1)\bigr) = \underbrace{\beta_0}_{\substack{\text{average log-odds} \\ \text{at baseline}}} + \underbrace{u_{0j}}_{\substack{\text{person's tendency} \\ \text{to say yes}}} + \underbrace{\beta_1 \cdot \text{condition}_{ij}}_{\substack{\text{condition effect} \\ \text{on log-odds}}}\]</span></p>
-<p>The random intercept <span class="math inline">\(u_{0j}\)</span> captures stable individual differences in response tendency — some people are more likely to help, donate, or choose the prosocial option regardless of the manipulation. Failing to include the random intercept would ignore the clustering from repeated measurements, deflate standard errors, and produce overconfident inferences.</p>
-</section>
-<section id="example-framing-effects-on-donation-decisions" class="level3" data-number="43.2.2">
-<h3 data-number="43.2.2" class="anchored" data-anchor-id="example-framing-effects-on-donation-decisions"><span class="header-section-number">43.2.2</span> Example: Framing Effects on Donation Decisions</h3>
-<p>We simulate a within-subjects framing experiment. 80 participants each evaluate 16 donation appeals — half framed in gain terms (“saves 200 lives”), half in loss terms (“200 people will die”). The outcome is binary: did they decide to donate (1) or not (0)?</p>
-<p>The true donation effect of loss framing is an <strong>odds ratio of 1.8</strong> — loss-framed appeals have 80% higher odds of donation, on average. People also differ substantially in their baseline donation tendency (captured by the random intercept).</p>
+<section id="what-is-a-link-function-a-plain-language-visual" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-a-link-function-a-plain-language-visual">What Is a Link Function? A Plain-Language Visual</h2>
+<p>Before diving into models, it helps to see what a link function actually does. The <strong>link function</strong> is what converts the linear predictor (a number that can take any value, positive or negative) into the scale of the outcome (which has a restricted range — a probability must be between 0 and 1; a count must be non-negative).</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_participants <span class="ot">&lt;-</span> <span class="dv">80</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_trials_each  <span class="ot">&lt;-</span> <span class="dv">8</span>  <span class="co"># 8 gain-framed + 8 loss-framed trials per participant</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Person-level random intercepts (log-odds scale)</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>u0_person <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">0</span>, <span class="fl">1.2</span>)  <span class="co"># substantial individual differences</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>df_donate <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_participants,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">framing     =</span> <span class="fu">c</span>(<span class="st">"gain"</span>, <span class="st">"loss"</span>),</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">trial       =</span> <span class="dv">1</span><span class="sc">:</span>n_trials_each</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">u0       =</span> u0_person[participant],</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">framing_dummy =</span> <span class="fu">as.integer</span>(framing <span class="sc">==</span> <span class="st">"loss"</span>),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_odds =</span> <span class="sc">-</span><span class="fl">0.5</span> <span class="sc">+</span> u0 <span class="sc">+</span> <span class="fl">0.59</span> <span class="sc">*</span> framing_dummy,  <span class="co"># log(1.8) ≈ 0.59</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">prob     =</span> <span class="fu">plogis</span>(log_odds),</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">donated  =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, prob),</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant =</span> <span class="fu">factor</span>(participant),</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">framing  =</span> <span class="fu">factor</span>(framing, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"gain"</span>, <span class="st">"loss"</span>))</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Observed donation rates by condition</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>df_donate <span class="sc">|&gt;</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(framing) <span class="sc">|&gt;</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_trials      =</span> <span class="fu">n</span>(),</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">donation_rate =</span> <span class="fu">mean</span>(donated),</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups       =</span> <span class="st">"drop"</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Observed donation rates by framing condition"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>x_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="fl">3.5</span>, <span class="fl">3.5</span>, <span class="at">length.out =</span> <span class="dv">200</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>df_links <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Identity link (linear model): predicted value = linear predictor (no constraint)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">linear_predictor =</span> x_seq,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">predicted        =</span> x_seq,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">link  =</span> <span class="st">"Identity link</span><span class="sc">\n</span><span class="st">(Linear model — continuous outcome)"</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">note  =</span> <span class="st">"No constraint: predicted value</span><span class="sc">\n</span><span class="st">can be negative or &gt; 1"</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Logit link (logistic model): maps log-odds to probability ∈ (0, 1)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">linear_predictor =</span> x_seq,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">predicted        =</span> <span class="fu">plogis</span>(x_seq),</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">link  =</span> <span class="st">"Logit link</span><span class="sc">\n</span><span class="st">(Logistic model — binary 0/1 outcome)"</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">note  =</span> <span class="st">"S-curve: predicted stays in (0, 1)</span><span class="sc">\n</span><span class="st">Slope flattest at extremes"</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Log link (Poisson model): maps log-rate to non-negative count</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">linear_predictor =</span> x_seq,</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">predicted        =</span> <span class="fu">exp</span>(x_seq),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">link  =</span> <span class="st">"Log link</span><span class="sc">\n</span><span class="st">(Poisson model — count outcome \u2265 0)"</span>,</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">note  =</span> <span class="st">"Exponential: predicted always positive</span><span class="sc">\n</span><span class="st">Variance scales with mean"</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">link =</span> <span class="fu">factor</span>(link, <span class="at">levels =</span> <span class="fu">unique</span>(link)))</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_links, <span class="fu">aes</span>(<span class="at">x =</span> linear_predictor, <span class="at">y =</span> predicted)) <span class="sc">+</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.4</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">data =</span> <span class="fu">tibble</span>(<span class="at">link =</span> <span class="fu">factor</span>(<span class="st">"Logit link</span><span class="sc">\n</span><span class="st">(Logistic model — binary 0/1 outcome)"</span>,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">levels =</span> <span class="fu">levels</span>(df_links<span class="sc">$</span>link)),</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>                            <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)),</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">yintercept =</span> y), <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">data =</span> <span class="fu">tibble</span>(<span class="at">link =</span> <span class="fu">factor</span>(<span class="st">"Log link</span><span class="sc">\n</span><span class="st">(Poisson model — count outcome \u2265 0)"</span>,</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">levels =</span> <span class="fu">levels</span>(df_links<span class="sc">$</span>link)),</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>                            <span class="at">y =</span> <span class="dv">0</span>),</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">yintercept =</span> y), <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dotted"</span>, <span class="at">color =</span> <span class="st">"#aaa"</span>, <span class="at">linewidth =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> link, <span class="at">scales =</span> <span class="st">"free_y"</span>, <span class="at">ncol =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Three link functions: how the linear predictor maps to the outcome scale"</span>,</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Red dashed lines = constraints on the outcome (0/1 for binary; \u22650 for counts)</span><span class="sc">\n</span><span class="st">The curve between the linear predictor (x-axis) and predicted value (y-axis) IS the link function"</span>,</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Linear predictor (\u03b2\u2080 + \u03b2\u2081X + random effects)"</span>,</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Predicted outcome value"</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="fl">10.5</span>),</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part6_files/figure-html/link-function-visual-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Why this matters for interpretation:</strong></p>
+<ul>
+<li>The <strong>identity link</strong> (linear model) produces a straight line: a one-unit increase in X always shifts the predicted outcome by the same amount (<span class="math inline">\(\beta_1\)</span>), regardless of where you are on the scale.</li>
+<li>The <strong>logit link</strong> produces an S-curve: the same log-odds change (<span class="math inline">\(\beta_1\)</span>) produces a <em>smaller</em> probability change when the baseline probability is near 0 or 1, and a <em>larger</em> change when it is near 0.5. This is why odds ratios do not translate directly to probability differences without knowing the baseline.</li>
+<li>The <strong>log link</strong> produces an exponential curve: the same log-rate change (<span class="math inline">\(\beta_1\)</span>) produces a <em>larger</em> count change when the baseline count is high. This is why Poisson models produce <strong>rate ratios</strong>, not count differences.</li>
+</ul>
+<p>The experimental implication: in a GLMM, the fixed effect <span class="math inline">\(\beta_1\)</span> lives on the <em>link scale</em> (log-odds or log-rate), not the outcome scale. Always report both the link-scale estimate (for comparability and meta-analysis) and the back-transformed predicted outcome (for interpretability).</p>
+<hr>
+</section>
+<section id="part-1-binary-outcomes-logistic-mixed-model" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-binary-outcomes-logistic-mixed-model">Part 1: Binary Outcomes — Logistic Mixed Model</h2>
+<section id="the-model" class="level3">
+<h3 class="anchored" data-anchor-id="the-model">The model</h3>
+<p>For a binary outcome <span class="math inline">\(Y_{ij} \in \{0,1\}\)</span> at trial <span class="math inline">\(i\)</span> for participant <span class="math inline">\(j\)</span> in a within-subjects design:</p>
+<p><span class="math display">\[\text{logit}\bigl(P(Y_{ij} = 1)\bigr) = \beta_0 + u_{0j} + \beta_1 \cdot \text{condition}_{ij}\]</span></p>
+<p>The random intercept <span class="math inline">\(u_{0j}\)</span> captures stable individual differences in baseline response tendency — some participants are generally more risk-accepting or more opt-in-prone than others. Omitting this term ignores the within-person dependence from repeated measurements, deflating standard errors and inflating Type I error.</p>
+</section>
+<section id="example-loss-framing-and-risky-financial-choices" class="level3">
+<h3 class="anchored" data-anchor-id="example-loss-framing-and-risky-financial-choices">Example: Loss framing and risky financial choices</h3>
+<p>We simulate a within-subjects framing experiment. 80 participants each evaluate 16 gambles — half framed as potential gains (“Win $200 with probability 0.5; win nothing otherwise”), half framed as potential losses (“Lose nothing with probability 0.5; lose $200 otherwise”). The outcome is binary: did the participant accept the gamble (1) or decline (0)?</p>
+<p>The true framing effect is an <strong>odds ratio of 1.8</strong>: loss-framed gambles have 80% higher odds of acceptance (consistent with loss aversion driving risk-seeking under losses). Participants differ substantially in their baseline risk tolerance.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n_participants <span class="ot">&lt;-</span> <span class="dv">80</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n_trials_each  <span class="ot">&lt;-</span> <span class="dv">8</span>   <span class="co"># 8 gain-framed + 8 loss-framed trials per person</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>u0_person <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">0</span>, <span class="fl">1.2</span>)   <span class="co"># individual risk tolerance differences</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>df_gamble <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_participants,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">framing     =</span> <span class="fu">c</span>(<span class="st">"gain"</span>, <span class="st">"loss"</span>),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">trial       =</span> <span class="dv">1</span><span class="sc">:</span>n_trials_each</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">u0            =</span> u0_person[participant],</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">framing_dummy =</span> <span class="fu">as.integer</span>(framing <span class="sc">==</span> <span class="st">"loss"</span>),</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_odds      =</span> <span class="sc">-</span><span class="fl">0.5</span> <span class="sc">+</span> u0 <span class="sc">+</span> <span class="fl">0.59</span> <span class="sc">*</span> framing_dummy,   <span class="co"># log(1.8) ≈ 0.59</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">prob          =</span> <span class="fu">plogis</span>(log_odds),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">accepted      =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, prob),</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant   =</span> <span class="fu">factor</span>(participant),</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">framing       =</span> <span class="fu">factor</span>(framing, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"gain"</span>, <span class="st">"loss"</span>))</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>df_gamble <span class="sc">|&gt;</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(framing) <span class="sc">|&gt;</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_trials       =</span> <span class="fu">n</span>(),</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">acceptance_rate =</span> <span class="fu">mean</span>(accepted),</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Observed gamble acceptance rates by framing condition"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Observed donation rates by framing condition</caption>
+<caption>Observed gamble acceptance rates by framing condition</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">framing</th>
 <th style="text-align: right;">n_trials</th>
-<th style="text-align: right;">donation_rate</th>
+<th style="text-align: right;">acceptance_rate</th>
 </tr>
 </thead>
 <tbody>
@@ -679,29 +730,28 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="fitting-and-interpreting-the-model" class="level3" data-number="43.2.3">
-<h3 data-number="43.2.3" class="anchored" data-anchor-id="fitting-and-interpreting-the-model"><span class="header-section-number">43.2.3</span> Fitting and Interpreting the Model</h3>
+<section id="fitting-the-logistic-mixed-model" class="level3">
+<h3 class="anchored" data-anchor-id="fitting-the-logistic-mixed-model">Fitting the logistic mixed model</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>m_donate <span class="ot">&lt;-</span> <span class="fu">glmer</span>(</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  donated <span class="sc">~</span> framing <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data   =</span> df_donate,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Results as odds ratios</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_donate, <span class="at">effects =</span> <span class="st">"fixed"</span>, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, conf.low, conf.high, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Framing effect as odds ratio. True OR = 1.8; loss framing increases donation odds."</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>m_gamble <span class="ot">&lt;-</span> <span class="fu">glmer</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  accepted <span class="sc">~</span> framing <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data   =</span> df_gamble,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_gamble, <span class="at">effects =</span> <span class="st">"fixed"</span>, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, conf.low, conf.high, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Framing effect as odds ratio. True OR = 1.8; loss framing increases gamble acceptance odds."</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Framing effect as odds ratio. True OR = 1.8; loss framing increases donation odds.</caption>
+<caption>Framing effect as odds ratio. True OR = 1.8; loss framing increases gamble acceptance odds.</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">term</th>
@@ -723,25 +773,24 @@ window.Quarto = {
 </table>
 </div>
 </div>
-<p>The <strong>odds ratio</strong> says: among participants with the same random intercept, the odds of donating in the loss-framing condition are <code>estimate</code> times the odds in the gain-framing condition.</p>
 </section>
-<section id="marginal-predicted-probabilities" class="level3" data-number="43.2.4">
-<h3 data-number="43.2.4" class="anchored" data-anchor-id="marginal-predicted-probabilities"><span class="header-section-number">43.2.4</span> Marginal Predicted Probabilities</h3>
-<p>Odds ratios are the correct internal currency of the logistic model, but they are unintuitive for most audiences. Report predicted probabilities:</p>
+<section id="translating-to-the-probability-scale" class="level3">
+<h3 class="anchored" data-anchor-id="translating-to-the-probability-scale">Translating to the probability scale</h3>
+<p>Odds ratios are the correct internal currency of the logistic model — but they are unintuitive. Report predicted probabilities for audiences not comfortable with odds:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>preds_donate <span class="ot">&lt;-</span> <span class="fu">ggpredict</span>(m_donate, <span class="at">terms =</span> <span class="st">"framing"</span>, <span class="at">type =</span> <span class="st">"fixed"</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(preds_donate) <span class="sc">+</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#e63946"</span>)) <span class="sc">+</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Predicted donation probability by framing condition"</span>,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Marginal predictions (averaging over individual differences)"</span>,</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Framing condition"</span>,</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Predicted probability of donating"</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>preds_gamble <span class="ot">&lt;-</span> <span class="fu">ggpredict</span>(m_gamble, <span class="at">terms =</span> <span class="st">"framing"</span>, <span class="at">type =</span> <span class="st">"fixed"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(preds_gamble) <span class="sc">+</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#e63946"</span>)) <span class="sc">+</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Predicted gamble acceptance by framing condition"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Marginal predictions (averaging over individual risk tolerance)"</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Framing condition"</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Predicted probability of accepting gamble"</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -752,36 +801,34 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="the-nonlinearity-of-marginal-effects" class="level3" data-number="43.2.5">
-<h3 data-number="43.2.5" class="anchored" data-anchor-id="the-nonlinearity-of-marginal-effects"><span class="header-section-number">43.2.5</span> The Nonlinearity of Marginal Effects</h3>
-<p>In logistic models, the effect of a predictor on the <strong>probability</strong> scale depends on where you are. An odds ratio of 1.8 translates to a larger probability increase when the baseline probability is 0.5 than when it is 0.1 or 0.9. This is a property of the logit link, not a problem.</p>
-<p>A practical consequence: <strong>the same experimental manipulation can produce different probability effects for different sub-populations</strong> (people who generally give a lot vs.&nbsp;a little), even if the log-odds effect is identical. Reporting odds ratios alongside predicted probabilities at different baseline levels gives a complete picture.</p>
+<section id="the-nonlinearity-of-marginal-effects" class="level3">
+<h3 class="anchored" data-anchor-id="the-nonlinearity-of-marginal-effects">The nonlinearity of marginal effects</h3>
+<p>A constant odds ratio translates to <em>different</em> probability differences depending on the baseline probability. The same OR of 1.8 produces a larger absolute increase in acceptance when the baseline probability is 0.5 than when it is near 0 or 1. This means:</p>
+<ul>
+<li><strong>Sub-populations with different baseline risk tolerance will show different absolute probability effects of framing</strong> — even if the log-odds effect is homogeneous.</li>
+<li>A single marginal probability difference from a regression table is only a population-average summary, not a universal statement about all participants.</li>
+</ul>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Show how OR translates to different probability differences at different baselines</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>baseline_logodds <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">3</span>, <span class="at">by =</span> <span class="fl">0.5</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>effect_logodds   <span class="ot">&lt;-</span> <span class="fl">0.59</span>  <span class="co"># log(1.8)</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">baseline_logodds =</span> baseline_logodds,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">baseline_prob    =</span> <span class="fu">plogis</span>(baseline_logodds),</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">treatment_prob   =</span> <span class="fu">plogis</span>(baseline_logodds <span class="sc">+</span> effect_logodds),</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">prob_difference  =</span> <span class="fu">plogis</span>(baseline_logodds <span class="sc">+</span> effect_logodds) <span class="sc">-</span> <span class="fu">plogis</span>(baseline_logodds)</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> baseline_prob, <span class="at">y =</span> prob_difference)) <span class="sc">+</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Same log-odds effect → different probability differences"</span>,</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">sprintf</span>(<span class="st">"Log-odds effect = %.2f (OR = 1.8). The probability difference peaks at p ≈ 0.5."</span>, effect_logodds),</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Baseline probability of outcome"</span>,</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Probability difference due to treatment"</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>()) <span class="sc">+</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>()) <span class="sc">+</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">baseline_logodds =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">3</span>, <span class="at">by =</span> <span class="fl">0.25</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">baseline_prob    =</span> <span class="fu">plogis</span>(baseline_logodds),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">treatment_prob   =</span> <span class="fu">plogis</span>(baseline_logodds <span class="sc">+</span> <span class="fu">log</span>(<span class="fl">1.8</span>)),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prob_difference  =</span> <span class="fu">plogis</span>(baseline_logodds <span class="sc">+</span> <span class="fu">log</span>(<span class="fl">1.8</span>)) <span class="sc">-</span> <span class="fu">plogis</span>(baseline_logodds)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> baseline_prob, <span class="at">y =</span> prob_difference)) <span class="sc">+</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#888"</span>) <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Same log-odds effect → different probability differences by baseline"</span>,</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"OR = 1.8 (log-odds effect = 0.59). Probability difference peaks near p = 0.5."</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Baseline probability of accepting gamble"</span>,</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Probability increase due to loss framing"</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>()) <span class="sc">+</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>()) <span class="sc">+</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -794,68 +841,68 @@ window.Quarto = {
 <hr>
 </section>
 </section>
-<section id="part-2-count-outcomes-in-experiments" class="level2" data-number="43.3">
-<h2 data-number="43.3" class="anchored" data-anchor-id="part-2-count-outcomes-in-experiments"><span class="header-section-number">43.3</span> Part 2: Count Outcomes in Experiments</h2>
-<section id="the-poisson-mixed-model-for-experiments" class="level3" data-number="43.3.1">
-<h3 data-number="43.3.1" class="anchored" data-anchor-id="the-poisson-mixed-model-for-experiments"><span class="header-section-number">43.3.1</span> The Poisson Mixed Model for Experiments</h3>
-<p>For count outcomes in a between-subjects design with <span class="math inline">\(j\)</span> participants nested in condition <span class="math inline">\(g\)</span>:</p>
-<p><span class="math display">\[\log\bigl(E[Y_{ij}]\bigr) = \underbrace{\beta_0}_{\substack{\text{log expected count} \\ \text{in control}}} + \underbrace{u_{0j}}_{\substack{\text{person's count rate} \\ \text{deviation}}} + \underbrace{\beta_1 \cdot \text{treatment}_j}_{\substack{\text{treatment effect} \\ \text{on log-count}}}\]</span></p>
-<p>Exponentiating <span class="math inline">\(\beta_1\)</span> gives the <strong>rate ratio</strong> — the multiplicative factor by which the count changes in the treatment condition relative to control.</p>
+<section id="part-2-count-outcomes-poisson-and-negative-binomial-mixed-models" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-count-outcomes-poisson-and-negative-binomial-mixed-models">Part 2: Count Outcomes — Poisson and Negative Binomial Mixed Models</h2>
+<section id="the-model-1" class="level3">
+<h3 class="anchored" data-anchor-id="the-model-1">The model</h3>
+<p>For a count outcome <span class="math inline">\(Y_{ij} \geq 0\)</span> (e.g., number of risky choices out of a block of 10 gambles):</p>
+<p><span class="math display">\[\log\bigl(E[Y_{ij}]\bigr) = \beta_0 + u_{0j} + \beta_1 \cdot \text{condition}_{ij}\]</span></p>
+<p>Exponentiating <span class="math inline">\(\beta_1\)</span> gives the <strong>rate ratio</strong> — the multiplicative factor by which the expected count changes in the treatment condition relative to control.</p>
 </section>
-<section id="example-prosocial-helping-counts-in-a-scarcity-experiment" class="level3" data-number="43.3.2">
-<h3 data-number="43.3.2" class="anchored" data-anchor-id="example-prosocial-helping-counts-in-a-scarcity-experiment"><span class="header-section-number">43.3.2</span> Example: Prosocial Helping Counts in a Scarcity Experiment</h3>
-<p>We simulate a between-subjects experiment with 100 participants (50 per condition). Participants in the scarcity condition are told resources are scarce before an opportunity to help a confederate. The outcome is the number of helping behaviors observed in a structured lab task (counts: 0–10).</p>
-<p>The true treatment effect is a <strong>rate ratio of 0.65</strong> — scarcity reduces helping by 35%.</p>
+<section id="example-information-disclosure-and-count-of-risky-choices" class="level3">
+<h3 class="anchored" data-anchor-id="example-information-disclosure-and-count-of-risky-choices">Example: Information disclosure and count of risky choices</h3>
+<p>We simulate a between-subjects experiment: 100 participants (50 per arm) complete a block of 10 gambles. The control arm receives standard framing; the treatment arm receives an information disclosure showing the expected value of each gamble. Disclosures are expected to reduce risky choice frequency: true rate ratio = 0.65 (35% reduction in accepted gambles).</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n_per_cond <span class="ot">&lt;-</span> <span class="dv">50</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>df_help <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>(n_per_cond <span class="sc">*</span> <span class="dv">2</span>),</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition   =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"scarcity"</span>), <span class="at">each =</span> n_per_cond)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">u0        =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.4</span>),</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_mu    =</span> <span class="fl">1.8</span> <span class="sc">+</span> u0 <span class="sc">+</span> (<span class="sc">-</span><span class="fl">0.43</span>) <span class="sc">*</span> <span class="fu">as.integer</span>(condition <span class="sc">==</span> <span class="st">"scarcity"</span>),  <span class="co"># log(0.65)</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">mu        =</span> <span class="fu">exp</span>(log_mu),</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">helping   =</span> <span class="fu">rpois</span>(<span class="fu">n</span>(), mu),</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">condition =</span> <span class="fu">factor</span>(condition, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"scarcity"</span>))</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize counts</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>df_help <span class="sc">|&gt;</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(condition) <span class="sc">|&gt;</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_helping =</span> <span class="fu">mean</span>(helping),</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_helping   =</span> <span class="fu">sd</span>(helping),</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">prop_zero    =</span> <span class="fu">mean</span>(helping <span class="sc">==</span> <span class="dv">0</span>),</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups      =</span> <span class="st">"drop"</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Helping count summary by condition"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>n_per_cond <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>df_risky <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>(n_per_cond <span class="sc">*</span> <span class="dv">2</span>),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition   =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"disclosure"</span>), <span class="at">each =</span> n_per_cond)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">u0          =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="fl">0.4</span>),</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_mu      =</span> <span class="fl">1.8</span> <span class="sc">+</span> u0 <span class="sc">+</span> (<span class="sc">-</span><span class="fl">0.43</span>) <span class="sc">*</span> <span class="fu">as.integer</span>(condition <span class="sc">==</span> <span class="st">"disclosure"</span>),  <span class="co"># log(0.65)</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">mu          =</span> <span class="fu">exp</span>(log_mu),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">risky_count =</span> <span class="fu">rpois</span>(<span class="fu">n</span>(), mu),    <span class="co"># out of 10 gambles; rare values &gt; 10 are truncated for realism</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">risky_count =</span> <span class="fu">pmin</span>(risky_count, <span class="dv">10</span>),</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">condition   =</span> <span class="fu">factor</span>(condition, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"disclosure"</span>))</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>df_risky <span class="sc">|&gt;</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(condition) <span class="sc">|&gt;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_risky =</span> <span class="fu">mean</span>(risky_count),</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_risky   =</span> <span class="fu">sd</span>(risky_count),</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">prop_zero  =</span> <span class="fu">mean</span>(risky_count <span class="sc">==</span> <span class="dv">0</span>),</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups    =</span> <span class="st">"drop"</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Count of risky choices (out of 10 gambles) by condition"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Helping count summary by condition</caption>
+<caption>Count of risky choices (out of 10 gambles) by condition</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">condition</th>
-<th style="text-align: right;">mean_helping</th>
-<th style="text-align: right;">sd_helping</th>
+<th style="text-align: right;">mean_risky</th>
+<th style="text-align: right;">sd_risky</th>
 <th style="text-align: right;">prop_zero</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">control</td>
-<td style="text-align: right;">5.50</td>
-<td style="text-align: right;">3.052</td>
+<td style="text-align: right;">5.38</td>
+<td style="text-align: right;">2.732</td>
 <td style="text-align: right;">0.02</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">scarcity</td>
-<td style="text-align: right;">4.26</td>
-<td style="text-align: right;">2.530</td>
+<td style="text-align: left;">disclosure</td>
+<td style="text-align: right;">4.24</td>
+<td style="text-align: right;">2.479</td>
 <td style="text-align: right;">0.04</td>
 </tr>
 </tbody>
@@ -863,46 +910,45 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="fitting-and-checking-the-count-model" class="level3" data-number="43.3.3">
-<h3 data-number="43.3.3" class="anchored" data-anchor-id="fitting-and-checking-the-count-model"><span class="header-section-number">43.3.3</span> Fitting and Checking the Count Model</h3>
+<section id="fitting-and-checking-the-count-model" class="level3">
+<h3 class="anchored" data-anchor-id="fitting-and-checking-the-count-model">Fitting and checking the count model</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>m_help <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  helping <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data   =</span> df_help,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> poisson</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Check overdispersion</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>pearson_resid <span class="ot">&lt;-</span> <span class="fu">residuals</span>(m_help, <span class="at">type =</span> <span class="st">"pearson"</span>)</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>dispersion    <span class="ot">&lt;-</span> <span class="fu">sum</span>(pearson_resid<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> <span class="fu">df.residual</span>(m_help)</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Dispersion ratio:"</span>, <span class="fu">round</span>(dispersion, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>m_risky <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  risky_count <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data   =</span> df_risky,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> poisson</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Dispersion check: values near 1 indicate no overdispersion</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>pearson_resid <span class="ot">&lt;-</span> <span class="fu">residuals</span>(m_risky, <span class="at">type =</span> <span class="st">"pearson"</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>dispersion    <span class="ot">&lt;-</span> <span class="fu">sum</span>(pearson_resid<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> <span class="fu">df.residual</span>(m_risky)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Dispersion ratio:"</span>, <span class="fu">round</span>(dispersion, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Dispersion ratio: 0.656 </code></pre>
+<pre><code>Dispersion ratio: 0.75 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Values near 1.0 indicate no overdispersion.</span><span class="sc">\n\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Values near 1.0 = no overdispersion; values &gt; 1.5 = switch to negative binomial.</span><span class="sc">\n\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Values near 1.0 indicate no overdispersion.</code></pre>
+<pre><code>Values near 1.0 = no overdispersion; values &gt; 1.5 = switch to negative binomial.</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Results as rate ratios</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_help, <span class="at">effects =</span> <span class="st">"fixed"</span>, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, conf.low, conf.high, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Scarcity effect as rate ratio. True RR = 0.65 (35% reduction in helping)."</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_risky, <span class="at">effects =</span> <span class="st">"fixed"</span>, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, conf.low, conf.high, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Disclosure effect as rate ratio. True RR = 0.65: disclosure reduces risky choices by ~35%."</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Scarcity effect as rate ratio. True RR = 0.65 (35% reduction in helping).</caption>
+<caption>Disclosure effect as rate ratio. True RR = 0.65: disclosure reduces risky choices by ~35%.</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">term</th>
@@ -914,59 +960,58 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">conditionscarcity</td>
-<td style="text-align: right;">0.775</td>
-<td style="text-align: right;">0.618</td>
-<td style="text-align: right;">0.971</td>
-<td style="text-align: right;">0.027</td>
+<td style="text-align: left;">conditiondisclosure</td>
+<td style="text-align: right;">0.787</td>
+<td style="text-align: right;">0.635</td>
+<td style="text-align: right;">0.976</td>
+<td style="text-align: right;">0.029</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 </section>
-<section id="when-poisson-is-not-enough-overdispersion-in-experiments" class="level3" data-number="43.3.4">
-<h3 data-number="43.3.4" class="anchored" data-anchor-id="when-poisson-is-not-enough-overdispersion-in-experiments"><span class="header-section-number">43.3.4</span> When Poisson Is Not Enough: Overdispersion in Experiments</h3>
-<p>In within-subjects designs, participants complete multiple trials per condition, and individual differences generate more variance in counts than a Poisson model allows. This overdispersion is captured by switching to a <strong>negative binomial</strong> or adding <strong>observation-level random effects</strong>.</p>
+<section id="when-poisson-is-not-enough-overdispersion" class="level3">
+<h3 class="anchored" data-anchor-id="when-poisson-is-not-enough-overdispersion">When Poisson is not enough: overdispersion</h3>
+<p>In within-subjects designs, the same participant makes repeated choices across multiple blocks. Individual heterogeneity generates more variance than a Poisson model allows — variance exceeds the mean. This <strong>overdispersion</strong> requires a negative binomial family:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>n_par_within  <span class="ot">&lt;-</span> <span class="dv">60</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>n_trials_cond <span class="ot">&lt;-</span> <span class="dv">6</span>  <span class="co"># 6 trials per condition</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>df_help_within <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_par_within,</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition   =</span> <span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"scarcity"</span>),</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">trial       =</span> <span class="dv">1</span><span class="sc">:</span>n_trials_cond</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">u0        =</span> <span class="fu">rnorm</span>(n_par_within, <span class="dv">0</span>, <span class="fl">0.5</span>)[participant],</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_mu    =</span> <span class="fl">1.5</span> <span class="sc">+</span> u0 <span class="sc">-</span> <span class="fl">0.43</span> <span class="sc">*</span> <span class="fu">as.integer</span>(condition <span class="sc">==</span> <span class="st">"scarcity"</span>),</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">mu        =</span> <span class="fu">exp</span>(log_mu),</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add extra-Poisson variability (overdispersion)</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">phi       =</span> <span class="fu">rgamma</span>(<span class="fu">n</span>(), <span class="at">shape =</span> <span class="dv">3</span>, <span class="at">rate =</span> <span class="dv">3</span>),</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">helping   =</span> <span class="fu">rpois</span>(<span class="fu">n</span>(), mu <span class="sc">*</span> phi),</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant =</span> <span class="fu">factor</span>(participant),</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">condition =</span> <span class="fu">factor</span>(condition, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"scarcity"</span>))</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>m_nb_within <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(</span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  helping <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">data   =</span> df_help_within,</span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> nbinom2</span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_nb_within, <span class="at">effects =</span> <span class="st">"fixed"</span>, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, conf.low, conf.high, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Negative binomial mixed model: within-subjects scarcity on helping count."</span></span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>n_par_within  <span class="ot">&lt;-</span> <span class="dv">60</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>n_blocks      <span class="ot">&lt;-</span> <span class="dv">6</span>   <span class="co"># 6 blocks of 10 gambles per condition</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>df_risky_within <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_par_within,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition   =</span> <span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"disclosure"</span>),</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">block       =</span> <span class="dv">1</span><span class="sc">:</span>n_blocks</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">u0         =</span> <span class="fu">rnorm</span>(n_par_within, <span class="dv">0</span>, <span class="fl">0.5</span>)[participant],</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_mu     =</span> <span class="fl">1.5</span> <span class="sc">+</span> u0 <span class="sc">-</span> <span class="fl">0.43</span> <span class="sc">*</span> <span class="fu">as.integer</span>(condition <span class="sc">==</span> <span class="st">"disclosure"</span>),</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">mu         =</span> <span class="fu">exp</span>(log_mu),</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">phi        =</span> <span class="fu">rgamma</span>(<span class="fu">n</span>(), <span class="at">shape =</span> <span class="dv">3</span>, <span class="at">rate =</span> <span class="dv">3</span>),   <span class="co"># extra-Poisson variability</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">risky_count =</span> <span class="fu">rpois</span>(<span class="fu">n</span>(), mu <span class="sc">*</span> phi),</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant =</span> <span class="fu">factor</span>(participant),</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">condition  =</span> <span class="fu">factor</span>(condition, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"disclosure"</span>))</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>m_nb_within <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  risky_count <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">data   =</span> df_risky_within,</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> nbinom2</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_nb_within, <span class="at">effects =</span> <span class="st">"fixed"</span>, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">!=</span> <span class="st">"(Intercept)"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, conf.low, conf.high, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Negative binomial mixed model: within-subjects disclosure effect on risky choice count."</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Negative binomial mixed model: within-subjects scarcity on helping count.</caption>
+<caption>Negative binomial mixed model: within-subjects disclosure effect on risky choice count.</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">term</th>
@@ -978,7 +1023,7 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">conditionscarcity</td>
+<td style="text-align: left;">conditiondisclosure</td>
 <td style="text-align: right;">0.63</td>
 <td style="text-align: right;">0.563</td>
 <td style="text-align: right;">0.705</td>
@@ -991,57 +1036,57 @@ window.Quarto = {
 <hr>
 </section>
 </section>
-<section id="part-3-mixed-factorial-designs-with-non-normal-outcomes" class="level2" data-number="43.4">
-<h2 data-number="43.4" class="anchored" data-anchor-id="part-3-mixed-factorial-designs-with-non-normal-outcomes"><span class="header-section-number">43.4</span> Part 3: Mixed Factorial Designs with Non-Normal Outcomes</h2>
-<p>Many experiments have both a between-subjects factor (e.g., treatment vs.&nbsp;control) and a within-subjects factor (e.g., pre vs.&nbsp;post, gain vs.&nbsp;loss framing). When outcomes are binary or counts, the GLMM handles this naturally through the random effects structure.</p>
+<section id="part-3-mixed-factorial-designs-with-non-normal-outcomes" class="level2">
+<h2 class="anchored" data-anchor-id="part-3-mixed-factorial-designs-with-non-normal-outcomes">Part 3: Mixed Factorial Designs with Non-Normal Outcomes</h2>
+<p>Many JDM experiments combine a between-subjects factor (e.g., standard vs.&nbsp;gain-frame disclosure) with a within-subjects factor (e.g., high-stakes vs.&nbsp;low-stakes gamble blocks). When outcomes are binary or counts, GLMMs handle this naturally.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>n_par_mf <span class="ot">&lt;-</span> <span class="dv">100</span>  <span class="co"># 50 per between-subjects condition</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>n_items   <span class="ot">&lt;-</span> <span class="dv">8</span>   <span class="co"># 4 items per within-subjects condition</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>df_mf <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant  =</span> <span class="dv">1</span><span class="sc">:</span>n_par_mf,</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">ws_condition =</span> <span class="fu">c</span>(<span class="st">"gain"</span>, <span class="st">"loss"</span>),</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">item         =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">bs_condition =</span> <span class="fu">ifelse</span>(participant <span class="sc">&lt;=</span> <span class="dv">50</span>, <span class="st">"low_stakes"</span>, <span class="st">"high_stakes"</span>),</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">u0           =</span> <span class="fu">rnorm</span>(n_par_mf, <span class="dv">0</span>, <span class="fl">0.9</span>)[participant],</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_odds     =</span> <span class="sc">-</span><span class="fl">0.3</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>      <span class="sc">+</span> u0</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>      <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> (ws_condition <span class="sc">==</span> <span class="st">"loss"</span>)         <span class="co"># within-subjects framing effect</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>      <span class="sc">+</span> <span class="fl">0.7</span> <span class="sc">*</span> (bs_condition <span class="sc">==</span> <span class="st">"high_stakes"</span>)  <span class="co"># between-subjects stakes effect</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>      <span class="sc">+</span> <span class="fl">0.3</span> <span class="sc">*</span> (ws_condition <span class="sc">==</span> <span class="st">"loss"</span>) <span class="sc">*</span> (bs_condition <span class="sc">==</span> <span class="st">"high_stakes"</span>),  <span class="co"># interaction</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">prob         =</span> <span class="fu">plogis</span>(log_odds),</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">chose_risky  =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, prob),</span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant  =</span> <span class="fu">factor</span>(participant),</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">ws_condition =</span> <span class="fu">factor</span>(ws_condition, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"gain"</span>, <span class="st">"loss"</span>)),</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">bs_condition =</span> <span class="fu">factor</span>(bs_condition, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"low_stakes"</span>, <span class="st">"high_stakes"</span>))</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>m_mf <span class="ot">&lt;-</span> <span class="fu">glmer</span>(</span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  chose_risky <span class="sc">~</span> ws_condition <span class="sc">*</span> bs_condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">data   =</span> df_mf,</span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial</span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_mf, <span class="at">effects =</span> <span class="st">"fixed"</span>, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, conf.low, conf.high, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Mixed factorial binary outcome: framing × stakes on risky choice (odds ratios)."</span></span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>n_par_mf <span class="ot">&lt;-</span> <span class="dv">100</span>   <span class="co"># 50 per between-subjects condition</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>n_items   <span class="ot">&lt;-</span> <span class="dv">4</span>    <span class="co"># items per within-subjects condition</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>df_mf <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant  =</span> <span class="dv">1</span><span class="sc">:</span>n_par_mf,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">stakes       =</span> <span class="fu">c</span>(<span class="st">"low"</span>, <span class="st">"high"</span>),</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">item         =</span> <span class="dv">1</span><span class="sc">:</span>n_items</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">disclosure =</span> <span class="fu">ifelse</span>(participant <span class="sc">&lt;=</span> <span class="dv">50</span>, <span class="st">"standard"</span>, <span class="st">"gain_frame"</span>),</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">u0         =</span> <span class="fu">rnorm</span>(n_par_mf, <span class="dv">0</span>, <span class="fl">0.9</span>)[participant],</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_odds   =</span> <span class="sc">-</span><span class="fl">0.3</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>      <span class="sc">+</span> u0</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>      <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> (stakes <span class="sc">==</span> <span class="st">"high"</span>)                              <span class="co"># high stakes increases risk-seeking</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>      <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> (disclosure <span class="sc">==</span> <span class="st">"gain_frame"</span>)                    <span class="co"># gain frame shifts toward acceptance</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>      <span class="sc">+</span> <span class="fl">0.3</span> <span class="sc">*</span> (stakes <span class="sc">==</span> <span class="st">"high"</span>) <span class="sc">*</span> (disclosure <span class="sc">==</span> <span class="st">"gain_frame"</span>), <span class="co"># interaction</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">prob          =</span> <span class="fu">plogis</span>(log_odds),</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">chose_risky   =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, prob),</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant   =</span> <span class="fu">factor</span>(participant),</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">stakes        =</span> <span class="fu">factor</span>(stakes, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"low"</span>, <span class="st">"high"</span>)),</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">disclosure    =</span> <span class="fu">factor</span>(disclosure, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"standard"</span>, <span class="st">"gain_frame"</span>))</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>m_mf <span class="ot">&lt;-</span> <span class="fu">glmer</span>(</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  chose_risky <span class="sc">~</span> stakes <span class="sc">*</span> disclosure <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">data   =</span> df_mf,</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_mf, <span class="at">effects =</span> <span class="st">"fixed"</span>, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, conf.low, conf.high, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Mixed factorial GLMM: stakes × disclosure framing on risky choice (odds ratios). Interaction OR &gt; 1 means the disclosure effect is larger under high stakes."</span></span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Mixed factorial binary outcome: framing × stakes on risky choice (odds ratios).</caption>
+<caption>Mixed factorial GLMM: stakes × disclosure framing on risky choice (odds ratios). Interaction OR &gt; 1 means the disclosure effect is larger under high stakes.</caption>
 <colgroup>
-<col style="width: 53%">
+<col style="width: 47%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 14%">
 <col style="width: 11%">
-<col style="width: 11%">
-<col style="width: 12%">
-<col style="width: 10%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1055,65 +1100,58 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">(Intercept)</td>
-<td style="text-align: right;">0.652</td>
-<td style="text-align: right;">0.438</td>
-<td style="text-align: right;">0.969</td>
-<td style="text-align: right;">0.035</td>
+<td style="text-align: right;">0.656</td>
+<td style="text-align: right;">0.447</td>
+<td style="text-align: right;">0.963</td>
+<td style="text-align: right;">0.031</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">ws_conditionloss</td>
-<td style="text-align: right;">1.563</td>
-<td style="text-align: right;">1.021</td>
-<td style="text-align: right;">2.392</td>
-<td style="text-align: right;">0.040</td>
+<td style="text-align: left;">stakeshigh</td>
+<td style="text-align: right;">1.743</td>
+<td style="text-align: right;">1.141</td>
+<td style="text-align: right;">2.662</td>
+<td style="text-align: right;">0.010</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">bs_conditionhigh_stakes</td>
-<td style="text-align: right;">2.561</td>
-<td style="text-align: right;">1.451</td>
-<td style="text-align: right;">4.520</td>
-<td style="text-align: right;">0.001</td>
+<td style="text-align: left;">disclosuregain_frame</td>
+<td style="text-align: right;">2.070</td>
+<td style="text-align: right;">1.202</td>
+<td style="text-align: right;">3.567</td>
+<td style="text-align: right;">0.009</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">ws_conditionloss:bs_conditionhigh_stakes</td>
-<td style="text-align: right;">1.125</td>
-<td style="text-align: right;">0.604</td>
-<td style="text-align: right;">2.097</td>
-<td style="text-align: right;">0.710</td>
+<td style="text-align: left;">stakeshigh:disclosuregain_frame</td>
+<td style="text-align: right;">0.921</td>
+<td style="text-align: right;">0.501</td>
+<td style="text-align: right;">1.693</td>
+<td style="text-align: right;">0.792</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>The interaction term on the odds ratio scale tells you whether the framing effect differs by stakes condition — multiplicatively. A significant interaction (OR ≠ 1) means the framing effect is larger or smaller in the high-stakes condition. As with continuous outcomes, plotting predicted probabilities is essential for communicating the interaction to readers.</p>
+<p>The interaction term on the odds ratio scale tells you whether the disclosure framing effect differs across stakes levels — multiplicatively. Plotting predicted probabilities is essential for communicating the interaction to audiences unfamiliar with log-odds.</p>
 <hr>
 </section>
-<section id="assumptions-and-diagnostics" class="level2" data-number="43.5">
-<h2 data-number="43.5" class="anchored" data-anchor-id="assumptions-and-diagnostics"><span class="header-section-number">43.5</span> Assumptions and Diagnostics</h2>
+<section id="assumptions" class="level2">
+<h2 class="anchored" data-anchor-id="assumptions">Assumptions</h2>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Assumption: Correct Link Function
+<span class="screen-reader-only">Warning</span>Assumption: Correct Link Function and Distributional Family
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The logit link assumes that the log-odds of the outcome are a linear function of predictors. This is generally robust and appropriate for most binary outcomes near the center of the probability range. If many outcomes are near 0 or 1 (rare or near-certain events), consider whether the probit or complementary log-log link fits better — though in practice, logit and probit rarely disagree meaningfully.</p>
-</div>
-</div>
-<div class="callout callout-style-default callout-warning no-icon callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Assumption: No Separation
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Complete separation</strong> occurs when one predictor perfectly predicts the outcome (e.g., everyone in condition A donated, no one in condition B did). Maximum likelihood estimation fails in this case — the log-odds estimate goes to infinity. This typically signals a design problem (conditions too extreme, too few observations) rather than a modeling problem. Warning signs: very large standard errors, coefficients in the hundreds.</p>
+<p><strong>Plain-language meaning:</strong> The model assumes that log-odds (logistic) or log-count (Poisson/NB) are linearly related to predictors. This is a reasonable default for most JDM outcomes, but the choice of family should match how you believe the outcomes were generated.</p>
+<p><strong>What the model is assuming away:</strong> The possibility that outcomes cluster near boundaries (very high or very low acceptance rates) in ways the standard logit link fits poorly, or that counts have structural excess zeros (many participants who never accept any gamble).</p>
+<p><strong>JDM example:</strong> If the gamble task is very easy and all participants accept most gambles (base rate near 0.95), the logit model is working in the nonlinear tails where slight misspecification matters more. A complementary log-log link might fit better.</p>
+<p><strong>What a skeptical reviewer might say:</strong> “You used a logistic model — but with acceptance rates consistently above 90%, all your odds ratios are in the highly compressed region of the probability scale. Can you verify the link function is appropriate?”</p>
+<p><strong>Observable warning sign:</strong> Predicted probabilities consistently near 0 or 1; the model struggling to converge; or large odds ratios that translate to tiny probability differences.</p>
+<p><strong>What to check:</strong> Plot observed proportions against predicted probabilities. For count outcomes, compare the observed distribution of counts to the predicted distribution from the fitted model. Check the dispersion ratio (should be near 1.0 for Poisson; switch to negative binomial if &gt; 1.5).</p>
+<p><strong>What claim survives if the assumption is doubtful:</strong> The direction of the effect is usually robust. The exact magnitude on the probability scale may be sensitive to the link function when outcomes are near boundaries.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -1122,11 +1160,16 @@ window.Quarto = {
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Assumption: Correct Distributional Family for Counts
+<span class="screen-reader-only">Warning</span>Assumption: No Complete Separation
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Start with Poisson. Check the dispersion ratio (Pearson <span class="math inline">\(\chi^2\)</span> / df). If &gt; 1.5, switch to negative binomial (<code>glmmTMB(..., family = nbinom2)</code>). If zeros are more prevalent than either model predicts, add a zero-inflation component (<code>ziformula = ~1</code>). The distributional family should match the DGP — it is a substantive assumption about how the data were generated.</p>
+<p><strong>Plain-language meaning:</strong> For logistic models, maximum likelihood estimation requires that both outcome values (0 and 1) occur across the range of predictors. <strong>Complete separation</strong> — where one condition perfectly predicts the outcome — causes the estimated log-odds to diverge to infinity and standard errors to blow up.</p>
+<p><strong>What the model is assuming away:</strong> The practical possibility that an experimental manipulation is so strong, or a sample is so small, that one cell has all 0s or all 1s.</p>
+<p><strong>JDM example:</strong> If all participants in the loss-frame condition declined every gamble (all 0s) and all participants in the gain-frame condition accepted every gamble (all 1s), the logistic model has no finite solution.</p>
+<p><strong>What a skeptical reviewer might say:</strong> “Your condition-level acceptance rates are 0% and 98% — are your results artifacts of near-complete separation?”</p>
+<p><strong>Observable warning sign:</strong> Extremely large estimated coefficients (in the hundreds) with enormous standard errors; a warning from <code>glmer()</code> about convergence or Hauck-Donner effects.</p>
+<p><strong>What to check:</strong> Inspect condition-level contingency tables before fitting. If any cell is empty or near-empty, use Firth’s penalized likelihood (<code>brglm2</code> package) or Bayesian estimation.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -1135,11 +1178,51 @@ window.Quarto = {
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Assumption: Sufficient Cluster Size for GLMMs
+<span class="screen-reader-only">Warning</span>Assumption: Correct Distributional Family for Count Outcomes
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Logistic mixed models can have convergence problems with small cluster sizes (few trials per participant) because the likelihood is flat near the random effects variance. A rule of thumb: at least 5–10 observations per cluster for reliable random intercept estimation. With fewer observations, consider Bayesian estimation (<code>brms</code>) which handles small-cluster GLMMs more stably.</p>
+<p><strong>Plain-language meaning:</strong> Poisson assumes mean = variance. Negative binomial relaxes this, allowing variance &gt; mean (overdispersion). Zero-inflated models further allow excess structural zeros.</p>
+<p><strong>What the model is assuming away with Poisson:</strong> That individual-level heterogeneity in choice propensity does not create extra variance in counts beyond what a simple rate model predicts.</p>
+<p><strong>JDM example:</strong> In a repeated gamble task, participants with generally low risk tolerance will contribute many near-zero blocks while participants with high risk tolerance contribute many near-10 blocks. This cross-person heterogeneity creates overdispersion relative to Poisson.</p>
+<p><strong>What a skeptical reviewer might say:</strong> “The Poisson model assumes variance equals mean for your choice counts, but in a within-subjects design with individual differences, this seems implausible. Did you check for overdispersion?”</p>
+<p><strong>Observable warning sign:</strong> Dispersion ratio &gt; 1.5; residual variance plots showing systematic patterns.</p>
+<p><strong>What to check:</strong> Report the dispersion ratio explicitly. If &gt; 1.5, switch to <code>nbinom2</code> in <code>glmmTMB()</code>. If the count distribution has excess zeros beyond the model prediction, add a zero-inflation component.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Assumption: Sufficient Within-Person Observations for Stable Random Effects
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Plain-language meaning:</strong> The logistic random intercept is estimated from each participant’s repeated choices. With very few observations per participant (e.g., 2 binary trials), the individual-level log-odds are estimated very imprecisely and the random-effects variance is unstable.</p>
+<p><strong>JDM example:</strong> In a 2-trial binary choice experiment, each participant contributes only two observations — one per condition. The random intercept for that participant is essentially identified by a single data point. The random-effect variance estimate will be very noisy.</p>
+<p><strong>What a skeptical reviewer might say:</strong> “With only 4 trials per participant per condition, how reliable are your random-effects estimates?”</p>
+<p><strong>What to check:</strong> Aim for at least 5–10 binary trials per participant per condition for stable random-effects estimation. With fewer, consider Bayesian estimation (<code>brms</code>) which regularizes the random effects via priors and handles small-cluster GLMMs more stably.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="reviewer-challenge" class="level2">
+<h2 class="anchored" data-anchor-id="reviewer-challenge">Reviewer Challenge</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>What a Reviewer Would Ask
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Challenge 1:</strong> “Why not just analyze the proportion correct / proportion accepted as a continuous outcome?” Converting binary outcomes to proportions and using a linear model is a common shortcut. It produces approximately correct inference when proportions are in the 0.2–0.8 range, but fails near the boundaries where the probability scale becomes nonlinear. More importantly, the logistic random intercept correctly models the individual differences on the log-odds scale — which is where the DGP actually operates — rather than forcing normal residuals onto a bounded proportion.</p>
+<p><strong>Challenge 2:</strong> “Your odds ratios are hard to interpret. Can you just report probability differences?” Both should be reported. Odds ratios are the natural effect size from the model (they are constant across baseline probability levels). Marginal probability differences from <code>ggpredict()</code> are easier to communicate but depend on the reference population. Report odds ratios in the model table and predicted probabilities in the figure. State both.</p>
+<p><strong>Challenge 3:</strong> “Your random intercept variance is large — could the treatment effect be moderated by individual differences?” Yes, and this is worth examining. A large random intercept variance means participants vary a lot in their baseline tendencies. A random slope model — <code>(1 + framing | participant)</code> — tests whether the framing effect itself varies across participants. If it does, reporting a single average effect misses important heterogeneity. The random slope test is the right diagnostic.</p>
 </div>
 </div>
 
@@ -1272,7 +1355,7 @@ window.Quarto = {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1602,12 +1685,12 @@ window.Quarto = {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../module-5/part5.html" class="pagination-link" aria-label="Power Analysis for Nested Designs">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Power Analysis for Nested Designs</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../module-5/part7.html" class="pagination-link" aria-label="Effect Sizes, Reporting, and Reproducibility">
-        <span class="nav-page-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

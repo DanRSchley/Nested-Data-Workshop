@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>11&nbsp; Fixed vs.&nbsp;Random: When to Use Which – Nested Data Structures</title>
+<title>Fixed vs.&nbsp;Random: When to Use Which – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -22,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -44,7 +80,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -75,6 +111,14 @@ ul.task-list li input[type="checkbox"] {
 
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-1/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-1/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -86,7 +130,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: The Mixed-Effects Framework</a></li><li class="breadcrumb-item"><a href="../module-1/part4.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: The Mixed-Effects Framework</a></li><li class="breadcrumb-item"><a href="../module-1/part4.html"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -116,8 +160,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -131,32 +174,27 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -172,44 +210,37 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -225,26 +256,22 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -260,44 +287,37 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -313,68 +333,57 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -390,62 +399,52 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -461,14 +460,12 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -483,15 +480,21 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#fixed-vs.-random-effects-when-to-use-which" id="toc-fixed-vs.-random-effects-when-to-use-which" class="nav-link active" data-scroll-target="#fixed-vs.-random-effects-when-to-use-which"><span class="header-section-number">12</span> Fixed vs.&nbsp;Random Effects: When to Use Which</a>
+  <li><a href="#fixed-vs.-random-effects-when-to-use-which" id="toc-fixed-vs.-random-effects-when-to-use-which" class="nav-link active" data-scroll-target="#fixed-vs.-random-effects-when-to-use-which">Fixed vs.&nbsp;Random Effects: When to Use Which</a>
   <ul class="collapse">
-  <li><a href="#the-most-frequently-asked-question" id="toc-the-most-frequently-asked-question" class="nav-link" data-scroll-target="#the-most-frequently-asked-question"><span class="header-section-number">12.1</span> The Most Frequently Asked Question</a></li>
-  <li><a href="#a-side-by-side-comparison" id="toc-a-side-by-side-comparison" class="nav-link" data-scroll-target="#a-side-by-side-comparison"><span class="header-section-number">12.2</span> A Side-by-Side Comparison</a></li>
-  <li><a href="#the-decisive-criterion" id="toc-the-decisive-criterion" class="nav-link" data-scroll-target="#the-decisive-criterion"><span class="header-section-number">12.3</span> The Decisive Criterion</a></li>
-  <li><a href="#a-third-option-hybrid-models" id="toc-a-third-option-hybrid-models" class="nav-link" data-scroll-target="#a-third-option-hybrid-models"><span class="header-section-number">12.4</span> A Third Option: Hybrid Models</a></li>
-  <li><a href="#scientific-questions-also-drive-the-choice" id="toc-scientific-questions-also-drive-the-choice" class="nav-link" data-scroll-target="#scientific-questions-also-drive-the-choice"><span class="header-section-number">12.5</span> Scientific Questions Also Drive the Choice</a></li>
-  <li><a href="#what-about-bayesian-approaches" id="toc-what-about-bayesian-approaches" class="nav-link" data-scroll-target="#what-about-bayesian-approaches"><span class="header-section-number">12.6</span> What About Bayesian Approaches?</a></li>
-  <li><a href="#summary-decision-tree" id="toc-summary-decision-tree" class="nav-link" data-scroll-target="#summary-decision-tree"><span class="header-section-number">12.7</span> Summary Decision Tree</a></li>
+  <li><a href="#the-most-frequently-asked-question" id="toc-the-most-frequently-asked-question" class="nav-link" data-scroll-target="#the-most-frequently-asked-question">The Most Frequently Asked Question</a></li>
+  <li><a href="#a-side-by-side-comparison" id="toc-a-side-by-side-comparison" class="nav-link" data-scroll-target="#a-side-by-side-comparison">A Side-by-Side Comparison</a></li>
+  <li><a href="#the-decisive-criterion" id="toc-the-decisive-criterion" class="nav-link" data-scroll-target="#the-decisive-criterion">The Decisive Criterion</a></li>
+  <li><a href="#worked-example-when-re-is-biased-and-fe-is-not" id="toc-worked-example-when-re-is-biased-and-fe-is-not" class="nav-link" data-scroll-target="#worked-example-when-re-is-biased-and-fe-is-not">Worked Example: When RE Is Biased and FE Is Not</a>
+  <ul class="collapse">
+  <li><a href="#branch-selection-into-a-disclosure-policy" id="toc-branch-selection-into-a-disclosure-policy" class="nav-link" data-scroll-target="#branch-selection-into-a-disclosure-policy">Branch Selection into a Disclosure Policy</a></li>
+  <li><a href="#diagnosing-the-re-assumption-failure" id="toc-diagnosing-the-re-assumption-failure" class="nav-link" data-scroll-target="#diagnosing-the-re-assumption-failure">Diagnosing the RE Assumption Failure</a></li>
+  <li><a href="#comparing-fe-re-and-hybrid-estimates" id="toc-comparing-fe-re-and-hybrid-estimates" class="nav-link" data-scroll-target="#comparing-fe-re-and-hybrid-estimates">Comparing FE, RE, and Hybrid Estimates</a></li>
+  </ul></li>
+  <li><a href="#a-third-option-hybrid-models" id="toc-a-third-option-hybrid-models" class="nav-link" data-scroll-target="#a-third-option-hybrid-models">A Third Option: Hybrid Models</a></li>
+  <li><a href="#scientific-questions-also-drive-the-choice" id="toc-scientific-questions-also-drive-the-choice" class="nav-link" data-scroll-target="#scientific-questions-also-drive-the-choice">Scientific Questions Also Drive the Choice</a></li>
+  <li><a href="#what-about-bayesian-approaches" id="toc-what-about-bayesian-approaches" class="nav-link" data-scroll-target="#what-about-bayesian-approaches">What About Bayesian Approaches?</a></li>
+  <li><a href="#summary-decision-tree" id="toc-summary-decision-tree" class="nav-link" data-scroll-target="#summary-decision-tree">Summary Decision Tree</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -499,9 +502,9 @@ ul.task-list li input[type="checkbox"] {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: The Mixed-Effects Framework</a></li><li class="breadcrumb-item"><a href="../module-1/part4.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: The Mixed-Effects Framework</a></li><li class="breadcrumb-item"><a href="../module-1/part4.html"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></h1>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -518,15 +521,32 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="fixed-vs.-random-effects-when-to-use-which" class="level1" data-number="12">
-<h1 data-number="12"><span class="header-section-number">12</span> Fixed vs.&nbsp;Random Effects: When to Use Which</h1>
-<section id="the-most-frequently-asked-question" class="level2" data-number="12.1">
-<h2 data-number="12.1" class="anchored" data-anchor-id="the-most-frequently-asked-question"><span class="header-section-number">12.1</span> The Most Frequently Asked Question</h2>
+<section id="fixed-vs.-random-effects-when-to-use-which" class="level1">
+<h1>Fixed vs.&nbsp;Random Effects: When to Use Which</h1>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>When Does the Choice Between Fixed and Random Effects Matter?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Question:</strong> You have a panel of 30 bank branches tracked over 8 quarters, and you want to estimate whether a new disclosure policy increased household savings rates. Should you use fixed effects (one dummy per branch) or random effects (branch as a random intercept)?</li>
+<li><strong>What goes wrong:</strong> Random effects are more efficient but assume branch effects are uncorrelated with your predictors. If branches that adopted the disclosure policy earlier are also the ones serving wealthier, more savings-oriented customers, the RE assumption is violated and estimates are biased. Fixed effects remove this confound but eliminate all branch-level comparisons — you can no longer ask whether urban vs.&nbsp;rural branches differ.</li>
+<li><strong>The fix:</strong> The Hausman test checks whether the RE assumption is plausible. If it fails, use FE (or the cluster-mean centering hybrid that preserves within-unit consistency while explicitly modeling the between-unit comparison). The decision is driven by the data and the scientific question — not by convention.</li>
+</ul>
+</div>
+</div>
+<section id="the-most-frequently-asked-question" class="level2">
+<h2 class="anchored" data-anchor-id="the-most-frequently-asked-question">The Most Frequently Asked Question</h2>
 <p>If you have been following along, you have noticed that fixed effects and random effects make different assumptions, answer slightly different questions, and have different costs and benefits. The obvious question is: <strong>which one should I use?</strong></p>
 <p>The honest answer is: it depends on your data and your scientific question. But it is not arbitrary. There are principled criteria for making this decision.</p>
 </section>
-<section id="a-side-by-side-comparison" class="level2" data-number="12.2">
-<h2 data-number="12.2" class="anchored" data-anchor-id="a-side-by-side-comparison"><span class="header-section-number">12.2</span> A Side-by-Side Comparison</h2>
+<section id="a-side-by-side-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="a-side-by-side-comparison">A Side-by-Side Comparison</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 25%">
@@ -579,25 +599,183 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="the-decisive-criterion" class="level2" data-number="12.3">
-<h2 data-number="12.3" class="anchored" data-anchor-id="the-decisive-criterion"><span class="header-section-number">12.3</span> The Decisive Criterion</h2>
+<section id="the-decisive-criterion" class="level2">
+<h2 class="anchored" data-anchor-id="the-decisive-criterion">The Decisive Criterion</h2>
 <p>The most important question is whether the random effects (unit-level deviations) are <strong>correlated with your predictors</strong>.</p>
 <ul>
 <li><strong>If yes:</strong> Random effects models are biased. Use fixed effects.</li>
 <li><strong>If no:</strong> Random effects models are more efficient. Use them.</li>
 </ul>
 <p>The Hausman test formalizes this check (covered in Part 2). But you should also think about it substantively:</p>
-<p><strong>Example 1 — Use FE:</strong> You are studying whether neighborhood green space predicts depression. People choose where to live based on many factors — income, family ties, preferences — that also affect mental health. The random effects (neighborhood-level deviations in mental health) are surely correlated with neighborhood characteristics. Use fixed effects.</p>
-<p><strong>Example 2 — Use RE:</strong> You run a multi-site experiment where participants at 20 different universities complete a survey. The sites were chosen roughly at random, and the random effects (site-level deviations in mean response) are unlikely to correlate with your experimental manipulation. Use random effects.</p>
+<p><strong>Example 1 — Use FE:</strong> You are studying whether a financial disclosure policy raises household savings rates across 30 bank branches observed quarterly. Branches adopt the policy at different times, and branches that adopt earlier may serve wealthier, more financially engaged customers (selection into adoption). The random effects (branch-level deviations in savings) are likely correlated with adoption timing. Use fixed effects — or the cluster-mean centering hybrid that partitions within-branch from between-branch effects.</p>
+<p><strong>Example 2 — Use RE:</strong> You run a field experiment at 20 bank branches randomly assigned to high-touch vs.&nbsp;standard coaching. The branches were randomly assigned, so the random effects (branch-level deviations in mean savings) are unlikely to correlate with the treatment. Use random effects — randomization breaks the confound that makes RE problematic.</p>
 </section>
-<section id="a-third-option-hybrid-models" class="level2" data-number="12.4">
-<h2 data-number="12.4" class="anchored" data-anchor-id="a-third-option-hybrid-models"><span class="header-section-number">12.4</span> A Third Option: Hybrid Models</h2>
+<section id="worked-example-when-re-is-biased-and-fe-is-not" class="level2">
+<h2 class="anchored" data-anchor-id="worked-example-when-re-is-biased-and-fe-is-not">Worked Example: When RE Is Biased and FE Is Not</h2>
+<section id="branch-selection-into-a-disclosure-policy" class="level3">
+<h3 class="anchored" data-anchor-id="branch-selection-into-a-disclosure-policy">Branch Selection into a Disclosure Policy</h3>
+<p>The abstract argument is clearer with data. Suppose you have 30 bank branches observed over 8 quarters. A new savings disclosure policy was rolled out staggered across branches — but adoption timing was not random: branches serving wealthier, more financially engaged customers adopted earlier. The confound is unobserved: the dataset contains <code>treated</code> (policy active or not) and <code>savings</code>, but not <code>branch_quality</code> (underlying client wealth).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_branches <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_quarters <span class="ot">&lt;-</span> <span class="dv">8</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Unobserved: branch quality — wealthier, more savings-oriented clients</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>branch_quality <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_branches, <span class="dv">0</span>, <span class="dv">15</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Selection: higher-quality branches adopted the policy earlier (smaller quarter number)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>adopt_quarter <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="dv">2</span>, <span class="fu">pmin</span>(<span class="dv">7</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="fl">4.5</span> <span class="sc">-</span> <span class="fl">0.20</span> <span class="sc">*</span> branch_quality <span class="sc">+</span> <span class="fu">rnorm</span>(n_branches, <span class="dv">0</span>, <span class="fl">1.2</span>))))</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>df_fe_re <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">branch =</span> <span class="dv">1</span><span class="sc">:</span>n_branches, <span class="at">quarter =</span> <span class="dv">1</span><span class="sc">:</span>n_quarters) <span class="sc">|&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">branch_q =</span> branch_quality[branch],</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">adopt_q  =</span> adopt_quarter[branch],</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">treated  =</span> <span class="fu">as.integer</span>(quarter <span class="sc">&gt;=</span> adopt_q),     <span class="co"># disclosure policy active</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True causal effect = 5; branch quality is the unobserved confound</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">savings  =</span> <span class="dv">500</span> <span class="sc">+</span> branch_q <span class="sc">+</span> <span class="dv">5</span> <span class="sc">*</span> treated <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">10</span>),</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">branch_f =</span> <span class="fu">factor</span>(branch)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="diagnosing-the-re-assumption-failure" class="level3">
+<h3 class="anchored" data-anchor-id="diagnosing-the-re-assumption-failure">Diagnosing the RE Assumption Failure</h3>
+<p>Before fitting any model, check whether the random effect is correlated with the treatment variable. Since <code>branch_quality</code> is unobserved in the analysis, the proxy is the <strong>proportion of quarters each branch spent under the policy</strong>: if wealthier branches adopted earlier, they will have both higher baseline savings <em>and</em> a larger proportion of treated quarters.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df_branch_check <span class="ot">&lt;-</span> df_fe_re <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(branch_f, branch_q) <span class="sc">|&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">prop_treated =</span> <span class="fu">mean</span>(treated), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_branch_check, <span class="fu">aes</span>(<span class="at">x =</span> prop_treated, <span class="at">y =</span> branch_q)) <span class="sc">+</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"RE assumption failure: branch quality \u2248 treatment rate"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Higher-quality (wealthier) branches adopted earlier \u2192 more treated quarters</span><span class="sc">\n</span><span class="st">\u2192 random effect correlated with predictor \u2192 RE is biased"</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Proportion of quarters with policy active"</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Branch quality (unobserved client wealth)"</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part4_files/figure-html/fe-re-diagnostic-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The upward slope is the visual signature of the RE assumption failure: branches with higher unobserved quality (which drives higher baseline savings) were also treated for a larger fraction of the panel. The random intercept and the treatment indicator are correlated.</p>
+</section>
+<section id="comparing-fe-re-and-hybrid-estimates" class="level3">
+<h3 class="anchored" data-anchor-id="comparing-fe-re-and-hybrid-estimates">Comparing FE, RE, and Hybrid Estimates</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fixed effects: absorbs all branch-level confounds (including unobserved quality)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>m_fe <span class="ot">&lt;-</span> <span class="fu">plm</span>(savings <span class="sc">~</span> treated,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">data  =</span> df_fe_re <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">branch =</span> <span class="fu">as.integer</span>(branch_f)),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">index =</span> <span class="fu">c</span>(<span class="st">"branch"</span>, <span class="st">"quarter"</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">model =</span> <span class="st">"within"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Random effects: assumes branch random intercept ⊥ treated (violated here)</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>m_re <span class="ot">&lt;-</span> <span class="fu">lmer</span>(savings <span class="sc">~</span> treated <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> branch_f), <span class="at">data =</span> df_fe_re)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Hybrid (cluster-mean centering): correctly partitions within and between</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>df_fe_re <span class="ot">&lt;-</span> df_fe_re <span class="sc">|&gt;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(branch_f) <span class="sc">|&gt;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">treated_mean =</span> <span class="fu">mean</span>(treated),           <span class="co"># branch-level treatment rate</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">treated_cmc  =</span> treated <span class="sc">-</span> treated_mean   <span class="co"># within-branch deviation from mean</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>m_hybrid <span class="ot">&lt;-</span> <span class="fu">lmer</span>(savings <span class="sc">~</span> treated_cmc <span class="sc">+</span> treated_mean <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> branch_f),</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> df_fe_re)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare all three</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model        =</span> <span class="fu">c</span>(<span class="st">"Random effects (biased)"</span>,</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"Fixed effects (correct)"</span>,</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>                   <span class="st">"Hybrid CMC — within estimate (correct)"</span>),</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">Estimate     =</span> <span class="fu">c</span>(<span class="fu">fixef</span>(m_re)[<span class="st">"treated"</span>],</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">as.numeric</span>(<span class="fu">coef</span>(m_fe)[<span class="st">"treated"</span>]),</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">fixef</span>(m_hybrid)[<span class="st">"treated_cmc"</span>]),</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">True_effect  =</span> <span class="dv">5</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Bias =</span> <span class="fu">round</span>(Estimate <span class="sc">-</span> True_effect, <span class="dv">2</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>               <span class="at">caption =</span> <span class="st">"Disclosure policy effect on savings: true value = 5.0"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Disclosure policy effect on savings: true value = 5.0</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">Estimate</th>
+<th style="text-align: right;">True_effect</th>
+<th style="text-align: right;">Bias</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Random effects (biased)</td>
+<td style="text-align: right;">4.48</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">-0.52</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Fixed effects (correct)</td>
+<td style="text-align: right;">3.65</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">-1.35</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Hybrid CMC — within estimate (correct)</td>
+<td style="text-align: right;">3.65</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">-1.35</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The RE estimate is substantially inflated — it conflates the true within-branch disclosure effect with the between-branch quality confound (wealthier branches both adopted earlier <em>and</em> had higher savings all along). The FE estimate and the hybrid CMC within-estimate recover the true effect of approximately 5. The hybrid model additionally estimates the between-branch association as a separate coefficient (<code>treated_mean</code>), making the confound explicit rather than removing it silently.</p>
+<div class="callout callout-style-default callout-important no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>What Survives If the RE Assumption Fails?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If the RE assumption is violated (random effects correlated with predictors), the RE estimate of your focal predictor is biased. But several quantities remain interpretable:</p>
+<ul>
+<li><strong>The fixed-effects within-unit estimate</strong> is still valid — it answers “within the same branch, do the quarters when the policy is active show higher savings than the quarters when it is not?”</li>
+<li><strong>The variance components</strong> (ICC) remain descriptively useful even under RE misspecification — they still tell you how much variance is between units.</li>
+<li><strong>The hybrid CMC model’s within-estimate</strong> is consistent and additionally makes the between-unit confound visible as a separate coefficient.</li>
+</ul>
+<p>What is <em>not</em> interpretable under RE misspecification: - The RE coefficient on the treatment variable (biased by the unobserved branch-quality confound) - Any between-unit comparison that relies on the exchangeability assumption - Predictions for out-of-sample units from the mixed model (these use biased BLUPs)</p>
+<p>The practical rule: if your treatment or exposure varies both between <em>and</em> within units, and there is any reason to believe higher-baseline units also received more treatment, treat RE as your baseline hypothesis and test it with the Hausman test — then report FE or the hybrid if it fails.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="a-third-option-hybrid-models" class="level2">
+<h2 class="anchored" data-anchor-id="a-third-option-hybrid-models">A Third Option: Hybrid Models</h2>
 <p>In many cases, you actually want <em>both</em>: the within-unit consistency of fixed effects <em>and</em> the ability to model between-unit effects. This is achievable using <strong>cluster-mean centering</strong>, covered in Module 2.</p>
 <p>The hybrid approach: 1. Center the predictor around each unit’s mean (within-unit component) 2. Include the unit mean as a separate predictor (between-unit component) 3. Use a random-intercept model</p>
 <p>This separates within and between effects explicitly, avoids the confound problem, and retains the ability to study unit-level variation. It is often the best default for panel and longitudinal data.</p>
 </section>
-<section id="scientific-questions-also-drive-the-choice" class="level2" data-number="12.5">
-<h2 data-number="12.5" class="anchored" data-anchor-id="scientific-questions-also-drive-the-choice"><span class="header-section-number">12.5</span> Scientific Questions Also Drive the Choice</h2>
+<section id="scientific-questions-also-drive-the-choice" class="level2">
+<h2 class="anchored" data-anchor-id="scientific-questions-also-drive-the-choice">Scientific Questions Also Drive the Choice</h2>
 <p>Beyond the statistical criteria, your scientific question matters:</p>
 <table class="caption-top table">
 <colgroup>
@@ -638,8 +816,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="what-about-bayesian-approaches" class="level2" data-number="12.6">
-<h2 data-number="12.6" class="anchored" data-anchor-id="what-about-bayesian-approaches"><span class="header-section-number">12.6</span> What About Bayesian Approaches?</h2>
+<section id="what-about-bayesian-approaches" class="level2">
+<h2 class="anchored" data-anchor-id="what-about-bayesian-approaches">What About Bayesian Approaches?</h2>
 <p>Bayesian mixed-effects models (<code>brms</code> package) extend the random-effects framework with explicit priors on variance components. They are particularly useful when:</p>
 <ul>
 <li>The model is complex and frequentist estimation has convergence problems</li>
@@ -648,8 +826,8 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 <p>The conceptual structure is identical to the frequentist random-effects model. The assumptions are the same. The key difference is in how uncertainty is expressed and how parameters are estimated.</p>
 </section>
-<section id="summary-decision-tree" class="level2" data-number="12.7">
-<h2 data-number="12.7" class="anchored" data-anchor-id="summary-decision-tree"><span class="header-section-number">12.7</span> Summary Decision Tree</h2>
+<section id="summary-decision-tree" class="level2">
+<h2 class="anchored" data-anchor-id="summary-decision-tree">Summary Decision Tree</h2>
 <pre><code>Is the random effect correlated with your predictors?
 ├── Yes → Fixed Effects
 └── No or Unknown →
@@ -660,6 +838,21 @@ ul.task-list li input[type="checkbox"] {
         └── └── Do you want predictions for new units?
                 ├── Yes → Random Effects
                 └── No → Either (use Hausman test to choose)</code></pre>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Reviewer Challenge: Three Questions About Your FE vs.&nbsp;RE Choice
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Challenge 1 — “Did you run the Hausman test before committing to random effects?”</strong> Random effects are only unbiased if cluster effects are uncorrelated with the predictors. If you defaulted to RE because “the clusters are a random sample,” a reviewer will ask whether cluster-level selection processes could plausibly create this correlation. Show the Hausman test result and explain substantively why RE is defensible — or switch to fixed effects or the hybrid CMC model.</p>
+<p><strong>Challenge 2 — “What between-cluster information are you discarding with FE?”</strong> Fixed effects remove all between-cluster variance. If you want to know whether urban branches respond differently to a disclosure policy than rural branches, FE cannot answer this — branch characteristics are absorbed by the dummies. Be explicit about what between-cluster questions your design can and cannot answer. If between-cluster comparisons matter, the cluster-mean centering hybrid is the right tool.</p>
+<p><strong>Challenge 3 — “Is the hybrid model (cluster-mean centering) a better default?”</strong> The CMC model gives you both: within-cluster consistency from FE and the ability to model between-cluster effects explicitly. A reviewer may push back on a pure FE or pure RE choice when a hybrid is available. Explain whether the within and between estimates are substantively different enough to warrant the hybrid, and if not, provide the Wald test confirming convergence.</p>
+</div>
+</div>
 
 
 </section>
@@ -790,7 +983,7 @@ ul.task-list li input[type="checkbox"] {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1120,12 +1313,12 @@ ul.task-list li input[type="checkbox"] {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../module-1/part3.html" class="pagination-link" aria-label="Random Slopes">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Random Slopes</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../module-1/part5.html" class="pagination-link" aria-label="Three-Level Structures">
-        <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Three-Level Structures</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

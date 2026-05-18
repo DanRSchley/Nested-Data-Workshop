@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>32&nbsp; Binary and Count Outcomes Over Time – Nested Data Structures</title>
+<title>Binary and Count Outcomes Over Time – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -139,6 +140,14 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-4/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-4/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -150,7 +159,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part7.html"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part7.html"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -180,8 +189,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -195,32 +203,27 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -236,44 +239,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -289,26 +285,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -324,44 +316,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -377,68 +362,57 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -454,62 +428,52 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -525,14 +489,12 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -547,29 +509,32 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#binary-and-count-outcomes-over-time" id="toc-binary-and-count-outcomes-over-time" class="nav-link active" data-scroll-target="#binary-and-count-outcomes-over-time"><span class="header-section-number">33</span> Binary and Count Outcomes Over Time</a>
+  <li><a href="#binary-and-count-outcomes-over-time" id="toc-binary-and-count-outcomes-over-time" class="nav-link active" data-scroll-target="#binary-and-count-outcomes-over-time">Binary and Count Outcomes Over Time</a>
   <ul class="collapse">
-  <li><a href="#when-the-dgp-does-not-generate-continuous-data" id="toc-when-the-dgp-does-not-generate-continuous-data" class="nav-link" data-scroll-target="#when-the-dgp-does-not-generate-continuous-data"><span class="header-section-number">33.1</span> When the DGP Does Not Generate Continuous Data</a></li>
-  <li><a href="#part-1-binary-longitudinal-outcomes-the-logistic-mixed-model" id="toc-part-1-binary-longitudinal-outcomes-the-logistic-mixed-model" class="nav-link" data-scroll-target="#part-1-binary-longitudinal-outcomes-the-logistic-mixed-model"><span class="header-section-number">33.2</span> Part 1: Binary Longitudinal Outcomes — The Logistic Mixed Model</a>
+  <li><a href="#when-the-dgp-does-not-generate-continuous-data" id="toc-when-the-dgp-does-not-generate-continuous-data" class="nav-link" data-scroll-target="#when-the-dgp-does-not-generate-continuous-data">When the DGP Does Not Generate Continuous Data</a>
   <ul class="collapse">
-  <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model"><span class="header-section-number">33.2.1</span> The Model</a></li>
-  <li><a href="#simulating-a-longitudinal-intervention-study" id="toc-simulating-a-longitudinal-intervention-study" class="nav-link" data-scroll-target="#simulating-a-longitudinal-intervention-study"><span class="header-section-number">33.2.2</span> Simulating a Longitudinal Intervention Study</a></li>
-  <li><a href="#fitting-the-logistic-mixed-model" id="toc-fitting-the-logistic-mixed-model" class="nav-link" data-scroll-target="#fitting-the-logistic-mixed-model"><span class="header-section-number">33.2.3</span> Fitting the Logistic Mixed Model</a></li>
-  <li><a href="#reading-the-output" id="toc-reading-the-output" class="nav-link" data-scroll-target="#reading-the-output"><span class="header-section-number">33.2.4</span> Reading the Output</a></li>
-  <li><a href="#marginal-predicted-probabilities" id="toc-marginal-predicted-probabilities" class="nav-link" data-scroll-target="#marginal-predicted-probabilities"><span class="header-section-number">33.2.5</span> Marginal Predicted Probabilities</a></li>
-  <li><a href="#marginal-vs.-conditional-effects" id="toc-marginal-vs.-conditional-effects" class="nav-link" data-scroll-target="#marginal-vs.-conditional-effects"><span class="header-section-number">33.2.6</span> Marginal vs.&nbsp;Conditional Effects</a></li>
+  <li><a href="#why-not-just-use-a-linear-mixed-model" id="toc-why-not-just-use-a-linear-mixed-model" class="nav-link" data-scroll-target="#why-not-just-use-a-linear-mixed-model">Why Not Just Use a Linear Mixed Model?</a></li>
   </ul></li>
-  <li><a href="#part-2-count-longitudinal-outcomes-poisson-and-negative-binomial" id="toc-part-2-count-longitudinal-outcomes-poisson-and-negative-binomial" class="nav-link" data-scroll-target="#part-2-count-longitudinal-outcomes-poisson-and-negative-binomial"><span class="header-section-number">33.3</span> Part 2: Count Longitudinal Outcomes — Poisson and Negative Binomial</a>
+  <li><a href="#part-1-binary-longitudinal-outcomes-the-logistic-mixed-model" id="toc-part-1-binary-longitudinal-outcomes-the-logistic-mixed-model" class="nav-link" data-scroll-target="#part-1-binary-longitudinal-outcomes-the-logistic-mixed-model">Part 1: Binary Longitudinal Outcomes — The Logistic Mixed Model</a>
   <ul class="collapse">
-  <li><a href="#why-counts-need-different-models" id="toc-why-counts-need-different-models" class="nav-link" data-scroll-target="#why-counts-need-different-models"><span class="header-section-number">33.3.1</span> Why Counts Need Different Models</a></li>
-  <li><a href="#simulating-longitudinal-count-data" id="toc-simulating-longitudinal-count-data" class="nav-link" data-scroll-target="#simulating-longitudinal-count-data"><span class="header-section-number">33.3.2</span> Simulating Longitudinal Count Data</a></li>
-  <li><a href="#fitting-the-poisson-mixed-model" id="toc-fitting-the-poisson-mixed-model" class="nav-link" data-scroll-target="#fitting-the-poisson-mixed-model"><span class="header-section-number">33.3.3</span> Fitting the Poisson Mixed Model</a></li>
-  <li><a href="#checking-for-overdispersion" id="toc-checking-for-overdispersion" class="nav-link" data-scroll-target="#checking-for-overdispersion"><span class="header-section-number">33.3.4</span> Checking for Overdispersion</a></li>
-  <li><a href="#negative-binomial-model" id="toc-negative-binomial-model" class="nav-link" data-scroll-target="#negative-binomial-model"><span class="header-section-number">33.3.5</span> Negative Binomial Model</a></li>
-  <li><a href="#predicted-count-trajectories" id="toc-predicted-count-trajectories" class="nav-link" data-scroll-target="#predicted-count-trajectories"><span class="header-section-number">33.3.6</span> Predicted Count Trajectories</a></li>
-  <li><a href="#what-about-zero-inflation" id="toc-what-about-zero-inflation" class="nav-link" data-scroll-target="#what-about-zero-inflation"><span class="header-section-number">33.3.7</span> What About Zero-Inflation?</a></li>
+  <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model">The Model</a></li>
+  <li><a href="#simulating-a-longitudinal-loyalty-experiment" id="toc-simulating-a-longitudinal-loyalty-experiment" class="nav-link" data-scroll-target="#simulating-a-longitudinal-loyalty-experiment">Simulating a Longitudinal Loyalty Experiment</a></li>
+  <li><a href="#fitting-the-logistic-mixed-model" id="toc-fitting-the-logistic-mixed-model" class="nav-link" data-scroll-target="#fitting-the-logistic-mixed-model">Fitting the Logistic Mixed Model</a></li>
+  <li><a href="#reading-the-output" id="toc-reading-the-output" class="nav-link" data-scroll-target="#reading-the-output">Reading the Output</a></li>
+  <li><a href="#marginal-predicted-probabilities" id="toc-marginal-predicted-probabilities" class="nav-link" data-scroll-target="#marginal-predicted-probabilities">Marginal Predicted Probabilities</a></li>
+  <li><a href="#marginal-vs.-conditional-effects" id="toc-marginal-vs.-conditional-effects" class="nav-link" data-scroll-target="#marginal-vs.-conditional-effects">Marginal vs.&nbsp;Conditional Effects</a></li>
   </ul></li>
-  <li><a href="#putting-it-together-glmms-and-the-dgp" id="toc-putting-it-together-glmms-and-the-dgp" class="nav-link" data-scroll-target="#putting-it-together-glmms-and-the-dgp"><span class="header-section-number">33.4</span> Putting It Together: GLMMs and the DGP</a></li>
+  <li><a href="#part-2-count-longitudinal-outcomes-poisson-and-negative-binomial" id="toc-part-2-count-longitudinal-outcomes-poisson-and-negative-binomial" class="nav-link" data-scroll-target="#part-2-count-longitudinal-outcomes-poisson-and-negative-binomial">Part 2: Count Longitudinal Outcomes — Poisson and Negative Binomial</a>
+  <ul class="collapse">
+  <li><a href="#why-counts-need-different-models" id="toc-why-counts-need-different-models" class="nav-link" data-scroll-target="#why-counts-need-different-models">Why Counts Need Different Models</a></li>
+  <li><a href="#simulating-longitudinal-count-data" id="toc-simulating-longitudinal-count-data" class="nav-link" data-scroll-target="#simulating-longitudinal-count-data">Simulating Longitudinal Count Data</a></li>
+  <li><a href="#fitting-the-poisson-mixed-model" id="toc-fitting-the-poisson-mixed-model" class="nav-link" data-scroll-target="#fitting-the-poisson-mixed-model">Fitting the Poisson Mixed Model</a></li>
+  <li><a href="#checking-for-overdispersion" id="toc-checking-for-overdispersion" class="nav-link" data-scroll-target="#checking-for-overdispersion">Checking for Overdispersion</a></li>
+  <li><a href="#negative-binomial-model" id="toc-negative-binomial-model" class="nav-link" data-scroll-target="#negative-binomial-model">Negative Binomial Model</a></li>
+  <li><a href="#predicted-app-open-trajectories" id="toc-predicted-app-open-trajectories" class="nav-link" data-scroll-target="#predicted-app-open-trajectories">Predicted App-Open Trajectories</a></li>
+  <li><a href="#what-about-zero-inflation" id="toc-what-about-zero-inflation" class="nav-link" data-scroll-target="#what-about-zero-inflation">What About Zero-Inflation?</a></li>
+  </ul></li>
+  <li><a href="#putting-it-together-glmms-and-the-dgp" id="toc-putting-it-together-glmms-and-the-dgp" class="nav-link" data-scroll-target="#putting-it-together-glmms-and-the-dgp">Putting It Together: GLMMs and the DGP</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -577,9 +542,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part7.html"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part7.html"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Binary and Count Outcomes Over Time</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -596,12 +561,12 @@ window.Quarto = {
 </header>
 
 
-<section id="binary-and-count-outcomes-over-time" class="level1" data-number="33">
-<h1 data-number="33"><span class="header-section-number">33</span> Binary and Count Outcomes Over Time</h1>
-<section id="when-the-dgp-does-not-generate-continuous-data" class="level2" data-number="33.1">
-<h2 data-number="33.1" class="anchored" data-anchor-id="when-the-dgp-does-not-generate-continuous-data"><span class="header-section-number">33.1</span> When the DGP Does Not Generate Continuous Data</h2>
+<section id="binary-and-count-outcomes-over-time" class="level1">
+<h1>Binary and Count Outcomes Over Time</h1>
+<section id="when-the-dgp-does-not-generate-continuous-data" class="level2">
+<h2 class="anchored" data-anchor-id="when-the-dgp-does-not-generate-continuous-data">When the DGP Does Not Generate Continuous Data</h2>
 <p>Every model we have used in this module so far assumes something about your outcome: that the true data-generating process (DGP) produces values that, after accounting for predictors and random effects, are normally distributed. That assumption is perfectly reasonable for outcomes like stress scores, reaction times, or cognitive performance — values that can in principle be any real number.</p>
-<p>But many longitudinal outcomes in psychology and medicine are not continuous. They are <strong>binary</strong> — did the person have a depressive episode this week? Did they relapse? Did they complete the task? Or they are <strong>counts</strong> — how many panic attacks occurred this week? How many drinks did someone consume on Monday? How many hospital visits did a patient have this year?</p>
+<p>But many longitudinal outcomes in consumer behavior and financial research are not continuous. They are <strong>binary</strong> — did the customer make a purchase this week? Did they make a late payment this month? Did they adopt the recommended savings allocation? Or they are <strong>counts</strong> — how many times did a customer open the app this week? How many transactions did they make? How many overdraft events occurred this month?</p>
 <p>When the DGP generates binary or count data, a linear mixed model imposes a structure that does not match the outcome’s constraints. Predicted probabilities can fall outside [0, 1]. Residuals cannot be normally distributed. For probability and rate interpretation — or any inference that depends on the correct scale — an LMM is the wrong tool. (LMMs can sometimes approximate mean-structure questions in balanced designs, but for constrained predictions and proper uncertainty quantification a GLMM is the appropriate primary model.)</p>
 <p><strong>Generalized Linear Mixed Models (GLMMs)</strong> extend the mixed model framework to non-normal outcomes. They combine:</p>
 <ol type="1">
@@ -610,12 +575,26 @@ window.Quarto = {
 <li>A <strong>distributional family</strong> that matches the DGP</li>
 </ol>
 <p>The longitudinal setting makes GLMMs especially important, because tracking people over time almost guarantees you will encounter binary events and count outcomes alongside the usual continuous measures.</p>
+<section id="why-not-just-use-a-linear-mixed-model" class="level3">
+<h3 class="anchored" data-anchor-id="why-not-just-use-a-linear-mixed-model">Why Not Just Use a Linear Mixed Model?</h3>
+<p>The chart below shows what happens when you fit a linear mixed model to a binary outcome versus a logistic mixed model. Both models are fit to the same data: 60 customers, binary purchase outcome, one predictor (loyalty program × baseline purchase tendency). The problem is immediate: the linear model produces <strong>predicted probabilities below 0</strong> for customers with low baseline purchase tendency, and potentially above 1 for customers with high tendency and program membership. These are impossible predicted probabilities — and they make confidence intervals and counterfactual predictions meaningless.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part7_files/figure-html/lm-vs-glmm-illustration-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The linear model is sometimes used as a “linear probability model” in economics — it gives approximately correct marginal effects near the center of the distribution. But in longitudinal research with repeated measures, the out-of-bounds predictions propagate through the random effects structure, distorting the variance partitioning and making ICC and <span class="math inline">\(\tau^2\)</span> estimates meaningless. The logistic GLMM is the correct choice whenever the outcome is binary.</p>
 <hr>
 </section>
-<section id="part-1-binary-longitudinal-outcomes-the-logistic-mixed-model" class="level2" data-number="33.2">
-<h2 data-number="33.2" class="anchored" data-anchor-id="part-1-binary-longitudinal-outcomes-the-logistic-mixed-model"><span class="header-section-number">33.2</span> Part 1: Binary Longitudinal Outcomes — The Logistic Mixed Model</h2>
-<section id="the-model" class="level3" data-number="33.2.1">
-<h3 data-number="33.2.1" class="anchored" data-anchor-id="the-model"><span class="header-section-number">33.2.1</span> The Model</h3>
+</section>
+<section id="part-1-binary-longitudinal-outcomes-the-logistic-mixed-model" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-binary-longitudinal-outcomes-the-logistic-mixed-model">Part 1: Binary Longitudinal Outcomes — The Logistic Mixed Model</h2>
+<section id="the-model" class="level3">
+<h3 class="anchored" data-anchor-id="the-model">The Model</h3>
 <p>For a binary outcome <span class="math inline">\(Y_{ij} \in \{0, 1\}\)</span> measured at occasion <span class="math inline">\(i\)</span> for person <span class="math inline">\(j\)</span>, the logistic mixed model is:</p>
 <p><span class="math display">\[\text{logit}\bigl(P(Y_{ij} = 1)\bigr) = \underbrace{\beta_0}_{\substack{\text{average log-odds} \\ \text{at baseline}}} + \underbrace{u_{0j}}_{\substack{\text{person's deviation} \\ \text{from average}}} + \underbrace{\beta_1 \cdot \text{week}_{ij}}_{\substack{\text{change in log-odds} \\ \text{per week}}} + \underbrace{\beta_2 \cdot \text{treatment}_j}_{\substack{\text{treatment effect} \\ \text{on log-odds scale}}}\]</span></p>
 <p>where:</p>
@@ -626,49 +605,50 @@ window.Quarto = {
 </ul>
 <p>This is exactly the linear mixed model, but with a logit link function wrapping the left-hand side.</p>
 </section>
-<section id="simulating-a-longitudinal-intervention-study" class="level3" data-number="33.2.2">
-<h3 data-number="33.2.2" class="anchored" data-anchor-id="simulating-a-longitudinal-intervention-study"><span class="header-section-number">33.2.2</span> Simulating a Longitudinal Intervention Study</h3>
-<p>We simulate 60 participants tracked over 6 weeks. Half are randomly assigned to a treatment that halves the odds of having a depressive episode each week. The outcome is binary: whether the participant had at least one depressive episode that week.</p>
+<section id="simulating-a-longitudinal-loyalty-experiment" class="level3">
+<h3 class="anchored" data-anchor-id="simulating-a-longitudinal-loyalty-experiment">Simulating a Longitudinal Loyalty Experiment</h3>
+<p>We simulate 60 customers tracked over 6 weeks. Half are randomly enrolled in a loyalty reward program. The outcome is binary: whether the customer made at least one purchase that week. The loyalty program is expected to roughly double the weekly purchase odds.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_people    <span class="ot">&lt;-</span> <span class="dv">60</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_weeks     <span class="ot">&lt;-</span> <span class="dv">6</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>treatment   <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> n_people <span class="sc">/</span> <span class="dv">2</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_people  <span class="ot">&lt;-</span> <span class="dv">60</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_weeks   <span class="ot">&lt;-</span> <span class="dv">6</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>treatment <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> n_people <span class="sc">/</span> <span class="dv">2</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Person-level random intercepts (on log-odds scale)</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>u0 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="dv">0</span>, <span class="fl">0.8</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>df_binary <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">week   =</span> <span class="dv">0</span><span class="sc">:</span>(n_weeks <span class="sc">-</span> <span class="dv">1</span>)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">treatment =</span> treatment[person],</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">u0        =</span> u0[person],</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True log-odds: intercept + time trend + treatment effect + random intercept</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_odds  =</span> <span class="sc">-</span><span class="fl">0.5</span> <span class="sc">+</span> u0 <span class="sc">-</span> <span class="fl">0.1</span> <span class="sc">*</span> week <span class="sc">-</span> <span class="fl">0.7</span> <span class="sc">*</span> treatment,</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">prob      =</span> <span class="fu">plogis</span>(log_odds),</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">episode   =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, prob),</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">person    =</span> <span class="fu">factor</span>(person),</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">treatment =</span> <span class="fu">factor</span>(treatment, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Treatment"</span>))</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Quick look at observed proportions by week and treatment</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>df_binary <span class="sc">|&gt;</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week, treatment) <span class="sc">|&gt;</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">prop_episode =</span> <span class="fu">mean</span>(episode), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> week, <span class="at">y =</span> prop_episode, <span class="at">color =</span> treatment, <span class="at">group =</span> treatment)) <span class="sc">+</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#e63946"</span>)) <span class="sc">+</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>()) <span class="sc">+</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Proportion with depressive episode each week"</span>,</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Observed proportions by treatment group"</span>,</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Proportion with episode"</span>, <span class="at">color =</span> <span class="st">"Group"</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Person-level random intercepts (on log-odds scale) — some customers are</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># habitual shoppers, others rarely purchase regardless of program</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>u0 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="dv">0</span>, <span class="fl">0.8</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>df_binary <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">week   =</span> <span class="dv">0</span><span class="sc">:</span>(n_weeks <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">treatment =</span> treatment[person],</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">u0        =</span> u0[person],</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True log-odds: intercept + loyalty program effect + habituation over time + RE</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_odds  =</span> <span class="sc">-</span><span class="fl">0.5</span> <span class="sc">+</span> u0 <span class="sc">+</span> <span class="fl">0.7</span> <span class="sc">*</span> treatment <span class="sc">-</span> <span class="fl">0.05</span> <span class="sc">*</span> week,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">prob      =</span> <span class="fu">plogis</span>(log_odds),</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">purchased =</span> <span class="fu">rbinom</span>(<span class="fu">n</span>(), <span class="dv">1</span>, prob),</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">person    =</span> <span class="fu">factor</span>(person),</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">treatment =</span> <span class="fu">factor</span>(treatment, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Loyalty program"</span>))</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Observed purchase rates by week and treatment group</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>df_binary <span class="sc">|&gt;</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week, treatment) <span class="sc">|&gt;</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">prop_purchase =</span> <span class="fu">mean</span>(purchased), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> week, <span class="at">y =</span> prop_purchase, <span class="at">color =</span> treatment, <span class="at">group =</span> treatment)) <span class="sc">+</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#e63946"</span>)) <span class="sc">+</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>()) <span class="sc">+</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Weekly purchase rate by loyalty program enrollment"</span>,</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Observed proportions by treatment group"</span>,</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Proportion making a purchase"</span>, <span class="at">color =</span> <span class="st">"Group"</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -679,13 +659,13 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="fitting-the-logistic-mixed-model" class="level3" data-number="33.2.3">
-<h3 data-number="33.2.3" class="anchored" data-anchor-id="fitting-the-logistic-mixed-model"><span class="header-section-number">33.2.3</span> Fitting the Logistic Mixed Model</h3>
+<section id="fitting-the-logistic-mixed-model" class="level3">
+<h3 class="anchored" data-anchor-id="fitting-the-logistic-mixed-model">Fitting the Logistic Mixed Model</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>m_binary <span class="ot">&lt;-</span> <span class="fu">glmer</span>(</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  episode <span class="sc">~</span> week <span class="sc">*</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person),</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  purchased <span class="sc">~</span> week <span class="sc">*</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> person),</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data   =</span> df_binary,</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -696,40 +676,38 @@ window.Quarto = {
 <pre><code>Generalized linear mixed model fit by maximum likelihood (Laplace
   Approximation) [glmerMod]
  Family: binomial  ( logit )
-Formula: episode ~ week * treatment + (1 | person)
+Formula: purchased ~ week * treatment + (1 | person)
    Data: df_binary
 
       AIC       BIC    logLik -2*log(L)  df.resid 
-    444.8     464.2    -217.4     434.8       355 
+    498.8     518.2    -244.4     488.8       355 
 
 Scaled residuals: 
     Min      1Q  Median      3Q     Max 
--0.9934 -0.6401 -0.5333  1.1002  2.0147 
+-1.4114 -0.8399 -0.7064  1.0067  1.4186 
 
 Random effects:
  Groups Name        Variance Std.Dev.
- person (Intercept) 0.3383   0.5816  
+ person (Intercept) 0.3257   0.5707  
 Number of obs: 360, groups:  person, 60
 
 Fixed effects:
-                        Estimate Std. Error z value Pr(&gt;|z|)  
-(Intercept)             -0.23657    0.30030  -0.788   0.4308  
-week                    -0.17768    0.09673  -1.837   0.0662 .
-treatmentTreatment      -0.67420    0.43940  -1.534   0.1249  
-week:treatmentTreatment  0.10489    0.14031   0.748   0.4547  
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+                               Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)                   -0.350720   0.297114  -1.180    0.238
+week                          -0.004228   0.091833  -0.046    0.963
+treatmentLoyalty program       0.102629   0.418558   0.245    0.806
+week:treatmentLoyalty program  0.103531   0.129537   0.799    0.424
 
 Correlation of Fixed Effects:
-            (Intr) week   trtmnT
-week        -0.754              
-trtmntTrtmn -0.680  0.523       
-wk:trtmntTr  0.520 -0.688 -0.765</code></pre>
+            (Intr) week   trtmLp
+week        -0.772              
+trtmntLyltp -0.709  0.548       
+wk:trtmntLp  0.546 -0.709 -0.772</code></pre>
 </div>
 </div>
 </section>
-<section id="reading-the-output" class="level3" data-number="33.2.4">
-<h3 data-number="33.2.4" class="anchored" data-anchor-id="reading-the-output"><span class="header-section-number">33.2.4</span> Reading the Output</h3>
+<section id="reading-the-output" class="level3">
+<h3 class="anchored" data-anchor-id="reading-the-output">Reading the Output</h3>
 <p>Fixed effects come out on the <strong>log-odds scale</strong>. To interpret them as odds ratios, exponentiate:</p>
 <div class="cell">
 <details class="code-fold">
@@ -737,11 +715,11 @@ wk:trtmntTr  0.520 -0.688 -0.765</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_binary, <span class="at">effects =</span> <span class="st">"fixed"</span>, <span class="at">exponentiate =</span> <span class="cn">TRUE</span>, <span class="at">conf.int =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(term, estimate, conf.low, conf.high, p.value) <span class="sc">|&gt;</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Fixed effects as odds ratios (exponentiated log-odds)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Fixed effects as odds ratios: loyalty program increases purchase odds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Fixed effects as odds ratios (exponentiated log-odds)</caption>
+<caption>Fixed effects as odds ratios: loyalty program increases purchase odds</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">term</th>
@@ -754,40 +732,40 @@ wk:trtmntTr  0.520 -0.688 -0.765</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">(Intercept)</td>
-<td style="text-align: right;">0.789</td>
-<td style="text-align: right;">0.438</td>
-<td style="text-align: right;">1.422</td>
-<td style="text-align: right;">0.431</td>
+<td style="text-align: right;">0.704</td>
+<td style="text-align: right;">0.393</td>
+<td style="text-align: right;">1.261</td>
+<td style="text-align: right;">0.238</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">week</td>
-<td style="text-align: right;">0.837</td>
-<td style="text-align: right;">0.693</td>
-<td style="text-align: right;">1.012</td>
-<td style="text-align: right;">0.066</td>
+<td style="text-align: right;">0.996</td>
+<td style="text-align: right;">0.832</td>
+<td style="text-align: right;">1.192</td>
+<td style="text-align: right;">0.963</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">treatmentTreatment</td>
-<td style="text-align: right;">0.510</td>
-<td style="text-align: right;">0.215</td>
-<td style="text-align: right;">1.206</td>
-<td style="text-align: right;">0.125</td>
+<td style="text-align: left;">treatmentLoyalty program</td>
+<td style="text-align: right;">1.108</td>
+<td style="text-align: right;">0.488</td>
+<td style="text-align: right;">2.517</td>
+<td style="text-align: right;">0.806</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">week:treatmentTreatment</td>
-<td style="text-align: right;">1.111</td>
-<td style="text-align: right;">0.844</td>
-<td style="text-align: right;">1.462</td>
-<td style="text-align: right;">0.455</td>
+<td style="text-align: left;">week:treatmentLoyalty program</td>
+<td style="text-align: right;">1.109</td>
+<td style="text-align: right;">0.860</td>
+<td style="text-align: right;">1.430</td>
+<td style="text-align: right;">0.424</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>The <strong>treatment odds ratio</strong> tells you: among people at the same week and with the same random intercept, how does the odds of an episode in the treatment group compare to the control group? If OR = 0.50, treatment halves the odds — which is what we simulated.</p>
+<p>The <strong>treatment odds ratio</strong> tells you: among customers at the same week and with the same random intercept (same baseline purchase tendency), how does the odds of purchasing in the loyalty program group compare to the control group? If OR = 2.0, the program doubles the odds of a purchase — which is approximately what we simulated.</p>
 </section>
-<section id="marginal-predicted-probabilities" class="level3" data-number="33.2.5">
-<h3 data-number="33.2.5" class="anchored" data-anchor-id="marginal-predicted-probabilities"><span class="header-section-number">33.2.5</span> Marginal Predicted Probabilities</h3>
+<section id="marginal-predicted-probabilities" class="level3">
+<h3 class="anchored" data-anchor-id="marginal-predicted-probabilities">Marginal Predicted Probabilities</h3>
 <p>Odds ratios describe the model’s internal logic, but audiences (and your future self) think in probabilities, not log-odds. <code>ggeffects::ggpredict()</code> computes <strong>marginal predicted probabilities</strong> — averaging over the random effects distribution rather than conditioning on a specific individual.</p>
 <div class="cell">
 <details class="code-fold">
@@ -798,9 +776,9 @@ wk:trtmntTr  0.520 -0.688 -0.765</code></pre>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#e63946"</span>)) <span class="sc">+</span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values  =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#e63946"</span>)) <span class="sc">+</span></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Marginal predicted probability of a depressive episode"</span>,</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Averaging over individual differences (marginal effect)"</span>,</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Predicted probability"</span>, <span class="at">color =</span> <span class="st">"Group"</span>, <span class="at">fill =</span> <span class="st">"Group"</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Marginal predicted weekly purchase probability"</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Averaging over individual purchase tendencies (marginal effect)"</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Predicted purchase probability"</span>, <span class="at">color =</span> <span class="st">"Group"</span>, <span class="at">fill =</span> <span class="st">"Group"</span></span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
@@ -813,8 +791,8 @@ wk:trtmntTr  0.520 -0.688 -0.765</code></pre>
 </div>
 </div>
 </section>
-<section id="marginal-vs.-conditional-effects" class="level3" data-number="33.2.6">
-<h3 data-number="33.2.6" class="anchored" data-anchor-id="marginal-vs.-conditional-effects"><span class="header-section-number">33.2.6</span> Marginal vs.&nbsp;Conditional Effects</h3>
+<section id="marginal-vs.-conditional-effects" class="level3">
+<h3 class="anchored" data-anchor-id="marginal-vs.-conditional-effects">Marginal vs.&nbsp;Conditional Effects</h3>
 <p>This distinction matters more in GLMMs than in linear models, because the logit link is nonlinear.</p>
 <ul>
 <li>A <strong>conditional effect</strong> asks: “For a specific person (with a specific <span class="math inline">\(u_{0j}\)</span>), what is the predicted probability?” It conditions on knowing that person’s random intercept.</li>
@@ -867,10 +845,10 @@ Warning
 <hr>
 </section>
 </section>
-<section id="part-2-count-longitudinal-outcomes-poisson-and-negative-binomial" class="level2" data-number="33.3">
-<h2 data-number="33.3" class="anchored" data-anchor-id="part-2-count-longitudinal-outcomes-poisson-and-negative-binomial"><span class="header-section-number">33.3</span> Part 2: Count Longitudinal Outcomes — Poisson and Negative Binomial</h2>
-<section id="why-counts-need-different-models" class="level3" data-number="33.3.1">
-<h3 data-number="33.3.1" class="anchored" data-anchor-id="why-counts-need-different-models"><span class="header-section-number">33.3.1</span> Why Counts Need Different Models</h3>
+<section id="part-2-count-longitudinal-outcomes-poisson-and-negative-binomial" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-count-longitudinal-outcomes-poisson-and-negative-binomial">Part 2: Count Longitudinal Outcomes — Poisson and Negative Binomial</h2>
+<section id="why-counts-need-different-models" class="level3">
+<h3 class="anchored" data-anchor-id="why-counts-need-different-models">Why Counts Need Different Models</h3>
 <p>Count outcomes (0, 1, 2, 3, …) have two properties that break standard regression assumptions:</p>
 <ol type="1">
 <li><strong>Non-negativity.</strong> Counts cannot be negative. A linear model can happily predict −2 hospitalizations.</li>
@@ -880,46 +858,48 @@ Warning
 <p><span class="math display">\[\log\bigl(\mu_{ij}\bigr) = \underbrace{\beta_0}_{\substack{\text{log expected count} \\ \text{at baseline}}} + \underbrace{u_{0j}}_{\substack{\text{person's log-rate} \\ \text{deviation}}} + \underbrace{\beta_1 \cdot \text{visit}_{ij}}_{\substack{\text{change in log-count} \\ \text{per visit}}} + \underbrace{\beta_2 \cdot \text{treatment}_j}_{\substack{\text{treatment effect} \\ \text{on log-count scale}}}\]</span></p>
 <p>The log link ensures predicted counts are always positive. Exponentiating fixed effects gives <strong>rate ratios</strong> (also called incidence rate ratios).</p>
 </section>
-<section id="simulating-longitudinal-count-data" class="level3" data-number="33.3.2">
-<h3 data-number="33.3.2" class="anchored" data-anchor-id="simulating-longitudinal-count-data"><span class="header-section-number">33.3.2</span> Simulating Longitudinal Count Data</h3>
-<p>We simulate 80 patients tracked over 8 clinic visits. The count outcome is the number of pain flares per week between visits.</p>
+<section id="simulating-longitudinal-count-data" class="level3">
+<h3 class="anchored" data-anchor-id="simulating-longitudinal-count-data">Simulating Longitudinal Count Data</h3>
+<p>We simulate 80 customers tracked over 8 weeks. The count outcome is the number of times they open a budgeting app each week. Half are randomly assigned to a push-notification feature that encourages regular check-ins. The treatment is expected to approximately double weekly app opens — the true log rate ratio is <span class="math inline">\(\exp(0.5) \approx 1.65\)</span>.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>n_patients  <span class="ot">&lt;-</span> <span class="dv">80</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>n_visits    <span class="ot">&lt;-</span> <span class="dv">8</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>treatment_c <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> n_patients <span class="sc">/</span> <span class="dv">2</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>n_customers <span class="ot">&lt;-</span> <span class="dv">80</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>n_weeks_c   <span class="ot">&lt;-</span> <span class="dv">8</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>treatment_c <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> n_customers <span class="sc">/</span> <span class="dv">2</span>)</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>u0_count <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_patients, <span class="dv">0</span>, <span class="fl">0.5</span>)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>df_count <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">patient =</span> <span class="dv">1</span><span class="sc">:</span>n_patients,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">visit   =</span> <span class="dv">1</span><span class="sc">:</span>n_visits</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">treatment =</span> treatment_c[patient],</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">u0        =</span> u0_count[patient],</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_mu    =</span> <span class="fl">1.8</span> <span class="sc">+</span> u0 <span class="sc">-</span> <span class="fl">0.08</span> <span class="sc">*</span> visit <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> treatment,</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">mu        =</span> <span class="fu">exp</span>(log_mu),</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">flares    =</span> <span class="fu">rpois</span>(<span class="fu">n</span>(), mu),</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">patient   =</span> <span class="fu">factor</span>(patient),</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">treatment =</span> <span class="fu">factor</span>(treatment, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Treatment"</span>))</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Observed mean counts by visit and treatment</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>df_count <span class="sc">|&gt;</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(visit, treatment) <span class="sc">|&gt;</span></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_flares =</span> <span class="fu">mean</span>(flares), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> visit, <span class="at">y =</span> mean_flares, <span class="at">color =</span> treatment, <span class="at">group =</span> treatment)) <span class="sc">+</span></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#e63946"</span>)) <span class="sc">+</span></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Mean pain flares per week, by clinic visit"</span>,</span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Observed means by treatment group"</span>,</span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Visit number"</span>, <span class="at">y =</span> <span class="st">"Mean weekly flares"</span>, <span class="at">color =</span> <span class="st">"Group"</span></span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Customer-level random intercepts on log-count scale</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Some customers are habitual checkers; others rarely open the app</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>u0_count <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_customers, <span class="dv">0</span>, <span class="fl">0.5</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>df_count <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">customer =</span> <span class="dv">1</span><span class="sc">:</span>n_customers,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">week     =</span> <span class="dv">1</span><span class="sc">:</span>n_weeks_c</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">treatment  =</span> treatment_c[customer],</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">u0         =</span> u0_count[customer],</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">log_mu     =</span> <span class="fl">0.8</span> <span class="sc">+</span> u0 <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> treatment <span class="sc">-</span> <span class="fl">0.04</span> <span class="sc">*</span> week,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">mu         =</span> <span class="fu">exp</span>(log_mu),</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">app_opens  =</span> <span class="fu">rpois</span>(<span class="fu">n</span>(), mu),</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">customer   =</span> <span class="fu">factor</span>(customer),</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">treatment  =</span> <span class="fu">factor</span>(treatment, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Control"</span>, <span class="st">"Push notifications"</span>))</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Observed mean app opens by week and treatment</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>df_count <span class="sc">|&gt;</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week, treatment) <span class="sc">|&gt;</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_opens =</span> <span class="fu">mean</span>(app_opens), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> week, <span class="at">y =</span> mean_opens, <span class="at">color =</span> treatment, <span class="at">group =</span> treatment)) <span class="sc">+</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#e63946"</span>)) <span class="sc">+</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Mean weekly app opens by push-notification enrollment"</span>,</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Observed means by treatment group"</span>,</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Mean weekly app opens"</span>, <span class="at">color =</span> <span class="st">"Group"</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -930,13 +910,13 @@ Warning
 </div>
 </div>
 </section>
-<section id="fitting-the-poisson-mixed-model" class="level3" data-number="33.3.3">
-<h3 data-number="33.3.3" class="anchored" data-anchor-id="fitting-the-poisson-mixed-model"><span class="header-section-number">33.3.3</span> Fitting the Poisson Mixed Model</h3>
+<section id="fitting-the-poisson-mixed-model" class="level3">
+<h3 class="anchored" data-anchor-id="fitting-the-poisson-mixed-model">Fitting the Poisson Mixed Model</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>m_poisson <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  flares <span class="sc">~</span> visit <span class="sc">+</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> patient),</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  app_opens <span class="sc">~</span> week <span class="sc">+</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> customer),</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data   =</span> df_count,</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> poisson</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -945,31 +925,31 @@ Warning
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code> Family: poisson  ( log )
-Formula:          flares ~ visit + treatment + (1 | patient)
+Formula:          app_opens ~ week + treatment + (1 | customer)
 Data: df_count
 
       AIC       BIC    logLik -2*log(L)  df.resid 
-   2706.8    2724.6   -1349.4    2698.8       636 
+   2462.6    2480.5   -1227.3    2454.6       636 
 
 Random effects:
 
 Conditional model:
- Groups  Name        Variance Std.Dev.
- patient (Intercept) 0.2215   0.4706  
-Number of obs: 640, groups:  patient, 80
+ Groups   Name        Variance Std.Dev.
+ customer (Intercept) 0.2842   0.5331  
+Number of obs: 640, groups:  customer, 80
 
 Conditional model:
-                    Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)         1.792426   0.087202  20.555  &lt; 2e-16 ***
-visit              -0.084425   0.008726  -9.675  &lt; 2e-16 ***
-treatmentTreatment -0.337426   0.113964  -2.961  0.00307 ** 
+                             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)                  0.769715   0.104158   7.390 1.47e-13 ***
+week                        -0.048261   0.009995  -4.828 1.38e-06 ***
+treatmentPush notifications  0.655305   0.130795   5.010 5.44e-07 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 </section>
-<section id="checking-for-overdispersion" class="level3" data-number="33.3.4">
-<h3 data-number="33.3.4" class="anchored" data-anchor-id="checking-for-overdispersion"><span class="header-section-number">33.3.4</span> Checking for Overdispersion</h3>
+<section id="checking-for-overdispersion" class="level3">
+<h3 class="anchored" data-anchor-id="checking-for-overdispersion">Checking for Overdispersion</h3>
 <p>The Poisson model assumes variance = mean. If your data are more variable than this (which is common in practice — people differ in unmeasured ways), the model will underestimate standard errors and produce overconfident p-values. This is called <strong>overdispersion</strong>.</p>
 <p>A simple check: compute the Pearson statistic divided by the residual degrees of freedom. If this ratio is substantially greater than 1 (a common rule of thumb is &gt; 1.5), overdispersion is present.</p>
 <div class="cell">
@@ -982,7 +962,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Dispersion ratio (Pearson χ² / df):"</span>, <span class="fu">round</span>(dispersion_ratio, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Dispersion ratio (Pearson χ² / df): 0.824 </code></pre>
+<pre><code>Dispersion ratio (Pearson χ² / df): 0.86 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -1000,8 +980,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 </section>
-<section id="negative-binomial-model" class="level3" data-number="33.3.5">
-<h3 data-number="33.3.5" class="anchored" data-anchor-id="negative-binomial-model"><span class="header-section-number">33.3.5</span> Negative Binomial Model</h3>
+<section id="negative-binomial-model" class="level3">
+<h3 class="anchored" data-anchor-id="negative-binomial-model">Negative Binomial Model</h3>
 <p>The negative binomial adds a <strong>dispersion parameter</strong> (<span class="math inline">\(\theta\)</span>) that allows variance to exceed the mean:</p>
 <p><span class="math display">\[\text{Var}(Y) = \mu + \frac{\mu^2}{\theta}\]</span></p>
 <p>When <span class="math inline">\(\theta \to \infty\)</span>, the negative binomial reduces to Poisson. Smaller <span class="math inline">\(\theta\)</span> means more overdispersion (more between-person variance in counts beyond what the Poisson allows).</p>
@@ -1009,7 +989,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>m_negbin <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  flares <span class="sc">~</span> visit <span class="sc">+</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> patient),</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  app_opens <span class="sc">~</span> week <span class="sc">+</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> customer),</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data   =</span> df_count,</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> nbinom2</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -1018,26 +998,26 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code> Family: nbinom2  ( log )
-Formula:          flares ~ visit + treatment + (1 | patient)
+Formula:          app_opens ~ week + treatment + (1 | customer)
 Data: df_count
 
       AIC       BIC    logLik -2*log(L)  df.resid 
-   2708.8    2731.1   -1349.4    2698.8       635 
+       NA        NA        NA        NA       635 
 
 Random effects:
 
 Conditional model:
- Groups  Name        Variance Std.Dev.
- patient (Intercept) 0.2215   0.4706  
-Number of obs: 640, groups:  patient, 80
+ Groups   Name        Variance Std.Dev.
+ customer (Intercept) 0.2842   0.5331  
+Number of obs: 640, groups:  customer, 80
 
-Dispersion parameter for nbinom2 family (): 8.82e+06 
+Dispersion parameter for nbinom2 family (): 4.04e+07 
 
 Conditional model:
-                    Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)         1.792426   0.087202  20.555  &lt; 2e-16 ***
-visit              -0.084425   0.008726  -9.675  &lt; 2e-16 ***
-treatmentTreatment -0.337426   0.113964  -2.961  0.00307 ** 
+                             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)                  0.769712   0.104159   7.390 1.47e-13 ***
+week                        -0.048261   0.009995  -4.828 1.38e-06 ***
+treatmentPush notifications  0.655309   0.130795   5.010 5.44e-07 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
@@ -1045,11 +1025,11 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare AIC</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">AIC</span>(m_poisson, m_negbin) <span class="sc">|&gt;</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Model comparison: Poisson vs. Negative Binomial"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Model comparison: Poisson vs. Negative Binomial for app opens"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Model comparison: Poisson vs.&nbsp;Negative Binomial</caption>
+<caption>Model comparison: Poisson vs.&nbsp;Negative Binomial for app opens</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;"></th>
@@ -1061,32 +1041,32 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <tr class="odd">
 <td style="text-align: left;">m_poisson</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">2706.762</td>
+<td style="text-align: right;">2462.61</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">m_negbin</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">2708.762</td>
+<td style="text-align: right;">NA</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 </section>
-<section id="predicted-count-trajectories" class="level3" data-number="33.3.6">
-<h3 data-number="33.3.6" class="anchored" data-anchor-id="predicted-count-trajectories"><span class="header-section-number">33.3.6</span> Predicted Count Trajectories</h3>
+<section id="predicted-app-open-trajectories" class="level3">
+<h3 class="anchored" data-anchor-id="predicted-app-open-trajectories">Predicted App-Open Trajectories</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>preds_count <span class="ot">&lt;-</span> <span class="fu">ggpredict</span>(m_negbin, <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">"visit"</span>, <span class="st">"treatment"</span>), <span class="at">type =</span> <span class="st">"fixed"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>preds_count <span class="ot">&lt;-</span> <span class="fu">ggpredict</span>(m_negbin, <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">"week"</span>, <span class="st">"treatment"</span>), <span class="at">type =</span> <span class="st">"fixed"</span>)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(preds_count) <span class="sc">+</span></span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#e63946"</span>)) <span class="sc">+</span></span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values  =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#e63946"</span>)) <span class="sc">+</span></span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Predicted pain flares per week over clinic visits"</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Predicted weekly app opens over time"</span>,</span>
 <span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Marginal predictions from negative binomial mixed model"</span>,</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Visit"</span>, <span class="at">y =</span> <span class="st">"Predicted flares"</span>, <span class="at">color =</span> <span class="st">"Group"</span>, <span class="at">fill =</span> <span class="st">"Group"</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Predicted app opens"</span>, <span class="at">color =</span> <span class="st">"Group"</span>, <span class="at">fill =</span> <span class="st">"Group"</span></span>
 <span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
@@ -1099,18 +1079,18 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 </section>
-<section id="what-about-zero-inflation" class="level3" data-number="33.3.7">
-<h3 data-number="33.3.7" class="anchored" data-anchor-id="what-about-zero-inflation"><span class="header-section-number">33.3.7</span> What About Zero-Inflation?</h3>
-<p>In many longitudinal count outcomes, there are far more zeros than a Poisson or negative binomial distribution would predict. For example, in a study of alcohol use, many people on many days consume zero drinks. A standard count model will underfit these zeros and overfit the positive counts.</p>
+<section id="what-about-zero-inflation" class="level3">
+<h3 class="anchored" data-anchor-id="what-about-zero-inflation">What About Zero-Inflation?</h3>
+<p>In many longitudinal count outcomes, there are far more zeros than a Poisson or negative binomial distribution would predict. For example, in an app engagement study, a meaningful share of enrolled users never open the app at all — they are structural zeros. A standard count model will underfit these zeros and overfit the counts from active users.</p>
 <p><code>glmmTMB</code> handles this cleanly with a <strong>zero-inflation component</strong>:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Zero-inflated negative binomial (not run — for illustration)</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>m_zinb <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  flares <span class="sc">~</span> visit <span class="sc">+</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> patient),</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  app_opens <span class="sc">~</span> week <span class="sc">+</span> treatment <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> customer),</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">ziformula =</span> <span class="sc">~</span><span class="dv">1</span>,        <span class="co"># intercept-only zero-inflation model</span></span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">family    =</span> nbinom2,</span>
 <span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">data      =</span> df_count</span>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The zero-inflation formula <code>ziformula</code> models the probability that an observation comes from the “always zero” process (e.g., someone who never drinks) rather than the count-generating process. You can make this a function of predictors too.</p>
+<p>The zero-inflation formula <code>ziformula</code> models the probability that an observation comes from the “always zero” process (e.g., a customer who enrolled but never opened the app at all) rather than the count-generating process. You can make this a function of predictors — for instance, the zero-inflation probability might itself depend on whether the customer was in the push-notification group.</p>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1142,8 +1122,8 @@ Warning
 <hr>
 </section>
 </section>
-<section id="putting-it-together-glmms-and-the-dgp" class="level2" data-number="33.4">
-<h2 data-number="33.4" class="anchored" data-anchor-id="putting-it-together-glmms-and-the-dgp"><span class="header-section-number">33.4</span> Putting It Together: GLMMs and the DGP</h2>
+<section id="putting-it-together-glmms-and-the-dgp" class="level2">
+<h2 class="anchored" data-anchor-id="putting-it-together-glmms-and-the-dgp">Putting It Together: GLMMs and the DGP</h2>
 <p>The key insight is that GLMMs are not a special case of mixed models — they are a <em>more faithful representation</em> of the DGP when your outcome is binary or a count. Forcing binary or count data into a linear mixed model is equivalent to saying “I know the DGP generates counts, but I will pretend it generates continuous normal data.” The parameter estimates you get from that misspecified model are biased and not meaningful.</p>
 <p>GLMMs respect the DGP:</p>
 <table class="caption-top table">
@@ -1157,7 +1137,7 @@ Warning
 <thead>
 <tr class="header">
 <th>Outcome type</th>
-<th>DGP generates</th>
+<th>JDM example</th>
 <th>Appropriate model</th>
 <th>Link function</th>
 <th>Exponentiate for</th>
@@ -1166,28 +1146,28 @@ Warning
 <tbody>
 <tr class="odd">
 <td>0/1 event</td>
-<td>Binary Bernoulli trials</td>
+<td>Made a purchase this week</td>
 <td><code>glmer(..., family = binomial)</code></td>
 <td>logit</td>
 <td>Odds ratios</td>
 </tr>
 <tr class="even">
 <td>Counts (no overdispersion)</td>
-<td>Poisson process</td>
+<td>App opens per week (low variance)</td>
 <td><code>glmmTMB(..., family = poisson)</code></td>
 <td>log</td>
 <td>Rate ratios</td>
 </tr>
 <tr class="odd">
 <td>Counts (overdispersed)</td>
-<td>Negative binomial process</td>
+<td>Transactions per month (bursty)</td>
 <td><code>glmmTMB(..., family = nbinom2)</code></td>
 <td>log</td>
 <td>Rate ratios</td>
 </tr>
 <tr class="even">
 <td>Counts (excess zeros)</td>
-<td>Zero-inflated process</td>
+<td>Overdraft events (many zero months)</td>
 <td><code>glmmTMB(..., ziformula = ~1, family = nbinom2)</code></td>
 <td>log</td>
 <td>Rate ratios</td>
@@ -1325,7 +1305,7 @@ Warning
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1655,12 +1635,12 @@ Warning
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../module-4/part6.html" class="pagination-link" aria-label="Cross-Lagged Panel Models">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Cross-Lagged Panel Models</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../module-4/part8.html" class="pagination-link" aria-label="Survival Analysis for Longitudinal Events">
-        <span class="nav-page-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

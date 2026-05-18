@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>31&nbsp; Cross-Lagged Panel Models – Nested Data Structures</title>
+<title>Cross-Lagged Panel Models – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -139,6 +140,14 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-4/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-4/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -150,7 +159,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part6.html"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part6.html"><span class="chapter-title">Cross-Lagged Panel Models</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -180,8 +189,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -195,32 +203,27 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -236,44 +239,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -289,26 +285,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -324,44 +316,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -377,68 +362,57 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -454,62 +428,52 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -525,14 +489,12 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -547,13 +509,16 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#cross-lagged-panel-models" id="toc-cross-lagged-panel-models" class="nav-link active" data-scroll-target="#cross-lagged-panel-models"><span class="header-section-number">32</span> Cross-Lagged Panel Models</a>
+  <li><a href="#cross-lagged-panel-models" id="toc-cross-lagged-panel-models" class="nav-link active" data-scroll-target="#cross-lagged-panel-models">Cross-Lagged Panel Models</a>
   <ul class="collapse">
-  <li><a href="#two-variables-evolving-together" id="toc-two-variables-evolving-together" class="nav-link" data-scroll-target="#two-variables-evolving-together"><span class="header-section-number">32.1</span> Two Variables, Evolving Together</a></li>
-  <li><a href="#the-classic-clpm" id="toc-the-classic-clpm" class="nav-link" data-scroll-target="#the-classic-clpm"><span class="header-section-number">32.2</span> The Classic CLPM</a></li>
-  <li><a href="#the-problem-with-classic-clpm" id="toc-the-problem-with-classic-clpm" class="nav-link" data-scroll-target="#the-problem-with-classic-clpm"><span class="header-section-number">32.3</span> The Problem with Classic CLPM</a></li>
-  <li><a href="#the-random-intercept-clpm-ri-clpm" id="toc-the-random-intercept-clpm-ri-clpm" class="nav-link" data-scroll-target="#the-random-intercept-clpm-ri-clpm"><span class="header-section-number">32.4</span> The Random Intercept CLPM (RI-CLPM)</a></li>
-  <li><a href="#comparing-clpm-vs.-ri-clpm" id="toc-comparing-clpm-vs.-ri-clpm" class="nav-link" data-scroll-target="#comparing-clpm-vs.-ri-clpm"><span class="header-section-number">32.5</span> Comparing CLPM vs.&nbsp;RI-CLPM</a></li>
+  <li><a href="#two-variables-evolving-together" id="toc-two-variables-evolving-together" class="nav-link" data-scroll-target="#two-variables-evolving-together">Two Variables, Evolving Together</a></li>
+  <li><a href="#the-classic-clpm" id="toc-the-classic-clpm" class="nav-link" data-scroll-target="#the-classic-clpm">The Classic CLPM</a></li>
+  <li><a href="#the-problem-with-classic-clpm" id="toc-the-problem-with-classic-clpm" class="nav-link" data-scroll-target="#the-problem-with-classic-clpm">The Problem with Classic CLPM</a>
+  <ul class="collapse">
+  <li><a href="#the-same-observed-pattern-three-different-stories" id="toc-the-same-observed-pattern-three-different-stories" class="nav-link" data-scroll-target="#the-same-observed-pattern-three-different-stories">The Same Observed Pattern, Three Different Stories</a></li>
+  </ul></li>
+  <li><a href="#the-random-intercept-clpm-ri-clpm" id="toc-the-random-intercept-clpm-ri-clpm" class="nav-link" data-scroll-target="#the-random-intercept-clpm-ri-clpm">The Random Intercept CLPM (RI-CLPM)</a></li>
+  <li><a href="#comparing-clpm-vs.-ri-clpm" id="toc-comparing-clpm-vs.-ri-clpm" class="nav-link" data-scroll-target="#comparing-clpm-vs.-ri-clpm">Comparing CLPM vs.&nbsp;RI-CLPM</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -561,9 +526,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part6.html"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part6.html"><span class="chapter-title">Cross-Lagged Panel Models</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Cross-Lagged Panel Models</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -580,18 +545,18 @@ window.Quarto = {
 </header>
 
 
-<section id="cross-lagged-panel-models" class="level1" data-number="32">
-<h1 data-number="32"><span class="header-section-number">32</span> Cross-Lagged Panel Models</h1>
-<section id="two-variables-evolving-together" class="level2" data-number="32.1">
-<h2 data-number="32.1" class="anchored" data-anchor-id="two-variables-evolving-together"><span class="header-section-number">32.1</span> Two Variables, Evolving Together</h2>
-<p>Suppose you want to understand the relationship between anxiety and depression over time. Does anxiety precede and predict depression? Does depression feed back into anxiety? Or do they mutually reinforce each other?</p>
+<section id="cross-lagged-panel-models" class="level1">
+<h1>Cross-Lagged Panel Models</h1>
+<section id="two-variables-evolving-together" class="level2">
+<h2 class="anchored" data-anchor-id="two-variables-evolving-together">Two Variables, Evolving Together</h2>
+<p>Suppose you want to understand the relationship between financial stress and risky borrowing behavior over time. Does financial stress push people toward riskier borrowing? Or does risky borrowing create financial strain? Or do they mutually reinforce each other?</p>
 <p>To answer this, you need data on both variables at multiple time points, and you need a model that can disentangle the <em>temporal ordering</em> of their relationship. The <strong>cross-lagged panel model (CLPM)</strong> is the standard tool for this question.</p>
 </section>
-<section id="the-classic-clpm" class="level2" data-number="32.2">
-<h2 data-number="32.2" class="anchored" data-anchor-id="the-classic-clpm"><span class="header-section-number">32.2</span> The Classic CLPM</h2>
-<p>In a two-wave, two-variable CLPM with variables A (anxiety) and D (depression):</p>
-<p><span class="math display">\[A_{t+1} = a_{AA} \cdot A_t + a_{DA} \cdot D_t + \varepsilon_{A,t+1}\]</span> <span class="math display">\[D_{t+1} = a_{DD} \cdot D_t + a_{AD} \cdot A_t + \varepsilon_{D,t+1}\]</span></p>
-<p>Four parameters: - <span class="math inline">\(a_{AA}\)</span>, <span class="math inline">\(a_{DD}\)</span>: <strong>autoregressive effects</strong> — stability of each variable over time - <span class="math inline">\(a_{DA}\)</span>: <strong>cross-lagged effect</strong> of D at time <span class="math inline">\(t\)</span> on A at time <span class="math inline">\(t+1\)</span> - <span class="math inline">\(a_{AD}\)</span>: <strong>cross-lagged effect</strong> of A at time <span class="math inline">\(t\)</span> on D at time <span class="math inline">\(t+1\)</span></p>
+<section id="the-classic-clpm" class="level2">
+<h2 class="anchored" data-anchor-id="the-classic-clpm">The Classic CLPM</h2>
+<p>In a two-wave, two-variable CLPM with variables S (financial stress) and B (risky borrowing):</p>
+<p><span class="math display">\[S_{t+1} = a_{SS} \cdot S_t + a_{SB} \cdot B_t + \varepsilon_{S,t+1}\]</span> <span class="math display">\[B_{t+1} = a_{BB} \cdot B_t + a_{BS} \cdot S_t + \varepsilon_{B,t+1}\]</span></p>
+<p>Four parameters: - <span class="math inline">\(a_{SS}\)</span>, <span class="math inline">\(a_{BB}\)</span>: <strong>autoregressive effects</strong> — stability of each variable over time - <span class="math inline">\(a_{SB}\)</span>: <strong>cross-lagged effect</strong> of B at time <span class="math inline">\(t\)</span> on S at time <span class="math inline">\(t+1\)</span> - <span class="math inline">\(a_{BS}\)</span>: <strong>cross-lagged effect</strong> of S at time <span class="math inline">\(t\)</span> on B at time <span class="math inline">\(t+1\)</span></p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -599,20 +564,20 @@ window.Quarto = {
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n_waves <span class="ot">&lt;-</span> <span class="dv">3</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># True DGP: anxiety -&gt; depression (not the reverse)</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, n, n_waves)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, n, n_waves)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># True DGP: financial stress -&gt; risky borrowing (not the reverse)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, n, n_waves)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, n, n_waves)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>A[, <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">50</span>, <span class="dv">8</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>D[, <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">45</span>, <span class="dv">7</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>S[, <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">50</span>, <span class="dv">8</span>)   <span class="co"># baseline financial stress</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>B[, <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">45</span>, <span class="dv">7</span>)   <span class="co"># baseline borrowing propensity</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>n_waves) {</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  A[, t] <span class="ot">&lt;-</span> <span class="fl">0.6</span> <span class="sc">*</span> A[, t<span class="dv">-1</span>] <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">*</span> D[, t<span class="dv">-1</span>] <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>)  <span class="co"># small D-&gt;A effect</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  D[, t] <span class="ot">&lt;-</span> <span class="fl">0.6</span> <span class="sc">*</span> D[, t<span class="dv">-1</span>] <span class="sc">+</span> <span class="fl">0.3</span> <span class="sc">*</span> A[, t<span class="dv">-1</span>] <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>)  <span class="co"># strong A-&gt;D effect</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  S[, t] <span class="ot">&lt;-</span> <span class="fl">0.6</span> <span class="sc">*</span> S[, t<span class="dv">-1</span>] <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">*</span> B[, t<span class="dv">-1</span>] <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>)  <span class="co"># small B-&gt;S effect</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  B[, t] <span class="ot">&lt;-</span> <span class="fl">0.6</span> <span class="sc">*</span> B[, t<span class="dv">-1</span>] <span class="sc">+</span> <span class="fl">0.3</span> <span class="sc">*</span> S[, t<span class="dv">-1</span>] <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>)  <span class="co"># strong S-&gt;B effect</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>df_clpm <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(A, D)) <span class="sc">|&gt;</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"A"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>), <span class="fu">paste0</span>(<span class="st">"D"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>df_clpm <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(S, B)) <span class="sc">|&gt;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">"S"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>), <span class="fu">paste0</span>(<span class="st">"B"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div class="cell">
@@ -621,25 +586,25 @@ window.Quarto = {
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Classic CLPM in lavaan</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>clpm_model <span class="ot">&lt;-</span> <span class="st">'</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="st">  # Autoregressive effects</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="st">  A2 ~ a_AA * A1</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="st">  A3 ~ a_AA * A2</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="st">  D2 ~ a_DD * D1</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="st">  D3 ~ a_DD * D2</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="st">  S2 ~ a_SS * S1</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="st">  S3 ~ a_SS * S2</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="st">  B2 ~ a_BB * B1</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="st">  B3 ~ a_BB * B2</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="st">  # Cross-lagged effects</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="st">  A2 ~ a_DA * D1</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="st">  A3 ~ a_DA * D2</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="st">  D2 ~ a_AD * A1</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="st">  D3 ~ a_AD * A2</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="st">  S2 ~ a_SB * B1</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="st">  S3 ~ a_SB * B2</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="st">  B2 ~ a_BS * S1</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="st">  B3 ~ a_BS * S2</span></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="st">  # Residual covariances (within same wave)</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="st">  A2 ~~ D2</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="st">  A3 ~~ D3</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="st">  S2 ~~ B2</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="st">  S3 ~~ B3</span></span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="st">  # Variance of wave 1</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="st">  A1 ~~ A1</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="st">  D1 ~~ D1</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="st">  A1 ~~ D1</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="st">  S1 ~~ S1</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="st">  B1 ~~ B1</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="st">  S1 ~~ B1</span></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>m_clpm <span class="ot">&lt;-</span> <span class="fu">sem</span>(clpm_model, <span class="at">data =</span> df_clpm)</span>
@@ -647,11 +612,11 @@ window.Quarto = {
 <span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(op <span class="sc">==</span> <span class="st">"~"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(lhs, rhs, label, est, se, pvalue) <span class="sc">|&gt;</span></span>
 <span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"CLPM: cross-lagged path from A→D is strong; D→A is weak"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"CLPM: cross-lagged path from S→B is strong; B→S is weak"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>CLPM: cross-lagged path from A→D is strong; D→A is weak</caption>
+<caption>CLPM: cross-lagged path from S→B is strong; B→S is weak</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">lhs</th>
@@ -664,65 +629,65 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">A2</td>
-<td style="text-align: left;">A1</td>
-<td style="text-align: left;">a_AA</td>
+<td style="text-align: left;">S2</td>
+<td style="text-align: left;">S1</td>
+<td style="text-align: left;">a_SS</td>
 <td style="text-align: right;">0.564</td>
 <td style="text-align: right;">0.033</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">A3</td>
-<td style="text-align: left;">A2</td>
-<td style="text-align: left;">a_AA</td>
+<td style="text-align: left;">S3</td>
+<td style="text-align: left;">S2</td>
+<td style="text-align: left;">a_SS</td>
 <td style="text-align: right;">0.564</td>
 <td style="text-align: right;">0.033</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">D2</td>
-<td style="text-align: left;">D1</td>
-<td style="text-align: left;">a_DD</td>
+<td style="text-align: left;">B2</td>
+<td style="text-align: left;">B1</td>
+<td style="text-align: left;">a_BB</td>
 <td style="text-align: right;">0.621</td>
 <td style="text-align: right;">0.036</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">D3</td>
-<td style="text-align: left;">D2</td>
-<td style="text-align: left;">a_DD</td>
+<td style="text-align: left;">B3</td>
+<td style="text-align: left;">B2</td>
+<td style="text-align: left;">a_BB</td>
 <td style="text-align: right;">0.621</td>
 <td style="text-align: right;">0.036</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">A2</td>
-<td style="text-align: left;">D1</td>
-<td style="text-align: left;">a_DA</td>
+<td style="text-align: left;">S2</td>
+<td style="text-align: left;">B1</td>
+<td style="text-align: left;">a_SB</td>
 <td style="text-align: right;">0.147</td>
 <td style="text-align: right;">0.037</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">A3</td>
-<td style="text-align: left;">D2</td>
-<td style="text-align: left;">a_DA</td>
+<td style="text-align: left;">S3</td>
+<td style="text-align: left;">B2</td>
+<td style="text-align: left;">a_SB</td>
 <td style="text-align: right;">0.147</td>
 <td style="text-align: right;">0.037</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">D2</td>
-<td style="text-align: left;">A1</td>
-<td style="text-align: left;">a_AD</td>
+<td style="text-align: left;">B2</td>
+<td style="text-align: left;">S1</td>
+<td style="text-align: left;">a_BS</td>
 <td style="text-align: right;">0.272</td>
 <td style="text-align: right;">0.032</td>
 <td style="text-align: right;">0</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">D3</td>
-<td style="text-align: left;">A2</td>
-<td style="text-align: left;">a_AD</td>
+<td style="text-align: left;">B3</td>
+<td style="text-align: left;">S2</td>
+<td style="text-align: left;">a_BS</td>
 <td style="text-align: right;">0.272</td>
 <td style="text-align: right;">0.032</td>
 <td style="text-align: right;">0</td>
@@ -731,18 +696,32 @@ window.Quarto = {
 </table>
 </div>
 </div>
-<p>Good news: the CLPM detects the true asymmetric relationship (anxiety predicts future depression, not the other way around).</p>
+<p>Good news: the CLPM detects the true asymmetric relationship (financial stress predicts future risky borrowing, not the other way around).</p>
 </section>
-<section id="the-problem-with-classic-clpm" class="level2" data-number="32.3">
-<h2 data-number="32.3" class="anchored" data-anchor-id="the-problem-with-classic-clpm"><span class="header-section-number">32.3</span> The Problem with Classic CLPM</h2>
-<p>The classic CLPM conflates <strong>within-person dynamics</strong> with <strong>between-person differences</strong>. Consider: people who are chronically anxious tend to also be chronically depressed (stable between-person correlation). The cross-lagged paths in the classic CLPM pick up both this stable between-person covariation <em>and</em> the genuine within-person dynamic — they cannot be separated.</p>
-<p>This means even if there is <strong>no within-person causal relationship</strong> between anxiety and depression (i.e., changes in anxiety within a person do not cause changes in depression), the classic CLPM can show significant “cross-lagged” effects simply because chronically anxious people are also chronically depressed.</p>
+<section id="the-problem-with-classic-clpm" class="level2">
+<h2 class="anchored" data-anchor-id="the-problem-with-classic-clpm">The Problem with Classic CLPM</h2>
+<p>The classic CLPM conflates <strong>within-person dynamics</strong> with <strong>between-person differences</strong>. Consider: people who are chronically financially stressed tend to also engage in chronically riskier borrowing (stable between-person correlation). The cross-lagged paths in the classic CLPM pick up both this stable between-person covariation <em>and</em> the genuine within-person dynamic — they cannot be separated.</p>
+<p>This means even if there is <strong>no within-person causal relationship</strong> between financial stress and risky borrowing (i.e., changes in financial stress within a person do not cause changes in borrowing behavior), the classic CLPM can show significant “cross-lagged” effects simply because chronically stressed people also tend to borrow more riskily.</p>
+<section id="the-same-observed-pattern-three-different-stories" class="level3">
+<h3 class="anchored" data-anchor-id="the-same-observed-pattern-three-different-stories">The Same Observed Pattern, Three Different Stories</h3>
+<p>The same observed correlations between financial stress and risky borrowing across waves are consistent with three completely different causal stories. The classic CLPM cannot distinguish them without extending the model.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part6_files/figure-html/clpm-stories-1.png" class="img-fluid figure-img" width="1056"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>All three stories produce <strong>the same bivariate correlation pattern</strong> between <span class="math inline">\(S_t\)</span> and <span class="math inline">\(B_{t+1}\)</span>, and between <span class="math inline">\(B_t\)</span> and <span class="math inline">\(S_{t+1}\)</span>. The classic CLPM cannot distinguish them because it does not separate stable between-person covariation (Story C) from genuine within-person dynamics (Stories A and B). The RI-CLPM separates these sources explicitly, making it the correct model for the within-person question.</p>
 </section>
-<section id="the-random-intercept-clpm-ri-clpm" class="level2" data-number="32.4">
-<h2 data-number="32.4" class="anchored" data-anchor-id="the-random-intercept-clpm-ri-clpm"><span class="header-section-number">32.4</span> The Random Intercept CLPM (RI-CLPM)</h2>
+</section>
+<section id="the-random-intercept-clpm-ri-clpm" class="level2">
+<h2 class="anchored" data-anchor-id="the-random-intercept-clpm-ri-clpm">The Random Intercept CLPM (RI-CLPM)</h2>
 <p>Hamaker, Kuiper, &amp; Grasman (2015) proposed the <strong>Random Intercept CLPM</strong>, which solves this by separating two sources of variation:</p>
 <ol type="1">
-<li><strong>Between-person:</strong> Stable trait levels (random intercepts) that explain why some people are chronically higher on A or D</li>
+<li><strong>Between-person:</strong> Stable trait levels (random intercepts) that explain why some people are chronically higher on S or B</li>
 <li><strong>Within-person:</strong> Fluctuations around each person’s stable level, and the cross-lagged dynamics <em>among those fluctuations</em></li>
 </ol>
 <div class="cell">
@@ -750,41 +729,41 @@ window.Quarto = {
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>ri_clpm_model <span class="ot">&lt;-</span> <span class="st">'</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="st">  # Random intercepts (stable between-person levels)</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">  RI_A =~ 1*A1 + 1*A2 + 1*A3</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">  RI_D =~ 1*D1 + 1*D2 + 1*D3</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">  RI_S =~ 1*S1 + 1*S2 + 1*S3</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">  RI_B =~ 1*B1 + 1*B2 + 1*B3</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="st">  # Within-person components (deviations from stable level)</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">  wA1 =~ 1*A1; wA2 =~ 1*A2; wA3 =~ 1*A3</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="st">  wD1 =~ 1*D1; wD2 =~ 1*D2; wD3 =~ 1*D3</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">  wS1 =~ 1*S1; wS2 =~ 1*S2; wS3 =~ 1*S3</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="st">  wB1 =~ 1*B1; wB2 =~ 1*B2; wB3 =~ 1*B3</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="st">  # Constrain observed variances to 0 (all captured by RI + within)</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="st">  A1 ~~ 0*A1; A2 ~~ 0*A2; A3 ~~ 0*A3</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="st">  D1 ~~ 0*D1; D2 ~~ 0*D2; D3 ~~ 0*D3</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="st">  S1 ~~ 0*S1; S2 ~~ 0*S2; S3 ~~ 0*S3</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="st">  B1 ~~ 0*B1; B2 ~~ 0*B2; B3 ~~ 0*B3</span></span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="st">  # Within-person cross-lagged dynamics</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="st">  wA2 ~ a_AA*wA1 + a_DA*wD1</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="st">  wA3 ~ a_AA*wA2 + a_DA*wD2</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="st">  wD2 ~ a_DD*wD1 + a_AD*wA1</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="st">  wD3 ~ a_DD*wD2 + a_AD*wA2</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="st">  wS2 ~ a_SS*wS1 + a_SB*wB1</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="st">  wS3 ~ a_SS*wS2 + a_SB*wB2</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="st">  wB2 ~ a_BB*wB1 + a_BS*wS1</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="st">  wB3 ~ a_BB*wB2 + a_BS*wS2</span></span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="st">  # Random intercept variances and covariance</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="st">  RI_A ~~ RI_A; RI_D ~~ RI_D; RI_A ~~ RI_D</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="st">  RI_S ~~ RI_S; RI_B ~~ RI_B; RI_S ~~ RI_B</span></span>
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="st">  # Within-person residual variances</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="st">  wA1 ~~ wA1; wD1 ~~ wD1</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="st">  wA2 ~~ wA2; wD2 ~~ wD2</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="st">  wA3 ~~ wA3; wD3 ~~ wD3</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="st">  wA2 ~~ wD2; wA3 ~~ wD3</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="st">  wS1 ~~ wS1; wB1 ~~ wB1</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="st">  wS2 ~~ wS2; wB2 ~~ wB2</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="st">  wS3 ~~ wS3; wB3 ~~ wB3</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="st">  wS2 ~~ wB2; wS3 ~~ wB3</span></span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="st">  # Mean structure</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="st">  RI_A ~ 1; RI_D ~ 1</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="st">  wA1 ~ 0; wD1 ~ 0</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="st">  RI_S ~ 1; RI_B ~ 1</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="st">  wS1 ~ 0; wB1 ~ 0</span></span>
 <span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
 <span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>m_ri_clpm <span class="ot">&lt;-</span> <span class="fu">sem</span>(ri_clpm_model, <span class="at">data =</span> df_clpm, <span class="at">estimator =</span> <span class="st">"ML"</span>)</span>
 <span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="fu">parameterEstimates</span>(m_ri_clpm) <span class="sc">|&gt;</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(op <span class="sc">==</span> <span class="st">"~"</span>, lhs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"wA2"</span>,<span class="st">"wA3"</span>,<span class="st">"wD2"</span>,<span class="st">"wD3"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(op <span class="sc">==</span> <span class="st">"~"</span>, lhs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"wS2"</span>,<span class="st">"wS3"</span>,<span class="st">"wB2"</span>,<span class="st">"wB3"</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(lhs, rhs, label, est, se, pvalue) <span class="sc">|&gt;</span></span>
 <span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
 <span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"RI-CLPM: within-person cross-lagged effects (controls for stable between-person differences)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -804,65 +783,65 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">wA2</td>
-<td style="text-align: left;">wA1</td>
-<td style="text-align: left;">a_AA</td>
+<td style="text-align: left;">wS2</td>
+<td style="text-align: left;">wS1</td>
+<td style="text-align: left;">a_SS</td>
 <td style="text-align: right;">0.515</td>
 <td style="text-align: right;">0.161</td>
 <td style="text-align: right;">0.001</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">wA2</td>
-<td style="text-align: left;">wD1</td>
-<td style="text-align: left;">a_DA</td>
+<td style="text-align: left;">wS2</td>
+<td style="text-align: left;">wB1</td>
+<td style="text-align: left;">a_SB</td>
 <td style="text-align: right;">-0.075</td>
 <td style="text-align: right;">0.134</td>
 <td style="text-align: right;">0.575</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">wA3</td>
-<td style="text-align: left;">wA2</td>
-<td style="text-align: left;">a_AA</td>
+<td style="text-align: left;">wS3</td>
+<td style="text-align: left;">wS2</td>
+<td style="text-align: left;">a_SS</td>
 <td style="text-align: right;">0.515</td>
 <td style="text-align: right;">0.161</td>
 <td style="text-align: right;">0.001</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">wA3</td>
-<td style="text-align: left;">wD2</td>
-<td style="text-align: left;">a_DA</td>
+<td style="text-align: left;">wS3</td>
+<td style="text-align: left;">wB2</td>
+<td style="text-align: left;">a_SB</td>
 <td style="text-align: right;">-0.075</td>
 <td style="text-align: right;">0.134</td>
 <td style="text-align: right;">0.575</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">wD2</td>
-<td style="text-align: left;">wD1</td>
-<td style="text-align: left;">a_DD</td>
+<td style="text-align: left;">wB2</td>
+<td style="text-align: left;">wB1</td>
+<td style="text-align: left;">a_BB</td>
 <td style="text-align: right;">0.224</td>
 <td style="text-align: right;">0.141</td>
 <td style="text-align: right;">0.111</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">wD2</td>
-<td style="text-align: left;">wA1</td>
-<td style="text-align: left;">a_AD</td>
+<td style="text-align: left;">wB2</td>
+<td style="text-align: left;">wS1</td>
+<td style="text-align: left;">a_BS</td>
 <td style="text-align: right;">-0.018</td>
 <td style="text-align: right;">0.131</td>
 <td style="text-align: right;">0.890</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">wD3</td>
-<td style="text-align: left;">wD2</td>
-<td style="text-align: left;">a_DD</td>
+<td style="text-align: left;">wB3</td>
+<td style="text-align: left;">wB2</td>
+<td style="text-align: left;">a_BB</td>
 <td style="text-align: right;">0.224</td>
 <td style="text-align: right;">0.141</td>
 <td style="text-align: right;">0.111</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">wD3</td>
-<td style="text-align: left;">wA2</td>
-<td style="text-align: left;">a_AD</td>
+<td style="text-align: left;">wB3</td>
+<td style="text-align: left;">wS2</td>
+<td style="text-align: left;">a_BS</td>
 <td style="text-align: right;">-0.018</td>
 <td style="text-align: right;">0.131</td>
 <td style="text-align: right;">0.890</td>
@@ -872,8 +851,8 @@ window.Quarto = {
 </div>
 </div>
 </section>
-<section id="comparing-clpm-vs.-ri-clpm" class="level2" data-number="32.5">
-<h2 data-number="32.5" class="anchored" data-anchor-id="comparing-clpm-vs.-ri-clpm"><span class="header-section-number">32.5</span> Comparing CLPM vs.&nbsp;RI-CLPM</h2>
+<section id="comparing-clpm-vs.-ri-clpm" class="level2">
+<h2 class="anchored" data-anchor-id="comparing-clpm-vs.-ri-clpm">Comparing CLPM vs.&nbsp;RI-CLPM</h2>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -929,7 +908,7 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> Both models assume all relevant variables are included. An omitted third variable that drives both A and D could produce spurious cross-lagged effects.</p>
+<p><strong>What it means:</strong> Both models assume all relevant variables are included. An omitted third variable that drives both S and B could produce spurious cross-lagged effects.</p>
 <p><strong>How to check:</strong> Think carefully about what else changes over time that could explain both variables. Include plausible third variables as additional nodes.</p>
 </div>
 </div>
@@ -1063,7 +1042,7 @@ window.Quarto = {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1393,12 +1372,12 @@ window.Quarto = {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../module-4/part5.html" class="pagination-link" aria-label="Autoregressive Structures">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Autoregressive Structures</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../module-4/part7.html" class="pagination-link" aria-label="Binary and Count Outcomes Over Time">
-        <span class="nav-page-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Binary and Count Outcomes Over Time</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

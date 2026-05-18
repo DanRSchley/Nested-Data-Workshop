@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>27&nbsp; Covariance Structures – Nested Data Structures</title>
+<title>Covariance Structures – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -139,6 +140,14 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-4/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-4/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -150,7 +159,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part2.html"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part2.html"><span class="chapter-title">Covariance Structures</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -180,8 +189,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -195,32 +203,27 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -236,44 +239,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -289,26 +285,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -324,44 +316,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -377,68 +362,57 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -454,62 +428,52 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -525,14 +489,12 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -547,20 +509,21 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#covariance-structures" id="toc-covariance-structures" class="nav-link active" data-scroll-target="#covariance-structures"><span class="header-section-number">28</span> Covariance Structures</a>
+  <li><a href="#covariance-structures" id="toc-covariance-structures" class="nav-link active" data-scroll-target="#covariance-structures">Covariance Structures</a>
   <ul class="collapse">
-  <li><a href="#the-covariance-matrix-is-a-scientific-statement" id="toc-the-covariance-matrix-is-a-scientific-statement" class="nav-link" data-scroll-target="#the-covariance-matrix-is-a-scientific-statement"><span class="header-section-number">28.1</span> The Covariance Matrix is a Scientific Statement</a></li>
-  <li><a href="#the-main-structures" id="toc-the-main-structures" class="nav-link" data-scroll-target="#the-main-structures"><span class="header-section-number">28.2</span> The Main Structures</a>
+  <li><a href="#the-covariance-matrix-is-a-scientific-statement" id="toc-the-covariance-matrix-is-a-scientific-statement" class="nav-link" data-scroll-target="#the-covariance-matrix-is-a-scientific-statement">The Covariance Matrix Is a Scientific Statement</a></li>
+  <li><a href="#the-main-structures" id="toc-the-main-structures" class="nav-link" data-scroll-target="#the-main-structures">The Main Structures</a>
   <ul class="collapse">
-  <li><a href="#compound-symmetry-cs" id="toc-compound-symmetry-cs" class="nav-link" data-scroll-target="#compound-symmetry-cs"><span class="header-section-number">28.2.1</span> 1. Compound Symmetry (CS)</a></li>
-  <li><a href="#autoregressive-order-1-ar1" id="toc-autoregressive-order-1-ar1" class="nav-link" data-scroll-target="#autoregressive-order-1-ar1"><span class="header-section-number">28.2.2</span> 2. Autoregressive Order 1 — AR(1)</a></li>
-  <li><a href="#unstructured-un" id="toc-unstructured-un" class="nav-link" data-scroll-target="#unstructured-un"><span class="header-section-number">28.2.3</span> 3. Unstructured (UN)</a></li>
-  <li><a href="#toeplitz" id="toc-toeplitz" class="nav-link" data-scroll-target="#toeplitz"><span class="header-section-number">28.2.4</span> 4. Toeplitz</a></li>
+  <li><a href="#compound-symmetry-cs" id="toc-compound-symmetry-cs" class="nav-link" data-scroll-target="#compound-symmetry-cs">1. Compound Symmetry (CS)</a></li>
+  <li><a href="#autoregressive-order-1-ar1" id="toc-autoregressive-order-1-ar1" class="nav-link" data-scroll-target="#autoregressive-order-1-ar1">2. Autoregressive Order 1 — AR(1)</a></li>
+  <li><a href="#unstructured-un" id="toc-unstructured-un" class="nav-link" data-scroll-target="#unstructured-un">3. Unstructured (UN)</a></li>
+  <li><a href="#toeplitz" id="toc-toeplitz" class="nav-link" data-scroll-target="#toeplitz">4. Toeplitz</a></li>
   </ul></li>
-  <li><a href="#visualizing-the-structures" id="toc-visualizing-the-structures" class="nav-link" data-scroll-target="#visualizing-the-structures"><span class="header-section-number">28.3</span> Visualizing the Structures</a></li>
-  <li><a href="#specifying-covariance-structures-in-r" id="toc-specifying-covariance-structures-in-r" class="nav-link" data-scroll-target="#specifying-covariance-structures-in-r"><span class="header-section-number">28.4</span> Specifying Covariance Structures in R</a></li>
-  <li><a href="#assumptions-and-how-to-check-each-structure" id="toc-assumptions-and-how-to-check-each-structure" class="nav-link" data-scroll-target="#assumptions-and-how-to-check-each-structure"><span class="header-section-number">28.5</span> Assumptions and How to Check Each Structure</a></li>
-  <li><a href="#model-selection-strategy" id="toc-model-selection-strategy" class="nav-link" data-scroll-target="#model-selection-strategy"><span class="header-section-number">28.6</span> Model Selection Strategy</a></li>
+  <li><a href="#visualizing-the-structures" id="toc-visualizing-the-structures" class="nav-link" data-scroll-target="#visualizing-the-structures">Visualizing the Structures</a></li>
+  <li><a href="#specifying-covariance-structures-in-r" id="toc-specifying-covariance-structures-in-r" class="nav-link" data-scroll-target="#specifying-covariance-structures-in-r">Specifying Covariance Structures in R</a></li>
+  <li><a href="#assumptions" id="toc-assumptions" class="nav-link" data-scroll-target="#assumptions">Assumptions</a></li>
+  <li><a href="#model-selection-strategy" id="toc-model-selection-strategy" class="nav-link" data-scroll-target="#model-selection-strategy">Model Selection Strategy</a></li>
+  <li><a href="#reviewer-challenge" id="toc-reviewer-challenge" class="nav-link" data-scroll-target="#reviewer-challenge">Reviewer Challenge</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -568,9 +531,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part2.html"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part2.html"><span class="chapter-title">Covariance Structures</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Covariance Structures</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -587,62 +550,95 @@ window.Quarto = {
 </header>
 
 
-<section id="covariance-structures" class="level1" data-number="28">
-<h1 data-number="28"><span class="header-section-number">28</span> Covariance Structures</h1>
-<section id="the-covariance-matrix-is-a-scientific-statement" class="level2" data-number="28.1">
-<h2 data-number="28.1" class="anchored" data-anchor-id="the-covariance-matrix-is-a-scientific-statement"><span class="header-section-number">28.1</span> The Covariance Matrix is a Scientific Statement</h2>
-<p>When you measure the same person at multiple time points, those measurements co-vary. How they co-vary is not a statistical nuisance — it is a substantive statement about the DGP. The choice of covariance structure encodes an assumption about how the underlying process operates over time.</p>
-<p>The covariance structure specifies two things: <strong>variances</strong> (how variable are observations at each time point?) and <strong>covariances</strong> (how correlated are observations at different time points?).</p>
+<section id="covariance-structures" class="level1">
+<h1>Covariance Structures</h1>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Structure Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>Which of your repeated observations should look most alike?</strong> Adjacent ones — a WTP rating taken immediately after a disclosure is more similar to a rating taken a week later than to a rating taken six months later. This is the starting intuition for choosing a covariance structure.</p>
+<p><strong>What does the covariance structure encode?</strong> An assumption about the data-generating process — how the underlying psychological or financial state of a person persists, decays, or drifts over time.</p>
+<p><strong>What goes wrong if you choose wrong?</strong> Standard errors and test statistics are computed using the assumed structure. An incorrect structure produces biased inference — usually overstated precision (too-small SEs) if you assume too little covariance.</p>
+</blockquote>
+</div>
+</div>
+<section id="the-covariance-matrix-is-a-scientific-statement" class="level2">
+<h2 class="anchored" data-anchor-id="the-covariance-matrix-is-a-scientific-statement">The Covariance Matrix Is a Scientific Statement</h2>
+<p>When you measure the same person at multiple time points, those measurements co-vary. How they co-vary is not a nuisance parameter — it is a substantive statement about the DGP. The choice of covariance structure encodes an assumption about how the process unfolds over time.</p>
+<p><strong>A useful starting question:</strong> “If I knew Person A’s WTP in week 1, how much does that tell me about their WTP in week 2 versus week 8?” The answer depends on the persistence of the underlying state being measured:</p>
+<ul>
+<li><strong>Short-lived state</strong> (e.g., momentary risk perception after seeing a shocking news headline): week 1 barely predicts week 4. Adjacent observations are only a bit more similar than distant ones.</li>
+<li><strong>Persistent individual tendency</strong> (e.g., stable financial risk tolerance): week 1 predicts week 8 almost as well as week 2. Observations are broadly similar regardless of lag.</li>
+<li><strong>Gradually decaying memory or habit</strong> (e.g., recall of a disclosure or momentum of a savings habit): week 2 is more similar to week 1 than week 8 is, and the similarity decays smoothly with lag.</li>
+</ul>
+<p>Each of these stories implies a different covariance structure.</p>
+<hr>
 </section>
-<section id="the-main-structures" class="level2" data-number="28.2">
-<h2 data-number="28.2" class="anchored" data-anchor-id="the-main-structures"><span class="header-section-number">28.2</span> The Main Structures</h2>
-<section id="compound-symmetry-cs" class="level3" data-number="28.2.1">
-<h3 data-number="28.2.1" class="anchored" data-anchor-id="compound-symmetry-cs"><span class="header-section-number">28.2.1</span> 1. Compound Symmetry (CS)</h3>
-<p>All variances are equal. All covariances are equal regardless of lag.</p>
+<section id="the-main-structures" class="level2">
+<h2 class="anchored" data-anchor-id="the-main-structures">The Main Structures</h2>
+<section id="compound-symmetry-cs" class="level3">
+<h3 class="anchored" data-anchor-id="compound-symmetry-cs">1. Compound Symmetry (CS)</h3>
+<p>All variances equal. All covariances equal regardless of lag.</p>
 <p><span class="math display">\[\Sigma_{CS} = \begin{pmatrix} \sigma^2 &amp; \sigma^2\rho &amp; \sigma^2\rho \\ \sigma^2\rho &amp; \sigma^2 &amp; \sigma^2\rho \\ \sigma^2\rho &amp; \sigma^2\rho &amp; \sigma^2 \end{pmatrix}\]</span></p>
-<p><strong>When it makes sense:</strong> When there is no reason to think observations closer in time are more similar than distant observations. Very rare in practice.</p>
-<p><strong>When it fails:</strong> Almost always. Time 1 and Time 2 are almost always more correlated than Time 1 and Time 6.</p>
+<p><strong>The DGP story:</strong> Each person has a stable individual level, and every observation is equally predictable from every other. The WTP at month 1 tells you as much about month 6 as it tells you about month 2.</p>
+<p><strong>JDM setting:</strong> Most appropriate when what you are measuring is a <strong>fixed individual trait</strong> that shows no dynamic persistence or decay — for example, a stable risk-preference score that does not drift meaningfully across sessions. In practice this is rare; most repeated JDM measurements show some decay structure.</p>
+<p><strong>When it fails:</strong> Whenever observations are more similar to adjacent ones than to distant ones — which is almost always true in longitudinal JDM studies.</p>
+<hr>
 </section>
-<section id="autoregressive-order-1-ar1" class="level3" data-number="28.2.2">
-<h3 data-number="28.2.2" class="anchored" data-anchor-id="autoregressive-order-1-ar1"><span class="header-section-number">28.2.2</span> 2. Autoregressive Order 1 — AR(1)</h3>
+<section id="autoregressive-order-1-ar1" class="level3">
+<h3 class="anchored" data-anchor-id="autoregressive-order-1-ar1">2. Autoregressive Order 1 — AR(1)</h3>
 <p>Correlations decay exponentially with time lag. Observations one step apart correlate <span class="math inline">\(\rho\)</span>; two steps apart, <span class="math inline">\(\rho^2\)</span>; <span class="math inline">\(k\)</span> steps apart, <span class="math inline">\(\rho^k\)</span>.</p>
 <p><span class="math display">\[\Sigma_{AR1} = \sigma^2\begin{pmatrix} 1 &amp; \rho &amp; \rho^2 \\ \rho &amp; 1 &amp; \rho \\ \rho^2 &amp; \rho &amp; 1 \end{pmatrix}\]</span></p>
-<p><strong>When it makes sense:</strong> For many psychological, physiological, and economic time series where the past predicts the present and the influence fades over time. Very commonly appropriate.</p>
+<p><strong>The DGP story:</strong> Each observation partially inherits from the previous one. Yesterday’s state predicts today’s, but the influence decays at a constant rate. A financial decision made under a disclosure effect carries partial memory into the next measurement, but fades over longer gaps.</p>
+<p><strong>JDM settings:</strong> - Daily spending diary: today’s spending predicts tomorrow’s more than next week’s - Weekly savings rate: this week’s savings are correlated with last week’s, but the correlation decays with the lag - Risk perception during a market fluctuation: day-to-day persistence that gradually loses predictive power</p>
+<p><strong>When it fits:</strong> When your measurement intervals are equal and the process has smooth geometric decay in correlations.</p>
+<hr>
 </section>
-<section id="unstructured-un" class="level3" data-number="28.2.3">
-<h3 data-number="28.2.3" class="anchored" data-anchor-id="unstructured-un"><span class="header-section-number">28.2.3</span> 3. Unstructured (UN)</h3>
-<p>No constraints. Every variance and covariance is estimated freely.</p>
-<p><strong>When it makes sense:</strong> When you have no prior beliefs about the pattern and enough data to estimate all parameters.</p>
-<p><strong>When it fails:</strong> With many time points or small samples, the unstructured model is overparameterized and produces unstable estimates.</p>
+<section id="unstructured-un" class="level3">
+<h3 class="anchored" data-anchor-id="unstructured-un">3. Unstructured (UN)</h3>
+<p>No constraints. Every variance and covariance is estimated freely from the data.</p>
+<p><strong>The DGP story:</strong> The data speak for themselves. There is no assumed decay pattern or symmetry.</p>
+<p><strong>JDM settings:</strong> Reasonable when you have a small number of waves (3–4) and a large sample — the model has enough data to estimate every pairwise correlation without exploding the parameter count.</p>
+<p><strong>When it fails:</strong> With many waves or small samples, the unstructured model is severely overparameterized. With 5 waves and 50 people, you are estimating 15 covariance parameters from data where each person contributes only 5 observations. The estimates are unstable and the model often fails to converge.</p>
+<hr>
 </section>
-<section id="toeplitz" class="level3" data-number="28.2.4">
-<h3 data-number="28.2.4" class="anchored" data-anchor-id="toeplitz"><span class="header-section-number">28.2.4</span> 4. Toeplitz</h3>
-<p>Like AR(1) but relaxes the constraint that correlations must follow an exponential decay — each lag has its own correlation, but the correlation only depends on the lag (not the absolute time point). A flexible middle ground.</p>
+<section id="toeplitz" class="level3">
+<h3 class="anchored" data-anchor-id="toeplitz">4. Toeplitz</h3>
+<p>Like AR(1) but without the geometric constraint: each lag has its own correlation, but the correlation depends only on the lag size, not the absolute time point.</p>
+<p><strong>The DGP story:</strong> Lag-1 observations are more similar than lag-2, which are more similar than lag-3 — but the rate of decay does not have to be exponential. A financial decision’s influence might fade quickly at first (week 1 to week 2) and then more slowly (week 3 to week 6), which AR(1) cannot capture but Toeplitz can.</p>
+<hr>
 </section>
 </section>
-<section id="visualizing-the-structures" class="level2" data-number="28.3">
-<h2 data-number="28.3" class="anchored" data-anchor-id="visualizing-the-structures"><span class="header-section-number">28.3</span> Visualizing the Structures</h2>
+<section id="visualizing-the-structures" class="level2">
+<h2 class="anchored" data-anchor-id="visualizing-the-structures">Visualizing the Structures</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>make_cov_plot <span class="ot">&lt;-</span> <span class="cf">function</span>(Sigma, title) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>make_cov_plot <span class="ot">&lt;-</span> <span class="cf">function</span>(Sigma, title, <span class="at">subtitle =</span> <span class="cn">NULL</span>) {</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(Sigma)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Convert to correlation</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  D <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span> <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(Sigma)))</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  Corr <span class="ot">&lt;-</span> D <span class="sc">%*%</span> Sigma <span class="sc">%*%</span> D</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  D <span class="ot">&lt;-</span> <span class="fu">diag</span>(<span class="dv">1</span> <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">diag</span>(Sigma)))</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  Corr <span class="ot">&lt;-</span> D <span class="sc">%*%</span> Sigma <span class="sc">%*%</span> D</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  wlabs <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"W"</span>, <span class="dv">1</span><span class="sc">:</span>n)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(Corr) <span class="sc">|&gt;</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setNames</span>(<span class="fu">paste0</span>(<span class="st">"T"</span>, <span class="dv">1</span><span class="sc">:</span>n)) <span class="sc">|&gt;</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">row =</span> <span class="fu">paste0</span>(<span class="st">"T"</span>, <span class="dv">1</span><span class="sc">:</span>n)) <span class="sc">|&gt;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setNames</span>(wlabs) <span class="sc">|&gt;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">row =</span> wlabs) <span class="sc">|&gt;</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="sc">-</span>row, <span class="at">names_to =</span> <span class="st">"col"</span>, <span class="at">values_to =</span> <span class="st">"r"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">row =</span> <span class="fu">factor</span>(row, <span class="at">levels =</span> <span class="fu">rev</span>(<span class="fu">paste0</span>(<span class="st">"T"</span>, <span class="dv">1</span><span class="sc">:</span>n))),</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">col =</span> <span class="fu">factor</span>(col, <span class="at">levels =</span> <span class="fu">paste0</span>(<span class="st">"T"</span>, <span class="dv">1</span><span class="sc">:</span>n))) <span class="sc">|&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">row =</span> <span class="fu">factor</span>(row, <span class="at">levels =</span> <span class="fu">rev</span>(wlabs)),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">col =</span> <span class="fu">factor</span>(col, <span class="at">levels =</span> wlabs)) <span class="sc">|&gt;</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> col, <span class="at">y =</span> row, <span class="at">fill =</span> r)) <span class="sc">+</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">round</span>(r, <span class="dv">2</span>)), <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_gradient2</span>(<span class="at">low =</span> <span class="st">"#f7fbff"</span>, <span class="at">mid =</span> <span class="st">"#4292c6"</span>, <span class="at">high =</span> <span class="st">"#08306b"</span>,</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>                         <span class="at">midpoint =</span> <span class="fl">0.5</span>, <span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.1</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> title, <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> title, <span class="at">subtitle =</span> subtitle, <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>}</span>
@@ -661,62 +657,72 @@ window.Quarto = {
 <span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>               <span class="fl">1.4</span>, <span class="fl">1.6</span>, <span class="fl">2.4</span>, <span class="fl">4.8</span>, <span class="fl">2.2</span>,</span>
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>               <span class="fl">1.0</span>, <span class="fl">1.1</span>, <span class="fl">1.5</span>, <span class="fl">2.2</span>, <span class="fl">5.0</span>), n, n)</span>
 <span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>(<span class="fu">make_cov_plot</span>(CS,   <span class="st">"Compound Symmetry"</span>) <span class="sc">+</span></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a> <span class="fu">make_cov_plot</span>(AR1,  <span class="st">"AR(1)"</span>)) <span class="sc">/</span></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>(<span class="fu">make_cov_plot</span>(Toep, <span class="st">"Toeplitz"</span>) <span class="sc">+</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a> <span class="fu">make_cov_plot</span>(UN,   <span class="st">"Unstructured"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>(<span class="fu">make_cov_plot</span>(CS,   <span class="st">"Compound Symmetry"</span>,</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Flat correlations — any wave</span><span class="sc">\n</span><span class="st">predicts any other equally"</span>) <span class="sc">+</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a> <span class="fu">make_cov_plot</span>(AR1,  <span class="st">"AR(1)"</span>,</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Geometric decay — adjacent</span><span class="sc">\n</span><span class="st">waves most similar"</span>)) <span class="sc">/</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>(<span class="fu">make_cov_plot</span>(Toep, <span class="st">"Toeplitz"</span>,</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Free decay by lag — flexible</span><span class="sc">\n</span><span class="st">but still lag-dependent"</span>) <span class="sc">+</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a> <span class="fu">make_cov_plot</span>(UN,   <span class="st">"Unstructured"</span>,</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>               <span class="st">"No constraints — data-driven</span><span class="sc">\n</span><span class="st">but needs large N"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="part2_files/figure-html/vis-structures-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="part2_files/figure-html/vis-structures-1.png" class="img-fluid figure-img" width="960"></p>
 </figure>
 </div>
 </div>
 </div>
+<p>The heatmaps show how correlation between waves (W1–W5) changes under each structure. AR(1) and Toeplitz capture the realistic pattern where similarity decreases as the time gap grows.</p>
+<hr>
 </section>
-<section id="specifying-covariance-structures-in-r" class="level2" data-number="28.4">
-<h2 data-number="28.4" class="anchored" data-anchor-id="specifying-covariance-structures-in-r"><span class="header-section-number">28.4</span> Specifying Covariance Structures in R</h2>
+<section id="specifying-covariance-structures-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="specifying-covariance-structures-in-r">Specifying Covariance Structures in R</h2>
 <p><code>lme4</code> does not support custom covariance structures beyond the random effects structure. For explicit covariance modeling, use <code>nlme</code>:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate data with AR(1) structure</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate WTP data from a savings study: 5 waves with AR(1) correlation</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n_people <span class="ot">&lt;-</span> <span class="dv">50</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>n_times  <span class="ot">&lt;-</span> <span class="dv">5</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>rho_true <span class="ot">&lt;-</span> <span class="fl">0.7</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>Y_ar1 <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">mvrnorm</span>(n_people, <span class="fu">rep</span>(<span class="dv">50</span>, n_times),</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">outer</span>(<span class="dv">0</span><span class="sc">:</span>(n_times<span class="dv">-1</span>), <span class="dv">0</span><span class="sc">:</span>(n_times<span class="dv">-1</span>),</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                              <span class="cf">function</span>(i,j) rho_true<span class="sc">^</span><span class="fu">abs</span>(i<span class="sc">-</span>j)) <span class="sc">*</span> <span class="dv">9</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                              <span class="cf">function</span>(i, j) rho_true<span class="sc">^</span><span class="fu">abs</span>(i<span class="sc">-</span>j)) <span class="sc">*</span> <span class="dv">9</span>)</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(Y_ar1) <span class="sc">|&gt;</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">paste0</span>(<span class="st">"t"</span>, <span class="dv">1</span><span class="sc">:</span>n_times)) <span class="sc">|&gt;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">paste0</span>(<span class="st">"wave"</span>, <span class="dv">1</span><span class="sc">:</span>n_times)) <span class="sc">|&gt;</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people) <span class="sc">|&gt;</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>person, <span class="at">names_to =</span> <span class="st">"time"</span>, <span class="at">values_to =</span> <span class="st">"Y"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">time_num =</span> <span class="fu">as.integer</span>(<span class="fu">str_extract</span>(time, <span class="st">"[0-9]"</span>)),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>person, <span class="at">names_to =</span> <span class="st">"wave"</span>, <span class="at">values_to =</span> <span class="st">"WTP"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">wave_num =</span> <span class="fu">as.integer</span>(<span class="fu">str_extract</span>(wave, <span class="st">"[0-9]"</span>)),</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>         <span class="at">person   =</span> <span class="fu">factor</span>(person))</span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit four competing models</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>m_cs  <span class="ot">&lt;-</span> <span class="fu">gls</span>(Y <span class="sc">~</span> <span class="fu">factor</span>(time_num), <span class="at">correlation =</span> <span class="fu">corCompSymm</span>(<span class="at">form =</span> <span class="sc">~</span><span class="dv">1</span> <span class="sc">|</span> person), <span class="at">data =</span> df_long)</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>m_ar1 <span class="ot">&lt;-</span> <span class="fu">gls</span>(Y <span class="sc">~</span> <span class="fu">factor</span>(time_num), <span class="at">correlation =</span> <span class="fu">corAR1</span>(<span class="at">form =</span> <span class="sc">~</span>time_num <span class="sc">|</span> person), <span class="at">data =</span> df_long)</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>m_un  <span class="ot">&lt;-</span> <span class="fu">gls</span>(Y <span class="sc">~</span> <span class="fu">factor</span>(time_num), <span class="at">correlation =</span> <span class="fu">corSymm</span>(<span class="at">form =</span> <span class="sc">~</span>time_num <span class="sc">|</span> person),</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>             <span class="at">weights =</span> <span class="fu">varIdent</span>(<span class="at">form =</span> <span class="sc">~</span><span class="dv">1</span> <span class="sc">|</span> <span class="fu">factor</span>(time_num)), <span class="at">data =</span> df_long)</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare AIC</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">c</span>(<span class="st">"Compound Symmetry"</span>, <span class="st">"AR(1)"</span>, <span class="st">"Unstructured"</span>),</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">AIC   =</span> <span class="fu">c</span>(<span class="fu">AIC</span>(m_cs), <span class="fu">AIC</span>(m_ar1), <span class="fu">AIC</span>(m_un)),</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">BIC   =</span> <span class="fu">c</span>(<span class="fu">BIC</span>(m_cs), <span class="fu">BIC</span>(m_ar1), <span class="fu">BIC</span>(m_un))</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(AIC) <span class="sc">|&gt;</span></span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">1</span>,</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Model comparison: AR(1) fits better than CS when data has AR structure"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>m_cs  <span class="ot">&lt;-</span> <span class="fu">gls</span>(WTP <span class="sc">~</span> <span class="fu">factor</span>(wave_num),</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>             <span class="at">correlation =</span> <span class="fu">corCompSymm</span>(<span class="at">form =</span> <span class="sc">~</span><span class="dv">1</span> <span class="sc">|</span> person),</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> df_long)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>m_ar1 <span class="ot">&lt;-</span> <span class="fu">gls</span>(WTP <span class="sc">~</span> <span class="fu">factor</span>(wave_num),</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>             <span class="at">correlation =</span> <span class="fu">corAR1</span>(<span class="at">form =</span> <span class="sc">~</span>wave_num <span class="sc">|</span> person),</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> df_long)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>m_un  <span class="ot">&lt;-</span> <span class="fu">gls</span>(WTP <span class="sc">~</span> <span class="fu">factor</span>(wave_num),</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>             <span class="at">correlation =</span> <span class="fu">corSymm</span>(<span class="at">form =</span> <span class="sc">~</span>wave_num <span class="sc">|</span> person),</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>             <span class="at">weights =</span> <span class="fu">varIdent</span>(<span class="at">form =</span> <span class="sc">~</span><span class="dv">1</span> <span class="sc">|</span> <span class="fu">factor</span>(wave_num)),</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>             <span class="at">data =</span> df_long)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">c</span>(<span class="st">"Compound Symmetry"</span>, <span class="st">"AR(1)"</span>, <span class="st">"Unstructured"</span>),</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">AIC   =</span> <span class="fu">c</span>(<span class="fu">AIC</span>(m_cs), <span class="fu">AIC</span>(m_ar1), <span class="fu">AIC</span>(m_un)),</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">BIC   =</span> <span class="fu">c</span>(<span class="fu">BIC</span>(m_cs), <span class="fu">BIC</span>(m_ar1), <span class="fu">BIC</span>(m_un))</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(AIC) <span class="sc">|&gt;</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">1</span>,</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Model comparison: AR(1) fits best when data has geometric decay in correlations (lower AIC/BIC = better)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Model comparison: AR(1) fits better than CS when data has AR structure</caption>
+<caption>Model comparison: AR(1) fits best when data has geometric decay in correlations (lower AIC/BIC = better)</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Model</th>
@@ -744,9 +750,11 @@ window.Quarto = {
 </table>
 </div>
 </div>
+<p>When the true structure is AR(1), the AR(1) model is preferred by AIC. Compound symmetry underfits (too constrained). Unstructured overfits (too many parameters for this sample size).</p>
+<hr>
 </section>
-<section id="assumptions-and-how-to-check-each-structure" class="level2" data-number="28.5">
-<h2 data-number="28.5" class="anchored" data-anchor-id="assumptions-and-how-to-check-each-structure"><span class="header-section-number">28.5</span> Assumptions and How to Check Each Structure</h2>
+<section id="assumptions" class="level2">
+<h2 class="anchored" data-anchor-id="assumptions">Assumptions</h2>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -757,8 +765,13 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> The mean and variance of observations are constant over time, and the correlation between observations depends only on the time lag, not on the absolute time point.</p>
-<p><strong>How to check:</strong> Plot the mean and variance of your outcome at each time point. If either is trending systematically, stationarity is violated. A detrended model (with time as a fixed effect) may restore stationarity of the residuals.</p>
+<p><strong>Plain-language meaning:</strong> The mean and variance of the outcome are constant across time, and the correlation between any two observations depends only on how far apart they are — not on <em>when</em> in the study they fall. An AR(1) with <span class="math inline">\(|\phi| &lt; 1\)</span> is stationary by construction.</p>
+<p><strong>What the model is assuming away:</strong> Trending means (e.g., WTP systematically rising over time due to growing familiarity with the product) or trending variance (e.g., participants becoming more variable later in a long task when fatigue sets in).</p>
+<p><strong>JDM example:</strong> If participants in a repeated savings task become more financially confident across waves — so WTP increases for all participants regardless of condition — the mean is trending. The AR(1) model will confound this trend with the outcome trajectory unless time is included as a fixed effect.</p>
+<p><strong>What a skeptical reviewer might say:</strong> “You modeled repeated savings willingness with AR(1) — but if participants are becoming more engaged with the study instrument over time, the mean is trending and stationarity fails.”</p>
+<p><strong>Observable warning sign:</strong> Plot wave-by-wave means. If the mean increases or decreases systematically across waves, stationarity is violated for the raw outcome. Including wave as a fixed effect typically restores stationarity for the residuals.</p>
+<p><strong>What to check:</strong> Plot means and variances by wave. Fit a model with time as a fixed effect and check whether residuals are stationary. Use the Augmented Dickey-Fuller test for stationarity on per-person residual series.</p>
+<p><strong>What claim survives if the assumption is doubtful:</strong> The direction of the condition effect is usually robust. The autoregressive coefficient estimate and its confidence interval may be biased if stationarity is violated.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -771,20 +784,98 @@ window.Quarto = {
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> The unstructured model estimates <span class="math inline">\(T(T+1)/2\)</span> covariance parameters (for <span class="math inline">\(T\)</span> time points). With 5 time points, that is 15 parameters just for the covariance structure.</p>
-<p><strong>How to check:</strong> Compare the number of observations to the number of covariance parameters. As a rough guide, you want at least 10× as many observations as parameters.</p>
+<p><strong>Plain-language meaning:</strong> The unstructured model estimates <span class="math inline">\(T(T+1)/2\)</span> covariance parameters for <span class="math inline">\(T\)</span> waves. With 5 waves, that is 15 parameters — just for the covariance structure. These must be estimated from the data.</p>
+<p><strong>What the model is assuming away:</strong> Any parsimony. The unstructured model places no restrictions on how measurements co-vary.</p>
+<p><strong>JDM example:</strong> A 6-wave savings diary study with 60 participants requires estimating 21 covariance parameters from a sample that has only 360 observations. That is fewer than 17 observations per covariance parameter — estimates will be noisy and models may fail to converge.</p>
+<p><strong>What to check:</strong> Compare the number of observations to the number of covariance parameters (aim for at least 10:1). If the unstructured model fails to converge, start with AR(1) and use AIC to evaluate whether the more constrained model fits acceptably.</p>
 </div>
 </div>
+<hr>
 </section>
-<section id="model-selection-strategy" class="level2" data-number="28.6">
-<h2 data-number="28.6" class="anchored" data-anchor-id="model-selection-strategy"><span class="header-section-number">28.6</span> Model Selection Strategy</h2>
-<p>Use AIC/BIC to compare competing covariance structures:</p>
+<section id="model-selection-strategy" class="level2">
+<h2 class="anchored" data-anchor-id="model-selection-strategy">Model Selection Strategy</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Structure          =</span> <span class="fu">c</span>(<span class="st">"Compound Symmetry"</span>, <span class="st">"AR(1)"</span>, <span class="st">"Toeplitz"</span>, <span class="st">"Unstructured"</span>),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Params (T=5)</span><span class="st">`</span>    <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"2"</span>, <span class="st">"2"</span>, <span class="st">"5"</span>, <span class="st">"15"</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Best for</span><span class="st">`</span>         <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Stable trait; no decay; rarely appropriate"</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Regular intervals; geometric decay; default starting point"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Irregular decay; flexible but tractable; good middle ground"</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Small T; large N; no prior structure; fit check for simpler models"</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Covariance structure selection guide (T = number of waves)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Covariance structure selection guide (T = number of waves)</caption>
+<colgroup>
+<col style="width: 18%">
+<col style="width: 13%">
+<col style="width: 68%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Structure</th>
+<th style="text-align: left;">Params (T=5)</th>
+<th style="text-align: left;">Best for</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Compound Symmetry</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Stable trait; no decay; rarely appropriate</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AR(1)</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Regular intervals; geometric decay; default starting point</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Toeplitz</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">Irregular decay; flexible but tractable; good middle ground</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unstructured</td>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">Small T; large N; no prior structure; fit check for simpler models</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>Recommended workflow:</strong></p>
 <ol type="1">
-<li>Start with the AR(1) model as a reasonable default</li>
-<li>Compare to compound symmetry (more constrained) and Toeplitz (more flexible)</li>
-<li>Try unstructured if sample size allows</li>
-<li>Choose the model with the lowest AIC, subject to convergence and interpretability</li>
+<li>Start with AR(1) as the default for regularly-spaced longitudinal JDM data</li>
+<li>Compare to compound symmetry (more constrained) using AIC/BIC — if CS fits as well, use it</li>
+<li>Try Toeplitz if the decay looks non-geometric from the raw correlation matrix</li>
+<li>Try unstructured only if sample size allows (<span class="math inline">\(T \leq 4\)</span>, large <span class="math inline">\(N\)</span>) — use as a robustness check</li>
+<li>Plot residual autocorrelations after fitting to verify that serial dependence has been removed</li>
 </ol>
+<hr>
+</section>
+<section id="reviewer-challenge" class="level2">
+<h2 class="anchored" data-anchor-id="reviewer-challenge">Reviewer Challenge</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>What a Reviewer Would Ask
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Challenge 1:</strong> “You fitted a random intercept model with <code>lme4</code>. What covariance structure does that imply for your repeated WTP measurements?” A random intercept model in <code>lme4</code> implies compound symmetry — all waves correlate equally at <span class="math inline">\(\rho = \sigma^2_u / (\sigma^2_u + \sigma^2_\varepsilon)\)</span>. If adjacent waves should correlate more than distant ones (almost always true), this model misspecifies the covariance structure. Switch to <code>nlme</code> with <code>corAR1()</code> for longitudinal data with meaningful time ordering.</p>
+<p><strong>Challenge 2:</strong> “Why did you choose AR(1) over unstructured?” The data-driven answer: AIC/BIC favored AR(1) and the unstructured model showed convergence issues (too many parameters for the sample). The conceptual answer: WTP decay after a disclosure intervention is well described by geometric fading — the psychological mechanism supports AR(1) structure.</p>
+<p><strong>Challenge 3:</strong> “Your AR(1) estimate is <span class="math inline">\(\hat{\rho} = 0.72\)</span> — doesn’t that suggest the waves are measuring a stable trait rather than a dynamic process?” High AR(1) correlation does not necessarily mean it is a fixed trait. It means the process has strong short-term persistence. A Bayesian risk-tolerance parameter might show <span class="math inline">\(\rho = 0.72\)</span> across weeks while still responding to information interventions — the AR structure describes the baseline persistence, not the treatment effect.</p>
+</div>
+</div>
 
 
 </section>
@@ -915,7 +1006,7 @@ window.Quarto = {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1245,12 +1336,12 @@ window.Quarto = {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../module-4/part1.html" class="pagination-link" aria-label="From RM-ANOVA to Mixed Models">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../module-4/part3.html" class="pagination-link" aria-label="Growth Curve Models">
-        <span class="nav-page-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Growth Curve Models</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

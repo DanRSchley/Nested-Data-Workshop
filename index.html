@@ -7,7 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Dan Schley">
-<meta name="dcterms.date" content="2026-04-17">
+<meta name="dcterms.date" content="2026-05-18">
+<meta name="description" content="Open graduate workshop from Rotterdam School of Management on nested data analysis — multilevel modeling, panel data, and causal identification — with worked R simulations and interactive diagnostics.">
 
 <title>Nested Data Structures</title>
 <style>
@@ -45,7 +46,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -76,9 +77,17 @@ ul.task-list li input[type="checkbox"] {
 
 
 <link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
-<body class="nav-sidebar docked quarto-light">
+<body class="nav-sidebar docked fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -87,7 +96,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><span class="chapter-title">Nested Data Structures</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -117,8 +126,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="./index.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -132,32 +140,27 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="./module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="./module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="./module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="./module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="./module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -173,44 +176,37 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="./module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="./module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="./module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="./module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="./module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="./module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="./module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -226,26 +222,22 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="./module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="./module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="./module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="./module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -261,44 +253,37 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="./module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="./module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="./module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="./module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="./module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="./module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="./module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -314,68 +299,57 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="./module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="./module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="./module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="./module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="./module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="./module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="./module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="./module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="./module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="./module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="./module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -391,62 +365,52 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="./module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="./module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="./module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="./module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="./module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="./module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="./module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="./module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="./module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="./module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -462,14 +426,12 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="./about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="./suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -479,29 +441,21 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#welcome" id="toc-welcome" class="nav-link active" data-scroll-target="#welcome"><span class="header-section-number">1</span> Welcome</a>
-  <ul class="collapse">
-  <li><a href="#what-this-workshop-covers" id="toc-what-this-workshop-covers" class="nav-link" data-scroll-target="#what-this-workshop-covers"><span class="header-section-number">1.1</span> What This Workshop Covers</a></li>
-  <li><a href="#how-to-use-this-workshop" id="toc-how-to-use-this-workshop" class="nav-link" data-scroll-target="#how-to-use-this-workshop"><span class="header-section-number">1.2</span> How to Use This Workshop</a></li>
-  <li><a href="#key-premise" id="toc-key-premise" class="nav-link" data-scroll-target="#key-premise"><span class="header-section-number">1.3</span> Key Premise</a></li>
-  </ul></li>
-  </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
-    </div>
+    
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Nested Data Structures</h1>
-<p class="subtitle lead">A Workshop on Multilevel Modeling</p>
+<p class="subtitle lead">A Workshop on Multilevel Modeling · RSM</p>
 </div>
 
+<div>
+  <div class="description">
+    <p>Open graduate workshop from Rotterdam School of Management on nested data analysis — multilevel modeling, panel data, and causal identification — with worked R simulations and interactive diagnostics.</p>
+  </div>
+</div>
 
 
 <div class="quarto-title-meta">
@@ -516,7 +470,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 17, 2026</p>
+      <p class="date">May 18, 2026</p>
     </div>
   </div>
   
@@ -528,59 +482,115 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="welcome" class="level1" data-number="1">
-<h1 data-number="1"><span class="header-section-number">1</span> Welcome</h1>
-<p>This workshop is built around a single, uncomfortable idea: <strong>your data is never really about your data</strong>. Every dataset you collect is a partial, imperfect snapshot of a broader process — a process that is almost always structured, layered, and nested in ways your standard analysis ignores.</p>
-<p>A household’s spending choice this month is nested within its monthly budget cycle and its broader financial trajectory. A person’s risky decision is nested within a sequence of prior choices and a specific framing context that shapes how the options are perceived. A consumer’s willingness to pay is nested within the product messages they have encountered, the market conditions surrounding the purchase, and their own stable risk preferences — preferences that show up again and again across different decisions. Even a simple between-subjects experiment — where you collect exactly one response per person — has nesting baked in: your participants were sampled from a population, your stimuli were sampled from a population of possible stimuli, and the moment of measurement was sampled from a population of possible moments.</p>
-<p>This workshop is written for researchers in judgment and decision making — studying consumer choice, financial behavior, risky decision making, and policy response — who work with both observational panel data and randomized experiments.</p>
-<p>The field of <em>nested data analysis</em> is fundamentally about recovering the <strong>data-generating process</strong> (DGP) from these snapshots. The models in this workshop don’t just fit your data better — they get you closer to the truth about the process that produced it.</p>
-<section id="what-this-workshop-covers" class="level2" data-number="1.1">
-<h2 data-number="1.1" class="anchored" data-anchor-id="what-this-workshop-covers"><span class="header-section-number">1.1</span> What This Workshop Covers</h2>
-<p>The curriculum follows a two-act structure.</p>
-<p><strong>Act I — Foundations (Modules 0–3)</strong> builds the conceptual language: how nested structure works, how coefficient meaning changes across levels, and how inference breaks. Each module adds one layer of the diagnostic toolkit.</p>
-<p><strong>Act II — Applications (Modules 4–5)</strong> applies those tools in two tracks: Module 4 for observational and longitudinal data, Module 5 for experimental and nested trial designs. Both tracks ask the same question — <em>can we recover a credible causal estimate?</em> — and answer it with context-specific tools.</p>
+<p>This workshop is built around a single, uncomfortable idea: <strong>your data is never really about your data</strong>. Every dataset you collect is a partial, imperfect snapshot of a broader process — almost always structured, layered, and nested in ways standard analysis ignores.</p>
+<p>The workshop is written for researchers in judgment and decision making — studying consumer choice, financial behavior, risky decision making, and policy response — who work with both observational panel data and randomized experiments.</p>
+<p>The field of <em>nested data analysis</em> is fundamentally about recovering the <strong>data-generating process</strong> (DGP) from these snapshots. The models here don’t just fit your data better — they get closer to the truth about the process that produced it.</p>
 <p>The unifying question throughout is: <em>What assumption is standard regression making here, and what happens when it’s wrong?</em></p>
+<hr>
+<section id="modules" class="level2">
+<h2 class="anchored" data-anchor-id="modules">Modules</h2>
 <div class="grid">
-<section id="module-0-all-data-is-nested" class="level3 g-col-12" data-number="1.1.1">
-<h3 data-number="1.1.1" class="anchored" data-anchor-id="module-0-all-data-is-nested"><span class="header-section-number">1.1.1</span> Module 0: All Data is Nested</h3>
-<p>The conceptual foundation. Why the independence assumption is almost always violated, how to measure how badly, and how to think about your data as a snapshot of a larger process.</p>
+<section id="module-0-all-data-is-nested" class="level3 g-col-12 g-col-md-4">
+<h3 class="anchored" data-anchor-id="module-0-all-data-is-nested">Module 0: All Data is Nested</h3>
+<p>Why the independence assumption is almost always violated, and how to think about your data as a snapshot of a larger process.</p>
+<p><a href="./module-0/intro.html" class="btn btn-primary">Module 0 →</a></p>
+<p><strong>Sections</strong></p>
+<ul>
+<li><a href="./module-0/part1.html">Part 1: The DGP Perspective</a></li>
+<li><a href="./module-0/part2.html">Part 2: Types of Nested Structures</a></li>
+<li><a href="./module-0/part3.html">Part 3: Measuring Non-Independence</a></li>
+<li><a href="./module-0/part4.html">Part 4: Data Structure and Format</a></li>
+</ul>
 </section>
-<section id="module-1-the-mixed-effects-framework" class="level3 g-col-12" data-number="1.1.2">
-<h3 data-number="1.1.2" class="anchored" data-anchor-id="module-1-the-mixed-effects-framework"><span class="header-section-number">1.1.2</span> Module 1: The Mixed-Effects Framework</h3>
-<p>The core toolkit: fixed effects, random intercepts, random slopes, three-level structures, and crossed random effects. With a deep focus on the assumptions each model makes and how to check them.</p>
+<section id="module-1-the-mixed-effects-framework" class="level3 g-col-12 g-col-md-4">
+<h3 class="anchored" data-anchor-id="module-1-the-mixed-effects-framework">Module 1: The Mixed-Effects Framework</h3>
+<p>Fixed effects, random intercepts, random slopes, and three-level structures — with a focus on the assumptions each model makes and how to check them.</p>
+<p><a href="./module-1/intro.html" class="btn btn-primary">Module 1 →</a></p>
+<p><strong>Sections</strong></p>
+<ul>
+<li><a href="./module-1/part1.html">Part 1: Fixed Effects Models</a></li>
+<li><a href="./module-1/part2.html">Part 2: Random Intercepts</a></li>
+<li><a href="./module-1/part3.html">Part 3: Random Slopes</a></li>
+<li><a href="./module-1/part4.html">Part 4: Fixed vs.&nbsp;Random — When to Use Which</a></li>
+<li><a href="./module-1/part5.html">Part 5: Three-Level Structures</a></li>
+<li><a href="./module-1/part6.html">Part 6: Crossed Random Effects</a></li>
+</ul>
 </section>
-<section id="module-2-centering-betweenwithin-effects" class="level3 g-col-12" data-number="1.1.3">
-<h3 data-number="1.1.3" class="anchored" data-anchor-id="module-2-centering-betweenwithin-effects"><span class="header-section-number">1.1.3</span> Module 2: Centering &amp; Between/Within Effects</h3>
-<p>One of the most consequential (and least taught) decisions in multilevel analysis: what does your predictor mean? Grand-mean centering versus cluster-mean centering, the ecological fallacy, and Simpson’s Paradox.</p>
+<section id="module-2-centering-betweenwithin-effects" class="level3 g-col-12 g-col-md-4">
+<h3 class="anchored" data-anchor-id="module-2-centering-betweenwithin-effects">Module 2: Centering &amp; Between/Within Effects</h3>
+<p>What does your predictor actually mean? Grand-mean vs.&nbsp;cluster-mean centering, the ecological fallacy, and Simpson’s Paradox.</p>
+<p><a href="./module-2/intro.html" class="btn btn-primary">Module 2 →</a></p>
+<p><strong>Sections</strong></p>
+<ul>
+<li><a href="./module-2/part1.html">Part 1: Centering as Decomposition</a></li>
+<li><a href="./module-2/part2.html">Part 2: Separating Within and Between Effects</a></li>
+<li><a href="./module-2/part3.html">Part 3: Simpson’s Paradox</a></li>
+</ul>
 </section>
-<section id="module-3-inferential-threats-identification" class="level3 g-col-12" data-number="1.1.4">
-<h3 data-number="1.1.4" class="anchored" data-anchor-id="module-3-inferential-threats-identification"><span class="header-section-number">1.1.4</span> Module 3: Inferential Threats &amp; Identification</h3>
-<p>The identification toolkit: when standard regression fails, and what to do about it. Module 3 maps the inferential threats — omitted variables, selection, reverse causality, collider bias — and introduces the logic behind each recovery strategy. The full implementations live in Modules 4 and 5.</p>
+<section id="module-3-inferential-threats-identification" class="level3 g-col-12 g-col-md-4">
+<h3 class="anchored" data-anchor-id="module-3-inferential-threats-identification">Module 3: Inferential Threats &amp; Identification</h3>
+<p>When standard regression fails and what to do about it: omitted variables, selection, reverse causality, and the logic of each recovery strategy.</p>
+<p><a href="./module-3/intro.html" class="btn btn-primary">Module 3 →</a></p>
+<p><strong>Sections</strong></p>
+<ul>
+<li><a href="./module-3/part1.html">Part 1: Endogeneity</a></li>
+<li><a href="./module-3/part2.html">Part 2: Instrumental Variables</a></li>
+<li><a href="./module-3/part3.html">Part 3: Selection Effects &amp; Attrition</a></li>
+<li><a href="./module-3/part4.html">Part 4: Regression Discontinuity</a></li>
+<li><a href="./module-3/part5.html">Part 5: Difference-in-Differences</a></li>
+<li><a href="./module-3/part6.html">Part 6: Propensity Scores &amp; Matching</a></li>
+</ul>
 </section>
-<section id="module-4-longitudinal-data-change" class="level3 g-col-12" data-number="1.1.5">
-<h3 data-number="1.1.5" class="anchored" data-anchor-id="module-4-longitudinal-data-change"><span class="header-section-number">1.1.5</span> Module 4: Longitudinal Data &amp; Change</h3>
-<p>The observational track. Consumer panels, household finance data, and policy rollouts create longitudinal structures where the question is whether changes in information, incentives, prices, or defaults alter decision trajectories. Module 4 covers the full modeling arc — covariance structure, growth curves, event outcomes, missing data — and closes with the causal identification tools needed when panel data has an identification problem: DiD, ITS, panel IV, and time-varying propensity scores.</p>
+<section id="module-4-longitudinal-data-change" class="level3 g-col-12 g-col-md-4">
+<h3 class="anchored" data-anchor-id="module-4-longitudinal-data-change">Module 4: Longitudinal Data &amp; Change</h3>
+<p>Consumer panels, growth curves, event outcomes, and panel causal identification: DiD, ITS, panel IV, and time-varying propensity scores.</p>
+<p><a href="./module-4/intro.html" class="btn btn-primary">Module 4 →</a></p>
+<p><strong>Sections</strong></p>
+<ul>
+<li><a href="./module-4/part1.html">Part 1: From RM-ANOVA to Mixed Models</a></li>
+<li><a href="./module-4/part2.html">Part 2: Covariance Structures</a></li>
+<li><a href="./module-4/part3.html">Part 3: Growth Curve Models</a></li>
+<li><a href="./module-4/part4.html">Part 4: Latent Growth Curve Models</a></li>
+<li><a href="./module-4/part5.html">Part 5: Autoregressive Structures</a></li>
+<li><a href="./module-4/part6.html">Part 6: Cross-Lagged Panel Models</a></li>
+<li><a href="./module-4/part7.html">Part 7: Binary and Count Outcomes Over Time</a></li>
+<li><a href="./module-4/part8.html">Part 8: Survival Analysis</a></li>
+<li><a href="./module-4/part9.html">Part 9: Missing Data in Longitudinal Studies</a></li>
+<li><a href="./module-4/part10.html">Part 10: Applied Identification Strategies</a></li>
+</ul>
 </section>
-<section id="module-5-experimental-designs-with-nesting" class="level3 g-col-12" data-number="1.1.6">
-<h3 data-number="1.1.6" class="anchored" data-anchor-id="module-5-experimental-designs-with-nesting"><span class="header-section-number">1.1.6</span> Module 5: Experimental Designs with Nesting</h3>
-<p>The experimental track. Even randomized experiments have nesting: participants are crossed with product messages or policy stimuli; treatment arms may have coach or advisor clustering; multi-site replications create site-level variance. Module 5 covers correct model specification for these designs, power analysis, and — in Parts 8–9 — a self-contained unit on what to do when randomization is imperfect: non-compliance (ITT/LATE), non-random attrition (IPW), and quasi-experimental fixes.</p>
+<section id="module-5-experimental-designs-with-nesting" class="level3 g-col-12 g-col-md-4">
+<h3 class="anchored" data-anchor-id="module-5-experimental-designs-with-nesting">Module 5: Experimental Designs with Nesting</h3>
+<p>Crossed and partially nested designs, power analysis, and — when randomization is imperfect — non-compliance, attrition, and quasi-experimental fixes.</p>
+<p><a href="./module-5/intro.html" class="btn btn-primary">Module 5 →</a></p>
+<p><strong>Sections</strong></p>
+<ul>
+<li><a href="./module-5/part1.html">Part 1: Crossed Random Effects in Experiments</a></li>
+<li><a href="./module-5/part2.html">Part 2: Partially Nested Designs</a></li>
+<li><a href="./module-5/part3.html">Part 3: Maximal vs.&nbsp;Parsimonious Random Effects</a></li>
+<li><a href="./module-5/part4.html">Part 4: Multi-Site Experiments</a></li>
+<li><a href="./module-5/part5.html">Part 5: Power Analysis for Nested Designs</a></li>
+<li><a href="./module-5/part6.html">Part 6: Binary and Count Outcomes in Experiments</a></li>
+<li><a href="./module-5/part7.html">Part 7: Effect Sizes, Reporting, and Reproducibility</a></li>
+<li><a href="./module-5/part8.html">Part 8: Non-Compliance: ITT and LATE</a></li>
+<li><a href="./module-5/part9.html">Part 9: Quasi-Experimental Methods</a></li>
+</ul>
 </section>
 </div>
 </section>
-<section id="how-to-use-this-workshop" class="level2" data-number="1.2">
-<h2 data-number="1.2" class="anchored" data-anchor-id="how-to-use-this-workshop"><span class="header-section-number">1.2</span> How to Use This Workshop</h2>
+<section id="how-to-use-this-workshop" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-use-this-workshop">How to Use This Workshop</h2>
 <p>Each section pairs <strong>conceptual explanation</strong> with <strong>R tutorials</strong> and — wherever possible — both an experimental example and a secondary/observational data example. All code is shown using the toggle button at the top right of each page.</p>
 <p>This workshop assumes you are comfortable with basic regression and have used R before. No prior exposure to multilevel modeling is assumed.</p>
 </section>
-<section id="key-premise" class="level2" data-number="1.3">
-<h2 data-number="1.3" class="anchored" data-anchor-id="key-premise"><span class="header-section-number">1.3</span> Key Premise</h2>
+<section id="key-premise" class="level2">
+<h2 class="anchored" data-anchor-id="key-premise">Key Premise</h2>
 <blockquote class="blockquote">
 <p><strong>Science combines observable data with assumptions to infer latent or general processes.</strong> Research errors frequently stem from unexamined assumptions about the structure of that data. The goal of nested data models is not just to “control for clustering” — it is to recapture the data-generating process.</p>
 </blockquote>
 <p>The models here are tools for thinking. Understanding their assumptions — and when those assumptions fail — is the heart of this workshop.</p>
 
 
-</section>
 </section>
 
 </main> <!-- /main -->
@@ -708,7 +718,7 @@ ul.task-list li input[type="checkbox"] {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1040,7 +1050,7 @@ ul.task-list li input[type="checkbox"] {
   </div>
   <div class="nav-page nav-page-next">
       <a href="./module-0/intro.html" class="pagination-link" aria-label="Module 0: All Data is Nested">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Module 0: All Data is Nested</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1049,4 +1059,4 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

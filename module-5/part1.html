@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>37&nbsp; Crossed Random Effects in Experiments – Nested Data Structures</title>
+<title>Crossed Random Effects in Experiments – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -139,6 +140,14 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-5/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-5/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -150,7 +159,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-5/intro.html">Module 5: Experimental Designs with Nesting</a></li><li class="breadcrumb-item"><a href="../module-5/part1.html"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-5/intro.html">Module 5: Experimental Designs with Nesting</a></li><li class="breadcrumb-item"><a href="../module-5/part1.html"><span class="chapter-title">Crossed Random Effects in Experiments</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -180,8 +189,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -195,32 +203,27 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -236,44 +239,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -289,26 +285,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -324,44 +316,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -377,68 +362,57 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -454,62 +428,52 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -525,14 +489,12 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -547,12 +509,19 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#crossed-random-effects-in-experiments" id="toc-crossed-random-effects-in-experiments" class="nav-link active" data-scroll-target="#crossed-random-effects-in-experiments"><span class="header-section-number">38</span> Crossed Random Effects in Experiments</a>
+  <li><a href="#crossed-random-effects-in-experiments" id="toc-crossed-random-effects-in-experiments" class="nav-link active" data-scroll-target="#crossed-random-effects-in-experiments">Crossed Random Effects in Experiments</a>
   <ul class="collapse">
-  <li><a href="#the-stimuli-problem" id="toc-the-stimuli-problem" class="nav-link" data-scroll-target="#the-stimuli-problem"><span class="header-section-number">38.1</span> The Stimuli Problem</a></li>
-  <li><a href="#the-crossed-random-effects-solution" id="toc-the-crossed-random-effects-solution" class="nav-link" data-scroll-target="#the-crossed-random-effects-solution"><span class="header-section-number">38.2</span> The Crossed Random Effects Solution</a></li>
-  <li><a href="#assumptions" id="toc-assumptions" class="nav-link" data-scroll-target="#assumptions"><span class="header-section-number">38.3</span> Assumptions</a></li>
-  <li><a href="#the-westfall-kenny-judd-2014-power-argument" id="toc-the-westfall-kenny-judd-2014-power-argument" class="nav-link" data-scroll-target="#the-westfall-kenny-judd-2014-power-argument"><span class="header-section-number">38.4</span> The Westfall, Kenny &amp; Judd (2014) Power Argument</a></li>
+  <li><a href="#the-stimuli-are-random-problem" id="toc-the-stimuli-are-random-problem" class="nav-link" data-scroll-target="#the-stimuli-are-random-problem">The Stimuli-Are-Random Problem</a></li>
+  <li><a href="#crossed-not-nested" id="toc-crossed-not-nested" class="nav-link" data-scroll-target="#crossed-not-nested">Crossed, Not Nested</a></li>
+  <li><a href="#simulation-gain-vs.-loss-framing-and-wtp" id="toc-simulation-gain-vs.-loss-framing-and-wtp" class="nav-link" data-scroll-target="#simulation-gain-vs.-loss-framing-and-wtp">Simulation: Gain vs.&nbsp;Loss Framing and WTP</a>
+  <ul class="collapse">
+  <li><a href="#two-models-two-answers" id="toc-two-models-two-answers" class="nav-link" data-scroll-target="#two-models-two-answers">Two models, two answers</a></li>
+  <li><a href="#visualizing-the-two-variance-components" id="toc-visualizing-the-two-variance-components" class="nav-link" data-scroll-target="#visualizing-the-two-variance-components">Visualizing the two variance components</a></li>
+  </ul></li>
+  <li><a href="#the-juddwestfallkenny-2012-argument" id="toc-the-juddwestfallkenny-2012-argument" class="nav-link" data-scroll-target="#the-juddwestfallkenny-2012-argument">The Judd–Westfall–Kenny (2012) Argument</a></li>
+  <li><a href="#power-depends-on-both-n-and-number-of-stimuli" id="toc-power-depends-on-both-n-and-number-of-stimuli" class="nav-link" data-scroll-target="#power-depends-on-both-n-and-number-of-stimuli">Power Depends on Both N and Number of Stimuli</a></li>
+  <li><a href="#assumptions" id="toc-assumptions" class="nav-link" data-scroll-target="#assumptions">Assumptions</a></li>
+  <li><a href="#reviewer-challenge" id="toc-reviewer-challenge" class="nav-link" data-scroll-target="#reviewer-challenge">Reviewer Challenge</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -560,9 +529,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-5/intro.html">Module 5: Experimental Designs with Nesting</a></li><li class="breadcrumb-item"><a href="../module-5/part1.html"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-5/intro.html">Module 5: Experimental Designs with Nesting</a></li><li class="breadcrumb-item"><a href="../module-5/part1.html"><span class="chapter-title">Crossed Random Effects in Experiments</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Crossed Random Effects in Experiments</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -579,77 +548,149 @@ window.Quarto = {
 </header>
 
 
-<section id="crossed-random-effects-in-experiments" class="level1" data-number="38">
-<h1 data-number="38"><span class="header-section-number">38</span> Crossed Random Effects in Experiments</h1>
-<section id="the-stimuli-problem" class="level2" data-number="38.1">
-<h2 data-number="38.1" class="anchored" data-anchor-id="the-stimuli-problem"><span class="header-section-number">38.1</span> The Stimuli Problem</h2>
-<p>Imagine a social psychology experiment studying whether a message framed as a gain (“you will save $100”) versus a loss (“you will lose $100”) influences willingness to act. You write 12 gain-framed messages and 12 loss-framed messages. Each of 80 participants reads 6 messages (3 gain, 3 loss) and rates their likelihood of acting.</p>
-<p>The standard analysis: participant is the random factor, message condition is the fixed factor. This treats your 12+12 messages as if they were the <em>only</em> gain and loss messages that exist — as if your results generalize to the condition (framing), not to the population of possible messages.</p>
-<p>But your 12 gain messages are a sample from all possible gain-framing messages. Some are compelling; others are weak. If you happened to write unusually persuasive loss messages, your “framing effect” is inflated. The variance among messages is not residual noise — it is a second source of random variation that your model must account for.</p>
-<p><strong>Failing to include message as a random factor inflates Type I error.</strong> Judd, Westfall &amp; Kenny (2012) showed this using the “languages as fixed effects fallacy” as the model, but the problem extends to any stimulus set.</p>
+<section id="crossed-random-effects-in-experiments" class="level1">
+<h1>Crossed Random Effects in Experiments</h1>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Stimulus Sampling Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>What are you actually generalizing over?</strong> Not just participants — also over the stimuli (messages, gambles, products, scenarios) you used to operationalize your manipulation.</p>
+<p><strong>What goes wrong when you treat stimuli as fixed?</strong> Stimulus-level variance is absorbed into the residual, making the treatment effect look more precise than it is. Standard errors for the manipulation effect are too small. Type I error is inflated.</p>
+<p><strong>What is the fix?</strong> Add stimuli as a second random factor. Both participants <em>and</em> stimuli are sampled from populations of interest — both belong in the model.</p>
+</blockquote>
+</div>
+</div>
+<section id="the-stimuli-are-random-problem" class="level2">
+<h2 class="anchored" data-anchor-id="the-stimuli-are-random-problem">The Stimuli-Are-Random Problem</h2>
+<p>Every JDM experiment that presents multiple stimuli — gain- and loss-framed messages, product descriptions, gamble pairs, disclosure formats, price offers, policy options — has the same structural feature: the stimuli you used are a <em>sample</em> from a larger population of possible stimuli.</p>
+<p>A gain-frame study uses, say, 12 gain-framed messages. Those 12 were chosen (or written) by the researcher. Some turned out to be unusually compelling. Others fell flat. If you happened to write gain-framed messages that were particularly vivid and loss-framed messages that were blandly written, your “framing effect” captures both the actual psychological effect of framing <em>and</em> the luck of your specific stimulus draw.</p>
+<p><strong>The problem:</strong> If you treat your stimuli as fixed — as if these 12 messages were the only 12 that could ever represent gain framing — then stimulus-level variability is absorbed into the residual error term. The residual looks small and the treatment effect looks precise. But that precision is false.</p>
+<p><strong>The fix:</strong> Treat stimuli as a random factor, just like participants. Model both sources of random variability explicitly: participants vary in their baseline tendencies; stimuli vary in their baseline effectiveness. The treatment effect is estimated net of both.</p>
+<hr>
 </section>
-<section id="the-crossed-random-effects-solution" class="level2" data-number="38.2">
-<h2 data-number="38.2" class="anchored" data-anchor-id="the-crossed-random-effects-solution"><span class="header-section-number">38.2</span> The Crossed Random Effects Solution</h2>
-<p>Both participants and messages are random. Every participant sees multiple messages; every message is seen by multiple participants. They are <strong>crossed</strong> — neither is nested within the other.</p>
+<section id="crossed-not-nested" class="level2">
+<h2 class="anchored" data-anchor-id="crossed-not-nested">Crossed, Not Nested</h2>
+<p>In most within-subjects experiments, participants and stimuli are <strong>crossed</strong>: every participant sees multiple stimuli, and every stimulus is seen by multiple participants. Neither factor is nested within the other.</p>
+<p>This is different from the nested structures in Modules 1–2. In a nested design, each participant belongs to <em>one</em> group and each observation belongs to <em>one</em> participant. In a crossed design, participants and stimuli form a matrix — each cell is a (participant × stimulus) observation:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: center;">Message 1</th>
+<th style="text-align: center;">Message 2</th>
+<th style="text-align: center;">Message 3</th>
+<th style="text-align: center;">…</th>
+<th style="text-align: center;">Message 24</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Participant 1</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">✓</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Participant 2</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">✓</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Participant 3</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">…</td>
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">…</td>
+<td style="text-align: center;">…</td>
+</tr>
+</tbody>
+</table>
+<p>Each checkmark is one observation. Participant random effects capture stable differences in how people respond (e.g., generally higher WTP). Stimulus random effects capture stable differences in how stimuli perform (e.g., a particularly vivid message consistently gets higher responses). The treatment effect — gain vs.&nbsp;loss framing — is what remains after removing both sources of variance.</p>
+<p>When participants only see a <em>subset</em> of stimuli, the design is <strong>partially crossed</strong>. The analysis is the same; <code>lme4</code> handles incomplete designs automatically.</p>
+<hr>
+</section>
+<section id="simulation-gain-vs.-loss-framing-and-wtp" class="level2">
+<h2 class="anchored" data-anchor-id="simulation-gain-vs.-loss-framing-and-wtp">Simulation: Gain vs.&nbsp;Loss Framing and WTP</h2>
+<p>We simulate a framing experiment: 60 participants each see 12 of 24 gain/loss-framed messages describing financial product benefits. They rate their willingness to adopt the product. The true framing effect is +3 points (loss framing increases adoption intent). Both participants and messages have their own stable variance.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_participants <span class="ot">&lt;-</span> <span class="dv">60</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_messages     <span class="ot">&lt;-</span> <span class="dv">24</span>  <span class="co"># 12 gain, 12 loss</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_messages     <span class="ot">&lt;-</span> <span class="dv">24</span>  <span class="co"># 12 gain-framed, 12 loss-framed</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>participant_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">0</span>, <span class="dv">8</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>message_effects     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_messages, <span class="dv">0</span>, <span class="dv">6</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>participant_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">0</span>, <span class="dv">8</span>)   <span class="co"># SD = 8 (large between-person spread)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>message_effects     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_messages, <span class="dv">0</span>, <span class="dv">6</span>)        <span class="co"># SD = 6 (meaningful between-message spread)</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>message_condition   <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"gain"</span>, <span class="st">"loss"</span>), <span class="at">each =</span> <span class="dv">12</span>)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Each participant sees 6 messages (3 gain, 3 loss)</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># We'll simulate a fully crossed subset for clarity</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Partial crossing: each participant sees approximately half the messages</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2025</span>)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>df_exp <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_participants,</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">message     =</span> <span class="dv">1</span><span class="sc">:</span>n_messages</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>((message <span class="sc">&lt;=</span> <span class="dv">12</span> <span class="sc">&amp;</span> participant <span class="sc">%%</span> <span class="dv">2</span> <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>         (message <span class="sc">&gt;</span> <span class="dv">12</span>  <span class="sc">&amp;</span> participant <span class="sc">%%</span> <span class="dv">2</span> <span class="sc">==</span> <span class="dv">0</span>) <span class="sc">|</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>         <span class="fu">sample</span>(<span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">FALSE</span>), <span class="fu">n</span>(), <span class="at">replace =</span> <span class="cn">TRUE</span>, <span class="at">prob =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.75</span>))) <span class="sc">|&gt;</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">condition    =</span> message_condition[message],</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_eff        =</span> participant_effects[participant],</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">m_eff        =</span> message_effects[message],</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># True framing effect: loss &gt; gain by 3 points</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">WTP          =</span> <span class="dv">50</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> (condition <span class="sc">==</span> <span class="st">"loss"</span>) <span class="sc">+</span> p_eff <span class="sc">+</span> m_eff <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant  =</span> <span class="fu">factor</span>(participant),</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">message      =</span> <span class="fu">factor</span>(message)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">prop =</span> <span class="fl">0.5</span>) <span class="sc">|&gt;</span>   <span class="co"># each participant sees ~12 messages</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">condition   =</span> message_condition[message],</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_eff       =</span> participant_effects[participant],</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">m_eff       =</span> message_effects[message],</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">WTP         =</span> <span class="dv">50</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> (condition <span class="sc">==</span> <span class="st">"loss"</span>) <span class="sc">+</span> p_eff <span class="sc">+</span> m_eff <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">5</span>),</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant =</span> <span class="fu">factor</span>(participant),</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">message     =</span> <span class="fu">factor</span>(message)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
+<section id="two-models-two-answers" class="level3">
+<h3 class="anchored" data-anchor-id="two-models-two-answers">Two models, two answers</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Wrong: only participant as random effect (ignores message variance)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Incorrect: ignores stimulus variance</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>m_wrong <span class="ot">&lt;-</span> <span class="fu">lmer</span>(WTP <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant), <span class="at">data =</span> df_exp)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Correct: both participant and message as random effects</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Correct: both participant and message as crossed random effects</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m_correct <span class="ot">&lt;-</span> <span class="fu">lmer</span>(WTP <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> message), <span class="at">data =</span> df_exp)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare SE for the condition effect</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_wrong,   <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"conditionloss"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Wrong (no message RE)"</span>),</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_correct, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"conditionloss"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Correct (participant + message RE)"</span>)</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, statistic, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Ignoring message variance shrinks the SE — anti-conservative inference"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_wrong,   <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"conditionloss"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Incorrect: participant RE only</span><span class="sc">\n</span><span class="st">(ignores message variance)"</span>),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_correct, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"conditionloss"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Correct: participant + message RE</span><span class="sc">\n</span><span class="st">(crossed random effects)"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, estimate, std.error, statistic, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Ignoring message variance produces an overconfident SE. The correct crossed model reveals the true uncertainty about the framing effect across all possible messages of this type."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Ignoring message variance shrinks the SE — anti-conservative inference</caption>
+<caption>Ignoring message variance produces an overconfident SE. The correct crossed model reveals the true uncertainty about the framing effect across all possible messages of this type.</caption>
 <colgroup>
-<col style="width: 48%">
-<col style="width: 12%">
-<col style="width: 13%">
-<col style="width: 13%">
-<col style="width: 11%">
+<col style="width: 61%">
+<col style="width: 9%">
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 8%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -662,39 +703,163 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Wrong (no message RE)</td>
-<td style="text-align: right;">1.579</td>
-<td style="text-align: right;">0.710</td>
-<td style="text-align: right;">2.224</td>
-<td style="text-align: right;">0.026</td>
+<td style="text-align: left;">Incorrect: participant RE only</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Correct (participant + message RE)</td>
-<td style="text-align: right;">1.776</td>
-<td style="text-align: right;">2.935</td>
-<td style="text-align: right;">0.605</td>
-<td style="text-align: right;">0.551</td>
+<td style="text-align: left;">(ignores message variance)</td>
+<td style="text-align: right;">1.785</td>
+<td style="text-align: right;">0.633</td>
+<td style="text-align: right;">2.819</td>
+<td style="text-align: right;">0.005</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Correct: participant + message RE</td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">(crossed random effects)</td>
+<td style="text-align: right;">1.858</td>
+<td style="text-align: right;">2.787</td>
+<td style="text-align: right;">0.667</td>
+<td style="text-align: right;">0.512</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>The model that ignores message variance has a smaller standard error — it looks more precise — but it is wrong. Message-level variance is being folded into the residual, making the estimate look more reliable than it is.</p>
+<p>The incorrect model looks more precise — but its SE is too small because it attributes stimulus-level variance to residual noise instead of a proper separate component. This is a false precision that will not replicate when a different message set is used.</p>
 </section>
-<section id="assumptions" class="level2" data-number="38.3">
-<h2 data-number="38.3" class="anchored" data-anchor-id="assumptions"><span class="header-section-number">38.3</span> Assumptions</h2>
+<section id="visualizing-the-two-variance-components" class="level3">
+<h3 class="anchored" data-anchor-id="visualizing-the-two-variance-components">Visualizing the two variance components</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract variance components from the correct model</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>vc_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">VarCorr</span>(m_correct)) <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(grp <span class="sc">!=</span> <span class="st">"Residual"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">component =</span> <span class="fu">case_when</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>      grp <span class="sc">==</span> <span class="st">"participant"</span> <span class="sc">~</span> <span class="st">"Between-participant variance</span><span class="sc">\n</span><span class="st">(stable individual tendencies)"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>      grp <span class="sc">==</span> <span class="st">"message"</span>     <span class="sc">~</span> <span class="st">"Between-message variance</span><span class="sc">\n</span><span class="st">(stimulus quality differences)"</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span>                 <span class="sc">~</span> grp</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd =</span> sdcor</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>vc_res <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">VarCorr</span>(m_correct)) <span class="sc">|&gt;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(grp <span class="sc">==</span> <span class="st">"Residual"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">component =</span> <span class="st">"Within-cell residual</span><span class="sc">\n</span><span class="st">(unexplained individual × message variation)"</span>, <span class="at">sd =</span> sdcor)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>vc_all <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(vc_df, vc_res) <span class="sc">|&gt;</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">component =</span> <span class="fu">factor</span>(component, <span class="at">levels =</span> <span class="fu">c</span>(</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Between-participant variance</span><span class="sc">\n</span><span class="st">(stable individual tendencies)"</span>,</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Between-message variance</span><span class="sc">\n</span><span class="st">(stimulus quality differences)"</span>,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Within-cell residual</span><span class="sc">\n</span><span class="st">(unexplained individual × message variation)"</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  )))</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(vc_all, <span class="fu">aes</span>(<span class="at">x =</span> component, <span class="at">y =</span> sd, <span class="at">fill =</span> component)) <span class="sc">+</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="fl">0.55</span>, <span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#2d6a4f"</span>, <span class="st">"#cccccc"</span>)) <span class="sc">+</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Variance components: participant, message, and residual"</span>,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"The incorrect model collapses the message component into residual — shrinking the SE artificially"</span>,</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="cn">NULL</span>,</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"SD (variance component)"</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part1_files/figure-html/variance-plot-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="the-juddwestfallkenny-2012-argument" class="level2">
+<h2 class="anchored" data-anchor-id="the-juddwestfallkenny-2012-argument">The Judd–Westfall–Kenny (2012) Argument</h2>
+<p>Judd, Westfall &amp; Kenny (2012) documented a systematic error in social psychology experiments: researchers treat stimuli (words, faces, messages, images) as <em>fixed</em> rather than random. They labeled this the <strong>“stimuli-as-fixed-effects fallacy.”</strong> The same problem applies directly to JDM research:</p>
+<ul>
+<li>A study of risk communication using 8 gamble descriptions treats those 8 as the only possible gambles — when they are clearly a sample</li>
+<li>A study of disclosure effects on WTP using 6 product descriptions generalizes implicitly to all product descriptions — but the model does not account for stimulus-level variance</li>
+<li>A study of default effects using 4 enrollment forms treats those 4 forms as exhaustive — underestimating between-form variance</li>
+</ul>
+<p>The consequence is systematic Type I error inflation that is <em>not</em> corrected by increasing sample size alone. Adding more participants does not help if the binding constraint is stimulus-level variance.</p>
+<hr>
+</section>
+<section id="power-depends-on-both-n-and-number-of-stimuli" class="level2">
+<h2 class="anchored" data-anchor-id="power-depends-on-both-n-and-number-of-stimuli">Power Depends on Both N and Number of Stimuli</h2>
+<p>Westfall, Kenny &amp; Judd (2014) showed that in crossed designs, statistical power is jointly determined by the number of participants <em>and</em> the number of stimuli. With only a few stimuli, adding more participants eventually yields diminishing returns because stimulus-level variance remains the binding constraint.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Schematic: how SE changes with N_stimuli vs. N_participants</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (simplified illustration, not simulation-calibrated)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>se_grid <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_stim =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">32</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_part =</span> <span class="fu">seq</span>(<span class="dv">20</span>, <span class="dv">200</span>, <span class="at">by =</span> <span class="dv">20</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Approximate SE ∝ 1/sqrt(n_part) + 1/sqrt(n_stim), simplified</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">approx_se =</span> <span class="fu">sqrt</span>(<span class="dv">64</span> <span class="sc">/</span> n_part <span class="sc">+</span> <span class="dv">36</span> <span class="sc">/</span> n_stim),</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_stim    =</span> <span class="fu">factor</span>(<span class="fu">paste</span>(n_stim, <span class="st">"stimuli"</span>), <span class="at">levels =</span> <span class="fu">paste</span>(<span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">32</span>), <span class="st">"stimuli"</span>))</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(se_grid, <span class="fu">aes</span>(<span class="at">x =</span> n_part, <span class="at">y =</span> approx_se, <span class="at">color =</span> n_stim, <span class="at">group =</span> n_stim)) <span class="sc">+</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#c0392b"</span>, <span class="st">"#e67e22"</span>, <span class="st">"#2d6a4f"</span>, <span class="st">"#1e3a5f"</span>),</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">name   =</span> <span class="cn">NULL</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"SE of treatment effect as function of N participants and N stimuli"</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"With few stimuli, adding participants has limited impact. Expand the stimulus set."</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Number of participants"</span>,</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Approximate SE of treatment effect"</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part1_files/figure-html/power-schematic-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Practical implication:</strong> If you are planning a framing experiment and you have only 6 message pairs, consider doubling the message set before doubling the participant count. The precision of your framing-effect estimate depends heavily on how many distinct stimuli you have sampled.</p>
+<hr>
+</section>
+<section id="assumptions" class="level2">
+<h2 class="anchored" data-anchor-id="assumptions">Assumptions</h2>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Assumption: Both Participants and Stimuli are Representative Samples
+<span class="screen-reader-only">Warning</span>Assumption: Stimuli Are a Representative Sample From the Population of Interest
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> The crossed random effects model generalizes over both the sampled participants <em>and</em> the sampled stimuli. If your stimuli are not representative of the population you want to generalize to (e.g., you hand-selected the most extreme examples), the generalization is invalid.</p>
-<p><strong>How to check:</strong> Reflect on how your stimuli were selected. Were they sampled systematically, or chosen to maximize the effect? If the latter, your results may not replicate with a different stimulus set.</p>
+<p><strong>Plain-language meaning:</strong> The crossed model generalizes the treatment effect to new participants <em>and</em> to new stimuli drawn from the same population. This is only valid if your stimuli were sampled in a way that represents the full range of relevant stimuli — not cherry-picked to maximize or demonstrate an effect.</p>
+<p><strong>What the model is assuming away:</strong> The possibility that you selected stimuli precisely because they produced the pattern you expected — in which case the stimulus “sample” is not a random draw from the population of all possible stimuli.</p>
+<p><strong>JDM example:</strong> A framing researcher writes 12 gain messages and 12 loss messages. If the loss messages were unconsciously written to be more concrete and vivid (because the researcher was more practiced at loss language), the between-condition difference reflects both framing and writing quality.</p>
+<p><strong>Experimental analog in observational work:</strong> In observational stimulus-response data (e.g., consumer responses to real advertisements), stimuli are not randomly sampled — they are produced by advertisers with incentives to optimize. The crossed model would still be appropriate for inference about the sample, but generalization to “all possible ads” requires caution.</p>
+<p><strong>What a skeptical reviewer might say:</strong> “How were your stimuli selected? Were they piloted and retained based on effect-size criteria? If so, the crossed-effects estimate may overstate how well the manipulation generalizes.”</p>
+<p><strong>Observable warning sign:</strong> Between-stimulus variance that is unusually low (suggesting pre-selection of comparable stimuli) or unusually high (suggesting highly heterogeneous stimuli from different populations).</p>
+<p><strong>What to check:</strong> Report stimulus-level ICC: <span class="math inline">\(\sigma^2_{\text{message}} / (\sigma^2_{\text{message}} + \sigma^2_{\text{residual}})\)</span>. If it is effectively zero, message variance is negligible and the concern is less pressing. If it is large, the stimulus sample matters a lot and should be defended.</p>
+<p><strong>What claim survives if the assumption is doubtful:</strong> The treatment effect estimate for <em>these specific stimuli</em> is still valid. Generalization to the population of stimuli depends on representativeness.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -703,19 +868,36 @@ window.Quarto = {
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Assumption: Random Effects are Independent of the Experimental Manipulation
+<span class="screen-reader-only">Warning</span>Assumption: Random Effects for Participants and Stimuli Are Independent of the Manipulation
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>What it means:</strong> The random intercept for message <span class="math inline">\(m\)</span> should be unrelated to whether that message is in the gain or loss condition. This is automatically satisfied in a well-designed experiment where condition is randomly assigned to messages.</p>
-<p><strong>How to check:</strong> In a fully crossed design (every participant sees every message), this is guaranteed. In partial crossing, verify that assignment was randomized.</p>
+<p><strong>Plain-language meaning:</strong> The model assumes that which stimuli end up in the gain condition versus the loss condition is unrelated to their “natural strength” as stimuli. In other words, the assignment of stimuli to conditions was not influenced by stimulus quality.</p>
+<p><strong>What the model is assuming away:</strong> Any correlation between stimulus random intercepts and condition assignment — which would exist if, for example, researchers assigned their best-quality messages to the manipulation they expected to produce the larger effect.</p>
+<p><strong>JDM example:</strong> If a researcher piloted messages and assigned the most persuasive ones to the loss-frame condition (expecting loss aversion to need less help), the loss condition starts with a built-in quality advantage.</p>
+<p><strong>What a skeptical reviewer might say:</strong> “Were stimuli randomly assigned to conditions, or were they constructed for their assigned condition from the start? If constructed, the random-effects independence assumption requires that condition-specific writing quality is negligible.”</p>
+<p><strong>What to check:</strong> In a fully counterbalanced design (where each message can appear in either condition across participants), this assumption is guaranteed by design. In a design where stimuli were created for a specific condition, the assumption must be argued conceptually.</p>
 </div>
 </div>
+<hr>
 </section>
-<section id="the-westfall-kenny-judd-2014-power-argument" class="level2" data-number="38.4">
-<h2 data-number="38.4" class="anchored" data-anchor-id="the-westfall-kenny-judd-2014-power-argument"><span class="header-section-number">38.4</span> The Westfall, Kenny &amp; Judd (2014) Power Argument</h2>
-<p>Westfall, Kenny &amp; Judd (2014) extended this analysis to show that <strong>power depends on both the number of participants and the number of stimuli</strong>. Adding more participants when you have only a few stimuli can give you very little additional power — because stimulus-level variance is the binding constraint.</p>
-<p>This has direct implications for sample size planning: you should increase your stimulus set, not just your participant count.</p>
+<section id="reviewer-challenge" class="level2">
+<h2 class="anchored" data-anchor-id="reviewer-challenge">Reviewer Challenge</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>What a Reviewer Would Ask
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Challenge 1:</strong> “You have only 8 messages per condition. Isn’t that too few to treat messages as random?” The answer is: too few for high power, yes — but that is an argument for adding more stimuli, not for treating the existing stimuli as fixed. Treating 8 messages as fixed asserts that those exact messages are the population of interest, which makes the result entirely non-generalizable. A small number of stimuli produces low power with correct random effects; it produces false precision with fixed effects.</p>
+<p><strong>Challenge 2:</strong> “Your message random effect variance is larger than your participant variance. Does that mean messages matter more than participants?” Not necessarily — it means there is more heterogeneity across your message set than across your participant sample. This could reflect genuine message quality differences, or it could reflect that your message set was less homogeneous than your participant pool. Either way, the correct model accounts for both.</p>
+<p><strong>Challenge 3:</strong> “Why not just average across messages and analyze at the participant level?” Averaging loses information and implicitly weights all messages equally, which is rarely justified. More importantly, it only corrects participant-level inference — it does not account for the possibility that the results are specific to this particular message set rather than generalizing to the population of possible messages. Averaging kills the second random effect.</p>
+</div>
+</div>
 
 
 </section>
@@ -846,7 +1028,7 @@ window.Quarto = {
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1175,13 +1357,13 @@ window.Quarto = {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../module-5/intro.html" class="pagination-link" aria-label="Overview">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span>
+      <a href="../module-5/intro.html" class="pagination-link" aria-label="Module 5: Experimental Designs with Nesting">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../module-5/part2.html" class="pagination-link" aria-label="Partially Nested Designs">
-        <span class="nav-page-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Partially Nested Designs</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

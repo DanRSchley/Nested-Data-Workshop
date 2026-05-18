@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>29&nbsp; Latent Growth Curve Models (SEM) – Nested Data Structures</title>
+<title>Latent Growth Curve Models (SEM) – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -139,6 +140,14 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-4/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-4/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -150,7 +159,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part4.html"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part4.html"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -180,8 +189,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -195,32 +203,27 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -236,44 +239,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -289,26 +285,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -324,44 +316,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -377,68 +362,57 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -454,62 +428,52 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -525,14 +489,12 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -547,14 +509,18 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#latent-growth-curve-models" id="toc-latent-growth-curve-models" class="nav-link active" data-scroll-target="#latent-growth-curve-models"><span class="header-section-number">30</span> Latent Growth Curve Models</a>
+  <li><a href="#latent-growth-curve-models" id="toc-latent-growth-curve-models" class="nav-link active" data-scroll-target="#latent-growth-curve-models">Latent Growth Curve Models</a>
   <ul class="collapse">
-  <li><a href="#two-languages-for-the-same-model" id="toc-two-languages-for-the-same-model" class="nav-link" data-scroll-target="#two-languages-for-the-same-model"><span class="header-section-number">30.1</span> Two Languages for the Same Model</a></li>
-  <li><a href="#the-sem-framing" id="toc-the-sem-framing" class="nav-link" data-scroll-target="#the-sem-framing"><span class="header-section-number">30.2</span> The SEM Framing</a></li>
-  <li><a href="#fitting-an-lgc-model-in-lavaan" id="toc-fitting-an-lgc-model-in-lavaan" class="nav-link" data-scroll-target="#fitting-an-lgc-model-in-lavaan"><span class="header-section-number">30.3</span> Fitting an LGC Model in lavaan</a></li>
-  <li><a href="#the-equivalence-with-mlm" id="toc-the-equivalence-with-mlm" class="nav-link" data-scroll-target="#the-equivalence-with-mlm"><span class="header-section-number">30.4</span> The Equivalence with MLM</a></li>
-  <li><a href="#when-the-sem-framing-adds-value" id="toc-when-the-sem-framing-adds-value" class="nav-link" data-scroll-target="#when-the-sem-framing-adds-value"><span class="header-section-number">30.5</span> When the SEM Framing Adds Value</a></li>
-  <li><a href="#assumptions-of-lgc-models" id="toc-assumptions-of-lgc-models" class="nav-link" data-scroll-target="#assumptions-of-lgc-models"><span class="header-section-number">30.6</span> Assumptions of LGC Models</a></li>
+  <li><a href="#two-languages-for-the-same-model" id="toc-two-languages-for-the-same-model" class="nav-link" data-scroll-target="#two-languages-for-the-same-model">Two Languages for the Same Model</a></li>
+  <li><a href="#the-sem-framing" id="toc-the-sem-framing" class="nav-link" data-scroll-target="#the-sem-framing">The SEM Framing</a></li>
+  <li><a href="#fitting-an-lgc-model-in-lavaan" id="toc-fitting-an-lgc-model-in-lavaan" class="nav-link" data-scroll-target="#fitting-an-lgc-model-in-lavaan">Fitting an LGC Model in lavaan</a>
+  <ul class="collapse">
+  <li><a href="#jdm-context-savings-growth-after-loyalty-program-enrollment" id="toc-jdm-context-savings-growth-after-loyalty-program-enrollment" class="nav-link" data-scroll-target="#jdm-context-savings-growth-after-loyalty-program-enrollment">JDM Context: Savings Growth After Loyalty Program Enrollment</a></li>
+  <li><a href="#visualizing-what-the-latent-factors-mean" id="toc-visualizing-what-the-latent-factors-mean" class="nav-link" data-scroll-target="#visualizing-what-the-latent-factors-mean">Visualizing What the Latent Factors Mean</a></li>
+  </ul></li>
+  <li><a href="#the-equivalence-with-mlm" id="toc-the-equivalence-with-mlm" class="nav-link" data-scroll-target="#the-equivalence-with-mlm">The Equivalence with MLM</a></li>
+  <li><a href="#when-the-sem-framing-adds-value" id="toc-when-the-sem-framing-adds-value" class="nav-link" data-scroll-target="#when-the-sem-framing-adds-value">When the SEM Framing Adds Value</a></li>
+  <li><a href="#assumptions-of-lgc-models" id="toc-assumptions-of-lgc-models" class="nav-link" data-scroll-target="#assumptions-of-lgc-models">Assumptions of LGC Models</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -562,9 +528,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part4.html"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-4/intro.html">Module 4: Longitudinal Data &amp; Change</a></li><li class="breadcrumb-item"><a href="../module-4/part4.html"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -581,70 +547,139 @@ window.Quarto = {
 </header>
 
 
-<section id="latent-growth-curve-models" class="level1" data-number="30">
-<h1 data-number="30"><span class="header-section-number">30</span> Latent Growth Curve Models</h1>
-<section id="two-languages-for-the-same-model" class="level2" data-number="30.1">
-<h2 data-number="30.1" class="anchored" data-anchor-id="two-languages-for-the-same-model"><span class="header-section-number">30.1</span> Two Languages for the Same Model</h2>
+<section id="latent-growth-curve-models" class="level1">
+<h1>Latent Growth Curve Models</h1>
+<section id="two-languages-for-the-same-model" class="level2">
+<h2 class="anchored" data-anchor-id="two-languages-for-the-same-model">Two Languages for the Same Model</h2>
 <p>The growth curve model from Part 3 and the <strong>Latent Growth Curve Model (LGC)</strong> from structural equation modeling are mathematically equivalent. They answer the same questions using different parameterizations and different software.</p>
 <p>Understanding both languages is valuable because: 1. Many psychology researchers encounter LGC models in SEM training (Mplus, lavaan) before they encounter MLM-based growth models 2. The SEM framing makes certain things explicit that are implicit in MLM — particularly the role of measurement error and the ability to model multiple growth processes simultaneously 3. Reviewing both frames deepens understanding of what the model is actually doing</p>
 </section>
-<section id="the-sem-framing" class="level2" data-number="30.2">
-<h2 data-number="30.2" class="anchored" data-anchor-id="the-sem-framing"><span class="header-section-number">30.2</span> The SEM Framing</h2>
+<section id="the-sem-framing" class="level2">
+<h2 class="anchored" data-anchor-id="the-sem-framing">The SEM Framing</h2>
 <p>In the latent growth curve model, the trajectory is represented by <strong>two latent variables</strong>: - <strong>Intercept factor (η_i):</strong> The latent initial level for each person - <strong>Slope factor (η_s):</strong> The latent rate of change for each person</p>
 <p>Observed scores at each time point are modeled as: <span class="math display">\[Y_{ti} = 1 \cdot \eta_i + \lambda_t \cdot \eta_s + \varepsilon_{ti}\]</span></p>
 <p>where <span class="math inline">\(\lambda_t\)</span> are <strong>factor loadings</strong> that encode the time metric (e.g., <span class="math inline">\(\lambda_1 = 0, \lambda_2 = 1, \lambda_3 = 2\)</span> for linear growth), and <span class="math inline">\(\varepsilon_{ti}\)</span> are measurement residuals.</p>
 <p>The intercept factor has loadings of 1.0 at all time points. The slope factor has loadings equal to the time coding.</p>
 </section>
-<section id="fitting-an-lgc-model-in-lavaan" class="level2" data-number="30.3">
-<h2 data-number="30.3" class="anchored" data-anchor-id="fitting-an-lgc-model-in-lavaan"><span class="header-section-number">30.3</span> Fitting an LGC Model in lavaan</h2>
+<section id="fitting-an-lgc-model-in-lavaan" class="level2">
+<h2 class="anchored" data-anchor-id="fitting-an-lgc-model-in-lavaan">Fitting an LGC Model in lavaan</h2>
+<section id="jdm-context-savings-growth-after-loyalty-program-enrollment" class="level3">
+<h3 class="anchored" data-anchor-id="jdm-context-savings-growth-after-loyalty-program-enrollment">JDM Context: Savings Growth After Loyalty Program Enrollment</h3>
+<p>A financial services firm tracks 150 customers’ monthly net savings for 5 months after they enroll in a loyalty-and-coaching program. The key substantive questions:</p>
+<ul>
+<li><strong>On average</strong>, how much do customers save at enrollment, and how fast does savings grow?</li>
+<li><strong>How much do they vary?</strong> Do some customers start high and stay high? Do some start low but grow quickly?</li>
+<li><strong>Do initial level and growth rate covary?</strong> Customers who start with high savings might grow more slowly (ceiling effects) or more quickly (financially engaged customers who compound good habits).</li>
+</ul>
+<p>These are precisely the questions the latent growth curve model answers. The intercept factor captures each customer’s baseline savings level; the slope factor captures their personal savings growth trajectory.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate data</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">150</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>intercepts <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">50</span>, <span class="dv">8</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>slopes     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="sc">-</span><span class="dv">2</span>, <span class="fl">1.5</span>)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>, <span class="cf">function</span>(t) intercepts <span class="sc">+</span> slopes <span class="sc">*</span> t <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">4</span>))</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(Y) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"y"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>df_lgc <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(Y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 150 loyalty program customers tracked for 5 months</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Outcome: monthly net savings (€)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">150</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>intercepts <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">500</span>, <span class="dv">80</span>)   <span class="co"># wide between-customer variation in baseline savings</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>slopes     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n,  <span class="dv">15</span>, <span class="dv">12</span>)   <span class="co"># some customers grow savings fast; others plateau</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>, <span class="cf">function</span>(t) intercepts <span class="sc">+</span> slopes <span class="sc">*</span> t <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">35</span>))</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(Y) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"savings_m"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)   <span class="co"># monthly savings at months 1–5</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>df_lgc <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(Y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
+</section>
+<section id="visualizing-what-the-latent-factors-mean" class="level3">
+<h3 class="anchored" data-anchor-id="visualizing-what-the-latent-factors-mean">Visualizing What the Latent Factors Mean</h3>
+<p>Before fitting the model, it helps to see what the intercept and slope factors represent in individual trajectories.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Latent growth curve model in lavaan</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>lgc_model <span class="ot">&lt;-</span> <span class="st">'</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="st">  # Intercept factor (loadings all fixed to 1)</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="st">  intercept =~ 1*y1 + 1*y2 + 1*y3 + 1*y4 + 1*y5</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="st">  # Slope factor (loadings = time coding: 0, 1, 2, 3, 4)</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="st">  slope     =~ 0*y1 + 1*y2 + 2*y3 + 3*y4 + 4*y5</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="st">  # Means of latent factors (the fixed effects)</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="st">  intercept ~ 1</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="st">  slope     ~ 1</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="st">  # Variances of latent factors (random effects variance)</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="st">  intercept ~~ intercept</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="st">  slope     ~~ slope</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="st">  # Covariance between intercept and slope</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="st">  intercept ~~ slope</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="st">  # Residual variances (constrained equal across time for simplicity)</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="st">  y1 ~~ a*y1</span></span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="st">  y2 ~~ a*y2</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="st">  y3 ~~ a*y3</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="st">  y4 ~~ a*y4</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="st">  y5 ~~ a*y5</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>m_lgc <span class="ot">&lt;-</span> <span class="fu">growth</span>(lgc_model, <span class="at">data =</span> df_lgc)</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m_lgc, <span class="at">fit.measures =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Draw 12 representative individual trajectories</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df_vis <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">id        =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">intercept =</span> <span class="fu">c</span>(intercepts[<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>]),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">slope     =</span> <span class="fu">c</span>(slopes[<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>])</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_grid</span>(<span class="at">time =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">savings =</span> intercept <span class="sc">+</span> slope <span class="sc">*</span> time <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">25</span>),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">id =</span> <span class="fu">factor</span>(id))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>grand_intercept <span class="ot">&lt;-</span> <span class="fu">mean</span>(intercepts)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>grand_slope     <span class="ot">&lt;-</span> <span class="fu">mean</span>(slopes)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_vis, <span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">y =</span> savings)) <span class="sc">+</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group =</span> id), <span class="at">alpha =</span> <span class="fl">0.35</span>, <span class="at">color =</span> <span class="st">"#4393c3"</span>) <span class="sc">+</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">group =</span> id), <span class="at">alpha =</span> <span class="fl">0.35</span>, <span class="at">color =</span> <span class="st">"#4393c3"</span>, <span class="at">size =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Mean growth line</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> grand_intercept, <span class="at">slope =</span> grand_slope,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>              <span class="at">color =</span> <span class="st">"#d73027"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Label: intercept at time = 0</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> <span class="dv">0</span>, <span class="at">y =</span> grand_intercept, <span class="at">color =</span> <span class="st">"#d73027"</span>, <span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>,  <span class="at">x =</span> <span class="fl">0.15</span>, <span class="at">y =</span> grand_intercept <span class="sc">-</span> <span class="dv">30</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">paste0</span>(<span class="st">"Mean intercept: \u20ac"</span>, <span class="fu">round</span>(grand_intercept), <span class="st">"/month at enrollment"</span>),</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>           <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="fl">3.5</span>, <span class="at">color =</span> <span class="st">"#d73027"</span>) <span class="sc">+</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Label: slope (one-month increment on mean line)</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x =</span> <span class="dv">3</span>, <span class="at">xend =</span> <span class="dv">4</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> grand_intercept <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> grand_slope,</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>           <span class="at">yend =</span> grand_intercept <span class="sc">+</span> <span class="dv">4</span> <span class="sc">*</span> grand_slope,</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"#d73027"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>,</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>           <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.25</span>, <span class="st">"cm"</span>), <span class="at">ends =</span> <span class="st">"last"</span>)) <span class="sc">+</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>,  <span class="at">x =</span> <span class="fl">4.05</span>, <span class="at">y =</span> grand_intercept <span class="sc">+</span> <span class="fl">3.5</span> <span class="sc">*</span> grand_slope,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">paste0</span>(<span class="st">"Mean slope:</span><span class="sc">\n</span><span class="st">+\u20ac"</span>, <span class="fu">round</span>(grand_slope), <span class="st">"/month"</span>),</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>           <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="fl">3.5</span>, <span class="at">color =</span> <span class="st">"#d73027"</span>) <span class="sc">+</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>,</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">paste0</span>(<span class="st">"Month "</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)) <span class="sc">+</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Latent growth curve model: loyalty program savings trajectories"</span>,</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Blue = individual customer trajectories; Red = average growth line</span><span class="sc">\n</span><span class="st">Intercept = baseline savings; Slope = monthly growth rate"</span>,</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Monthly net savings (\u20ac)"</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">4.8</span>)) <span class="sc">+</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part4_files/figure-html/lgc-visual-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Each blue line is one customer. The intercept (red dot at month 1) is their individual starting level; the slope is how steeply their line rises. The model estimates both factors’ means, variances, and covariance.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Latent growth curve model in lavaan</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>lgc_model <span class="ot">&lt;-</span> <span class="st">'</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">  # Intercept factor (loadings all fixed to 1)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">  intercept =~ 1*savings_m1 + 1*savings_m2 + 1*savings_m3 + 1*savings_m4 + 1*savings_m5</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="st">  # Slope factor (loadings = time coding: 0, 1, 2, 3, 4)</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">  slope     =~ 0*savings_m1 + 1*savings_m2 + 2*savings_m3 + 3*savings_m4 + 4*savings_m5</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="st">  # Means of latent factors (the fixed effects)</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="st">  intercept ~ 1</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="st">  slope     ~ 1</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="st">  # Variances of latent factors (random effects variance)</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="st">  intercept ~~ intercept</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="st">  slope     ~~ slope</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="st">  # Covariance between intercept and slope</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="st">  intercept ~~ slope</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="st">  # Residual variances (constrained equal across time for simplicity)</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="st">  savings_m1 ~~ a*savings_m1</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="st">  savings_m2 ~~ a*savings_m2</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="st">  savings_m3 ~~ a*savings_m3</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="st">  savings_m4 ~~ a*savings_m4</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="st">  savings_m5 ~~ a*savings_m5</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="st">'</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>m_lgc <span class="ot">&lt;-</span> <span class="fu">growth</span>(lgc_model, <span class="at">data =</span> df_lgc)</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m_lgc, <span class="at">fit.measures =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>lavaan 0.6-21 ended normally after 39 iterations
+<pre><code>lavaan 0.6-21 ended normally after 50 iterations
 
   Estimator                                         ML
   Optimization method                           NLMINB
@@ -655,13 +690,13 @@ window.Quarto = {
 
 Model Test User Model:
                                                       
-  Test statistic                                11.836
+  Test statistic                                11.750
   Degrees of freedom                                14
-  P-value (Chi-square)                           0.619
+  P-value (Chi-square)                           0.626
 
 Model Test Baseline Model:
 
-  Test statistic                               783.134
+  Test statistic                               902.501
   Degrees of freedom                                10
   P-value                                        0.000
 
@@ -672,24 +707,24 @@ User Model versus Baseline Model:
 
 Loglikelihood and Information Criteria:
 
-  Loglikelihood user model (H0)              -2414.057
-  Loglikelihood unrestricted model (H1)      -2408.139
+  Loglikelihood user model (H0)              -4052.588
+  Loglikelihood unrestricted model (H1)      -4046.713
                                                       
-  Akaike (AIC)                                4840.115
-  Bayesian (BIC)                              4858.179
-  Sample-size adjusted Bayesian (SABIC)       4839.190
+  Akaike (AIC)                                8117.177
+  Bayesian (BIC)                              8135.241
+  Sample-size adjusted Bayesian (SABIC)       8116.252
 
 Root Mean Square Error of Approximation:
 
   RMSEA                                          0.000
   90 Percent confidence interval - lower         0.000
-  90 Percent confidence interval - upper         0.068
-  P-value H_0: RMSEA &lt;= 0.050                    0.865
-  P-value H_0: RMSEA &gt;= 0.080                    0.020
+  90 Percent confidence interval - upper         0.067
+  P-value H_0: RMSEA &lt;= 0.050                    0.869
+  P-value H_0: RMSEA &gt;= 0.080                    0.019
 
 Standardized Root Mean Square Residual:
 
-  SRMR                                           0.018
+  SRMR                                           0.015
 
 Parameter Estimates:
 
@@ -700,52 +735,52 @@ Parameter Estimates:
 Latent Variables:
                    Estimate  Std.Err  z-value  P(&gt;|z|)
   intercept =~                                        
-    y1                1.000                           
-    y2                1.000                           
-    y3                1.000                           
-    y4                1.000                           
-    y5                1.000                           
+    savings_m1        1.000                           
+    savings_m2        1.000                           
+    savings_m3        1.000                           
+    savings_m4        1.000                           
+    savings_m5        1.000                           
   slope =~                                            
-    y1                0.000                           
-    y2                1.000                           
-    y3                2.000                           
-    y4                3.000                           
-    y5                4.000                           
+    savings_m1        0.000                           
+    savings_m2        1.000                           
+    savings_m3        2.000                           
+    savings_m4        3.000                           
+    savings_m5        4.000                           
 
 Covariances:
                    Estimate  Std.Err  z-value  P(&gt;|z|)
   intercept ~~                                        
-    slope            -1.045    1.573   -0.664    0.506
+    slope           -80.830  129.208   -0.626    0.532
 
 Intercepts:
                    Estimate  Std.Err  z-value  P(&gt;|z|)
-    intercept        50.055    0.759   65.944    0.000
-    slope            -1.865    0.164  -11.400    0.000
+    intercept       500.796    7.482   66.936    0.000
+    slope            16.140    1.369   11.790    0.000
 
 Variances:
                    Estimate  Std.Err  z-value  P(&gt;|z|)
-    intercept        76.914   10.000    7.692    0.000
-    slope             2.428    0.475    5.108    0.000
-   .y1         (a)   15.852    1.057   15.000    0.000
-   .y2         (a)   15.852    1.057   15.000    0.000
-   .y3         (a)   15.852    1.057   15.000    0.000
-   .y4         (a)   15.852    1.057   15.000    0.000
-   .y5         (a)   15.852    1.057   15.000    0.000</code></pre>
+    intercept      7668.321  970.761    7.899    0.000
+    slope           159.732   33.452    4.775    0.000
+   .savings_m1 (a) 1213.664   80.911   15.000    0.000
+   .savings_m2 (a) 1213.664   80.911   15.000    0.000
+   .savings_m3 (a) 1213.664   80.911   15.000    0.000
+   .savings_m4 (a) 1213.664   80.911   15.000    0.000
+   .savings_m5 (a) 1213.664   80.911   15.000    0.000</code></pre>
 </div>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract key parameters</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">parameterEstimates</span>(m_lgc) <span class="sc">|&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(op <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"~1"</span>, <span class="st">"~~"</span>) <span class="sc">&amp;</span> lhs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"intercept"</span>, <span class="st">"slope"</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(lhs, op, rhs, est, se, pvalue) <span class="sc">|&gt;</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"LGC parameter estimates: means and variances of intercept and slope"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract key parameters</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">parameterEstimates</span>(m_lgc) <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(op <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"~1"</span>, <span class="st">"~~"</span>) <span class="sc">&amp;</span> lhs <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"intercept"</span>, <span class="st">"slope"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(lhs, op, rhs, est, se, pvalue) <span class="sc">|&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"LGC parameter estimates: mean baseline savings, mean monthly growth, and their variances"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>LGC parameter estimates: means and variances of intercept and slope</caption>
+<caption>LGC parameter estimates: mean baseline savings, mean monthly growth, and their variances</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">lhs</th>
@@ -761,76 +796,79 @@ Variances:
 <td style="text-align: left;">intercept</td>
 <td style="text-align: left;">~1</td>
 <td style="text-align: left;"></td>
-<td style="text-align: right;">50.055</td>
-<td style="text-align: right;">0.759</td>
+<td style="text-align: right;">500.796</td>
+<td style="text-align: right;">7.482</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">slope</td>
 <td style="text-align: left;">~1</td>
 <td style="text-align: left;"></td>
-<td style="text-align: right;">-1.865</td>
-<td style="text-align: right;">0.164</td>
+<td style="text-align: right;">16.140</td>
+<td style="text-align: right;">1.369</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">intercept</td>
 <td style="text-align: left;"><sub></sub></td>
 <td style="text-align: left;">intercept</td>
-<td style="text-align: right;">76.914</td>
-<td style="text-align: right;">10.000</td>
+<td style="text-align: right;">7668.321</td>
+<td style="text-align: right;">970.761</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">slope</td>
 <td style="text-align: left;"><sub></sub></td>
 <td style="text-align: left;">slope</td>
-<td style="text-align: right;">2.428</td>
-<td style="text-align: right;">0.475</td>
+<td style="text-align: right;">159.732</td>
+<td style="text-align: right;">33.452</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">intercept</td>
 <td style="text-align: left;"><sub></sub></td>
 <td style="text-align: left;">slope</td>
-<td style="text-align: right;">-1.045</td>
-<td style="text-align: right;">1.573</td>
-<td style="text-align: right;">0.506</td>
+<td style="text-align: right;">-80.830</td>
+<td style="text-align: right;">129.208</td>
+<td style="text-align: right;">0.532</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 </section>
-<section id="the-equivalence-with-mlm" class="level2" data-number="30.4">
-<h2 data-number="30.4" class="anchored" data-anchor-id="the-equivalence-with-mlm"><span class="header-section-number">30.4</span> The Equivalence with MLM</h2>
+</section>
+<section id="the-equivalence-with-mlm" class="level2">
+<h2 class="anchored" data-anchor-id="the-equivalence-with-mlm">The Equivalence with MLM</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit equivalent MLM</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df_long_lgc <span class="ot">&lt;-</span> df_lgc <span class="sc">|&gt;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span>n) <span class="sc">|&gt;</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>id, <span class="at">names_to =</span> <span class="st">"wave"</span>, <span class="at">values_to =</span> <span class="st">"Y"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">time =</span> <span class="fu">as.integer</span>(<span class="fu">str_extract</span>(wave, <span class="st">"[0-9]"</span>)) <span class="sc">-</span> <span class="dv">1</span>,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">id   =</span> <span class="fu">factor</span>(id))</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>m_mlm <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Y <span class="sc">~</span> time <span class="sc">+</span> (time <span class="sc">|</span> id), <span class="at">data =</span> df_long_lgc)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare estimates</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">Parameter        =</span> <span class="fu">c</span>(<span class="st">"Mean intercept"</span>, <span class="st">"Mean slope"</span>, <span class="st">"Var(intercept)"</span>, <span class="st">"Var(slope)"</span>),</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">MLM estimate</span><span class="st">`</span>   <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">fixef</span>(m_mlm),</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">as.data.frame</span>(<span class="fu">VarCorr</span>(m_mlm))<span class="sc">$</span>vcov[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]),</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">LGC estimate</span><span class="st">`</span>   <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lavInspect</span>(m_lgc, <span class="st">"mean.lv"</span>)[<span class="fu">c</span>(<span class="st">"intercept"</span>, <span class="st">"slope"</span>)],</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">diag</span>(<span class="fu">lavInspect</span>(m_lgc, <span class="st">"cov.lv"</span>))[<span class="fu">c</span>(<span class="st">"intercept"</span>, <span class="st">"slope"</span>)]</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"MLM and LGC give equivalent results"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit equivalent MLM</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df_long_lgc <span class="ot">&lt;-</span> df_lgc <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span>n) <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>id, <span class="at">names_to =</span> <span class="st">"wave"</span>, <span class="at">values_to =</span> <span class="st">"savings"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">time =</span> <span class="fu">as.integer</span>(<span class="fu">str_extract</span>(wave, <span class="st">"[0-9]"</span>)) <span class="sc">-</span> <span class="dv">1</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">id   =</span> <span class="fu">factor</span>(id))</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>m_mlm <span class="ot">&lt;-</span> <span class="fu">lmer</span>(savings <span class="sc">~</span> time <span class="sc">+</span> (time <span class="sc">|</span> id), <span class="at">data =</span> df_long_lgc)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare estimates</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">Parameter        =</span> <span class="fu">c</span>(<span class="st">"Mean intercept (baseline savings)"</span>, <span class="st">"Mean slope (monthly growth)"</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"Var(intercept)"</span>, <span class="st">"Var(slope)"</span>),</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">MLM estimate</span><span class="st">`</span>   <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">fixef</span>(m_mlm),</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">as.data.frame</span>(<span class="fu">VarCorr</span>(m_mlm))<span class="sc">$</span>vcov[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]),</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">LGC estimate</span><span class="st">`</span>   <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lavInspect</span>(m_lgc, <span class="st">"mean.lv"</span>)[<span class="fu">c</span>(<span class="st">"intercept"</span>, <span class="st">"slope"</span>)],</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">diag</span>(<span class="fu">lavInspect</span>(m_lgc, <span class="st">"cov.lv"</span>))[<span class="fu">c</span>(<span class="st">"intercept"</span>, <span class="st">"slope"</span>)]</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"MLM and LGC give equivalent results: loyalty program savings growth model"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>MLM and LGC give equivalent results</caption>
+<caption>MLM and LGC give equivalent results: loyalty program savings growth model</caption>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Parameter</th>
@@ -840,24 +878,24 @@ Variances:
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Mean intercept</td>
-<td style="text-align: right;">50.055</td>
-<td style="text-align: right;">50.055</td>
+<td style="text-align: left;">Mean intercept (baseline savings)</td>
+<td style="text-align: right;">500.796</td>
+<td style="text-align: right;">500.796</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Mean slope</td>
-<td style="text-align: right;">-1.865</td>
-<td style="text-align: right;">-1.865</td>
+<td style="text-align: left;">Mean slope (monthly growth)</td>
+<td style="text-align: right;">16.140</td>
+<td style="text-align: right;">16.140</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Var(intercept)</td>
-<td style="text-align: right;">77.494</td>
-<td style="text-align: right;">76.914</td>
+<td style="text-align: right;">7724.744</td>
+<td style="text-align: right;">7668.321</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Var(slope)</td>
-<td style="text-align: right;">2.454</td>
-<td style="text-align: right;">2.428</td>
+<td style="text-align: right;">161.621</td>
+<td style="text-align: right;">159.732</td>
 </tr>
 </tbody>
 </table>
@@ -865,8 +903,8 @@ Variances:
 </div>
 <p>The estimates match. The difference is in the language and the software ecosystem — not the math.</p>
 </section>
-<section id="when-the-sem-framing-adds-value" class="level2" data-number="30.5">
-<h2 data-number="30.5" class="anchored" data-anchor-id="when-the-sem-framing-adds-value"><span class="header-section-number">30.5</span> When the SEM Framing Adds Value</h2>
+<section id="when-the-sem-framing-adds-value" class="level2">
+<h2 class="anchored" data-anchor-id="when-the-sem-framing-adds-value">When the SEM Framing Adds Value</h2>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -891,13 +929,13 @@ Variances:
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>With SEM, you can model two interrelated growth curves simultaneously — for instance, how anxiety and depression co-evolve over therapy. The covariance between the two intercept factors and between the two slope factors captures how initial levels and rates of change co-relate.</p>
-<p>This is difficult to do cleanly in standard MLM.</p>
+<p>With SEM, you can model two interrelated growth curves simultaneously. A natural JDM application: how <strong>app engagement</strong> and <strong>monthly savings</strong> co-evolve over the first 5 months of a loyalty program. The covariance between the two intercept factors tells you whether customers who were already engaging heavily at enrollment also started with higher savings. The covariance between the two slope factors tells you whether customers whose engagement grew faster also showed steeper savings growth — that is, whether engagement and savings amplify each other over time.</p>
+<p>This is difficult to do cleanly in standard MLM, which would require a multivariate response formulation or a separate bivariate outcome model.</p>
 </div>
 </div>
 </section>
-<section id="assumptions-of-lgc-models" class="level2" data-number="30.6">
-<h2 data-number="30.6" class="anchored" data-anchor-id="assumptions-of-lgc-models"><span class="header-section-number">30.6</span> Assumptions of LGC Models</h2>
+<section id="assumptions-of-lgc-models" class="level2">
+<h2 class="anchored" data-anchor-id="assumptions-of-lgc-models">Assumptions of LGC Models</h2>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1056,7 +1094,7 @@ Variances:
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1386,12 +1424,12 @@ Variances:
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../module-4/part3.html" class="pagination-link" aria-label="Growth Curve Models">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Growth Curve Models</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../module-4/part5.html" class="pagination-link" aria-label="Autoregressive Structures">
-        <span class="nav-page-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Autoregressive Structures</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

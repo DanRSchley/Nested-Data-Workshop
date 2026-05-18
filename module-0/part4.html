@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>6&nbsp; Data Structure and Format – Nested Data Structures</title>
+<title>Data Structure and Format – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -110,6 +111,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-0/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-0/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -121,7 +130,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-0/intro.html">Module 0: All Data is Nested</a></li><li class="breadcrumb-item"><a href="../module-0/part4.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-0/intro.html">Module 0: All Data is Nested</a></li><li class="breadcrumb-item"><a href="../module-0/part4.html"><span class="chapter-title">Data Structure and Format</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -151,8 +160,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -166,32 +174,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -207,44 +210,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -260,26 +256,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -295,44 +287,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -348,68 +333,57 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -425,62 +399,52 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -496,14 +460,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -518,17 +480,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#data-structure-and-format" id="toc-data-structure-and-format" class="nav-link active" data-scroll-target="#data-structure-and-format"><span class="header-section-number">7</span> Data Structure and Format</a>
+  <li><a href="#data-structure-and-format" id="toc-data-structure-and-format" class="nav-link active" data-scroll-target="#data-structure-and-format">Data Structure and Format</a>
   <ul class="collapse">
-  <li><a href="#the-shape-of-nested-data" id="toc-the-shape-of-nested-data" class="nav-link" data-scroll-target="#the-shape-of-nested-data"><span class="header-section-number">7.1</span> The Shape of Nested Data</a></li>
-  <li><a href="#long-format-vs.-wide-format" id="toc-long-format-vs.-wide-format" class="nav-link" data-scroll-target="#long-format-vs.-wide-format"><span class="header-section-number">7.2</span> Long Format vs.&nbsp;Wide Format</a></li>
-  <li><a href="#converting-wide-to-long-in-r" id="toc-converting-wide-to-long-in-r" class="nav-link" data-scroll-target="#converting-wide-to-long-in-r"><span class="header-section-number">7.3</span> Converting Wide to Long in R</a></li>
-  <li><a href="#the-essential-identifier-variables" id="toc-the-essential-identifier-variables" class="nav-link" data-scroll-target="#the-essential-identifier-variables"><span class="header-section-number">7.4</span> The Essential Identifier Variables</a></li>
-  <li><a href="#level-1-vs.-level-2-variables" id="toc-level-1-vs.-level-2-variables" class="nav-link" data-scroll-target="#level-1-vs.-level-2-variables"><span class="header-section-number">7.5</span> Level-1 vs.&nbsp;Level-2 Variables</a></li>
-  <li><a href="#a-note-on-balanced-vs.-unbalanced-data" id="toc-a-note-on-balanced-vs.-unbalanced-data" class="nav-link" data-scroll-target="#a-note-on-balanced-vs.-unbalanced-data"><span class="header-section-number">7.6</span> A Note on Balanced vs.&nbsp;Unbalanced Data</a></li>
-  <li><a href="#diagnosing-your-data-structure" id="toc-diagnosing-your-data-structure" class="nav-link" data-scroll-target="#diagnosing-your-data-structure"><span class="header-section-number">7.7</span> Diagnosing Your Data Structure</a></li>
-  <li><a href="#experimental-long-format-participants-stimuli" id="toc-experimental-long-format-participants-stimuli" class="nav-link" data-scroll-target="#experimental-long-format-participants-stimuli"><span class="header-section-number">7.8</span> Experimental Long Format: Participants × Stimuli</a></li>
-  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead"><span class="header-section-number">7.9</span> Looking Ahead</a></li>
+  <li><a href="#the-shape-of-nested-data" id="toc-the-shape-of-nested-data" class="nav-link" data-scroll-target="#the-shape-of-nested-data">The Shape of Nested Data</a></li>
+  <li><a href="#long-format-vs.-wide-format" id="toc-long-format-vs.-wide-format" class="nav-link" data-scroll-target="#long-format-vs.-wide-format">Long Format vs.&nbsp;Wide Format</a></li>
+  <li><a href="#converting-wide-to-long-in-r" id="toc-converting-wide-to-long-in-r" class="nav-link" data-scroll-target="#converting-wide-to-long-in-r">Converting Wide to Long in R</a></li>
+  <li><a href="#the-essential-identifier-variables" id="toc-the-essential-identifier-variables" class="nav-link" data-scroll-target="#the-essential-identifier-variables">The Essential Identifier Variables</a></li>
+  <li><a href="#level-1-vs.-level-2-variables" id="toc-level-1-vs.-level-2-variables" class="nav-link" data-scroll-target="#level-1-vs.-level-2-variables">Level-1 vs.&nbsp;Level-2 Variables</a></li>
+  <li><a href="#a-note-on-balanced-vs.-unbalanced-data" id="toc-a-note-on-balanced-vs.-unbalanced-data" class="nav-link" data-scroll-target="#a-note-on-balanced-vs.-unbalanced-data">A Note on Balanced vs.&nbsp;Unbalanced Data</a></li>
+  <li><a href="#diagnosing-your-data-structure" id="toc-diagnosing-your-data-structure" class="nav-link" data-scroll-target="#diagnosing-your-data-structure">Diagnosing Your Data Structure</a></li>
+  <li><a href="#experimental-long-format-participants-products" id="toc-experimental-long-format-participants-products" class="nav-link" data-scroll-target="#experimental-long-format-participants-products">Experimental Long Format: Participants × Products</a></li>
+  <li><a href="#looking-ahead" id="toc-looking-ahead" class="nav-link" data-scroll-target="#looking-ahead">Looking Ahead</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -536,9 +498,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-0/intro.html">Module 0: All Data is Nested</a></li><li class="breadcrumb-item"><a href="../module-0/part4.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-0/intro.html">Module 0: All Data is Nested</a></li><li class="breadcrumb-item"><a href="../module-0/part4.html"><span class="chapter-title">Data Structure and Format</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Data Structure and Format</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -555,395 +517,394 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="data-structure-and-format" class="level1" data-number="7">
-<h1 data-number="7"><span class="header-section-number">7</span> Data Structure and Format</h1>
-<section id="the-shape-of-nested-data" class="level2" data-number="7.1">
-<h2 data-number="7.1" class="anchored" data-anchor-id="the-shape-of-nested-data"><span class="header-section-number">7.1</span> The Shape of Nested Data</h2>
+<section id="data-structure-and-format" class="level1">
+<h1>Data Structure and Format</h1>
+<section id="the-shape-of-nested-data" class="level2">
+<h2 class="anchored" data-anchor-id="the-shape-of-nested-data">The Shape of Nested Data</h2>
 <p>Before fitting any model, you need your data in the right shape. Nested data analysis requires <strong>long format</strong>: one row per observation at the lowest level of the hierarchy, with identifier variables that track higher-level units.</p>
 <p>This sounds simple. In practice, it trips up a surprising number of researchers.</p>
 </section>
-<section id="long-format-vs.-wide-format" class="level2" data-number="7.2">
-<h2 data-number="7.2" class="anchored" data-anchor-id="long-format-vs.-wide-format"><span class="header-section-number">7.2</span> Long Format vs.&nbsp;Wide Format</h2>
+<section id="long-format-vs.-wide-format" class="level2">
+<h2 class="anchored" data-anchor-id="long-format-vs.-wide-format">Long Format vs.&nbsp;Wide Format</h2>
 <p>Most people who have worked with repeated measures data in SPSS or Excel have encountered data in <strong>wide format</strong>: one row per person, with multiple columns for each time point or condition.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Wide format example</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Wide format example: household spending diary</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>df_wide <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">person_id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sex       =</span> <span class="fu">c</span>(<span class="st">"F"</span>, <span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"F"</span>, <span class="st">"M"</span>, <span class="st">"M"</span>),</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">age       =</span> <span class="fu">c</span>(<span class="dv">23</span>, <span class="dv">31</span>, <span class="dv">27</span>, <span class="dv">25</span>, <span class="dv">29</span>, <span class="dv">34</span>),</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">mood_day1 =</span> <span class="fu">c</span>(<span class="dv">65</span>, <span class="dv">72</span>, <span class="dv">58</span>, <span class="dv">70</span>, <span class="dv">63</span>, <span class="dv">55</span>),</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">mood_day2 =</span> <span class="fu">c</span>(<span class="dv">68</span>, <span class="dv">69</span>, <span class="dv">61</span>, <span class="dv">74</span>, <span class="dv">60</span>, <span class="dv">58</span>),</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">mood_day3 =</span> <span class="fu">c</span>(<span class="dv">71</span>, <span class="dv">67</span>, <span class="dv">64</span>, <span class="dv">72</span>, <span class="dv">65</span>, <span class="dv">62</span>),</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">mood_day4 =</span> <span class="fu">c</span>(<span class="dv">66</span>, <span class="dv">74</span>, <span class="dv">59</span>, <span class="dv">75</span>, <span class="dv">61</span>, <span class="dv">57</span>),</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">mood_day5 =</span> <span class="fu">c</span>(<span class="dv">70</span>, <span class="dv">70</span>, <span class="dv">63</span>, <span class="dv">78</span>, <span class="dv">64</span>, <span class="dv">60</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">household_id  =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">region        =</span> <span class="fu">c</span>(<span class="st">"North"</span>, <span class="st">"South"</span>, <span class="st">"North"</span>, <span class="st">"West"</span>, <span class="st">"South"</span>, <span class="st">"West"</span>),</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">income_k      =</span> <span class="fu">c</span>(<span class="dv">55</span>, <span class="dv">82</span>, <span class="dv">63</span>, <span class="dv">48</span>, <span class="dv">91</span>, <span class="dv">70</span>),   <span class="co"># household income in thousands</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">spending_wk1  =</span> <span class="fu">c</span>(<span class="dv">420</span>, <span class="dv">680</span>, <span class="dv">510</span>, <span class="dv">390</span>, <span class="dv">740</span>, <span class="dv">580</span>),</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">spending_wk2  =</span> <span class="fu">c</span>(<span class="dv">445</span>, <span class="dv">655</span>, <span class="dv">525</span>, <span class="dv">405</span>, <span class="dv">710</span>, <span class="dv">595</span>),</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">spending_wk3  =</span> <span class="fu">c</span>(<span class="dv">435</span>, <span class="dv">700</span>, <span class="dv">498</span>, <span class="dv">385</span>, <span class="dv">760</span>, <span class="dv">570</span>),</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">spending_wk4  =</span> <span class="fu">c</span>(<span class="dv">460</span>, <span class="dv">670</span>, <span class="dv">515</span>, <span class="dv">420</span>, <span class="dv">725</span>, <span class="dv">610</span>),</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">spending_wk5  =</span> <span class="fu">c</span>(<span class="dv">450</span>, <span class="dv">690</span>, <span class="dv">505</span>, <span class="dv">410</span>, <span class="dv">745</span>, <span class="dv">590</span>)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(df_wide, <span class="at">caption =</span> <span class="st">"Wide format: 6 people × 5 days = 6 rows"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(df_wide, <span class="at">caption =</span> <span class="st">"Wide format: 6 households × 5 weeks = 6 rows"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Wide format: 6 people × 5 days = 6 rows</caption>
+<caption>Wide format: 6 households × 5 weeks = 6 rows</caption>
 <colgroup>
-<col style="width: 14%">
-<col style="width: 5%">
-<col style="width: 5%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
-<col style="width: 14%">
+<col style="width: 13%">
+<col style="width: 7%">
+<col style="width: 9%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: right;">person_id</th>
-<th style="text-align: left;">sex</th>
-<th style="text-align: right;">age</th>
-<th style="text-align: right;">mood_day1</th>
-<th style="text-align: right;">mood_day2</th>
-<th style="text-align: right;">mood_day3</th>
-<th style="text-align: right;">mood_day4</th>
-<th style="text-align: right;">mood_day5</th>
+<th style="text-align: right;">household_id</th>
+<th style="text-align: left;">region</th>
+<th style="text-align: right;">income_k</th>
+<th style="text-align: right;">spending_wk1</th>
+<th style="text-align: right;">spending_wk2</th>
+<th style="text-align: right;">spending_wk3</th>
+<th style="text-align: right;">spending_wk4</th>
+<th style="text-align: right;">spending_wk5</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">23</td>
-<td style="text-align: right;">65</td>
-<td style="text-align: right;">68</td>
-<td style="text-align: right;">71</td>
-<td style="text-align: right;">66</td>
-<td style="text-align: right;">70</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">420</td>
+<td style="text-align: right;">445</td>
+<td style="text-align: right;">435</td>
+<td style="text-align: right;">460</td>
+<td style="text-align: right;">450</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">31</td>
-<td style="text-align: right;">72</td>
-<td style="text-align: right;">69</td>
-<td style="text-align: right;">67</td>
-<td style="text-align: right;">74</td>
-<td style="text-align: right;">70</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">680</td>
+<td style="text-align: right;">655</td>
+<td style="text-align: right;">700</td>
+<td style="text-align: right;">670</td>
+<td style="text-align: right;">690</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">27</td>
-<td style="text-align: right;">58</td>
-<td style="text-align: right;">61</td>
-<td style="text-align: right;">64</td>
-<td style="text-align: right;">59</td>
+<td style="text-align: left;">North</td>
 <td style="text-align: right;">63</td>
+<td style="text-align: right;">510</td>
+<td style="text-align: right;">525</td>
+<td style="text-align: right;">498</td>
+<td style="text-align: right;">515</td>
+<td style="text-align: right;">505</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">25</td>
-<td style="text-align: right;">70</td>
-<td style="text-align: right;">74</td>
-<td style="text-align: right;">72</td>
-<td style="text-align: right;">75</td>
-<td style="text-align: right;">78</td>
+<td style="text-align: left;">West</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">390</td>
+<td style="text-align: right;">405</td>
+<td style="text-align: right;">385</td>
+<td style="text-align: right;">420</td>
+<td style="text-align: right;">410</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">29</td>
-<td style="text-align: right;">63</td>
-<td style="text-align: right;">60</td>
-<td style="text-align: right;">65</td>
-<td style="text-align: right;">61</td>
-<td style="text-align: right;">64</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">91</td>
+<td style="text-align: right;">740</td>
+<td style="text-align: right;">710</td>
+<td style="text-align: right;">760</td>
+<td style="text-align: right;">725</td>
+<td style="text-align: right;">745</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">34</td>
-<td style="text-align: right;">55</td>
-<td style="text-align: right;">58</td>
-<td style="text-align: right;">62</td>
-<td style="text-align: right;">57</td>
-<td style="text-align: right;">60</td>
+<td style="text-align: left;">West</td>
+<td style="text-align: right;">70</td>
+<td style="text-align: right;">580</td>
+<td style="text-align: right;">595</td>
+<td style="text-align: right;">570</td>
+<td style="text-align: right;">610</td>
+<td style="text-align: right;">590</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>This format feels intuitive — it keeps all information about one person on one row. But it is not suitable for multilevel modeling. Why?</p>
-<p>Because the model needs to see the nesting explicitly. It needs to know that <code>mood_day1</code>, <code>mood_day2</code>, and <code>mood_day3</code> belong to the same person — that they are three realizations of the same level-1 unit nested inside one level-2 unit.</p>
+<p>This format feels intuitive — it keeps all information about one household on one row. But it is not suitable for multilevel modeling because the model needs to see the nesting explicitly: <code>spending_wk1</code> through <code>spending_wk5</code> are five realizations of the same level-1 unit (week) nested inside one level-2 unit (household).</p>
 <p><strong>Long format</strong> makes the nesting explicit:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> df_wide <span class="sc">|&gt;</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols      =</span> <span class="fu">starts_with</span>(<span class="st">"mood_"</span>),</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to  =</span> <span class="st">"day"</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"mood"</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols      =</span> <span class="fu">starts_with</span>(<span class="st">"spending_"</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to  =</span> <span class="st">"week"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"spending"</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">day =</span> <span class="fu">as.integer</span>(<span class="fu">str_remove</span>(day, <span class="st">"mood_day"</span>))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">week =</span> <span class="fu">as.integer</span>(<span class="fu">str_remove</span>(week, <span class="st">"spending_wk"</span>))</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(person_id, sex, age, day, mood)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(household_id, region, income_k, week, spending)</span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(df_long, <span class="at">caption =</span> <span class="st">"Long format: 6 people × 5 days = 30 rows"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(df_long, <span class="at">caption =</span> <span class="st">"Long format: 6 households × 5 weeks = 30 rows"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Long format: 6 people × 5 days = 30 rows</caption>
+<caption>Long format: 6 households × 5 weeks = 30 rows</caption>
 <thead>
 <tr class="header">
-<th style="text-align: right;">person_id</th>
-<th style="text-align: left;">sex</th>
-<th style="text-align: right;">age</th>
-<th style="text-align: right;">day</th>
-<th style="text-align: right;">mood</th>
+<th style="text-align: right;">household_id</th>
+<th style="text-align: left;">region</th>
+<th style="text-align: right;">income_k</th>
+<th style="text-align: right;">week</th>
+<th style="text-align: right;">spending</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">23</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">65</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">23</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">68</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">23</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">71</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">23</td>
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">66</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">1</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">23</td>
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">70</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">31</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">72</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">31</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">69</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">31</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">67</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">31</td>
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">74</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">2</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">31</td>
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">70</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">3</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">27</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">58</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">3</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">27</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">61</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">3</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">27</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">64</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">3</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">27</td>
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">59</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">3</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">27</td>
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">63</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">4</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">25</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">70</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">4</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">25</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">74</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">4</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">25</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">72</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">4</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">25</td>
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">75</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">4</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">25</td>
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">78</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">5</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">29</td>
-<td style="text-align: right;">1</td>
-<td style="text-align: right;">63</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">5</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">29</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">60</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">5</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">29</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">65</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">5</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">29</td>
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">61</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">5</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">29</td>
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">64</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">6</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">34</td>
-<td style="text-align: right;">1</td>
+<td style="text-align: left;">North</td>
 <td style="text-align: right;">55</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">420</td>
 </tr>
-<tr class="odd">
-<td style="text-align: right;">6</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">34</td>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">55</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">58</td>
+<td style="text-align: right;">445</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">435</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">460</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">450</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">680</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">655</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">700</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">670</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">690</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">63</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">510</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">63</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">525</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">63</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">498</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">63</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">515</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">63</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">505</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">West</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">390</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">West</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">405</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">West</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">385</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">West</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">420</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">West</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">410</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">91</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">740</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">91</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">710</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">91</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">760</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">91</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">725</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">91</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">745</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">34</td>
-<td style="text-align: right;">3</td>
-<td style="text-align: right;">62</td>
+<td style="text-align: left;">West</td>
+<td style="text-align: right;">70</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">580</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">6</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">34</td>
-<td style="text-align: right;">4</td>
-<td style="text-align: right;">57</td>
+<td style="text-align: left;">West</td>
+<td style="text-align: right;">70</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">595</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">34</td>
+<td style="text-align: left;">West</td>
+<td style="text-align: right;">70</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">570</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">West</td>
+<td style="text-align: right;">70</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">610</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">West</td>
+<td style="text-align: right;">70</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">60</td>
+<td style="text-align: right;">590</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>Now each row is one person-day observation. The nesting is explicit: <code>person_id</code> is the level-2 unit, <code>day</code> is the level-1 index within each person.</p>
+<p>Now each row is one household-week observation. The nesting is explicit: <code>household_id</code> is the level-2 unit, <code>week</code> is the level-1 index within each household.</p>
 </section>
-<section id="converting-wide-to-long-in-r" class="level2" data-number="7.3">
-<h2 data-number="7.3" class="anchored" data-anchor-id="converting-wide-to-long-in-r"><span class="header-section-number">7.3</span> Converting Wide to Long in R</h2>
+<section id="converting-wide-to-long-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="converting-wide-to-long-in-r">Converting Wide to Long in R</h2>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The pivot_longer() function does the conversion</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df_long <span class="ot">&lt;-</span> df_wide <span class="sc">|&gt;</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols      =</span> <span class="fu">starts_with</span>(<span class="st">"mood_"</span>),   <span class="co"># which columns to collapse</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to  =</span> <span class="st">"day"</span>,                  <span class="co"># new column for what the columns were about</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"mood"</span>                  <span class="co"># new column for the values</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols      =</span> <span class="fu">starts_with</span>(<span class="st">"spending_"</span>),   <span class="co"># which columns to collapse</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to  =</span> <span class="st">"week"</span>,                     <span class="co"># new column for the time index</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"spending"</span>                  <span class="co"># new column for the values</span></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">day =</span> <span class="fu">as.integer</span>(<span class="fu">str_remove</span>(day, <span class="st">"mood_day"</span>))  <span class="co"># clean up the day variable</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">week =</span> <span class="fu">as.integer</span>(<span class="fu">str_remove</span>(week, <span class="st">"spending_wk"</span>))  <span class="co"># clean up the week variable</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
-<section id="the-essential-identifier-variables" class="level2" data-number="7.4">
-<h2 data-number="7.4" class="anchored" data-anchor-id="the-essential-identifier-variables"><span class="header-section-number">7.4</span> The Essential Identifier Variables</h2>
+<section id="the-essential-identifier-variables" class="level2">
+<h2 class="anchored" data-anchor-id="the-essential-identifier-variables">The Essential Identifier Variables</h2>
 <p>Every nested dataset needs at least two types of identifier variables:</p>
 <ol type="1">
-<li><strong>Level-2 identifier:</strong> A unique code for each higher-level unit (person, firm, classroom, country). This is what tells the model which observations belong together.</li>
-<li><strong>Level-1 identifier or index:</strong> A variable that distinguishes observations <em>within</em> the same level-2 unit (day number, condition, trial number).</li>
+<li><strong>Level-2 identifier:</strong> A unique code for each higher-level unit (household, branch, customer, country). This is what tells the model which observations belong together.</li>
+<li><strong>Level-1 identifier or index:</strong> A variable that distinguishes observations <em>within</em> the same level-2 unit (week number, transaction, product evaluated).</li>
 </ol>
 <p>In three-level data, you need identifiers at all three levels.</p>
 <div class="callout callout-style-default callout-important no-icon callout-titled">
@@ -968,8 +929,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="level-1-vs.-level-2-variables" class="level2" data-number="7.5">
-<h2 data-number="7.5" class="anchored" data-anchor-id="level-1-vs.-level-2-variables"><span class="header-section-number">7.5</span> Level-1 vs.&nbsp;Level-2 Variables</h2>
+<section id="level-1-vs.-level-2-variables" class="level2">
+<h2 class="anchored" data-anchor-id="level-1-vs.-level-2-variables">Level-1 vs.&nbsp;Level-2 Variables</h2>
 <p>A common source of confusion: variables that describe the <em>person</em> versus variables that describe the <em>observation</em>.</p>
 <div class="cell">
 <details class="code-fold">
@@ -983,118 +944,118 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <caption>Identifying level in the dataset</caption>
 <thead>
 <tr class="header">
-<th style="text-align: right;">person_id</th>
-<th style="text-align: left;">sex</th>
-<th style="text-align: right;">age</th>
-<th style="text-align: right;">day</th>
-<th style="text-align: right;">mood</th>
+<th style="text-align: right;">household_id</th>
+<th style="text-align: left;">region</th>
+<th style="text-align: right;">income_k</th>
+<th style="text-align: right;">week</th>
+<th style="text-align: right;">spending</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">23</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">55</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">65</td>
+<td style="text-align: right;">420</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">23</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">55</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">68</td>
+<td style="text-align: right;">445</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">23</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">55</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">71</td>
+<td style="text-align: right;">435</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">23</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">55</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">66</td>
+<td style="text-align: right;">460</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">23</td>
+<td style="text-align: left;">North</td>
+<td style="text-align: right;">55</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">70</td>
+<td style="text-align: right;">450</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">31</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">82</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">72</td>
+<td style="text-align: right;">680</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">31</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">82</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">69</td>
+<td style="text-align: right;">655</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">31</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">82</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">67</td>
+<td style="text-align: right;">700</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">31</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">82</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">74</td>
+<td style="text-align: right;">670</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">31</td>
+<td style="text-align: left;">South</td>
+<td style="text-align: right;">82</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">70</td>
+<td style="text-align: right;">690</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>In this dataset: - <code>person_id</code>, <code>sex</code>, <code>age</code> are <strong>level-2 variables</strong> — they describe the person and are constant across all of that person’s rows - <code>day</code> and <code>mood</code> are <strong>level-1 variables</strong> — they vary across observations within a person</p>
+<p>In this dataset: - <code>household_id</code>, <code>region</code>, <code>income_k</code> are <strong>level-2 variables</strong> — they describe the household and are constant across all of that household’s rows - <code>week</code> and <code>spending</code> are <strong>level-1 variables</strong> — they vary across observations within a household</p>
 <p>This distinction matters enormously for model building (centering, interpretation of effects) and will come up repeatedly in Module 2.</p>
 </section>
-<section id="a-note-on-balanced-vs.-unbalanced-data" class="level2" data-number="7.6">
-<h2 data-number="7.6" class="anchored" data-anchor-id="a-note-on-balanced-vs.-unbalanced-data"><span class="header-section-number">7.6</span> A Note on Balanced vs.&nbsp;Unbalanced Data</h2>
-<p><strong>Balanced</strong> data means every level-2 unit has the same number of level-1 observations. All 30 people have exactly 5 days of data. All 25 classrooms have exactly 20 students.</p>
-<p><strong>Unbalanced</strong> data means the number of observations varies across level-2 units. Some people completed 7 days of the diary; others dropped out after 2. Some classrooms have 15 students; others have 28.</p>
+<section id="a-note-on-balanced-vs.-unbalanced-data" class="level2">
+<h2 class="anchored" data-anchor-id="a-note-on-balanced-vs.-unbalanced-data">A Note on Balanced vs.&nbsp;Unbalanced Data</h2>
+<p><strong>Balanced</strong> data means every level-2 unit has the same number of level-1 observations. All 6 households have exactly 5 weeks of spending data. All 20 bank branches have exactly 15 customer records.</p>
+<p><strong>Unbalanced</strong> data means the number of observations varies across level-2 units. Some households completed the full 5-week spending diary; others dropped out after 2 weeks. Some branches have 10 customers in the dataset; others have 28.</p>
 <p>Standard ANOVA-based approaches for repeated measures struggle with unbalanced data — they were designed for balanced designs. Mixed-effects models handle unbalanced data gracefully, because they use the information available for each unit without requiring complete cases.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Show what unbalanced data looks like</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df_unbalanced <span class="ot">&lt;-</span> df_long <span class="sc">|&gt;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># randomly drop some observations to simulate dropout</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(person_id <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>) <span class="sc">&amp;</span> day <span class="sc">&gt;=</span> <span class="dv">4</span>),</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span>(person_id <span class="sc">==</span> <span class="dv">6</span> <span class="sc">&amp;</span> day <span class="sc">&gt;=</span> <span class="dv">3</span>))</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># randomly drop some observations to simulate dropout / incomplete diary</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(household_id <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>) <span class="sc">&amp;</span> week <span class="sc">&gt;=</span> <span class="dv">4</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span>(household_id <span class="sc">==</span> <span class="dv">6</span> <span class="sc">&amp;</span> week <span class="sc">&gt;=</span> <span class="dv">3</span>))</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>df_unbalanced <span class="sc">|&gt;</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person_id) <span class="sc">|&gt;</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n_obs =</span> <span class="fu">n</span>(), <span class="at">days_observed =</span> <span class="fu">paste</span>(day, <span class="at">collapse =</span> <span class="st">", "</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Unbalanced data: some people have fewer observations"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(household_id) <span class="sc">|&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n_obs =</span> <span class="fu">n</span>(), <span class="at">weeks_observed =</span> <span class="fu">paste</span>(week, <span class="at">collapse =</span> <span class="st">", "</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Unbalanced data: some households have fewer weekly observations"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Unbalanced data: some people have fewer observations</caption>
+<caption>Unbalanced data: some households have fewer weekly observations</caption>
 <thead>
 <tr class="header">
-<th style="text-align: right;">person_id</th>
+<th style="text-align: right;">household_id</th>
 <th style="text-align: right;">n_obs</th>
-<th style="text-align: left;">days_observed</th>
+<th style="text-align: left;">weeks_observed</th>
 </tr>
 </thead>
 <tbody>
@@ -1133,19 +1094,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="diagnosing-your-data-structure" class="level2" data-number="7.7">
-<h2 data-number="7.7" class="anchored" data-anchor-id="diagnosing-your-data-structure"><span class="header-section-number">7.7</span> Diagnosing Your Data Structure</h2>
+<section id="diagnosing-your-data-structure" class="level2">
+<h2 class="anchored" data-anchor-id="diagnosing-your-data-structure">Diagnosing Your Data Structure</h2>
 <p>Before fitting any model, it is good practice to run a quick structure check:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># How many observations per person?</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># How many observations per household?</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df_long <span class="sc">|&gt;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(person_id, <span class="at">name =</span> <span class="st">"n_obs"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(household_id, <span class="at">name =</span> <span class="st">"n_obs"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>   person_id        n_obs  
+<pre><code>  household_id      n_obs  
  Min.   :1.00   Min.   :5  
  1st Qu.:2.25   1st Qu.:5  
  Median :3.50   Median :5  
@@ -1155,23 +1116,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Is the data truly in long format? Check that level-2 variables don't vary within person</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Is the data truly in long format? Check that level-2 variables don't vary within household</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df_long <span class="sc">|&gt;</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person_id) <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(household_id) <span class="sc">|&gt;</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_unique_sex =</span> <span class="fu">n_distinct</span>(sex),   <span class="co"># should be 1</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_unique_age =</span> <span class="fu">n_distinct</span>(age)    <span class="co"># should be 1</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_unique_region    =</span> <span class="fu">n_distinct</span>(region),    <span class="co"># should be 1</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_unique_income    =</span> <span class="fu">n_distinct</span>(income_k)   <span class="co"># should be 1</span></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n_unique_sex <span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">|</span> n_unique_age <span class="sc">&gt;</span> <span class="dv">1</span>)  <span class="co"># should return 0 rows</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n_unique_region <span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">|</span> n_unique_income <span class="sc">&gt;</span> <span class="dv">1</span>)  <span class="co"># should return 0 rows</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div class="kable-table">
 <table class="caption-top">
 <thead>
 <tr class="header">
-<th style="text-align: right;">person_id</th>
-<th style="text-align: right;">n_unique_sex</th>
-<th style="text-align: right;">n_unique_age</th>
+<th style="text-align: right;">household_id</th>
+<th style="text-align: right;">n_unique_region</th>
+<th style="text-align: right;">n_unique_income</th>
 </tr>
 </thead>
 <tbody>
@@ -1180,12 +1141,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Zero rows returned means no person has inconsistent sex or age coding across their observations. Good.</p>
+<p>Zero rows returned means no household has inconsistent region or income coding across its weekly observations. Good.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># How many level-2 units?</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">n_distinct</span>(df_long<span class="sc">$</span>person_id)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">n_distinct</span>(df_long<span class="sc">$</span>household_id)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 6</code></pre>
@@ -1194,7 +1155,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># What is the range of level-1 observations per unit?</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>df_long <span class="sc">|&gt;</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(person_id) <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(household_id) <span class="sc">|&gt;</span></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(n) <span class="sc">|&gt;</span></span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">range</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
@@ -1204,146 +1165,146 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>This takes two minutes and saves hours of debugging later.</p>
 </section>
-<section id="experimental-long-format-participants-stimuli" class="level2" data-number="7.8">
-<h2 data-number="7.8" class="anchored" data-anchor-id="experimental-long-format-participants-stimuli"><span class="header-section-number">7.8</span> Experimental Long Format: Participants × Stimuli</h2>
-<p>The person-day structure above is the observational prototype. In experiments, the analogous structure is <strong>participants × stimuli (or trials)</strong>: one row per participant-stimulus combination, with participant and stimulus identifiers at every row.</p>
+<section id="experimental-long-format-participants-products" class="level2">
+<h2 class="anchored" data-anchor-id="experimental-long-format-participants-products">Experimental Long Format: Participants × Products</h2>
+<p>The household-week structure above is the observational prototype. In experiments, the analogous structure is <strong>participants × products (or stimuli)</strong>: one row per participant-product combination, with participant and product identifiers at every row.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Wide format: one row per participant, columns for each stimulus</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Wide format: one row per participant, columns for each product evaluated</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>df_exp_wide <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">condition   =</span> <span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"treatment"</span>, <span class="st">"control"</span>, <span class="st">"treatment"</span>),</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">stim_1_rt   =</span> <span class="fu">c</span>(<span class="dv">523</span>, <span class="dv">491</span>, <span class="dv">548</span>, <span class="dv">475</span>),</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">stim_2_rt   =</span> <span class="fu">c</span>(<span class="dv">510</span>, <span class="dv">503</span>, <span class="dv">531</span>, <span class="dv">482</span>),</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">stim_3_rt   =</span> <span class="fu">c</span>(<span class="dv">498</span>, <span class="dv">487</span>, <span class="dv">519</span>, <span class="dv">465</span>),</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">stim_4_rt   =</span> <span class="fu">c</span>(<span class="dv">535</span>, <span class="dv">510</span>, <span class="dv">556</span>, <span class="dv">490</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prod_1_wtp  =</span> <span class="fu">c</span>(<span class="dv">42</span>, <span class="dv">58</span>, <span class="dv">39</span>, <span class="dv">61</span>),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">prod_2_wtp  =</span> <span class="fu">c</span>(<span class="dv">35</span>, <span class="dv">52</span>, <span class="dv">33</span>, <span class="dv">55</span>),</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">prod_3_wtp  =</span> <span class="fu">c</span>(<span class="dv">48</span>, <span class="dv">63</span>, <span class="dv">44</span>, <span class="dv">67</span>),</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">prod_4_wtp  =</span> <span class="fu">c</span>(<span class="dv">38</span>, <span class="dv">54</span>, <span class="dv">36</span>, <span class="dv">57</span>)</span>
 <span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Long format: one row per participant-stimulus observation</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Long format: one row per participant-product observation</span></span>
 <span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>df_exp_long <span class="ot">&lt;-</span> df_exp_wide <span class="sc">|&gt;</span></span>
 <span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols      =</span> <span class="fu">starts_with</span>(<span class="st">"stim_"</span>),</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to  =</span> <span class="st">"stimulus"</span>,</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"rt"</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols      =</span> <span class="fu">starts_with</span>(<span class="st">"prod_"</span>),</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to  =</span> <span class="st">"product"</span>,</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"wtp"</span></span>
 <span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">stimulus =</span> <span class="fu">str_remove</span>(stimulus, <span class="st">"_rt"</span>))</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">product =</span> <span class="fu">str_remove</span>(product, <span class="st">"_wtp"</span>))</span>
 <span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(df_exp_long, <span class="at">caption =</span> <span class="st">"Long format: 4 participants × 4 stimuli = 16 rows. Both participant and stimulus IDs appear on every row."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(df_exp_long, <span class="at">caption =</span> <span class="st">"Long format: 4 participants × 4 products = 16 rows. Both participant and product IDs appear on every row."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Long format: 4 participants × 4 stimuli = 16 rows. Both participant and stimulus IDs appear on every row.</caption>
+<caption>Long format: 4 participants × 4 products = 16 rows. Both participant and product IDs appear on every row.</caption>
 <thead>
 <tr class="header">
 <th style="text-align: right;">participant</th>
 <th style="text-align: left;">condition</th>
-<th style="text-align: left;">stimulus</th>
-<th style="text-align: right;">rt</th>
+<th style="text-align: left;">product</th>
+<th style="text-align: right;">wtp</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">control</td>
-<td style="text-align: left;">stim_1</td>
-<td style="text-align: right;">523</td>
+<td style="text-align: left;">prod_1</td>
+<td style="text-align: right;">42</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">control</td>
-<td style="text-align: left;">stim_2</td>
-<td style="text-align: right;">510</td>
+<td style="text-align: left;">prod_2</td>
+<td style="text-align: right;">35</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">control</td>
-<td style="text-align: left;">stim_3</td>
-<td style="text-align: right;">498</td>
+<td style="text-align: left;">prod_3</td>
+<td style="text-align: right;">48</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">control</td>
-<td style="text-align: left;">stim_4</td>
-<td style="text-align: right;">535</td>
+<td style="text-align: left;">prod_4</td>
+<td style="text-align: right;">38</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">treatment</td>
-<td style="text-align: left;">stim_1</td>
-<td style="text-align: right;">491</td>
+<td style="text-align: left;">prod_1</td>
+<td style="text-align: right;">58</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">treatment</td>
-<td style="text-align: left;">stim_2</td>
-<td style="text-align: right;">503</td>
+<td style="text-align: left;">prod_2</td>
+<td style="text-align: right;">52</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">treatment</td>
-<td style="text-align: left;">stim_3</td>
-<td style="text-align: right;">487</td>
+<td style="text-align: left;">prod_3</td>
+<td style="text-align: right;">63</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">treatment</td>
-<td style="text-align: left;">stim_4</td>
-<td style="text-align: right;">510</td>
+<td style="text-align: left;">prod_4</td>
+<td style="text-align: right;">54</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
 <td style="text-align: left;">control</td>
-<td style="text-align: left;">stim_1</td>
-<td style="text-align: right;">548</td>
+<td style="text-align: left;">prod_1</td>
+<td style="text-align: right;">39</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">3</td>
 <td style="text-align: left;">control</td>
-<td style="text-align: left;">stim_2</td>
-<td style="text-align: right;">531</td>
+<td style="text-align: left;">prod_2</td>
+<td style="text-align: right;">33</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
 <td style="text-align: left;">control</td>
-<td style="text-align: left;">stim_3</td>
-<td style="text-align: right;">519</td>
+<td style="text-align: left;">prod_3</td>
+<td style="text-align: right;">44</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">3</td>
 <td style="text-align: left;">control</td>
-<td style="text-align: left;">stim_4</td>
-<td style="text-align: right;">556</td>
+<td style="text-align: left;">prod_4</td>
+<td style="text-align: right;">36</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">4</td>
 <td style="text-align: left;">treatment</td>
-<td style="text-align: left;">stim_1</td>
-<td style="text-align: right;">475</td>
+<td style="text-align: left;">prod_1</td>
+<td style="text-align: right;">61</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
 <td style="text-align: left;">treatment</td>
-<td style="text-align: left;">stim_2</td>
-<td style="text-align: right;">482</td>
+<td style="text-align: left;">prod_2</td>
+<td style="text-align: right;">55</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">4</td>
 <td style="text-align: left;">treatment</td>
-<td style="text-align: left;">stim_3</td>
-<td style="text-align: right;">465</td>
+<td style="text-align: left;">prod_3</td>
+<td style="text-align: right;">67</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
 <td style="text-align: left;">treatment</td>
-<td style="text-align: left;">stim_4</td>
-<td style="text-align: right;">490</td>
+<td style="text-align: left;">prod_4</td>
+<td style="text-align: right;">57</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>The two identifier columns — <code>participant</code> and <code>stimulus</code> — are what allow <code>lme4</code> to fit crossed random effects: a random intercept for participants <em>and</em> a random intercept for stimuli, simultaneously. Without the long format, you cannot express this structure.</p>
+<p>The two identifier columns — <code>participant</code> and <code>product</code> — are what allow <code>lme4</code> to fit crossed random effects: a random intercept for participants <em>and</em> a random intercept for products, simultaneously. Without the long format, you cannot express this structure.</p>
 <div class="callout callout-style-default callout-note no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1356,51 +1317,51 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="callout-body-container callout-body">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 12%">
-<col style="width: 36%">
-<col style="width: 51%">
+<col style="width: 11%">
+<col style="width: 40%">
+<col style="width: 48%">
 </colgroup>
 <thead>
 <tr class="header">
 <th>Feature</th>
-<th>Observational (person-day)</th>
-<th>Experimental (participant-stimulus)</th>
+<th>Observational (household-week)</th>
+<th>Experimental (participant-product)</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>Level-1 unit</td>
-<td>observation day</td>
-<td>stimulus / trial</td>
+<td>spending week</td>
+<td>product / stimulus</td>
 </tr>
 <tr class="even">
 <td>Level-2 unit</td>
-<td>person</td>
+<td>household</td>
 <td>participant</td>
 </tr>
 <tr class="odd">
 <td>Additional clustering</td>
 <td>—</td>
-<td>stimulus (crossed)</td>
+<td>product (crossed)</td>
 </tr>
 <tr class="even">
 <td>Level-1 index</td>
-<td>day number</td>
-<td>stimulus ID</td>
+<td>week number</td>
+<td>product ID</td>
 </tr>
 <tr class="odd">
 <td>Key model formula</td>
-<td><code>(1 \| person)</code></td>
-<td><code>(1 \| participant) + (1 \| stimulus)</code></td>
+<td><code>(1 \| household)</code></td>
+<td><code>(1 \| participant) + (1 \| product)</code></td>
 </tr>
 </tbody>
 </table>
-<p>Both formats follow the same rule: <strong>one row per level-1 observation</strong>. The difference is that experimental data often has <em>two</em> grouping factors (participants and stimuli), creating a crossed rather than nested structure.</p>
+<p>Both formats follow the same rule: <strong>one row per level-1 observation</strong>. The difference is that experimental data often has <em>two</em> grouping factors (participants and products), creating a crossed rather than nested structure.</p>
 </div>
 </div>
 </section>
-<section id="looking-ahead" class="level2" data-number="7.9">
-<h2 data-number="7.9" class="anchored" data-anchor-id="looking-ahead"><span class="header-section-number">7.9</span> Looking Ahead</h2>
+<section id="looking-ahead" class="level2">
+<h2 class="anchored" data-anchor-id="looking-ahead">Looking Ahead</h2>
 <p>With the conceptual foundations in place — DGP thinking, types of nesting, ICC, and data format — we are ready to start fitting models. Module 1 builds the core toolkit: fixed effects, random intercepts, and random slopes. At each step, we will be explicit about what assumption the model is making and what happens when that assumption is wrong.</p>
 
 
@@ -1532,7 +1493,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1862,12 +1823,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../module-0/part3.html" class="pagination-link" aria-label="Measuring Non-Independence">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Measuring Non-Independence</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../module-1/intro.html" class="pagination-link" aria-label="Overview">
-        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../module-1/intro.html" class="pagination-link" aria-label="Module 1: The Mixed-Effects Framework">
+        <span class="nav-page-text"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

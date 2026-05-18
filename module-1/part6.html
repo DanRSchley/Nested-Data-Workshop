@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="description" content="A graduate-level open workshop on nested data analysis and multilevel modeling. Covers the mixed-effects framework, centering and within/between-person effects, causal identification (IV, RDD, DiD, propensity scores), longitudinal modeling, and nested experimental designs — each module with worked R simulations.">
 
-<title>13&nbsp; Crossed Random Effects – Nested Data Structures</title>
+<title>Crossed Random Effects – Nested Data Structures</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -79,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-1c4087f50fb9b73ec7d0bf50323806c5.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8005753cdbf0cc694f0f143624bf16c8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -139,6 +140,14 @@ window.Quarto = {
 </script>
 
 <link rel="stylesheet" href="../styles.css">
+<meta property="og:title" content="Nested Data Structures — RSM Workshop">
+<meta property="og:description" content="Graduate open-access workshop: multilevel modeling, panel data, and causal identification (RDD, DiD, IV) with R simulations. Rotterdam School of Management, Erasmus University.">
+<meta property="og:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-1/figs/og-preview.png">
+<meta property="og:site_name" content="Nested Data Structures">
+<meta name="twitter:title" content="Nested Data Structures">
+<meta name="twitter:description" content="Open graduate workshop: multilevel modeling, panel data, and causal inference with R.">
+<meta name="twitter:image" content="https://danrschley.github.io/Nested-Data-Workshop/module-1/figs/og-preview.png">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-sidebar docked quarto-light">
@@ -150,7 +159,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: The Mixed-Effects Framework</a></li><li class="breadcrumb-item"><a href="../module-1/part6.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: The Mixed-Effects Framework</a></li><li class="breadcrumb-item"><a href="../module-1/part6.html"><span class="chapter-title">Crossed Random Effects</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -180,8 +189,7 @@ window.Quarto = {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Nested Data Structures</span></span></a>
+  <a href="../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Nested Data Structures</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -195,32 +203,27 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Module 0: All Data is Nested</span></span></a>
+  <a href="../module-0/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 0: All Data is Nested</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">The DGP Perspective</span></span></a>
+  <a href="../module-0/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">The DGP Perspective</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Types of Nested Structures</span></span></a>
+  <a href="../module-0/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Types of Nested Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Measuring Non-Independence</span></span></a>
+  <a href="../module-0/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Measuring Non-Independence</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Data Structure and Format</span></span></a>
+  <a href="../module-0/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Data Structure and Format</span></a>
   </div>
 </li>
       </ul>
@@ -236,44 +239,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-1/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 1: The Mixed-Effects Framework</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Fixed Effects Models</span></span></a>
+  <a href="../module-1/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed Effects Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Random Intercepts</span></span></a>
+  <a href="../module-1/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Intercepts</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Random Slopes</span></span></a>
+  <a href="../module-1/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Random Slopes</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></span></a>
+  <a href="../module-1/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Fixed vs.&nbsp;Random: When to Use Which</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span></a>
+  <a href="../module-1/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Three-Level Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></span></a>
+  <a href="../module-1/part6.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Crossed Random Effects</span></a>
   </div>
 </li>
       </ul>
@@ -289,26 +285,22 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-2/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Centering as Decomposition</span></span></a>
+  <a href="../module-2/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Centering as Decomposition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Separating Within and Between Effects</span></span></a>
+  <a href="../module-2/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Separating Within and Between Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Simpson’s Paradox</span></span></a>
+  <a href="../module-2/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Simpson’s Paradox</span></a>
   </div>
 </li>
       </ul>
@@ -324,44 +316,37 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-3/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 3: Inferential Threats &amp; Identification</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></span></a>
+  <a href="../module-3/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Endogeneity: Why Regression Lies (and How to Catch It)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Instrumental Variables</span></span></a>
+  <a href="../module-3/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Instrumental Variables</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Selection Effects &amp; Attrition</span></span></a>
+  <a href="../module-3/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Selection Effects &amp; Attrition</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Regression Discontinuity Design</span></span></a>
+  <a href="../module-3/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Regression Discontinuity Design</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Difference-in-Differences</span></span></a>
+  <a href="../module-3/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Difference-in-Differences</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">Propensity Scores &amp; Matching</span></span></a>
+  <a href="../module-3/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Propensity Scores &amp; Matching</span></a>
   </div>
 </li>
       </ul>
@@ -377,68 +362,57 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-4/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 4: Longitudinal Data &amp; Change</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">From RM-ANOVA to Mixed Models</span></span></a>
+  <a href="../module-4/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">From RM-ANOVA to Mixed Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Covariance Structures</span></span></a>
+  <a href="../module-4/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Covariance Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Growth Curve Models</span></span></a>
+  <a href="../module-4/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Growth Curve Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Latent Growth Curve Models (SEM)</span></span></a>
+  <a href="../module-4/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Latent Growth Curve Models (SEM)</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Autoregressive Structures</span></span></a>
+  <a href="../module-4/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Autoregressive Structures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Cross-Lagged Panel Models</span></span></a>
+  <a href="../module-4/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Cross-Lagged Panel Models</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">32</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes Over Time</span></span></a>
+  <a href="../module-4/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes Over Time</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">33</span>&nbsp; <span class="chapter-title">Survival Analysis for Longitudinal Events</span></span></a>
+  <a href="../module-4/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Survival Analysis for Longitudinal Events</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">34</span>&nbsp; <span class="chapter-title">Missing Data in Longitudinal Studies</span></span></a>
+  <a href="../module-4/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Missing Data in Longitudinal Studies</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">35</span>&nbsp; <span class="chapter-title">Applied Identification Strategies for Panel Data</span></span></a>
+  <a href="../module-4/part10.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Applied Identification Strategies for Panel Data</span></a>
   </div>
 </li>
       </ul>
@@ -454,62 +428,52 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">36</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  <a href="../module-5/intro.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Module 5: Experimental Designs with Nesting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">37</span>&nbsp; <span class="chapter-title">Crossed Random Effects in Experiments</span></span></a>
+  <a href="../module-5/part1.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Crossed Random Effects in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">38</span>&nbsp; <span class="chapter-title">Partially Nested Designs</span></span></a>
+  <a href="../module-5/part2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Partially Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">39</span>&nbsp; <span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></span></a>
+  <a href="../module-5/part3.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Maximal vs.&nbsp;Parsimonious Random Effects</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">40</span>&nbsp; <span class="chapter-title">Multi-Site Experiments</span></span></a>
+  <a href="../module-5/part4.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Multi-Site Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">41</span>&nbsp; <span class="chapter-title">Power Analysis for Nested Designs</span></span></a>
+  <a href="../module-5/part5.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Power Analysis for Nested Designs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">42</span>&nbsp; <span class="chapter-title">Binary and Count Outcomes in Experiments</span></span></a>
+  <a href="../module-5/part6.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Binary and Count Outcomes in Experiments</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">43</span>&nbsp; <span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></span></a>
+  <a href="../module-5/part7.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Effect Sizes, Reporting, and Reproducibility</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">44</span>&nbsp; <span class="chapter-title">Non-Compliance: ITT and LATE</span></span></a>
+  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">45</span>&nbsp; <span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></span></a>
+  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
   </div>
 </li>
       </ul>
@@ -525,14 +489,12 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../about.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">About</span></span></a>
+  <a href="../about.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">About</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../suggest.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Suggest a Topic</span></span></a>
+  <a href="../suggest.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Suggest a Topic</span></a>
   </div>
 </li>
       </ul>
@@ -547,30 +509,31 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#crossed-random-effects" id="toc-crossed-random-effects" class="nav-link active" data-scroll-target="#crossed-random-effects"><span class="header-section-number">14</span> Crossed Random Effects</a>
+  <li><a href="#crossed-random-effects" id="toc-crossed-random-effects" class="nav-link active" data-scroll-target="#crossed-random-effects">Crossed Random Effects</a>
   <ul class="collapse">
-  <li><a href="#part-a-crossed-random-effects-in-experimental-designs" id="toc-part-a-crossed-random-effects-in-experimental-designs" class="nav-link" data-scroll-target="#part-a-crossed-random-effects-in-experimental-designs"><span class="header-section-number">14.1</span> Part A: Crossed Random Effects in Experimental Designs</a>
+  <li><a href="#part-a-crossed-random-effects-in-experimental-designs" id="toc-part-a-crossed-random-effects-in-experimental-designs" class="nav-link" data-scroll-target="#part-a-crossed-random-effects-in-experimental-designs">Part A: Crossed Random Effects in Experimental Designs</a>
   <ul class="collapse">
-  <li><a href="#the-problem-with-treating-messages-as-fixed" id="toc-the-problem-with-treating-messages-as-fixed" class="nav-link" data-scroll-target="#the-problem-with-treating-messages-as-fixed"><span class="header-section-number">14.1.1</span> The Problem with Treating Messages as Fixed</a></li>
-  <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model"><span class="header-section-number">14.1.2</span> The Model</a></li>
-  <li><a href="#comparing-with-and-without-message-random-effects" id="toc-comparing-with-and-without-message-random-effects" class="nav-link" data-scroll-target="#comparing-with-and-without-message-random-effects"><span class="header-section-number">14.1.3</span> Comparing: With and Without Message Random Effects</a></li>
-  <li><a href="#the-assumptions-of-crossed-random-effects-models" id="toc-the-assumptions-of-crossed-random-effects-models" class="nav-link" data-scroll-target="#the-assumptions-of-crossed-random-effects-models"><span class="header-section-number">14.1.4</span> The Assumptions of Crossed Random-Effects Models</a></li>
-  <li><a href="#the-keep-it-maximal-debate" id="toc-the-keep-it-maximal-debate" class="nav-link" data-scroll-target="#the-keep-it-maximal-debate"><span class="header-section-number">14.1.5</span> The “Keep It Maximal” Debate</a></li>
+  <li><a href="#design-schematic-crossed-vs.-nested" id="toc-design-schematic-crossed-vs.-nested" class="nav-link" data-scroll-target="#design-schematic-crossed-vs.-nested">Design Schematic: Crossed vs.&nbsp;Nested</a></li>
+  <li><a href="#the-problem-with-treating-messages-as-fixed" id="toc-the-problem-with-treating-messages-as-fixed" class="nav-link" data-scroll-target="#the-problem-with-treating-messages-as-fixed">The Problem with Treating Messages as Fixed</a></li>
+  <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model">The Model</a></li>
+  <li><a href="#comparing-with-and-without-message-random-effects" id="toc-comparing-with-and-without-message-random-effects" class="nav-link" data-scroll-target="#comparing-with-and-without-message-random-effects">Comparing: With and Without Message Random Effects</a></li>
+  <li><a href="#the-assumptions-of-crossed-random-effects-models" id="toc-the-assumptions-of-crossed-random-effects-models" class="nav-link" data-scroll-target="#the-assumptions-of-crossed-random-effects-models">The Assumptions of Crossed Random-Effects Models</a></li>
+  <li><a href="#the-keep-it-maximal-debate" id="toc-the-keep-it-maximal-debate" class="nav-link" data-scroll-target="#the-keep-it-maximal-debate">The “Keep It Maximal” Debate</a></li>
   </ul></li>
-  <li><a href="#part-b-crossed-random-effects-in-longitudinal-panel-data" id="toc-part-b-crossed-random-effects-in-longitudinal-panel-data" class="nav-link" data-scroll-target="#part-b-crossed-random-effects-in-longitudinal-panel-data"><span class="header-section-number">14.2</span> Part B: Crossed Random Effects in Longitudinal Panel Data</a>
+  <li><a href="#part-b-crossed-random-effects-in-longitudinal-panel-data" id="toc-part-b-crossed-random-effects-in-longitudinal-panel-data" class="nav-link" data-scroll-target="#part-b-crossed-random-effects-in-longitudinal-panel-data">Part B: Crossed Random Effects in Longitudinal Panel Data</a>
   <ul class="collapse">
-  <li><a href="#handling-month-effects-in-customer-spending-panels" id="toc-handling-month-effects-in-customer-spending-panels" class="nav-link" data-scroll-target="#handling-month-effects-in-customer-spending-panels"><span class="header-section-number">14.2.1</span> Handling Month Effects in Customer Spending Panels</a></li>
-  <li><a href="#the-model-1" id="toc-the-model-1" class="nav-link" data-scroll-target="#the-model-1"><span class="header-section-number">14.2.2</span> The Model</a></li>
-  <li><a href="#simulation-30-customers-15-monthly-waves" id="toc-simulation-30-customers-15-monthly-waves" class="nav-link" data-scroll-target="#simulation-30-customers-15-monthly-waves"><span class="header-section-number">14.2.3</span> Simulation: 30 Customers × 15 Monthly Waves</a></li>
-  <li><a href="#fitting-three-models" id="toc-fitting-three-models" class="nav-link" data-scroll-target="#fitting-three-models"><span class="header-section-number">14.2.4</span> Fitting Three Models</a></li>
-  <li><a href="#variance-components-the-smoking-gun" id="toc-variance-components-the-smoking-gun" class="nav-link" data-scroll-target="#variance-components-the-smoking-gun"><span class="header-section-number">14.2.5</span> Variance Components: The Smoking Gun</a></li>
-  <li><a href="#the-key-diagnostic-standard-error-comparison" id="toc-the-key-diagnostic-standard-error-comparison" class="nav-link" data-scroll-target="#the-key-diagnostic-standard-error-comparison"><span class="header-section-number">14.2.6</span> The Key Diagnostic: Standard Error Comparison</a></li>
-  <li><a href="#visualizing-the-problem-residual-heatmaps" id="toc-visualizing-the-problem-residual-heatmaps" class="nav-link" data-scroll-target="#visualizing-the-problem-residual-heatmaps"><span class="header-section-number">14.2.7</span> Visualizing the Problem: Residual Heatmaps</a></li>
-  <li><a href="#month-fixed-effects-vs.-month-random-effects" id="toc-month-fixed-effects-vs.-month-random-effects" class="nav-link" data-scroll-target="#month-fixed-effects-vs.-month-random-effects"><span class="header-section-number">14.2.8</span> Month Fixed Effects vs.&nbsp;Month Random Effects</a></li>
-  <li><a href="#the-assumptions-of-crossed-panel-random-effects-models" id="toc-the-assumptions-of-crossed-panel-random-effects-models" class="nav-link" data-scroll-target="#the-assumptions-of-crossed-panel-random-effects-models"><span class="header-section-number">14.2.9</span> The Assumptions of Crossed Panel Random-Effects Models</a></li>
-  <li><a href="#experimental-vs.-panel-side-by-side-summary" id="toc-experimental-vs.-panel-side-by-side-summary" class="nav-link" data-scroll-target="#experimental-vs.-panel-side-by-side-summary"><span class="header-section-number">14.2.10</span> Experimental vs.&nbsp;Panel: Side-by-Side Summary</a></li>
+  <li><a href="#handling-month-effects-in-customer-spending-panels" id="toc-handling-month-effects-in-customer-spending-panels" class="nav-link" data-scroll-target="#handling-month-effects-in-customer-spending-panels">Handling Month Effects in Customer Spending Panels</a></li>
+  <li><a href="#the-model-1" id="toc-the-model-1" class="nav-link" data-scroll-target="#the-model-1">The Model</a></li>
+  <li><a href="#simulation-30-customers-15-monthly-waves" id="toc-simulation-30-customers-15-monthly-waves" class="nav-link" data-scroll-target="#simulation-30-customers-15-monthly-waves">Simulation: 30 Customers × 15 Monthly Waves</a></li>
+  <li><a href="#fitting-three-models" id="toc-fitting-three-models" class="nav-link" data-scroll-target="#fitting-three-models">Fitting Three Models</a></li>
+  <li><a href="#variance-components-the-smoking-gun" id="toc-variance-components-the-smoking-gun" class="nav-link" data-scroll-target="#variance-components-the-smoking-gun">Variance Components: The Smoking Gun</a></li>
+  <li><a href="#the-key-diagnostic-standard-error-comparison" id="toc-the-key-diagnostic-standard-error-comparison" class="nav-link" data-scroll-target="#the-key-diagnostic-standard-error-comparison">The Key Diagnostic: Standard Error Comparison</a></li>
+  <li><a href="#visualizing-the-problem-residual-heatmaps" id="toc-visualizing-the-problem-residual-heatmaps" class="nav-link" data-scroll-target="#visualizing-the-problem-residual-heatmaps">Visualizing the Problem: Residual Heatmaps</a></li>
+  <li><a href="#month-fixed-effects-vs.-month-random-effects" id="toc-month-fixed-effects-vs.-month-random-effects" class="nav-link" data-scroll-target="#month-fixed-effects-vs.-month-random-effects">Month Fixed Effects vs.&nbsp;Month Random Effects</a></li>
+  <li><a href="#the-assumptions-of-crossed-panel-random-effects-models" id="toc-the-assumptions-of-crossed-panel-random-effects-models" class="nav-link" data-scroll-target="#the-assumptions-of-crossed-panel-random-effects-models">The Assumptions of Crossed Panel Random-Effects Models</a></li>
+  <li><a href="#experimental-vs.-panel-side-by-side-summary" id="toc-experimental-vs.-panel-side-by-side-summary" class="nav-link" data-scroll-target="#experimental-vs.-panel-side-by-side-summary">Experimental vs.&nbsp;Panel: Side-by-Side Summary</a></li>
   </ul></li>
-  <li><a href="#recommended-reading" id="toc-recommended-reading" class="nav-link" data-scroll-target="#recommended-reading"><span class="header-section-number">14.3</span> Recommended Reading</a></li>
+  <li><a href="#recommended-reading" id="toc-recommended-reading" class="nav-link" data-scroll-target="#recommended-reading">Recommended Reading</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -578,9 +541,9 @@ window.Quarto = {
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: The Mixed-Effects Framework</a></li><li class="breadcrumb-item"><a href="../module-1/part6.html"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../module-1/intro.html">Module 1: The Mixed-Effects Framework</a></li><li class="breadcrumb-item"><a href="../module-1/part6.html"><span class="chapter-title">Crossed Random Effects</span></a></li></ol></nav>
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Crossed Random Effects</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-title">Crossed Random Effects</span></h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Show/Hide All Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li></ul></div></div>
 </div>
 
 
@@ -597,8 +560,25 @@ window.Quarto = {
 </header>
 
 
-<section id="crossed-random-effects" class="level1" data-number="14">
-<h1 data-number="14"><span class="header-section-number">14</span> Crossed Random Effects</h1>
+<section id="crossed-random-effects" class="level1">
+<h1>Crossed Random Effects</h1>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What Do Crossed Random Effects Solve?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Question:</strong> When every observation belongs simultaneously to two independent grouping factors — each participant evaluates every message; each customer is observed in every calendar month — how do we partition variance correctly across both dimensions?</li>
+<li><strong>What goes wrong:</strong> Ignoring one of the two grouping factors pushes that variance into the residual. The residual is artificially inflated, standard errors for your focal predictor are artificially deflated, and <em>p</em>-values are anti-conservatively small.</li>
+<li><strong>The fix:</strong> Model both grouping factors simultaneously — <code>(1 | participant) + (1 | message)</code> — so the model decomposes variance into participant differences, message differences, and residual noise. The result is correct standard errors and inference that generalises across both the participant sample and the message sample.</li>
+</ul>
+</div>
+</div>
 <p>Pure hierarchies assume each lower-level unit belongs to exactly one higher-level unit. But many real data structures — in both experimental consumer research and longitudinal panel research — have units that belong to <em>multiple</em> grouping factors simultaneously. This chapter covers two major instances of crossed random effects:</p>
 <ol type="1">
 <li><strong>Within-subjects experiments</strong>: participants × product messages (the consumer WTP problem)</li>
@@ -606,16 +586,75 @@ window.Quarto = {
 </ol>
 <p>Both cases share the same formal structure. Both produce badly wrong standard errors when one of the crossed grouping factors is omitted.</p>
 <hr>
-<section id="part-a-crossed-random-effects-in-experimental-designs" class="level2" data-number="14.1">
-<h2 data-number="14.1" class="anchored" data-anchor-id="part-a-crossed-random-effects-in-experimental-designs"><span class="header-section-number">14.1</span> Part A: Crossed Random Effects in Experimental Designs</h2>
-<section id="the-problem-with-treating-messages-as-fixed" class="level3" data-number="14.1.1">
-<h3 data-number="14.1.1" class="anchored" data-anchor-id="the-problem-with-treating-messages-as-fixed"><span class="header-section-number">14.1.1</span> The Problem with Treating Messages as Fixed</h3>
+<section id="part-a-crossed-random-effects-in-experimental-designs" class="level2">
+<h2 class="anchored" data-anchor-id="part-a-crossed-random-effects-in-experimental-designs">Part A: Crossed Random Effects in Experimental Designs</h2>
+<section id="design-schematic-crossed-vs.-nested" class="level3">
+<h3 class="anchored" data-anchor-id="design-schematic-crossed-vs.-nested">Design Schematic: Crossed vs.&nbsp;Nested</h3>
+<p>Before fitting a model, it helps to visualise the difference between a <strong>nested</strong> structure and a <strong>crossed</strong> structure. The distinction is about whether every participant evaluates every product (crossed) or each participant evaluates a unique subset of products (nested).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 6 participants × 6 products for illustration</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_p <span class="ot">&lt;-</span> <span class="dv">6</span>; n_m <span class="ot">&lt;-</span> <span class="dv">6</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Crossed: every participant evaluates every product</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>df_crossed <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_p, <span class="at">product =</span> <span class="dv">1</span><span class="sc">:</span>n_m) <span class="sc">|&gt;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">observed =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> <span class="st">"Crossed (every P evaluates every product)"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Nested: each participant evaluates a unique set of 3 products (no overlap)</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>df_nested <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_grid</span>(<span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">product =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>),</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_grid</span>(<span class="at">participant =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">product =</span> <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expand_grid</span>(<span class="at">participant =</span> <span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>, <span class="at">product =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>))</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">observed =</span> <span class="cn">TRUE</span>, <span class="at">design =</span> <span class="st">"Nested (each P evaluates a unique subset)"</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Add unobserved cells to nested design for visual contrast</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>df_nested_full <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_p, <span class="at">product =</span> <span class="dv">1</span><span class="sc">:</span>n_m) <span class="sc">|&gt;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(df_nested <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">observed =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"participant"</span>, <span class="st">"product"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">replace_na</span>(<span class="fu">list</span>(<span class="at">observed =</span> <span class="cn">FALSE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">design =</span> <span class="st">"Nested (each P evaluates a unique subset)"</span>)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  df_crossed <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">observed =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  df_nested_full</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(product), <span class="at">y =</span> <span class="fu">factor</span>(participant),</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>             <span class="at">fill =</span> observed)) <span class="sc">+</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"TRUE"</span> <span class="ot">=</span> <span class="st">"#2166ac"</span>, <span class="st">"FALSE"</span> <span class="ot">=</span> <span class="st">"#f0f0f0"</span>),</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>                    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"TRUE"</span> <span class="ot">=</span> <span class="st">"Observed"</span>, <span class="st">"FALSE"</span> <span class="ot">=</span> <span class="st">"Not observed"</span>),</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>                    <span class="at">name   =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> design, <span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Crossed vs. nested: which cells are observed?"</span>,</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Crossed designs fill the full participant \u00d7 product grid — every cell is blue.</span><span class="sc">\n</span><span class="st">Nested designs leave gaps — products are not shared across participants."</span>,</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Product"</span>, <span class="at">y =</span> <span class="st">"Participant"</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>        <span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part6_files/figure-html/design-schematic-1.png" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In a <strong>crossed design</strong> the grid is fully filled: every participant–product cell is observed. Both grouping factors are fully shared, so variance can be cleanly partitioned into participant differences, product differences, and residual. In a <strong>nested design</strong> there is no product sharing across participants — you cannot separate “this product is generally liked” from “this participant generally likes things,” because the two effects are aliased.</p>
+<p><strong>Why it matters for R syntax:</strong> In a crossed design, <code>lme4</code> formula <code>(1 | participant) + (1 | product)</code> fits two independent random intercepts and partitions variance correctly. In a nested design with partial overlap, the same formula would be misspecified — crossed syntax on a partially nested structure can produce severely wrong standard errors. Always draw (or print) your data grid before choosing a formula.</p>
+</section>
+<section id="the-problem-with-treating-messages-as-fixed" class="level3">
+<h3 class="anchored" data-anchor-id="the-problem-with-treating-messages-as-fixed">The Problem with Treating Messages as Fixed</h3>
 <p>A consumer research experiment: 40 participants each evaluate 80 pricing messages. Each observation belongs to one participant AND one message. Participants are not nested within messages. Messages are not nested within participants. Both grouping factors are fully <strong>crossed</strong>.</p>
 <p>If you only include a random effect for participants, you are assuming that all variance due to messages is captured by the residual. But messages differ systematically — some promotional offers are more compelling due to framing quality, discount depth, or scarcity cues. This message-level variance inflates your residuals and biases your standard errors.</p>
 <p>Judd, Westfall, and Kenny (2012, 2017) showed that failing to include random effects for stimuli is one of the most widespread sources of Type I error inflation in social and cognitive psychology. The same logic applies directly to consumer research: when messages (or products, or offers) are the stimuli, they must be treated as a random factor.</p>
 </section>
-<section id="the-model" class="level3" data-number="14.1.2">
-<h3 data-number="14.1.2" class="anchored" data-anchor-id="the-model"><span class="header-section-number">14.1.2</span> The Model</h3>
+<section id="the-model" class="level3">
+<h3 class="anchored" data-anchor-id="the-model">The Model</h3>
 <p>For observation <span class="math inline">\(y_{ps}\)</span> from participant <span class="math inline">\(p\)</span> evaluating message <span class="math inline">\(s\)</span>:</p>
 <p><span class="math display">\[
 Y_{ps} = \underbrace{\gamma_{00}}_{\text{grand mean}} + \underbrace{\beta_1 X_{ps}}_{\text{predictor}} + \underbrace{u_{0p}}_{\text{participant RE}} + \underbrace{w_{0s}}_{\text{message RE}} + \underbrace{\varepsilon_{ps}}_{\text{residual}}
@@ -629,42 +668,42 @@ Y_{ps} = \underbrace{\gamma_{00}}_{\text{grand mean}} + \underbrace{\beta_1 X_{p
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate a consumer WTP study: participants × product messages</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_participants <span class="ot">&lt;-</span> <span class="dv">40</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n_messages     <span class="ot">&lt;-</span> <span class="dv">80</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>participant_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">0</span>, <span class="dv">15</span>)   <span class="co"># people differ in baseline WTP</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>message_effects     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_messages, <span class="dv">0</span>, <span class="dv">12</span>)        <span class="co"># messages differ in baseline WTP</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>discount_depth      <span class="ot">&lt;-</span> <span class="fu">runif</span>(n_messages, <span class="dv">0</span>, <span class="dv">40</span>)        <span class="co"># discount depth predictor (0-40%)</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>df_promo <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_participants,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">message     =</span> <span class="dv">1</span><span class="sc">:</span>n_messages</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant_eff =</span> participant_effects[participant],</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">message_eff     =</span> message_effects[message],</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">discount_depth  =</span> discount_depth[message],</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">wtp             =</span> <span class="dv">80</span> <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> discount_depth <span class="sc">+</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>                      participant_eff <span class="sc">+</span> message_eff <span class="sc">+</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">15</span>),</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant     =</span> <span class="fu">factor</span>(participant),</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">message         =</span> <span class="fu">factor</span>(message)</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate a consumer WTP study: participants × product messages</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n_participants <span class="ot">&lt;-</span> <span class="dv">40</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>n_messages     <span class="ot">&lt;-</span> <span class="dv">80</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>participant_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_participants, <span class="dv">0</span>, <span class="dv">15</span>)   <span class="co"># people differ in baseline WTP</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>message_effects     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_messages, <span class="dv">0</span>, <span class="dv">12</span>)        <span class="co"># messages differ in baseline WTP</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>discount_depth      <span class="ot">&lt;-</span> <span class="fu">runif</span>(n_messages, <span class="dv">0</span>, <span class="dv">40</span>)        <span class="co"># discount depth predictor (0-40%)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>df_promo <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">participant =</span> <span class="dv">1</span><span class="sc">:</span>n_participants,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">message     =</span> <span class="dv">1</span><span class="sc">:</span>n_messages</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant_eff =</span> participant_effects[participant],</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">message_eff     =</span> message_effects[message],</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">discount_depth  =</span> discount_depth[message],</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">wtp             =</span> <span class="dv">80</span> <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> discount_depth <span class="sc">+</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>                      participant_eff <span class="sc">+</span> message_eff <span class="sc">+</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">15</span>),</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">participant     =</span> <span class="fu">factor</span>(participant),</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">message         =</span> <span class="fu">factor</span>(message)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Without message random effects (wrong)</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>model_no_msgs <span class="ot">&lt;-</span> <span class="fu">lmer</span>(wtp <span class="sc">~</span> discount_depth <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> df_promo)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># With message random effects (correct: crossed)</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>model_crossed <span class="ot">&lt;-</span> <span class="fu">lmer</span>(wtp <span class="sc">~</span> discount_depth <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> message),</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> df_promo)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_crossed)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Without message random effects (wrong)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>model_no_msgs <span class="ot">&lt;-</span> <span class="fu">lmer</span>(wtp <span class="sc">~</span> discount_depth <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> df_promo)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># With message random effects (correct: crossed)</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>model_crossed <span class="ot">&lt;-</span> <span class="fu">lmer</span>(wtp <span class="sc">~</span> discount_depth <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> participant) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> message),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> df_promo)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_crossed)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
@@ -700,9 +739,9 @@ discnt_dpth -0.523</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_crossed, <span class="at">effects =</span> <span class="st">"ran_pars"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">2</span>,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">caption =</span> <span class="st">"Variance components: participants, messages, and residual"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_crossed, <span class="at">effects =</span> <span class="st">"ran_pars"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">caption =</span> <span class="st">"Variance components: participants, messages, and residual"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -740,20 +779,20 @@ discnt_dpth -0.523</code></pre>
 </div>
 <p><strong>Reading the output:</strong> The model decomposes variance into three sources: participant-level differences in WTP, message-level differences in appeal, and residual trial-level noise. The discount effect is estimated after accounting for <em>both</em> sources of clustering.</p>
 </section>
-<section id="comparing-with-and-without-message-random-effects" class="level3" data-number="14.1.3">
-<h3 data-number="14.1.3" class="anchored" data-anchor-id="comparing-with-and-without-message-random-effects"><span class="header-section-number">14.1.3</span> Comparing: With and Without Message Random Effects</h3>
+<section id="comparing-with-and-without-message-random-effects" class="level3">
+<h3 class="anchored" data-anchor-id="comparing-with-and-without-message-random-effects">Comparing: With and Without Message Random Effects</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>wrong_se   <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_no_msgs)[<span class="dv">2</span>, <span class="st">"std.error"</span>][[<span class="dv">1</span>]]</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>correct_se <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_crossed)[<span class="dv">2</span>, <span class="st">"std.error"</span>][[<span class="dv">1</span>]]</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model          =</span> <span class="fu">c</span>(<span class="st">"Without message RE"</span>, <span class="st">"With message RE (crossed)"</span>),</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Discount_SE    =</span> <span class="fu">c</span>(wrong_se, correct_se)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"SE of discount effect: ignoring vs. modeling message-level variance"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>wrong_se   <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_no_msgs)[<span class="dv">2</span>, <span class="st">"std.error"</span>][[<span class="dv">1</span>]]</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>correct_se <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model_crossed)[<span class="dv">2</span>, <span class="st">"std.error"</span>][[<span class="dv">1</span>]]</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model          =</span> <span class="fu">c</span>(<span class="st">"Without message RE"</span>, <span class="st">"With message RE (crossed)"</span>),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Discount_SE    =</span> <span class="fu">c</span>(wrong_se, correct_se)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"SE of discount effect: ignoring vs. modeling message-level variance"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -779,8 +818,8 @@ discnt_dpth -0.523</code></pre>
 </div>
 <p>When message-level variance is ignored, the standard error for the discount depth effect is smaller — the model treats message-level variance as residual noise, artificially deflating uncertainty. This produces anti-conservative inference: <em>p</em>-values are too small.</p>
 </section>
-<section id="the-assumptions-of-crossed-random-effects-models" class="level3" data-number="14.1.4">
-<h3 data-number="14.1.4" class="anchored" data-anchor-id="the-assumptions-of-crossed-random-effects-models"><span class="header-section-number">14.1.4</span> The Assumptions of Crossed Random-Effects Models</h3>
+<section id="the-assumptions-of-crossed-random-effects-models" class="level3">
+<h3 class="anchored" data-anchor-id="the-assumptions-of-crossed-random-effects-models">The Assumptions of Crossed Random-Effects Models</h3>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -824,11 +863,11 @@ discnt_dpth -0.523</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>model_maximal <span class="ot">&lt;-</span> <span class="fu">lmer</span>(wtp <span class="sc">~</span> discount_depth <span class="sc">+</span> (discount_depth <span class="sc">|</span> participant) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> message),</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data    =</span> df_promo,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">control =</span> <span class="fu">lmerControl</span>(<span class="at">optimizer =</span> <span class="st">"bobyqa"</span>))</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_crossed, model_maximal)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model_maximal <span class="ot">&lt;-</span> <span class="fu">lmer</span>(wtp <span class="sc">~</span> discount_depth <span class="sc">+</span> (discount_depth <span class="sc">|</span> participant) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> message),</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data    =</span> df_promo,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">control =</span> <span class="fu">lmerControl</span>(<span class="at">optimizer =</span> <span class="st">"bobyqa"</span>))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_crossed, model_maximal)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div class="kable-table">
@@ -888,8 +927,8 @@ discnt_dpth -0.523</code></pre>
 </div>
 </div>
 </section>
-<section id="the-keep-it-maximal-debate" class="level3" data-number="14.1.5">
-<h3 data-number="14.1.5" class="anchored" data-anchor-id="the-keep-it-maximal-debate"><span class="header-section-number">14.1.5</span> The “Keep It Maximal” Debate</h3>
+<section id="the-keep-it-maximal-debate" class="level3">
+<h3 class="anchored" data-anchor-id="the-keep-it-maximal-debate">The “Keep It Maximal” Debate</h3>
 <p>Barr et al.&nbsp;(2013) argued that you should always include the <strong>maximal random effects structure</strong> — every random slope that is theoretically justified by the design. This minimizes Type I error.</p>
 <p>Bates et al.&nbsp;(2015) and Matuschek et al.&nbsp;(2017) pushed back, arguing that maximal models frequently fail to converge, and that parsimonious models often provide better estimates.</p>
 <p>The current consensus: include random slopes for all within-unit manipulations (this is critical), but simplify the correlation structure or remove slopes not supported by the data if the model fails to converge.</p>
@@ -898,10 +937,10 @@ discnt_dpth -0.523</code></pre>
 <hr>
 </section>
 </section>
-<section id="part-b-crossed-random-effects-in-longitudinal-panel-data" class="level2" data-number="14.2">
-<h2 data-number="14.2" class="anchored" data-anchor-id="part-b-crossed-random-effects-in-longitudinal-panel-data"><span class="header-section-number">14.2</span> Part B: Crossed Random Effects in Longitudinal Panel Data</h2>
-<section id="handling-month-effects-in-customer-spending-panels" class="level3" data-number="14.2.1">
-<h3 data-number="14.2.1" class="anchored" data-anchor-id="handling-month-effects-in-customer-spending-panels"><span class="header-section-number">14.2.1</span> Handling Month Effects in Customer Spending Panels</h3>
+<section id="part-b-crossed-random-effects-in-longitudinal-panel-data" class="level2">
+<h2 class="anchored" data-anchor-id="part-b-crossed-random-effects-in-longitudinal-panel-data">Part B: Crossed Random Effects in Longitudinal Panel Data</h2>
+<section id="handling-month-effects-in-customer-spending-panels" class="level3">
+<h3 class="anchored" data-anchor-id="handling-month-effects-in-customer-spending-panels">Handling Month Effects in Customer Spending Panels</h3>
 <p>In a customer spending panel, every customer is observed across the same calendar months. Months are <strong>not</strong> nested within customers — instead, months and customers are <strong>crossed</strong>. Each observation belongs simultaneously to one customer AND one month.</p>
 <p>The data-generating process has two sources of clustering:</p>
 <ol type="1">
@@ -915,8 +954,8 @@ discnt_dpth -0.523</code></pre>
 <li>Seasonal and economic patterns appear as noise when they are actually systematic, shared variance</li>
 </ul>
 </section>
-<section id="the-model-1" class="level3" data-number="14.2.2">
-<h3 data-number="14.2.2" class="anchored" data-anchor-id="the-model-1"><span class="header-section-number">14.2.2</span> The Model</h3>
+<section id="the-model-1" class="level3">
+<h3 class="anchored" data-anchor-id="the-model-1">The Model</h3>
 <p>For observation <span class="math inline">\(Y_{ct}\)</span> from customer <span class="math inline">\(c\)</span> in month <span class="math inline">\(t\)</span>:</p>
 <p><span class="math display">\[
 Y_{ct} = \underbrace{\gamma_{00}}_{\text{grand mean}} + \underbrace{\beta_1 \text{Promo}_{ct}}_{\text{predictor effect}} + \underbrace{u_{0c}}_{\text{customer RE}} + \underbrace{w_{0t}}_{\text{month RE}} + \underbrace{\varepsilon_{ct}}_{\text{residual}}
@@ -929,29 +968,29 @@ Y_{ct} = \underbrace{\gamma_{00}}_{\text{grand mean}} + \underbrace{\beta_1 \tex
 </ul>
 <p>The formal structure is identical to the product message model — only the substantive labels change.</p>
 </section>
-<section id="simulation-30-customers-15-monthly-waves" class="level3" data-number="14.2.3">
-<h3 data-number="14.2.3" class="anchored" data-anchor-id="simulation-30-customers-15-monthly-waves"><span class="header-section-number">14.2.3</span> Simulation: 30 Customers × 15 Monthly Waves</h3>
+<section id="simulation-30-customers-15-monthly-waves" class="level3">
+<h3 class="anchored" data-anchor-id="simulation-30-customers-15-monthly-waves">Simulation: 30 Customers × 15 Monthly Waves</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>n_customers <span class="ot">&lt;-</span> <span class="dv">30</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>n_months    <span class="ot">&lt;-</span> <span class="dv">15</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>customer_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_customers, <span class="dv">0</span>, <span class="dv">80</span>)   <span class="co"># between-customer spending variance</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>month_effects    <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_months, <span class="dv">0</span>, <span class="dv">40</span>)       <span class="co"># seasonal/economic month shocks</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>df_panel <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">customer =</span> <span class="dv">1</span><span class="sc">:</span>n_customers, <span class="at">month =</span> <span class="dv">1</span><span class="sc">:</span>n_months) <span class="sc">|&gt;</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">promo_exposure =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">20</span>, <span class="dv">8</span>),</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">spending       =</span> <span class="dv">600</span> <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> promo_exposure <span class="sc">+</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>                     customer_effects[customer] <span class="sc">+</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>                     month_effects[month] <span class="sc">+</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">30</span>),</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">customer       =</span> <span class="fu">factor</span>(customer),</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">month_fac      =</span> <span class="fu">factor</span>(month)</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df_panel)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>n_customers <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>n_months    <span class="ot">&lt;-</span> <span class="dv">15</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>customer_effects <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_customers, <span class="dv">0</span>, <span class="dv">80</span>)   <span class="co"># between-customer spending variance</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>month_effects    <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_months, <span class="dv">0</span>, <span class="dv">40</span>)       <span class="co"># seasonal/economic month shocks</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>df_panel <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">customer =</span> <span class="dv">1</span><span class="sc">:</span>n_customers, <span class="at">month =</span> <span class="dv">1</span><span class="sc">:</span>n_months) <span class="sc">|&gt;</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">promo_exposure =</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">20</span>, <span class="dv">8</span>),</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">spending       =</span> <span class="dv">600</span> <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> promo_exposure <span class="sc">+</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>                     customer_effects[customer] <span class="sc">+</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>                     month_effects[month] <span class="sc">+</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">30</span>),</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">customer       =</span> <span class="fu">factor</span>(customer),</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">month_fac      =</span> <span class="fu">factor</span>(month)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(df_panel)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Rows: 450
@@ -965,40 +1004,40 @@ $ month_fac      &lt;fct&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
 </div>
 <p>Notice: <code>month_effects</code> — the month-level seasonal and economic variation — is <strong>not included as a predictor</strong> in any model below. It is the hidden source of month-level clustering that the month random effect must absorb.</p>
 </section>
-<section id="fitting-three-models" class="level3" data-number="14.2.4">
-<h3 data-number="14.2.4" class="anchored" data-anchor-id="fitting-three-models"><span class="header-section-number">14.2.4</span> Fitting Three Models</h3>
+<section id="fitting-three-models" class="level3">
+<h3 class="anchored" data-anchor-id="fitting-three-models">Fitting Three Models</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 1: Wrong — customer RE only; month variance goes into residual</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>m_customer_only <span class="ot">&lt;-</span> <span class="fu">lmer</span>(spending <span class="sc">~</span> promo_exposure <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> customer),</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data =</span> df_panel)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 2: Correct — crossed RE for customer and month</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>m_crossed       <span class="ot">&lt;-</span> <span class="fu">lmer</span>(spending <span class="sc">~</span> promo_exposure <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> customer) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> month_fac),</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data =</span> df_panel)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 3: Conservative alternative — month fixed effects (month as dummy variables)</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>m_month_fe      <span class="ot">&lt;-</span> <span class="fu">lmer</span>(spending <span class="sc">~</span> promo_exposure <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> customer) <span class="sc">+</span> month_fac,</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data =</span> df_panel)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 1: Wrong — customer RE only; month variance goes into residual</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>m_customer_only <span class="ot">&lt;-</span> <span class="fu">lmer</span>(spending <span class="sc">~</span> promo_exposure <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> customer),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data =</span> df_panel)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 2: Correct — crossed RE for customer and month</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>m_crossed       <span class="ot">&lt;-</span> <span class="fu">lmer</span>(spending <span class="sc">~</span> promo_exposure <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> customer) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> month_fac),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data =</span> df_panel)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Model 3: Conservative alternative — month fixed effects (month as dummy variables)</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>m_month_fe      <span class="ot">&lt;-</span> <span class="fu">lmer</span>(spending <span class="sc">~</span> promo_exposure <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> customer) <span class="sc">+</span> month_fac,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data =</span> df_panel)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
-<section id="variance-components-the-smoking-gun" class="level3" data-number="14.2.5">
-<h3 data-number="14.2.5" class="anchored" data-anchor-id="variance-components-the-smoking-gun"><span class="header-section-number">14.2.5</span> Variance Components: The Smoking Gun</h3>
+<section id="variance-components-the-smoking-gun" class="level3">
+<h3 class="anchored" data-anchor-id="variance-components-the-smoking-gun">Variance Components: The Smoking Gun</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>vc_wrong   <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_customer_only, <span class="at">effects =</span> <span class="st">"ran_pars"</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>vc_correct <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_crossed,       <span class="at">effects =</span> <span class="st">"ran_pars"</span>)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  vc_wrong   <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Customer RE only (wrong)"</span>),</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  vc_correct <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Crossed RE (correct)"</span>)</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, group, term, estimate) <span class="sc">|&gt;</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">2</span>,</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">caption =</span> <span class="st">"Variance components: customer-only vs. crossed specification"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>vc_wrong   <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_customer_only, <span class="at">effects =</span> <span class="st">"ran_pars"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>vc_correct <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_crossed,       <span class="at">effects =</span> <span class="st">"ran_pars"</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  vc_wrong   <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Customer RE only (wrong)"</span>),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  vc_correct <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Crossed RE (correct)"</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(model, group, term, estimate) <span class="sc">|&gt;</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">caption =</span> <span class="st">"Variance components: customer-only vs. crossed specification"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -1048,24 +1087,24 @@ $ month_fac      &lt;fct&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
 </div>
 <p>In the crossed model, variance is correctly partitioned into customer-level variance, month-level variance, and residual. In the customer-only model, the residual variance is inflated — it has absorbed both the true residual and the month-level seasonal and economic shocks.</p>
 </section>
-<section id="the-key-diagnostic-standard-error-comparison" class="level3" data-number="14.2.6">
-<h3 data-number="14.2.6" class="anchored" data-anchor-id="the-key-diagnostic-standard-error-comparison"><span class="header-section-number">14.2.6</span> The Key Diagnostic: Standard Error Comparison</h3>
+<section id="the-key-diagnostic-standard-error-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="the-key-diagnostic-standard-error-comparison">The Key Diagnostic: Standard Error Comparison</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>se_wrong   <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_customer_only)[<span class="dv">2</span>, <span class="st">"std.error"</span>][[<span class="dv">1</span>]]</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>se_crossed <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_crossed)[<span class="dv">2</span>,     <span class="st">"std.error"</span>][[<span class="dv">1</span>]]</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>se_fe      <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_month_fe)[<span class="dv">2</span>,    <span class="st">"std.error"</span>][[<span class="dv">1</span>]]</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model             =</span> <span class="fu">c</span>(<span class="st">"Customer RE only (wrong)"</span>,</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"Customer + Month RE (correct)"</span>,</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"Customer RE + Month FE"</span>),</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">Promo_SE          =</span> <span class="fu">c</span>(se_wrong, se_crossed, se_fe),</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">Anti_conservative =</span> <span class="fu">c</span>(<span class="st">"Yes — too small"</span>, <span class="st">"Correct"</span>, <span class="st">"Correct"</span>)</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">4</span>,</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>               <span class="at">caption =</span> <span class="st">"SE of promotional exposure coefficient: month effects ignored vs. modeled"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>se_wrong   <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_customer_only)[<span class="dv">2</span>, <span class="st">"std.error"</span>][[<span class="dv">1</span>]]</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>se_crossed <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_crossed)[<span class="dv">2</span>,     <span class="st">"std.error"</span>][[<span class="dv">1</span>]]</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>se_fe      <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_month_fe)[<span class="dv">2</span>,    <span class="st">"std.error"</span>][[<span class="dv">1</span>]]</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Model             =</span> <span class="fu">c</span>(<span class="st">"Customer RE only (wrong)"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"Customer + Month RE (correct)"</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                         <span class="st">"Customer RE + Month FE"</span>),</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">Promo_SE          =</span> <span class="fu">c</span>(se_wrong, se_crossed, se_fe),</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">Anti_conservative =</span> <span class="fu">c</span>(<span class="st">"Yes — too small"</span>, <span class="st">"Correct"</span>, <span class="st">"Correct"</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">4</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>               <span class="at">caption =</span> <span class="st">"SE of promotional exposure coefficient: month effects ignored vs. modeled"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -1099,39 +1138,39 @@ $ month_fac      &lt;fct&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
 </div>
 <p>The customer-only model understates uncertainty for the promotional exposure coefficient. When seasonal and economic month variance is left in the residual, the model mistakes correlated month-level noise for independent observations, producing an artificially small standard error.</p>
 </section>
-<section id="visualizing-the-problem-residual-heatmaps" class="level3" data-number="14.2.7">
-<h3 data-number="14.2.7" class="anchored" data-anchor-id="visualizing-the-problem-residual-heatmaps"><span class="header-section-number">14.2.7</span> Visualizing the Problem: Residual Heatmaps</h3>
+<section id="visualizing-the-problem-residual-heatmaps" class="level3">
+<h3 class="anchored" data-anchor-id="visualizing-the-problem-residual-heatmaps">Visualizing the Problem: Residual Heatmaps</h3>
 <p>A powerful diagnostic: plot model residuals as a heatmap over the customer × month grid. Under the wrong model, seasonal and economic patterns create <strong>vertical stripes</strong> — in a high-spending month like December, all customers have positive residuals simultaneously. Under the correct model, residuals are patternless.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>df_diag <span class="ot">&lt;-</span> df_panel <span class="sc">|&gt;</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">resid_wrong   =</span> <span class="fu">residuals</span>(m_customer_only),</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">resid_correct =</span> <span class="fu">residuals</span>(m_crossed)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>p_wrong <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_diag, <span class="fu">aes</span>(<span class="at">x =</span> month_fac, <span class="at">y =</span> customer, <span class="at">fill =</span> resid_wrong)) <span class="sc">+</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>() <span class="sc">+</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient2</span>(<span class="at">low =</span> <span class="st">"#2166ac"</span>, <span class="at">mid =</span> <span class="st">"white"</span>, <span class="at">high =</span> <span class="st">"#d73027"</span>,</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>                       <span class="at">midpoint =</span> <span class="dv">0</span>, <span class="at">name =</span> <span class="st">"Residual"</span>) <span class="sc">+</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Wrong model (customer RE only)"</span>,</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Vertical stripes = month shocks pooled into residuals"</span>,</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Month"</span>, <span class="at">y =</span> <span class="st">"Customer"</span>) <span class="sc">+</span></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>p_correct <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_diag, <span class="fu">aes</span>(<span class="at">x =</span> month_fac, <span class="at">y =</span> customer, <span class="at">fill =</span> resid_correct)) <span class="sc">+</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>() <span class="sc">+</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient2</span>(<span class="at">low =</span> <span class="st">"#2166ac"</span>, <span class="at">mid =</span> <span class="st">"white"</span>, <span class="at">high =</span> <span class="st">"#d73027"</span>,</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>                       <span class="at">midpoint =</span> <span class="dv">0</span>, <span class="at">name =</span> <span class="st">"Residual"</span>) <span class="sc">+</span></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Correct model (customer + month RE)"</span>,</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"No vertical stripes — month shocks absorbed by month RE"</span>,</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Month"</span>, <span class="at">y =</span> <span class="st">"Customer"</span>) <span class="sc">+</span></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>p_wrong <span class="sc">/</span> p_correct</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df_diag <span class="ot">&lt;-</span> df_panel <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">resid_wrong   =</span> <span class="fu">residuals</span>(m_customer_only),</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">resid_correct =</span> <span class="fu">residuals</span>(m_crossed)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>p_wrong <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_diag, <span class="fu">aes</span>(<span class="at">x =</span> month_fac, <span class="at">y =</span> customer, <span class="at">fill =</span> resid_wrong)) <span class="sc">+</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>() <span class="sc">+</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient2</span>(<span class="at">low =</span> <span class="st">"#2166ac"</span>, <span class="at">mid =</span> <span class="st">"white"</span>, <span class="at">high =</span> <span class="st">"#d73027"</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>                       <span class="at">midpoint =</span> <span class="dv">0</span>, <span class="at">name =</span> <span class="st">"Residual"</span>) <span class="sc">+</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Wrong model (customer RE only)"</span>,</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Vertical stripes = month shocks pooled into residuals"</span>,</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Month"</span>, <span class="at">y =</span> <span class="st">"Customer"</span>) <span class="sc">+</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>p_correct <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_diag, <span class="fu">aes</span>(<span class="at">x =</span> month_fac, <span class="at">y =</span> customer, <span class="at">fill =</span> resid_correct)) <span class="sc">+</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>() <span class="sc">+</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient2</span>(<span class="at">low =</span> <span class="st">"#2166ac"</span>, <span class="at">mid =</span> <span class="st">"white"</span>, <span class="at">high =</span> <span class="st">"#d73027"</span>,</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>                       <span class="at">midpoint =</span> <span class="dv">0</span>, <span class="at">name =</span> <span class="st">"Residual"</span>) <span class="sc">+</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Correct model (customer + month RE)"</span>,</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"No vertical stripes — month shocks absorbed by month RE"</span>,</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Month"</span>, <span class="at">y =</span> <span class="st">"Customer"</span>) <span class="sc">+</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>) <span class="sc">+</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>p_wrong <span class="sc">/</span> p_correct</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1143,8 +1182,8 @@ $ month_fac      &lt;fct&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
 </div>
 <p>The vertical stripes in the wrong model are the visual signature of an omitted crossed random effect. Each stripe represents a month in which seasonal conditions or economic factors drove spending unusually high or low — variance that is genuinely month-level but has been misattributed to the residual.</p>
 </section>
-<section id="month-fixed-effects-vs.-month-random-effects" class="level3" data-number="14.2.8">
-<h3 data-number="14.2.8" class="anchored" data-anchor-id="month-fixed-effects-vs.-month-random-effects"><span class="header-section-number">14.2.8</span> Month Fixed Effects vs.&nbsp;Month Random Effects</h3>
+<section id="month-fixed-effects-vs.-month-random-effects" class="level3">
+<h3 class="anchored" data-anchor-id="month-fixed-effects-vs.-month-random-effects">Month Fixed Effects vs.&nbsp;Month Random Effects</h3>
 <p>In panel data, analysts often absorb month effects using <strong>month dummy variables</strong> (month fixed effects) rather than a random intercept. The choice has a precise statistical interpretation:</p>
 <table class="caption-top table">
 <colgroup>
@@ -1180,8 +1219,8 @@ $ month_fac      &lt;fct&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
 <p><strong>Rule of thumb:</strong> With <span class="math inline">\(\geq 10\)</span> months, random effects and fixed effects give similar coefficient estimates. With <span class="math inline">\(&lt; 5\)</span> months, fixed effects are more conservative and generally preferred because there is too little information to estimate the month-level variance reliably.</p>
 <p><strong>Connection to Module 1 Part 1 (Fixed Effects):</strong> Month dummies in a fixed-effects model ARE month fixed effects. The choice between fixed effects and random effects for the month dimension mirrors the general FE vs.&nbsp;RE choice from Part 4 — it depends on whether you want to generalize to months outside your sample.</p>
 </section>
-<section id="the-assumptions-of-crossed-panel-random-effects-models" class="level3" data-number="14.2.9">
-<h3 data-number="14.2.9" class="anchored" data-anchor-id="the-assumptions-of-crossed-panel-random-effects-models"><span class="header-section-number">14.2.9</span> The Assumptions of Crossed Panel Random-Effects Models</h3>
+<section id="the-assumptions-of-crossed-panel-random-effects-models" class="level3">
+<h3 class="anchored" data-anchor-id="the-assumptions-of-crossed-panel-random-effects-models">The Assumptions of Crossed Panel Random-Effects Models</h3>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -1225,8 +1264,8 @@ $ month_fac      &lt;fct&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
 </div>
 </div>
 </section>
-<section id="experimental-vs.-panel-side-by-side-summary" class="level3" data-number="14.2.10">
-<h3 data-number="14.2.10" class="anchored" data-anchor-id="experimental-vs.-panel-side-by-side-summary"><span class="header-section-number">14.2.10</span> Experimental vs.&nbsp;Panel: Side-by-Side Summary</h3>
+<section id="experimental-vs.-panel-side-by-side-summary" class="level3">
+<h3 class="anchored" data-anchor-id="experimental-vs.-panel-side-by-side-summary">Experimental vs.&nbsp;Panel: Side-by-Side Summary</h3>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
@@ -1284,10 +1323,26 @@ $ month_fac      &lt;fct&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
 </tbody>
 </table>
 <hr>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Reviewer Challenge: Three Questions About Your Crossed Design
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Challenge 1 — “Did you model message-level variance?”</strong> If every participant evaluated every message, the standard error for your focal predictor (discount depth, framing condition) is wrong unless you include a message random effect. Expect reviewers familiar with Judd, Westfall, and Kenny (2012) to ask whether stimuli were treated as fixed or random. Have the SE comparison from <code>model_no_msgs</code> vs.&nbsp;<code>model_crossed</code> ready.</p>
+<p><strong>Challenge 2 — “Are your months exchangeable?”</strong> A month random effect assumes each calendar month is an interchangeable draw from a population of possible months. If your panel spans a policy change, economic shock, or pandemic period, specific months are not exchangeable — some months have structurally different spending regimes. Reviewers will ask whether the normality/exchangeability assumption is defensible, or whether month fixed effects are more appropriate.</p>
+<p><strong>Challenge 3 — “Could a missing third factor explain your result?”</strong> Your crossed model accounts for participants and messages (or customers and months). But is there a third crossed or nested factor you have not modeled — product category, pricing tier, geographic market? If a confounding characteristic of messages is correlated with your predictor (discount depth and whether the item is a luxury good), the crossed RE for messages does not remove that confound; it only absorbs the average message effect. A reviewer will ask what variation in the predictor is driving your result — within messages, or across messages?</p>
+</div>
+</div>
+<hr>
 </section>
 </section>
-<section id="recommended-reading" class="level2" data-number="14.3">
-<h2 data-number="14.3" class="anchored" data-anchor-id="recommended-reading"><span class="header-section-number">14.3</span> Recommended Reading</h2>
+<section id="recommended-reading" class="level2">
+<h2 class="anchored" data-anchor-id="recommended-reading">Recommended Reading</h2>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
@@ -1448,7 +1503,7 @@ $ month_fac      &lt;fct&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/danrschley\.github\.io\/Nested-Data-Workshop");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1778,12 +1833,12 @@ $ month_fac      &lt;fct&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../module-1/part5.html" class="pagination-link" aria-label="Three-Level Structures">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Three-Level Structures</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Three-Level Structures</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../module-2/intro.html" class="pagination-link" aria-label="Overview">
-        <span class="nav-page-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Overview</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../module-2/intro.html" class="pagination-link" aria-label="Module 2: Centering &amp; Between/Within Effects">
+        <span class="nav-page-text"><span class="chapter-title">Module 2: Centering &amp; Between/Within Effects</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
