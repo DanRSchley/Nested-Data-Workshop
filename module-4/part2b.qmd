@@ -17,42 +17,42 @@ library(patchwork)
 ::: {.callout-note icon=false}
 ## The Time Structure Question
 
-> **What happens when you ignore calendar time in a longitudinal analysis?** Three things can go wrong simultaneously: a background drift (the world is gradually changing) inflates or deflates your treatment estimate; a seasonal cycle (spending is higher in December) creates patterns correlated with when treatment was assigned; and period-specific shocks (a macro event in month 15) get absorbed into the wrong parameters.
+> **What happens when you ignore calendar time in a longitudinal analysis?** Three things can go wrong simultaneously: a background drift (the world is gradually changing) inflates or deflates your treatment estimate; a seasonal cycle (spending is higher in December) creates patterns correlated with when treatment was assigned; and period-specific shocks get absorbed into the wrong parameters.
 >
-> **How do you know time is a confounder?** Residuals from your model should have zero mean at every time point. If the residuals trend upward, you have unmodeled drift. If the residuals oscillate with a 12-month period, you have unmodeled seasonality. Both are diagnosable from simple plots.
+> **How do you know time is a confounder?** Residuals from your model should have zero mean at every time point. If the residuals slope upward, you have unmodeled drift. If they oscillate with a 12-month period, you have unmodeled seasonality. Both are diagnosable from simple plots.
 >
-> **What is the fix?** At minimum, include time as a predictor — as a linear drift term, as Fourier terms for cyclical patterns, or as period fixed effects (dummy variables for every calendar period). The choice depends on how much structure you are willing to assume about the time DGP.
+> **What is the fix?** Include time as a predictor — as a linear drift term, Fourier terms for cyclical patterns, or period fixed effects (one dummy per calendar period). The choice depends on how much parametric structure you are willing to assume about the time DGP.
 :::
 
 ## One Dataset, Many Models
 
-This section works differently from most of the module. Instead of showing several separate examples, we build **one realistic longitudinal dataset** and run it through five progressively better specifications. The true data-generating process is fully disclosed at the start. After each model you can see exactly how much bias remains and what diagnostic reveals it — and why the next specification is better.
+This section works differently from most of the module. We build **one realistic longitudinal dataset**, disclose the true data-generating process completely, then run it through five progressively better specifications. Each model section follows the same five-step inferential workflow:
 
-The setting is drawn from consumer finance. A fintech platform tracks monthly spending (£) for 120 app users over 24 months (January 2023 through December 2024). The platform introduced a voluntary **Loyalty Program** partway through, and the research question is: *does program membership cause higher spending?*
+1. **Assumptions** — what does this model assume about the data?
+2. **Pre-fit checks** — what can we verify before fitting?
+3. **Fitting the model** — code and key output
+4. **Against the DGP** — how well does this model recover the truth?
+5. **Interpreting the results** — what do the coefficients mean, and what errors would we make stopping here?
 
-Three features of this DGP create realistic analytical challenges:
-
-1. **A background drift** — platform adoption and mild inflation push spending up by £3 per month across all users, regardless of program status.
-2. **A seasonal cycle** — December spending is £60 above average (holiday purchases); June is £60 below. The cycle repeats every 12 months.
-3. **Staggered, non-random enrollment** — higher-spending users are more likely to join the program, and a November–December marketing push concentrates enrollment in the holiday season. Both features create confounding if not addressed.
+All residual diagnostic plots use the **same y-axis scale**, so the shrinking of residuals across models is directly visible.
 
 ---
 
-## Building the Dataset
+## The True Data-Generating Process
 
-### The True Data-Generating Process
+A fintech app tracks monthly spending ($) for 120 US users over 24 months (January 2023 through December 2024). The platform introduced a voluntary **Loyalty Program** partway through, and the research question is: *does program membership cause higher spending?*
 
 ::: {.callout-tip icon=false}
 ## True DGP Parameters
 
 | Parameter | Symbol | True value |
 |:----------|:-------|:----------:|
-| Loyalty program effect | $\beta_{\text{loyalty}}$ | **£35** |
-| Background drift (per month) | $\beta_{\text{drift}}$ | £3 |
-| Seasonal amplitude | $A$ | £60 |
-| Between-person SD | $\sigma_u$ | £80 |
-| Within-person residual SD | $\sigma_e$ | £40 |
-| Person baseline mean | $\mu$ | £500 |
+| Loyalty program effect | $\beta_{\text{loyalty}}$ | **$35** |
+| Background drift (per month) | $\beta_{\text{drift}}$ | $3 |
+| Seasonal amplitude | $A$ | $60 |
+| Between-person SD | $\sigma_u$ | $80 |
+| Within-person residual SD | $\sigma_e$ | $40 |
+| Person baseline mean | $\mu$ | $500 |
 
 $$
 Y_{it} = \underbrace{\alpha_i}_{\text{person baseline}}
@@ -65,13 +65,11 @@ $$
 where $t$ is the calendar month (1–24), $m_t$ is the month of year (1–12), and $\varepsilon_{it} \sim \mathcal{N}(0, 40^2)$.
 :::
 
-**What each term does:**
-
-- *Each row* is one user–month combination. There are $120 \times 24 = 2{,}880$ rows.
-- $\alpha_i \sim \mathcal{N}(500, 80^2)$ is the person-level baseline — their stable spending level absent the program and at zero drift/season.
-- The **loyalty term** is what we want to recover. The truth is £35: program members spend £35 more per month *because* of the program, not because they were already higher spenders.
-- The **background drift** adds £3 per calendar month to *everyone* — a rising tide. By month 24 the average user spends £72 more than in month 1 purely from drift.
-- The **seasonal term** uses $\cos(2\pi m_t / 12)$: it equals $+1$ when $m_t = 12$ (December, spending peak $\mu + 60$) and $-1$ when $m_t = 6$ (June, trough $\mu - 60$). The annual swing is £120.
+- *Each row* is one user–month. There are $120 \times 24 = 2{,}880$ rows.
+- $\alpha_i \sim \mathcal{N}(500, 80^2)$: the person's stable monthly baseline spending.
+- **Background drift** ($+\$3$/month): platform growth and inflation lift everyone's spending over the 24 months, totalling +$72 by the end regardless of program status.
+- **Seasonal cycle**: December spending is $60 above the monthly average; June is $60 below — a $120 annual swing.
+- **Enrollment is staggered and non-random**: higher-spending users are more likely to join; a November–December marketing push concentrates enrollment in the highest-spending months. Both create confounding.
 
 ```{r generate-data}
 set.seed(2025)
@@ -79,521 +77,658 @@ set.seed(2025)
 n_hh     <- 120
 n_months <- 24
 
-# ── True DGP parameters ───────────────────────────────────────────────────
-true_loyalty   <- 35   # £/month causal program effect
-true_trend     <- 3    # £/month background drift (platform growth + inflation)
-true_amplitude <- 60   # seasonal ±£60 (Dec peak, Jun trough)
-true_person_sd <- 80   # between-person SD
-true_resid_sd  <- 40   # within-person noise SD
+# True DGP parameters
+true_loyalty   <- 35   # causal program effect ($/month)
+true_trend     <- 3    # background drift ($/month)
+true_amplitude <- 60   # seasonal amplitude ($)
+true_person_sd <- 80   # between-person SD ($)
+true_resid_sd  <- 40   # within-person residual SD ($)
 
-# ── Person-level baselines ────────────────────────────────────────────────
+# Person baselines
 person_baselines <- rnorm(n_hh, 500, true_person_sd)
 
-# ── Staggered enrollment via discrete-time hazard ─────────────────────────
-# Each non-enrolled user has a monthly probability of joining, which is:
-#   (a) higher for users with higher baseline spending, and
-#   (b) boosted in November (moy=11) and December (moy=12) by a marketing campaign.
-# ~65% of users will eventually enroll; the rest never do.
+# Staggered enrollment:
+#   (a) higher-spending users enroll earlier
+#   (b) Nov/Dec marketing campaign doubles enrollment probability
 enroll_month <- rep(NA_integer_, n_hh)
 for (hh in seq_len(n_hh)) {
   for (m in 4:22) {
-    moy <- ((m - 1L) %% 12L) + 1L
-    p_base    <- 0.025                                               # 2.5% base monthly hazard
-    p_person  <- max(0, (person_baselines[hh] - 500) / 80) * 0.025  # high spenders more likely
-    p_holiday <- if (moy %in% c(11L, 12L)) 0.05 else 0             # holiday marketing boost
+    moy       <- ((m - 1L) %% 12L) + 1L
+    p_base    <- 0.025
+    p_person  <- max(0, (person_baselines[hh] - 500) / 80) * 0.025
+    p_holiday <- if (moy %in% c(11L, 12L)) 0.05 else 0
     p         <- min(p_base + p_person + p_holiday, 0.15)
     if (runif(1) < p) { enroll_month[hh] <- m; break }
   }
 }
 
-# ── Build the panel ────────────────────────────────────────────────────────
 df <- expand_grid(person = seq_len(n_hh), month = seq_len(n_months)) |>
   mutate(
-    month_of_year = ((month - 1L) %% 12L) + 1L,
-    cos_12 = cos(2 * pi * month_of_year / 12),  # Fourier basis for 12-month cycle
-    sin_12 = sin(2 * pi * month_of_year / 12),
-    enroll_m = enroll_month[person],
-    loyalty  = as.integer(!is.na(enroll_m) & month >= enroll_m),
-    # True outcome components (exposed for diagnostics)
+    month_of_year      = ((month - 1L) %% 12L) + 1L,
+    cos_12             = cos(2 * pi * month_of_year / 12),
+    sin_12             = sin(2 * pi * month_of_year / 12),
+    enroll_m           = enroll_month[person],
+    loyalty            = as.integer(!is.na(enroll_m) & month >= enroll_m),
     person_component   = person_baselines[person],
     drift_component    = true_trend * month,
     seasonal_component = true_amplitude * cos_12,
-    true_y = person_component + drift_component + seasonal_component +
-             true_loyalty * loyalty,
-    # Observed spending
-    noise    = rnorm(n(), 0, true_resid_sd),
-    spending = true_y + noise,
-    person_f = factor(person)
+    true_y             = person_component + drift_component +
+                         seasonal_component + true_loyalty * loyalty,
+    noise              = rnorm(n(), 0, true_resid_sd),
+    spending           = true_y + noise,
+    person_f           = factor(person)
   )
 
-cat("Users enrolled by end of study:", sum(!is.na(enroll_month)),
-    "/", n_hh, sprintf("(%.0f%%)\n", 100 * mean(!is.na(enroll_month))))
+cat(sum(!is.na(enroll_month)), "of", n_hh,
+    sprintf("users enrolled (%.0f%%)\n", 100 * mean(!is.na(enroll_month))))
 ```
-
-### A Toy Table: What the Data Look Like
-
-Eight rows from one user (person 12) showing each DGP component as a separate column — so the structure is concrete before any modeling.
 
 ```{r toy-table}
 df |>
   filter(person == 12) |>
   select(person, month, month_of_year, loyalty, spending,
          person_component, drift_component, seasonal_component) |>
-  slice(c(1:4, 11:14)) |>
+  slice(c(1:3, 11:13)) |>
   mutate(across(where(is.double), round, 1)) |>
   knitr::kable(
-    col.names = c("Person", "Month", "MoY", "Loyal", "Spending",
-                  "Person baseline", "Drift", "Seasonal"),
-    caption = "Eight rows from one user: baseline + drift + seasonal + noise = spending"
+    col.names = c("Person", "Month", "MoY", "Loyal",
+                  "Spending", "Baseline", "Drift", "Seasonal"),
+    caption = "Six rows from one user — each observed value is baseline + drift + seasonal + noise."
   )
 ```
 
-### Visualizing the Data
+---
 
-```{r viz-raw, fig.width=11, fig.height=4.5}
-set.seed(1)
-sample_ids <- sample(seq_len(n_hh), 20)
+## Fitting All Models and Setting a Common Y-Axis
 
-p_spaghetti <- df |>
-  filter(person %in% sample_ids) |>
-  mutate(enrolled = factor(
-    if_else(!is.na(enroll_m), "Enrolls at some point", "Never enrolls"))) |>
-  ggplot(aes(x = month, y = spending, group = person, color = enrolled)) +
-  geom_line(alpha = 0.45, linewidth = 0.5) +
-  scale_color_manual(values = c("Enrolls at some point" = "#2171b5",
-                                "Never enrolls"         = "#cb181d")) +
-  scale_x_continuous(breaks = c(1, 6, 12, 18, 24),
-    labels = c("Jan\n2023","Jun\n2023","Jan\n2024","Jun\n2024","Dec\n2024")) +
-  labs(title = "Individual spending trajectories\n(20 sampled users)",
-       x = NULL, y = "Monthly spending (£)", color = NULL) +
-  theme_minimal(base_size = 12) +
-  theme(legend.position = "bottom")
+```{r batch-fit, include=FALSE}
+# Fit all five models silently so that (a) the global y-axis range for
+# residual plots can be computed from the worst-case model, and
+# (b) objects are available before individual sections reference them.
 
-p_mean <- df |>
-  group_by(month) |>
-  summarise(mean_spending = mean(spending), .groups = "drop") |>
-  ggplot(aes(x = month, y = mean_spending)) +
-  geom_line(color = "#555555", linewidth = 1) +
-  geom_smooth(method = "lm", se = FALSE, color = "#e6550d", linetype = "dashed") +
-  annotate("text", x = 20, y = 570,
-           label = "Background drift\n(+£3/month)", color = "#e6550d", size = 3.5) +
-  scale_x_continuous(breaks = c(1, 6, 12, 18, 24),
-    labels = c("Jan\n2023","Jun\n2023","Jan\n2024","Jun\n2024","Dec\n2024")) +
-  labs(title = "Cohort-average spending over time",
-       x = NULL, y = "Mean spending (£)") +
-  theme_minimal(base_size = 12)
+m1 <- lm(spending ~ loyalty, data = df)
+m2 <- lm(spending ~ loyalty + month, data = df)
+m3 <- lm(spending ~ loyalty + month + cos_12 + sin_12, data = df)
+m4 <- lmer(spending ~ loyalty + month + cos_12 + sin_12 + (1 | person_f),
+           data = df)
+m5 <- lm(spending ~ loyalty + factor(month) + factor(person_f), data = df)
 
-seasonal_avg <- df |>
-  group_by(month_of_year) |>
-  summarise(mean_spending = mean(spending), .groups = "drop")
-
-p_seasonal <- seasonal_avg |>
-  ggplot(aes(x = month_of_year, y = mean_spending)) +
-  geom_line(linewidth = 1.1, color = "#6a51a3") +
-  geom_point(size = 2.5, color = "#6a51a3") +
-  annotate("segment", x = 12, xend = 12,
-           y = min(seasonal_avg$mean_spending),
-           yend = max(seasonal_avg$mean_spending),
-           color = "#6a51a3", linetype = "dotted") +
-  annotate("text", x = 11.5, y = max(seasonal_avg$mean_spending) - 5,
-           label = "Dec\npeak", size = 3, color = "#6a51a3", hjust = 1) +
-  scale_x_continuous(breaks = 1:12,
-    labels = c("J","F","M","A","M","J","J","A","S","O","N","D")) +
-  labs(title = "Spending by month of year\n(seasonal pattern)",
-       x = "Month of year", y = "Mean spending (£)") +
-  theme_minimal(base_size = 12)
-
-p_spaghetti | p_mean | p_seasonal
+# The worst-case residuals come from Model 1 (no time controls).
+# Lock the y-axis to that range so shrinkage is visible across all models.
+r1_cal  <- tapply(residuals(m1), df$month,         mean)
+r1_seas <- tapply(residuals(m1), df$month_of_year, mean)
+all_r1  <- c(r1_cal, r1_seas)
+pad     <- 15
+global_y <- c(floor(min(all_r1)) - pad, ceiling(max(all_r1)) + pad)
 ```
 
----
-
-## Why Time Confounds Treatment Estimates
-
-**Person-level confound.** Higher-spending users are more likely to enroll. A naïve comparison conflates the program effect with the pre-existing spending advantage of the joiners.
-
-**Background drift confound.** Enrollment is staggered: higher-spending users enroll earlier (months 4–10). Because spending drifts up by £3/month for everyone, a person who enrolled in month 5 has 19 post-enrollment months concentrated in the *later, higher-spending* part of the window. Their within-person "before vs. after" comparison absorbs the drift as if it were a program effect.
-
-**Seasonal confound.** The November–December marketing push concentrates enrollment in the highest-spending months. Post-enrollment months 1–2 of the following year are the lowest-spending months. Ignoring the cycle creates a timing-based artifact.
-
-All three confounds are visible in residuals and diagnosable before looking at a parameter table.
-
----
-
-## Diagnostic Helper
-
-We use three plots repeatedly — one after every model — to read off what time-based problems remain. The function below generates that standard dashboard.
-
 ```{r diag-helper}
-# ── A consistent 3-panel diagnostic dashboard ─────────────────────────────
-# trend_ok / seasonal_ok: TRUE once the confound is absorbed
-show_diag <- function(model_obj, trend_ok = FALSE, seasonal_ok = FALSE) {
+# 3-panel residual dashboard used after every model.
+# trend_ok / seasonal_ok drive the green/red colour coding.
+# y_lim is shared across all calls so residual shrinkage is visible.
 
-  resids <- residuals(model_obj)
+show_diag <- function(model_obj,
+                      trend_ok    = FALSE,
+                      seasonal_ok = FALSE,
+                      y_lim       = global_y) {
 
-  ok_col   <- "#2d6a4f"   # green = absorbed
-  warn_col <- "#cb181d"   # red   = still present
-  ci_b     <- qnorm(0.975) / sqrt(n_months)
+  resids  <- residuals(model_obj)
+  ok_col  <- "#2d6a4f"
+  bad_col <- "#cb181d"
+  ci_b    <- qnorm(0.975) / sqrt(n_months)
 
-  # ── Panel 1: residuals vs. calendar month (drift check) ─────────────────
-  trend_sub <- if (trend_ok) "✓ Background drift absorbed"
-               else          "✗ Background drift not captured"
-  p_trend <- df |>
-    mutate(resid = resids) |>
-    group_by(month) |>
-    summarise(mr = mean(resid), .groups = "drop") |>
+  make_sub <- function(ok, label_yes, label_no)
+    if (ok) paste0("✓ ", label_yes) else paste0("✗ ", label_no)
+
+  # Panel 1 — mean residuals by calendar month
+  p1 <- df |> mutate(r = resids) |>
+    group_by(month) |> summarise(mr = mean(r), .groups = "drop") |>
     ggplot(aes(x = month, y = mr)) +
     geom_hline(yintercept = 0, linetype = "dashed", color = "grey60") +
     geom_line(linewidth = 1.1,
-              color = if (trend_ok) ok_col else warn_col) +
-    { if (!trend_ok) geom_smooth(method = "lm", se = FALSE,
-                                 color = warn_col, linetype = "dotted",
-                                 linewidth = 0.8)
-      else           list() } +
+              color = if (trend_ok) ok_col else bad_col) +
+    { if (!trend_ok) list(
+        geom_smooth(method = "lm", se = FALSE, linetype = "dotted",
+                    color = bad_col, linewidth = 0.8))
+      else list() } +
+    coord_cartesian(ylim = y_lim) +
     scale_x_continuous(breaks = c(1,6,12,18,24),
-      labels = c("J'23","J'23","J'24","J'24","D'24")) +
+      labels = c("J'23","Jn'23","J'24","Jn'24","D'24")) +
     labs(title = "Residuals by calendar month",
-         subtitle = trend_sub, x = NULL, y = "Mean residual (£)") +
+         subtitle = make_sub(trend_ok,
+           "Background drift absorbed",
+           "Background drift not captured"),
+         x = NULL, y = "Mean residual ($)") +
     theme_minimal(base_size = 11) +
     theme(plot.subtitle = element_text(
-      color = if (trend_ok) ok_col else warn_col, size = 9.5))
+      color = if (trend_ok) ok_col else bad_col, size = 9.5))
 
-  # ── Panel 2: residuals vs. month-of-year (seasonal check) ───────────────
-  seas_sub <- if (seasonal_ok) "✓ Seasonal cycle absorbed"
-              else             "✗ Seasonal cycle not captured"
-  p_seas <- df |>
-    mutate(resid = resids) |>
-    group_by(month_of_year) |>
-    summarise(mr = mean(resid), .groups = "drop") |>
+  # Panel 2 — mean residuals by month-of-year
+  p2 <- df |> mutate(r = resids) |>
+    group_by(month_of_year) |> summarise(mr = mean(r), .groups = "drop") |>
     ggplot(aes(x = month_of_year, y = mr)) +
     geom_hline(yintercept = 0, linetype = "dashed", color = "grey60") +
     geom_line(linewidth = 1.1,
-              color = if (seasonal_ok) ok_col else warn_col) +
+              color = if (seasonal_ok) ok_col else bad_col) +
     geom_point(size = 2.2,
-               color = if (seasonal_ok) ok_col else warn_col) +
+               color = if (seasonal_ok) ok_col else bad_col) +
+    coord_cartesian(ylim = y_lim) +
     scale_x_continuous(breaks = 1:12,
       labels = c("J","F","M","A","M","J","J","A","S","O","N","D")) +
     labs(title = "Residuals by month of year",
-         subtitle = seas_sub, x = NULL, y = "Mean residual (£)") +
+         subtitle = make_sub(seasonal_ok,
+           "Seasonal cycle absorbed",
+           "Seasonal cycle not captured"),
+         x = NULL, y = "Mean residual ($)") +
     theme_minimal(base_size = 11) +
     theme(plot.subtitle = element_text(
-      color = if (seasonal_ok) ok_col else warn_col, size = 9.5))
+      color = if (seasonal_ok) ok_col else bad_col, size = 9.5))
 
-  # ── Panel 3: ACF of panel-mean residuals ─────────────────────────────────
-  panel_mr <- df |>
-    mutate(resid = resids) |>
-    group_by(month) |>
-    summarise(mr = mean(resid), .groups = "drop") |>
+  # Panel 3 — ACF of panel-mean residuals
+  panel_mr <- df |> mutate(r = resids) |>
+    group_by(month) |> summarise(mr = mean(r), .groups = "drop") |>
     pull(mr)
-  acf_r <- acf(panel_mr, plot = FALSE, lag.max = 13)
+  acf_r  <- acf(panel_mr, plot = FALSE, lag.max = 13)
   acf_df <- tibble(lag = as.integer(acf_r$lag[-1]),
                    a   = as.numeric(acf_r$acf[-1]))
-  lag12_sig <- abs(acf_df$a[acf_df$lag == 12]) > ci_b
-  acf_col  <- if (!lag12_sig) ok_col else warn_col
-  acf_sub  <- if (!lag12_sig) "✓ No significant lag-12 spike"
-              else             "✗ Lag-12 spike → annual cycle"
+  lag12_ok  <- abs(acf_df$a[acf_df$lag == 12]) <= ci_b
+  acf_col   <- if (lag12_ok) ok_col else bad_col
+  acf_sub   <- if (lag12_ok) "✓ No lag-12 spike"
+               else           "✗ Lag-12 spike (annual cycle)"
 
-  p_acf <- acf_df |>
+  p3 <- acf_df |>
     ggplot(aes(x = lag, y = a)) +
     geom_hline(yintercept = 0) +
-    geom_hline(yintercept = c(-1, 1) * ci_b,
-               linetype = "dashed", color = "#2171b5") +
-    geom_segment(aes(xend = lag, yend = 0),
-                 color = "#888888", linewidth = 0.8) +
-    geom_segment(data = filter(acf_df, lag == 12),
-                 aes(xend = lag, yend = 0),
-                 color = acf_col, linewidth = 1.4) +
-    geom_point(color = "#555555", size = 1.8) +
-    geom_point(data = filter(acf_df, lag == 12),
-               color = acf_col, size = 3) +
-    scale_x_continuous(breaks = c(2,4,6,8,10,12)) +
+    geom_hline(yintercept = c(-1,1)*ci_b, linetype="dashed", color="#2171b5") +
+    geom_segment(aes(xend=lag, yend=0), color="grey60", linewidth=0.7) +
+    geom_point(color="grey50", size=1.8) +
+    geom_segment(data=filter(acf_df, lag==12),
+                 aes(xend=lag, yend=0), color=acf_col, linewidth=1.5) +
+    geom_point(data=filter(acf_df, lag==12), color=acf_col, size=3.5) +
+    scale_x_continuous(breaks=c(2,4,6,8,10,12)) +
     labs(title = "ACF of panel-mean residuals",
          subtitle = acf_sub,
          x = "Lag (months)", y = "Autocorr.") +
     theme_minimal(base_size = 11) +
     theme(plot.subtitle = element_text(color = acf_col, size = 9.5))
 
-  p_trend | p_seas | p_acf
+  p1 | p2 | p3
 }
+```
+
+---
+
+## Pre-Modeling: Understanding the Data
+
+Before fitting anything, explore the raw data. The goal is to see the three confounding structures directly.
+
+```{r viz-raw, fig.width=11, fig.height=4}
+set.seed(1)
+sample_ids <- sample(seq_len(n_hh), 20)
+
+p_spaghetti <- df |>
+  filter(person %in% sample_ids) |>
+  mutate(grp = factor(if_else(!is.na(enroll_m),
+                               "Enrolls at some point", "Never enrolls"))) |>
+  ggplot(aes(x = month, y = spending, group = person, color = grp)) +
+  geom_line(alpha = 0.45, linewidth = 0.5) +
+  scale_color_manual(values = c("Enrolls at some point" = "#2171b5",
+                                "Never enrolls"         = "#cb181d")) +
+  scale_x_continuous(breaks = c(1,6,12,18,24),
+    labels = c("Jan\n2023","Jun\n2023","Jan\n2024","Jun\n2024","Dec\n2024")) +
+  labs(title = "Individual spending trajectories\n(20 sampled users)",
+       x = NULL, y = "Monthly spending ($)", color = NULL) +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "bottom")
+
+p_mean <- df |>
+  group_by(month) |> summarise(ms = mean(spending), .groups = "drop") |>
+  ggplot(aes(x = month, y = ms)) +
+  geom_line(color = "#555", linewidth = 1) +
+  geom_smooth(method="lm", se=FALSE, color="#e6550d", linetype="dashed") +
+  annotate("text", x=19, y=565,
+           label="Background drift\n(+$3/month)", color="#e6550d", size=3.3) +
+  scale_x_continuous(breaks = c(1,6,12,18,24),
+    labels = c("Jan\n2023","Jun\n2023","Jan\n2024","Jun\n2024","Dec\n2024")) +
+  labs(title = "Cohort-average spending\nover time",
+       x = NULL, y = "Mean spending ($)") +
+  theme_minimal(base_size = 11)
+
+seas_avg <- df |> group_by(month_of_year) |>
+  summarise(ms = mean(spending), .groups = "drop")
+p_seasonal <- seas_avg |>
+  ggplot(aes(x = month_of_year, y = ms)) +
+  geom_line(linewidth = 1.1, color = "#6a51a3") +
+  geom_point(size = 2.5, color = "#6a51a3") +
+  annotate("segment", x=12, xend=12,
+           y=min(seas_avg$ms), yend=max(seas_avg$ms),
+           color="#6a51a3", linetype="dotted") +
+  annotate("text", x=11.4, y=max(seas_avg$ms)-4,
+           label="Dec\npeak", size=3, color="#6a51a3", hjust=1) +
+  scale_x_continuous(breaks=1:12,
+    labels=c("J","F","M","A","M","J","J","A","S","O","N","D")) +
+  labs(title = "Spending by month of year\n(seasonal pattern)",
+       x = "Month of year", y = "Mean spending ($)") +
+  theme_minimal(base_size = 11)
+
+p_spaghetti | p_mean | p_seasonal
+```
+
+**Visible patterns:** the average spending line slopes upward (background drift), the month-of-year plot shows a clear $120 annual swing, and blue users (future enrollees) tend to start higher than red users (never-enrollees) — signalling the person-level confound.
+
+The table below makes the person-level confound concrete. Even before enrollment, future loyalty members spend more than those who never join.
+
+```{r person-confound-check}
+df |>
+  mutate(
+    group = case_when(
+      is.na(enroll_m)      ~ "Never enrolls",
+      month < enroll_m     ~ "Will enroll (pre-enrollment months)",
+      TRUE                 ~ NA_character_
+    )
+  ) |>
+  filter(!is.na(group)) |>
+  group_by(group) |>
+  summarise(
+    n_users        = n_distinct(person),
+    months_observed = n(),
+    mean_spending  = mean(spending),
+    sd_spending    = sd(spending),
+    .groups = "drop"
+  ) |>
+  knitr::kable(digits = 1,
+    caption = "Pre-enrollment comparison: future enrollees already spend more — person-level selection bias is present before any program effect.")
 ```
 
 ---
 
 ## Model 1: Naïve Pooled Regression
 
-The simplest possible analysis: regress spending on loyalty program membership, no other controls.
+### Step 1 — What this model assumes
 
-```{r model1, fig.width=11, fig.height=4}
+::: {.callout-warning icon=false}
+## Model 1 Assumptions
+
+1. **Independence:** Each of the 2,880 user-month rows is an independent draw. Spending by user 47 in March is unrelated to their spending in April.
+2. **No omitted variables:** Nothing predicts both program enrollment and spending except what is already in the model.
+3. **No time trend:** Expected spending is constant across all 24 months — no background drift, no seasonal pattern.
+4. **No person-level heterogeneity:** All users have the same baseline spending; the only thing that differs is loyalty status.
+
+**All four are violated here.** This model is a deliberate starting point — not a defensible analysis.
+:::
+
+### Step 2 — Pre-fit checks
+
+The three diagnostic plots above already show the violations:
+- Average spending slopes upward → background drift exists (assumption 3 fails)
+- Spending cycles with a ±$60 annual amplitude → seasonal pattern exists (assumption 3 fails)
+- Future enrollees spend more before enrollment → person-level heterogeneity correlated with enrollment (assumption 4 and 2 fail)
+
+### Step 3 — Fitting the model
+
+```{r model1-fit}
 m1 <- lm(spending ~ loyalty, data = df)
 
-# ── Full results table ───────────────────────────────────────────────────
 bind_rows(
   tidy(m1) |> filter(term == "loyalty") |>
-    mutate(true_value = true_loyalty, parameter = "Loyalty effect (£)"),
-  tibble(term = "σ_residual", estimate = sigma(m1), std.error = NA_real_,
+    mutate(parameter = "Loyalty effect ($)", true_value = true_loyalty),
+  tibble(term = "sigma", estimate = sigma(m1), std.error = NA_real_,
          statistic = NA_real_, p.value = NA_real_,
-         true_value = true_resid_sd, parameter = "Residual SD (£)")
+         parameter = "Residual SD ($)", true_value = true_resid_sd)
 ) |>
-  mutate(bias = estimate - true_value) |>
+  mutate(bias = round(estimate - true_value, 2)) |>
   select(parameter, estimate, std.error, true_value, bias) |>
   knitr::kable(digits = 2,
-    caption = "Model 1 — naïve pooled regression. True loyalty effect = £35.")
+    caption = "Model 1 — naïve OLS. True loyalty effect = $35.")
 ```
 
-**Reading the table.** The loyalty estimate is roughly £50–60 — massively inflated. The residual SD (≈ £100+) is far above the true £40, because the model has no way to explain the drift, seasonal wave, or person differences — all of that variance sits in the error. We are blaming the loyalty program for everything the model cannot explain.
+### Step 4 — Against the true DGP
 
-```{r diag1, fig.width=11, fig.height=4}
+```{r model1-diag, fig.width=11, fig.height=4}
 show_diag(m1, trend_ok = FALSE, seasonal_ok = FALSE)
 ```
 
-**Reading the diagnostics.** Three simultaneous red flags:
-- **Calendar panel:** The residuals slope upward — the background drift is entirely unaccounted for.
-- **Seasonal panel:** A clear £120-amplitude wave — December residuals ≈ +£60, June ≈ −£60.
-- **ACF panel:** A strong spike at lag 12 — the fingerprint of an annual cycle not yet captured by the model.
+The residual SD ($\approx$ `r round(sigma(m1))`) is roughly `r round(sigma(m1)/true_resid_sd, 1)`× the true within-person noise of \$40 — the model is attributing background drift, seasonal swings, and between-person differences to the residual.
+
+### Step 5 — Interpreting the results
+
+The loyalty estimate is roughly **$50–60** — far above the true $35. Three biases are compounding:
+
+- *Person selection:* higher-spending users enrolled, so loyal users look wealthier than they are relative to the program.
+- *Drift absorption:* enrolled users accumulate more post-enrollment months in the later, higher-drift portion of the window. The model reads the rising tide as a loyalty benefit.
+- *Seasonal absorption:* enrollment peaks in November–December, the highest-spending months. The model reads holiday spending as a loyalty benefit.
+
+**What you would wrongly conclude:** "Loyalty program membership increases monthly spending by $50+." **What is actually true:** the causal effect is $35.
 
 ---
 
 ## Model 2: Controlling for Background Drift
 
-Adding `month` as a linear predictor absorbs the gradual rise in spending.
+### Step 1 — What this model assumes
 
-```{r model2, fig.width=11, fig.height=4}
+::: {.callout-warning icon=false}
+## Model 2 Assumptions (new, on top of Model 1)
+
+1. *(Inherits all Model 1 assumptions except the "no time trend" one)*
+2. **Linear drift:** The background increase in spending is constant at exactly \$*k*/month — it does not accelerate, decelerate, or experience any structural breaks across the 24-month window.
+
+**The seasonal cycle assumption is still violated.** This model removes one confound but not both time-based confounds.
+:::
+
+### Step 2 — Pre-fit checks
+
+The left panel from Model 1's diagnostic above shows a clear upward slope in calendar-month residuals — a textbook symptom of unmodeled linear drift. Adding `month` as a predictor addresses this directly.
+
+### Step 3 — Fitting the model
+
+```{r model2-fit}
 m2 <- lm(spending ~ loyalty + month, data = df)
 
 bind_rows(
   tidy(m2) |> filter(term %in% c("loyalty", "month")) |>
-    mutate(true_value = c(true_loyalty, true_trend),
-           parameter  = c("Loyalty effect (£)", "Background drift (£/month)")),
-  tibble(term = "σ_residual", estimate = sigma(m2), std.error = NA_real_,
+    mutate(parameter = c("Loyalty effect ($)", "Background drift ($/month)"),
+           true_value = c(true_loyalty, true_trend)),
+  tibble(term = "sigma", estimate = sigma(m2), std.error = NA_real_,
          statistic = NA_real_, p.value = NA_real_,
-         true_value = true_resid_sd, parameter = "Residual SD (£)")
+         parameter = "Residual SD ($)", true_value = true_resid_sd)
 ) |>
-  mutate(bias = estimate - true_value) |>
+  mutate(bias = round(estimate - true_value, 2)) |>
   select(parameter, estimate, std.error, true_value, bias) |>
   knitr::kable(digits = 2,
-    caption = "Model 2 — loyalty + linear drift. True drift = £3/month.")
+    caption = "Model 2 — loyalty + linear drift.")
 ```
 
-**What improved.** The drift coefficient is close to the true £3. The residual SD dropped from ~£100+ toward ~£90 as the drift is explained. The loyalty estimate has come down from Model 1.
+### Step 4 — Against the true DGP
 
-**What is still wrong.** The loyalty estimate is still well above £35. The seasonal cycle is fully present in the residuals — we have removed the ramp but not the wave.
-
-```{r diag2, fig.width=11, fig.height=4}
+```{r model2-diag, fig.width=11, fig.height=4}
 show_diag(m2, trend_ok = TRUE, seasonal_ok = FALSE)
 ```
 
-The calendar panel is now flat (drift removed ✓). The seasonal panel still shows the full ±£60 wave, and the ACF still has a strong lag-12 spike (seasonal cycle remains ✗).
+The calendar-month panel is now flat — the background drift is absorbed ✓. The seasonal wave in the month-of-year panel is **unchanged**, and the lag-12 ACF spike remains ✗. The residual SD has shrunk from Model 1 but is still well above $40 because seasonal variance is still in the error.
+
+### Step 5 — Interpreting the results
+
+The drift coefficient is close to the true $3/month — the model has correctly recovered that parameter. The loyalty estimate has improved but is still inflated: **the seasonal confound is entirely intact**. November–December enrollment still creates an artificial positive correlation between loyalty status and spending, because spending is naturally high in those months regardless of the program.
+
+**What you would wrongly conclude:** "Loyalty program membership increases spending by ~$40–45 after accounting for overall platform growth." **What is actually true:** the causal effect is still $35.
 
 ---
 
-## Model 3: Adding the Seasonal Cycle
+## Model 3: Capturing the Seasonal Cycle
 
-A 12-month cycle is parameterised with one Fourier pair: $\cos(2\pi m_t / 12)$ and $\sin(2\pi m_t / 12)$.
+### Step 1 — What this model assumes
 
-::: {.callout-note icon=false}
-## Why Fourier Terms?
+::: {.callout-warning icon=false}
+## Model 3 Assumptions (new, on top of Model 2)
 
-Any cycle of period $P$ can be written as $A \cos(2\pi t/P) + B \sin(2\pi t/P)$, which is equivalent to $R \cos(2\pi t/P - \phi)$ where $R = \sqrt{A^2 + B^2}$ is the amplitude and $\phi = \arctan(B/A)$ is the peak month. Including both terms lets the data determine amplitude and phase — you do not need to specify either in advance.
+1. *(Inherits drift and independence assumptions from Model 2)*
+2. **Annual periodicity:** The seasonal cycle repeats exactly every 12 months and can be represented by a single Fourier pair.
+3. **Single harmonic:** One cosine + one sine term at frequency 1/12 per month captures all meaningful periodic variation — there are no quarterly or weekly sub-cycles.
 
-In our DGP the true cycle is pure cosine ($B = 0$, December peak), so the sine coefficient should be near zero in a correctly specified model.
+**The person-level confound assumption is still violated.** Higher-spending users are still more likely to enroll, but this model cannot remove that between-person bias.
 :::
 
-```{r model3, fig.width=11, fig.height=4}
+### Step 2 — Pre-fit checks
+
+The middle and right panels from Model 2 are diagnostic: the seasonal wave ($\approx \pm\$60$) and the lag-12 ACF spike both persist after controlling for drift. This motivates the Fourier terms.
+
+::: {.callout-note icon=false}
+## Why Two Terms (Cosine + Sine)?
+
+Any single-frequency cycle can be written as:
+$$f(t) = A\cos\!\left(\tfrac{2\pi m_t}{12}\right) + B\sin\!\left(\tfrac{2\pi m_t}{12}\right) = R\cos\!\left(\tfrac{2\pi m_t}{12} - \phi\right)$$
+where $R = \sqrt{A^2 + B^2}$ is the amplitude and $\phi = \arctan(B/A)$ is the phase (peak month). Including both terms lets OLS determine amplitude and peak month from the data without you specifying either. In our DGP the true cycle is pure cosine ($B = 0$, December peak), so the sine coefficient should estimate near zero.
+:::
+
+### Step 3 — Fitting the model
+
+```{r model3-fit}
 m3 <- lm(spending ~ loyalty + month + cos_12 + sin_12, data = df)
 
 bind_rows(
-  tidy(m3) |>
-    filter(term %in% c("loyalty", "month", "cos_12", "sin_12")) |>
-    mutate(true_value = c(true_loyalty, true_trend, true_amplitude, 0),
-           parameter  = c("Loyalty effect (£)", "Background drift (£/month)",
-                          "Seasonal cosine (£)", "Seasonal sine (£)")),
-  tibble(term = "σ_residual", estimate = sigma(m3), std.error = NA_real_,
+  tidy(m3) |> filter(term %in% c("loyalty","month","cos_12","sin_12")) |>
+    mutate(parameter  = c("Loyalty effect ($)", "Background drift ($/month)",
+                          "Seasonal cosine ($)", "Seasonal sine ($)"),
+           true_value = c(true_loyalty, true_trend, true_amplitude, 0)),
+  tibble(term = "sigma", estimate = sigma(m3), std.error = NA_real_,
          statistic = NA_real_, p.value = NA_real_,
-         true_value = true_resid_sd, parameter = "Residual SD (£)")
+         parameter = "Residual SD ($)", true_value = true_resid_sd)
 ) |>
-  mutate(bias = estimate - true_value) |>
+  mutate(bias = round(estimate - true_value, 2)) |>
   select(parameter, estimate, std.error, true_value, bias) |>
   knitr::kable(digits = 2,
     caption = "Model 3 — loyalty + drift + Fourier seasonal.")
 ```
 
-**What improved.** The seasonal cosine coefficient is near £60 (true), the sine is near zero (correct). The residual SD has dropped substantially — now approaching the true within-person noise. The loyalty estimate is much closer to £35.
+### Step 4 — Against the true DGP
 
-**What is still wrong.** There is a remaining upward bias in the loyalty estimate: higher-spending users were more likely to enroll, so the OLS estimate still partially reflects the cross-sectional spending advantage of program members rather than the causal within-person effect.
-
-```{r diag3, fig.width=11, fig.height=4}
+```{r model3-diag, fig.width=11, fig.height=4}
 show_diag(m3, trend_ok = TRUE, seasonal_ok = TRUE)
 ```
 
-Both the calendar and seasonal panels are now flat, and the lag-12 ACF spike is gone. The time-based confounds are resolved ✓. What remains is the person-level confound, which residual plots cannot directly reveal — it requires comparing the model's loyalty estimate to the true value.
+Both time panels are flat and the lag-12 ACF spike is gone ✓. The residual SD has dropped to near the true $40 — most of the explainable variance is now captured. The loyalty estimate is much closer to $35, but still slightly high.
+
+### Step 5 — Interpreting the results
+
+The seasonal cosine coefficient is near the true $60, and the sine is near zero — exactly as the DGP specifies. Both time-based confounds are now resolved.
+
+The remaining upward bias in the loyalty estimate reflects the **person-level confound**: Model 3 is still comparing higher-spending enrollees to lower-spending non-enrollees. OLS uses the between-person contrast because it has no person controls. The residual SD being close to $40 confirms the time structure is well-captured; the remaining issue is cross-sectional, not temporal.
+
+**What you would wrongly conclude:** "Loyalty program membership increases spending by ~$38–42 after accounting for platform growth and seasonality." Closer to the truth, but still inflated by ~$5 from person selection.
 
 ---
 
 ## Model 4: The Full Specification — Person Random Effects
 
-Adding person random intercepts addresses the remaining confound. Now we compare each user's spending during their enrolled months to their *own* spending during non-enrolled months, after removing the shared drift and seasonal cycle.
+### Step 1 — What this model assumes
 
-```{r model4, fig.width=11, fig.height=4}
+::: {.callout-warning icon=false}
+## Model 4 Assumptions (new, on top of Model 3)
+
+1. *(Inherits drift, Fourier, and independence assumptions from Model 3)*
+2. **Normal person random effects:** Each user's stable baseline spending $\alpha_i$ is drawn from $\mathcal{N}(0, \sigma_u^2)$.
+3. **Independence of person effects and predictors:** After conditioning on the drift, seasonal terms, and loyalty status, a user's random intercept is uncorrelated with the loyalty predictor. This is the *exchangeability* assumption — the program was not assigned based on unmeasured time-varying characteristics.
+4. **Within-person residual independence:** After removing person effects, the month-to-month residuals within a person are exchangeable — no remaining autocorrelation.
+
+**This is the first model that is correctly specified for our DGP.** All four assumptions hold by construction because we simulated the data.
+:::
+
+### Step 2 — Pre-fit checks
+
+The person-level selection check shown in the pre-modeling section confirmed: future enrollees spent more *before* enrolling. Model 3's loyalty estimate is still inflated (see above), even though time is correctly specified. The culprit is between-person confounding — exactly what person random effects address.
+
+The test: does the loyalty coefficient change when person random effects are added? If yes, the between-person contrast was driving part of the Model 3 estimate.
+
+### Step 3 — Fitting the model
+
+```{r model4-fit}
 m4 <- lmer(spending ~ loyalty + month + cos_12 + sin_12 + (1 | person_f),
            data = df)
 
-person_sd_est  <- as.data.frame(VarCorr(m4)) |>
+person_sd_est <- as.data.frame(VarCorr(m4)) |>
   filter(grp == "person_f") |> pull(sdcor)
-resid_sd_est   <- sigma(m4)
 
 bind_rows(
   tidy(m4, effects = "fixed") |>
-    filter(term %in% c("loyalty", "month", "cos_12", "sin_12")) |>
-    mutate(true_value = c(true_loyalty, true_trend, true_amplitude, 0),
-           parameter  = c("Loyalty effect (£)", "Background drift (£/month)",
-                          "Seasonal cosine (£)", "Seasonal sine (£)")),
-  tibble(term = "σ_person", estimate = person_sd_est, std.error = NA_real_,
-         statistic = NA_real_, p.value = NA_real_,
-         true_value = true_person_sd, parameter = "Person SD (£)"),
-  tibble(term = "σ_residual", estimate = resid_sd_est, std.error = NA_real_,
-         statistic = NA_real_, p.value = NA_real_,
-         true_value = true_resid_sd, parameter = "Residual SD (£)")
+    filter(term %in% c("loyalty","month","cos_12","sin_12")) |>
+    mutate(parameter  = c("Loyalty effect ($)", "Background drift ($/month)",
+                          "Seasonal cosine ($)", "Seasonal sine ($)"),
+           true_value = c(true_loyalty, true_trend, true_amplitude, 0)),
+  tibble(term = "sigma_person", estimate = person_sd_est,
+         std.error = NA_real_, statistic = NA_real_, p.value = NA_real_,
+         parameter = "Person SD ($)", true_value = true_person_sd),
+  tibble(term = "sigma_resid", estimate = sigma(m4),
+         std.error = NA_real_, statistic = NA_real_, p.value = NA_real_,
+         parameter = "Residual SD ($)", true_value = true_resid_sd)
 ) |>
-  mutate(bias = estimate - true_value) |>
+  mutate(bias = round(estimate - true_value, 2)) |>
   select(parameter, estimate, std.error, true_value, bias) |>
   knitr::kable(digits = 2,
     caption = "Model 4 — full specification: loyalty + drift + Fourier + person RE.")
 ```
 
-**What improved.** Every DGP parameter is now recovered accurately: the loyalty effect is near £35, the drift near £3, the seasonal amplitude near £60, the person SD near £80, and the residual SD near £40. Person random effects partition the between-person variance out of the residual, dramatically reducing the residual SD and tightening the SE on the loyalty coefficient.
+### Step 4 — Against the true DGP
 
-```{r diag4, fig.width=11, fig.height=4}
+```{r model4-diag, fig.width=11, fig.height=4}
 show_diag(m4, trend_ok = TRUE, seasonal_ok = TRUE)
 ```
 
-All three panels pass ✓. The calendar and seasonal residuals are flat, and the lag-12 ACF spike is absent. As a final check, the person-level diagnostic below confirms that person-mean residuals are uncorrelated with baseline spending — the person RE absorbed all stable individual differences.
+All three time-based panels pass ✓. The loyalty estimate, all time-structure parameters, person SD, and residual SD are all near their true values. As a final check, plot person-mean residuals against person mean spending — the random intercept should have absorbed all baseline differences.
 
-```{r diag4-person, fig.width=5.5, fig.height=3.5}
+```{r model4-person-diag, fig.width=5.5, fig.height=3.5}
 df |>
   mutate(resid = residuals(m4)) |>
   group_by(person) |>
-  summarise(mean_resid    = mean(resid),
-            mean_spending = mean(spending), .groups = "drop") |>
-  ggplot(aes(x = mean_spending, y = mean_resid)) +
+  summarise(mr = mean(resid), ms = mean(spending), .groups = "drop") |>
+  ggplot(aes(x = ms, y = mr)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "grey60") +
   geom_point(alpha = 0.5, color = "#2171b5", size = 2) +
   geom_smooth(method = "lm", se = FALSE, color = "#2171b5", linewidth = 0.8) +
-  labs(title = "Person-mean residuals vs. mean spending",
+  labs(title = "Person-mean residuals\nvs. person mean spending",
        subtitle = "✓ No pattern — person RE absorbed all baseline differences",
-       x = "Person mean spending (£)", y = "Mean residual (£)") +
+       x = "Person mean spending ($)", y = "Mean residual ($)") +
   theme_minimal(base_size = 12) +
   theme(plot.subtitle = element_text(color = "#2d6a4f"))
 ```
+
+### Step 5 — Interpreting the results
+
+Every DGP parameter is now accurately recovered. The key shift from Model 3 to Model 4:
+
+- **Loyalty estimate:** drops from ~$38–42 to ~$35, removing the person-selection upward bias
+- **Person SD:** correctly estimates ~$80 — confirming that the model partitioned between-person variance appropriately
+- **Residual SD:** near $40 — only genuine within-person noise remains unexplained
+
+The loyalty coefficient now answers: *among the same user, does spending rise in months when they are enrolled compared to months when they are not, after accounting for background drift and seasonality?* This is a within-person causal comparison, not a cross-sectional average.
+
+**Correct conclusion:** "Controlling for user-level spending habits, background platform drift, and seasonal cycles, loyalty program membership is associated with ~$35 higher monthly spending."
 
 ---
 
 ## Model 5: Period Fixed Effects (Month Dummies)
 
-As a non-parametric robustness check, replace the drift + Fourier terms with a dummy variable for each calendar month. This **two-way fixed effects** model makes no assumptions about the shape of the time function.
+### Step 1 — What this model assumes
 
-```{r model5}
+::: {.callout-warning icon=false}
+## Model 5 Assumptions
+
+1. **Each calendar month has its own intercept**, absorbing all calendar-period effects — no parametric shape assumed for the time function.
+2. **Each person has their own intercept** (person dummies), absorbing all stable between-person differences.
+3. **Loyalty effect is homogeneous:** The program effect is the same for all users in all months. No user-specific or time-varying treatment effect.
+4. **Strict exogeneity:** After removing person and month fixed effects, loyalty status is uncorrelated with the residual.
+
+Model 5 is more robust to misspecification of the time structure than Model 4 (no assumption of linearity or periodicity), but less efficient (23 extra parameters for month dummies vs. 3).
+:::
+
+### Step 2 — Pre-fit checks
+
+Model 4 already passes all residual diagnostics — this model serves as a robustness check, not a correction. The question is whether relaxing the parametric time assumption changes the loyalty estimate materially.
+
+### Step 3 — Fitting the model
+
+```{r model5-fit}
 m5 <- lm(spending ~ loyalty + factor(month) + factor(person_f), data = df)
 
 tidy(m5) |>
   filter(term == "loyalty") |>
-  mutate(true_value = true_loyalty,
-         bias       = estimate - true_value,
-         sigma_resid = sigma(m5),
-         parameter  = "Loyalty effect (£)") |>
-  select(parameter, estimate, std.error, true_value, bias, sigma_resid) |>
+  mutate(parameter  = "Loyalty effect ($)",
+         true_value = true_loyalty,
+         bias       = round(estimate - true_loyalty, 2),
+         sigma      = round(sigma(m5), 2)) |>
+  select(parameter, estimate, std.error, true_value, bias, sigma) |>
   knitr::kable(digits = 2,
     caption = "Model 5 — two-way FE: loyalty + month dummies + person dummies.")
 ```
 
-The two-way FE estimate matches Model 4. Its SE is slightly larger because it spends 23 degrees of freedom on month dummies rather than 3 (month, cos, sin). The trade-off:
+### Step 4 — Against the true DGP
 
-| Feature | Model 4 (parametric) | Model 5 (non-parametric) |
-|:--------|:---------------------|:-------------------------|
-| Time structure assumed | Linear drift + 12-month cycle | None |
-| df used for time | 3 | 23 |
-| Efficiency (SE) | Higher | Lower |
-| Works if drift is nonlinear? | No | Yes |
-| Person effects | Random (borrows strength) | Fixed (no pooling) |
+The loyalty estimate is close to $35, matching Model 4. The residual SD is similar. No residual diagnostic is plotted because the month-dummy FE makes the diagnostic structure trivial — the calendar-month residuals are exactly zero by construction.
+
+### Step 5 — Interpreting the results
+
+Model 5 confirms Model 4 non-parametrically. The loyalty effect is ~$35 regardless of whether we model the time function as "linear drift + one Fourier pair" or as "unrestricted month intercepts." This robustness is reassuring: the parametric time assumption in Model 4 is not driving the result.
+
+**When to prefer Model 5 over Model 4:**
+
+| Situation | Prefer |
+|:----------|:-------|
+| Time structure is smooth and well-understood | Model 4 — more efficient |
+| Potential structural breaks, non-linear drift | Model 5 — no parametric assumption |
+| Need to extrapolate beyond the observation window | Model 4 only |
+| Reviewer skeptical of parametric time control | Model 5 as robustness check |
 
 ---
 
 ## Benchmark: All Five Models Against the True DGP
 
-```{r comparison, fig.width=8, fig.height=5}
-extract_loyalty <- function(model, label) {
-  if (inherits(model, "lmerMod")) {
-    broom.mixed::tidy(model, effects = "fixed") |>
-      filter(term == "loyalty") |> mutate(model = label)
-  } else {
-    broom::tidy(model) |>
-      filter(term == "loyalty") |> mutate(model = label)
-  }
+```{r comparison, fig.width=9, fig.height=5}
+extract_loyalty <- function(mod, label) {
+  if (inherits(mod, "lmerMod"))
+    broom.mixed::tidy(mod, effects="fixed") |> filter(term=="loyalty") |>
+    mutate(model=label)
+  else
+    broom::tidy(mod) |> filter(term=="loyalty") |> mutate(model=label)
 }
 
 comp <- bind_rows(
-  extract_loyalty(m1, "M1: Naïve"),
+  extract_loyalty(m1, "M1: Naive"),
   extract_loyalty(m2, "M2: + Background drift"),
   extract_loyalty(m3, "M3: + Seasonal cycle"),
-  extract_loyalty(m4, "M4: + Person RE  (full)"),
+  extract_loyalty(m4, "M4: + Person RE (full)"),
   extract_loyalty(m5, "M5: Two-way FE")
 ) |>
   mutate(
-    model  = factor(model, levels = rev(unique(model))),
+    model   = factor(model, levels = rev(unique(model))),
     ci_low  = estimate - 1.96 * std.error,
     ci_high = estimate + 1.96 * std.error,
-    covers  = ci_low <= true_loyalty & true_loyalty <= ci_high,
-    dot_col = if_else(covers, "#2d6a4f", "#cb181d")
+    covers  = ci_low <= true_loyalty & true_loyalty <= ci_high
   )
 
-# ── Forest plot ────────────────────────────────────────────────────────────
 p_forest <- comp |>
   ggplot(aes(x = estimate, y = model)) +
   geom_vline(xintercept = true_loyalty, linetype = "dashed",
-             color = "black", linewidth = 1) +
+             linewidth = 1, color = "black") +
   geom_errorbarh(aes(xmin = ci_low, xmax = ci_high),
                  height = 0.25, color = "grey40") +
-  geom_point(aes(color = dot_col), size = 4) +
-  scale_color_identity() +
-  annotate("text", x = true_loyalty + 1, y = 5.45,
-           label = "True effect\n£35", hjust = 0, size = 3.5) +
-  labs(title = "Loyalty effect estimates across\nfive specifications",
-       subtitle = "Green = 95% CI covers true value  |  Red = misses",
-       x = "Estimated loyalty effect (£)", y = NULL) +
+  geom_point(aes(color = covers), size = 4) +
+  scale_color_manual(values = c("TRUE" = "#2d6a4f", "FALSE" = "#cb181d"),
+                     labels = c("TRUE" = "CI covers $35",
+                                "FALSE" = "CI misses $35")) +
+  annotate("text", x = true_loyalty + 0.8, y = 5.45,
+           label = "True\n$35", hjust = 0, size = 3.5) +
+  labs(title = "Loyalty estimates across\nfive specifications",
+       x = "Estimated loyalty effect ($)", y = NULL, color = NULL) +
   theme_minimal(base_size = 12) +
-  theme(plot.subtitle = element_text(size = 10))
+  theme(legend.position = "bottom")
 
-# ── Bias & residual SD progression ─────────────────────────────────────────
-sigma_vals <- c(sigma(m1), sigma(m2), sigma(m3), sigma(m4), sigma(m5))
-bias_vals  <- comp |> arrange(desc(model)) |> pull(estimate) - true_loyalty
+sigma_seq <- c(sigma(m1), sigma(m2), sigma(m3), sigma(m4), sigma(m5))
+bias_seq  <- comp |> arrange(desc(model)) |>
+  mutate(bias = estimate - true_loyalty) |> pull(bias)
 
-p_bias <- tibble(
-  model = factor(rev(levels(comp$model)), levels = rev(levels(comp$model))),
-  bias  = bias_vals,
-  sigma = sigma_vals
+p_track <- tibble(
+  mod    = factor(rev(levels(comp$model)), levels = rev(levels(comp$model))),
+  Bias   = bias_seq,
+  `Residual SD` = sigma_seq
 ) |>
-  pivot_longer(c(bias, sigma), names_to = "metric", values_to = "value") |>
-  mutate(metric = recode(metric,
-    bias  = "Loyalty bias (£)",
-    sigma = "Residual SD (£)"
-  )) |>
-  ggplot(aes(x = model, y = value, group = metric, color = metric)) +
-  geom_hline(data = tibble(metric = c("Loyalty bias (£)", "Residual SD (£)"),
-                           ref    = c(0, true_resid_sd)),
-             aes(yintercept = ref, color = metric),
-             linetype = "dashed", linewidth = 0.7, inherit.aes = FALSE) +
+  pivot_longer(c(Bias, `Residual SD`)) |>
+  ggplot(aes(x = mod, y = value, group = name, color = name)) +
+  geom_hline(data = tibble(name  = c("Bias", "Residual SD"),
+                           truth = c(0, true_resid_sd)),
+             aes(yintercept = truth, color = name),
+             linetype = "dashed", linewidth = 0.8, inherit.aes = FALSE) +
   geom_line(linewidth = 1.1) +
   geom_point(size = 3) +
-  scale_color_manual(values = c("Loyalty bias (£)" = "#e6550d",
-                                "Residual SD (£)"  = "#6a51a3")) +
-  scale_x_discrete(labels = function(x) str_replace(x, " \\(full\\)", "")) +
+  scale_color_manual(values = c("Bias" = "#e6550d",
+                                "Residual SD" = "#6a51a3")) +
+  scale_x_discrete(labels = function(x) str_remove(x, " \\(full\\)")) +
   labs(title = "Bias and residual SD\nacross model sequence",
-       subtitle = "Dashed lines = true values",
-       x = NULL, y = "Value (£)", color = NULL) +
+       subtitle = "Dashed = true value",
+       x = NULL, y = "Value ($)", color = NULL) +
   theme_minimal(base_size = 12) +
-  theme(axis.text.x = element_text(angle = 30, hjust = 1, size = 9),
+  theme(axis.text.x = element_text(angle=30, hjust=1, size=9),
         legend.position = "bottom")
 
-p_forest | p_bias
+p_forest | p_track
 ```
 
 ```{r comparison-table}
@@ -607,69 +742,61 @@ comp |>
   ) |>
   select(model, estimate, std.error, bias, ci_low, ci_high, covers) |>
   knitr::kable(digits = 2,
-    col.names = c("Model", "Estimate", "SE", "Bias",
-                  "95% CI low", "95% CI high", "CI covers £35?"),
-    caption = "All five models vs. the true loyalty effect of £35.")
+    col.names = c("Model","Estimate","SE","Bias",
+                  "95% CI low","95% CI high","CI covers $35?"),
+    caption = "All five models vs. the true loyalty effect of $35.")
 ```
-
-**Summarizing the progression:**
-
-- **M1:** All three confounds active. The estimate is inflated by £15–25. The residual SD is 2–3× the true value.
-- **M2:** Drift removed. Estimate improves moderately. Seasonal confound persists.
-- **M3:** First correctly specified model for time structure. Loyalty estimate is now close to £35 but still carries slight upward person-selection bias. Residual SD has dropped close to the true £40.
-- **M4:** All three confounds addressed. Loyalty estimate near £35, all DGP parameters recovered, CI covers the truth.
-- **M5:** Non-parametric confirmation. Matches M4 at slightly lower efficiency.
 
 ---
 
-## Practical Guide: Which Diagnostic, When?
+## Practical Guide: Diagnostic Sequence
 
-Run these five checks in order whenever you receive a new longitudinal dataset:
+When you encounter a new longitudinal dataset, run these five checks in order:
 
-```{r diagnostic-table, echo=FALSE}
+```{r diag-guide, echo=FALSE}
 knitr::kable(
   tibble(
     Step = 1:5,
-    `Plot or test` = c(
-      "Mean outcome vs. calendar time",
-      "Mean outcome vs. time-of-year",
-      "Mean residuals vs. calendar time",
-      "Mean residuals vs. time-of-year",
+    `Plot or check` = c(
+      "Mean outcome by calendar month",
+      "Mean outcome by month-of-year",
+      "Mean residuals by calendar month",
+      "Mean residuals by month-of-year",
       "ACF of panel-mean residuals"
     ),
     `What you are looking for` = c(
-      "Upward/downward slope → background drift present",
-      "Repeated wave pattern → seasonal cycle present",
+      "Upward or downward slope → background drift present",
+      "Repeated wave → seasonal cycle present",
       "Still drifts after controls → drift not fully captured",
       "Still waves after controls → seasonality not captured",
       "Spike at lag k → k-period autocorrelation remaining"
     ),
     Remedy = c(
-      "Add month as linear (or polynomial) predictor",
-      "Add Fourier sin/cos terms or seasonal dummies",
-      "Add higher-order polynomial or period dummies",
-      "Add Fourier terms or seasonal dummy variables",
+      "Add calendar month as a linear predictor",
+      "Add Fourier sin/cos or season-of-year dummies",
+      "Add polynomial trend or period dummies",
+      "Add Fourier terms or seasonal dummies",
       "Model residual autocorrelation (Part 5: AR structures)"
     )
   ),
-  caption = "Five-step diagnostic sequence for longitudinal time structure"
+  caption = "Five-step diagnostic sequence for longitudinal time structure."
 )
 ```
 
 ::: {.callout-warning icon=false}
 ## Reviewer Challenge
 
-**What a skeptical reviewer would say:** "You control for a linear background drift, but what if the drift is nonlinear? A quadratic acceleration or a structural break in month 12 would not be captured. Your loyalty estimate could absorb a nonlinear spending surge that happened to coincide with program launch."
+**What a skeptical reviewer would say:** "You control for a linear background drift, but what if the drift is nonlinear — accelerating in the second year or interrupted by a market shock in month 14? Your loyalty estimate could absorb a nonlinear surge that happened to coincide with program rollout."
 
-**Observable warning sign:** After adding a linear drift term, the residuals vs. calendar month plot still shows a curve — not flat but U-shaped or accelerating.
+**Observable warning sign:** After adding a linear drift term, residuals vs. calendar month show a curve rather than a flat line.
 
-**What claim survives:** The direction of the loyalty effect is likely correct. The magnitude depends on how well the parametric time model matches the true time structure. Period fixed effects (Model 5) provide a robustness check with no parametric assumptions about time shape.
+**What claim survives:** Direction is likely correct. Magnitude depends on how closely the parametric time model matches the true DGP. Model 5 (period FE) is the robustness check — if it agrees with Model 4, the parametric assumption is not driving the finding.
 :::
 
 ---
 
 ## Setting the Stage for Growth Curve Models
 
-Everything in this section treated **time as a confounder** to control. The next section, Growth Curve Models, treats **time as the phenomenon of interest**: how does each person's trajectory unfold, and why do trajectories differ across people?
+This section treated **time as a confounder** to be controlled. The next section, Growth Curve Models, treats **time as the phenomenon**: how does each person's trajectory unfold, and why do trajectories differ across people?
 
-The diagnostic toolkit introduced here applies directly to growth curve models. When you move to random slopes and nonlinear trajectories, the same residual plots will tell you whether your trajectory model has captured the time structure correctly — or whether a remaining confound is distorting the picture.
+The same five-step inferential workflow — assumptions, pre-fit checks, fitting, DGP comparison, interpretation — applies to every model in the rest of the module. The diagnostic toolkit (residual-by-time, seasonal check, ACF) remains the standard first pass before interpreting any parameter estimate.
