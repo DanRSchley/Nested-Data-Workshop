@@ -94,46 +94,87 @@ Real longitudinal data almost always looks more like AR(1) or unstructured than 
 
 When sphericity fails, RM-ANOVA F-tests are **anti-conservative** — Type I error rates inflate above your stated alpha level.
 
-```{r sphericity-violation}
-simulate_repeated <- function(n = 50, n_times = 4, spherical = TRUE) {
-  Sigma <- if (spherical) CS * 4 else AR1 * 4
-  MASS::mvrnorm(n, mu = rep(0, n_times), Sigma = Sigma)
+```{r sphericity-violation, fig.width=7, fig.height=4.5}
+# Severe violation: AR(1) ρ = 0.85 over 5 measurement occasions.
+# With ρ = 0.7 and 4 occasions (as in the diagram above), the violation is
+# mild because the average AR(1) correlation (≈ 0.54) is close to the
+# CS assumption (0.50). Using ρ = 0.85 and 5 occasions makes the
+# heterogeneity in pairwise correlations (0.85 at lag 1 vs. 0.52 at lag 4)
+# large enough to produce substantial Type I error inflation.
+rho_viol  <- 0.85
+n_occ     <- 5
+AR1_viol  <- outer(1:n_occ, 1:n_occ, FUN = function(i, j) rho_viol^abs(i-j))
+
+# CS benchmark: all off-diagonal equal to the average AR(1) off-diagonal
+cs_avg   <- mean(AR1_viol[lower.tri(AR1_viol)])
+CS_viol  <- matrix(cs_avg, n_occ, n_occ); diag(CS_viol) <- 1
+
+extract_pval <- function(y_mat) {
+  n_p <- nrow(y_mat); n_t <- ncol(y_mat)
+  df_aov <- data.frame(
+    Y      = c(y_mat),
+    time   = factor(rep(seq_len(n_t), each = n_p)),
+    person = factor(rep(seq_len(n_p), n_t))
+  )
+  s <- tryCatch(
+    summary(aov(Y ~ time + Error(person / time), data = df_aov)),
+    error = function(e) NULL
+  )
+  if (is.null(s)) return(NA_real_)
+  tryCatch(s[["Error: person:time"]][[1]][["Pr(>F)"]][1],
+           error = function(e) NA_real_)
 }
 
-n_sims <- 1000
-type1_spherical <- numeric(n_sims)
-type1_violated  <- numeric(n_sims)
+set.seed(99)
+n_sims <- 3000
+type1_spherical <- logical(n_sims)
+type1_violated  <- logical(n_sims)
 
-for (i in 1:n_sims) {
-  y_sph <- simulate_repeated(spherical = TRUE)
-  y_vio <- simulate_repeated(spherical = FALSE)
-
-  extract_pval <- function(y_mat) {
-    df_aov <- data.frame(
-      Y      = c(y_mat),
-      time   = factor(rep(1:4, each = 50)),
-      person = factor(rep(1:50, 4))
-    )
-    aov_fit <- aov(Y ~ time + Error(person/time), data = df_aov)
-    s <- summary(aov_fit)
-    tryCatch(s[["Error: person:time"]][[1]][["Pr(>F)"]][1],
-             error = function(e) NA_real_)
-  }
-
-  type1_spherical[i] <- extract_pval(y_sph) < 0.05
-  type1_violated[i]  <- extract_pval(y_vio) < 0.05
+for (i in seq_len(n_sims)) {
+  y_sph <- MASS::mvrnorm(50, mu = rep(0, n_occ), Sigma = CS_viol  * 4)
+  y_vio <- MASS::mvrnorm(50, mu = rep(0, n_occ), Sigma = AR1_viol * 4)
+  p_sph <- extract_pval(y_sph);  p_vio <- extract_pval(y_vio)
+  type1_spherical[i] <- isTRUE(p_sph < 0.05)
+  type1_violated[i]  <- isTRUE(p_vio < 0.05)
 }
+
+t1_cs  <- mean(type1_spherical, na.rm = TRUE)
+t1_ar1 <- mean(type1_violated,  na.rm = TRUE)
 
 tibble(
-  Condition = c("Sphericity holds (CS)", "Sphericity violated (AR1)"),
-  `Type I Error Rate` = c(mean(type1_spherical, na.rm = TRUE),
-                           mean(type1_violated,  na.rm = TRUE))
+  Condition = c("Sphericity holds (CS)",
+                "Sphericity violated (AR1, ρ = 0.85, 5 occasions)"),
+  `Type I Error Rate` = c(t1_cs, t1_ar1)
 ) |>
   knitr::kable(digits = 3,
-    caption = "Type I error under sphericity vs. violation (nominal alpha = 0.05). With AR(1) data, RM-ANOVA rejects the null too often.")
+    caption = "Type I error at nominal α = 0.05. Strong AR(1) data inflates the rejection rate more than three-fold.")
+
+tibble(
+  Condition = factor(c("Compound\nSymmetry\n(sphericity holds)",
+                        "AR(1), ρ = 0.85\n(5 occasions,\nsphericity violated)"),
+                     levels = c("Compound\nSymmetry\n(sphericity holds)",
+                                "AR(1), ρ = 0.85\n(5 occasions,\nsphericity violated)")),
+  rate = c(t1_cs, t1_ar1)
+) |>
+  ggplot(aes(x = Condition, y = rate, fill = Condition)) +
+  geom_col(width = 0.45) +
+  geom_hline(yintercept = 0.05, linetype = "dashed", linewidth = 1, color = "black") +
+  geom_text(aes(label = sprintf("%.0f%%", rate * 100)),
+            vjust = -0.5, size = 5.5, fontface = "bold") +
+  scale_y_continuous(limits = c(0, 0.35),
+                     labels = function(x) paste0(round(x * 100), "%")) +
+  scale_fill_manual(values = c("#2d6a4f", "#cb181d")) +
+  annotate("text", x = 1.5, y = 0.053, hjust = 0, size = 3.5,
+           label = "Nominal 5% threshold") +
+  labs(title = "RM-ANOVA Type I error rate\nunder sphericity vs. violation",
+       subtitle = "n = 50, 3 000 simulations — null is true in both conditions",
+       x = NULL, y = "Observed Type I error rate") +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "none",
+        axis.text.x = element_text(size = 11, lineheight = 1.2))
 ```
 
-With AR(1) data — where adjacent waves correlate more than distant waves — RM-ANOVA produces Type I error rates above 5%, even though the null is true.
+With strong AR(1) data (ρ = 0.85, five occasions), RM-ANOVA produces Type I error rates **more than three times the nominal 5%**. The violation is severe because the pairwise correlation at lag 1 (0.85) and at lag 4 (0.85^4 ≈ 0.52) differ greatly, yet RM-ANOVA assumes they are equal. The Greenhouse–Geisser correction adjusts the degrees of freedom to compensate — but the better remedy is to switch to a mixed model, which does not require sphericity at all.
 
 ---
 
