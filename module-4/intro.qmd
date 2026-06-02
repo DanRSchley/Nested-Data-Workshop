@@ -34,6 +34,8 @@ The module is organized into five clusters. Each cluster addresses a distinct ch
 
 ### Cluster 2 — Modeling Trajectories and Change
 
+**Part 2b: Time Structure, Fixed Effects, and Seasonal Cycles** — Before modeling individual trajectories, we need to handle time itself as a potential confounder. This section introduces a single simulated longitudinal dataset — 120 app users tracked for 24 months — and builds a fully disclosed data-generating process with a secular trend, a 12-month seasonal cycle, and staggered non-random treatment enrollment. Five progressively better models are compared against the true DGP. Diagnostic plots (residuals vs. calendar time, residuals vs. month-of-year, ACF of panel-mean residuals) drive each specification improvement, and a final benchmark table shows exactly how much each additional control reduces bias.
+
 **Part 3: Growth Curve Models** — When the question is how outcomes change over time and whether trajectories differ across people, growth curve models are the right tool. We build from simple linear growth to random slopes, nonlinear trajectories, and predictors of growth. *JDM example: modeling individual savings trajectories or credit repayment curves after a financial coaching intervention — does the average trajectory improve, and does the effect differ across households?*
 
 **Part 4: Latent Growth Curve Models in SEM** — The same growth curve model can be estimated in a structural equation modeling (SEM) framework. We show the connection, explain when the SEM approach adds value (modeling measurement error, multiple growth processes), and demonstrate the equivalence using `lavaan`.
