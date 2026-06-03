@@ -562,6 +562,8 @@ window.Quarto = {
   </ul></li>
   <li><a href="#benchmark-all-five-models-against-the-true-dgp" id="toc-benchmark-all-five-models-against-the-true-dgp" class="nav-link" data-scroll-target="#benchmark-all-five-models-against-the-true-dgp">Benchmark: All Five Models Against the True DGP</a></li>
   <li><a href="#practical-guide-diagnostic-sequence" id="toc-practical-guide-diagnostic-sequence" class="nav-link" data-scroll-target="#practical-guide-diagnostic-sequence">Practical Guide: Diagnostic Sequence</a></li>
+  <li><a href="#model-summary-what-each-specification-gets-right-and-wrong" id="toc-model-summary-what-each-specification-gets-right-and-wrong" class="nav-link" data-scroll-target="#model-summary-what-each-specification-gets-right-and-wrong">Model Summary: What Each Specification Gets Right and Wrong</a></li>
+  <li><a href="#analyst-checklist-applying-this-workflow-to-real-data" id="toc-analyst-checklist-applying-this-workflow-to-real-data" class="nav-link" data-scroll-target="#analyst-checklist-applying-this-workflow-to-real-data">Analyst Checklist: Applying This Workflow to Real Data</a></li>
   <li><a href="#setting-the-stage-for-growth-curve-models" id="toc-setting-the-stage-for-growth-curve-models" class="nav-link" data-scroll-target="#setting-the-stage-for-growth-curve-models">Setting the Stage for Growth Curve Models</a></li>
   </ul></li>
   </ul>
@@ -606,6 +608,27 @@ window.Quarto = {
 <p><strong>How do you know time is a confounder?</strong> Residuals from your model should have zero mean at every time point. If the residuals slope upward, you have unmodeled drift. If they oscillate with a 12-month period, you have unmodeled seasonality. Both are diagnosable from simple plots.</p>
 <p><strong>What is the fix?</strong> Include time as a predictor — as a linear drift term, Fourier terms for cyclical patterns, or period fixed effects (one dummy per calendar period). The choice depends on how much parametric structure you are willing to assume about the time DGP.</p>
 </blockquote>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>This Is the Template Chapter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This chapter introduces the <strong>five-step longitudinal inferential workflow</strong> that every subsequent chapter in Module 4 reuses:</p>
+<ol type="1">
+<li><strong>Assumptions</strong> — what does this model assume about time, outcomes, and people?</li>
+<li><strong>Pre-fit checks</strong> — what can be verified before fitting?</li>
+<li><strong>Fitting the model</strong> — code and key output</li>
+<li><strong>Against the DGP</strong> — how well does this model recover what is true?</li>
+<li><strong>Interpreting the results</strong> — what conclusions are valid, and where does the model fall short?</li>
+</ol>
+<p>Every chapter from Part 3 onward uses this same structure. The wording, headers, and sequence are deliberately parallel so that the analytical routine becomes second nature.</p>
 </div>
 </div>
 <section id="one-dataset-many-models" class="level2">
@@ -1949,10 +1972,74 @@ Y_{it} = \underbrace{\alpha_i}_{\text{person baseline}}
 </div>
 <hr>
 </section>
+<section id="model-summary-what-each-specification-gets-right-and-wrong" class="level2">
+<h2 class="anchored" data-anchor-id="model-summary-what-each-specification-gets-right-and-wrong">Model Summary: What Each Specification Gets Right and Wrong</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Five-model summary: what each specification resolves and what it leaves open.</caption>
+<colgroup>
+<col style="width: 7%">
+<col style="width: 29%">
+<col style="width: 29%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">What it gets right</th>
+<th style="text-align: left;">What it still misses</th>
+<th style="text-align: left;">Resulting inferential error if you stopped here</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">M1: Naïve</td>
+<td style="text-align: left;">Recovers basic sign of loyalty effect</td>
+<td style="text-align: left;">Background drift, seasonal cycle, and person-level selection</td>
+<td style="text-align: left;">Loyalty estimate inflated by ~$15–25; residual SD 2–3× too large</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">M2: + Drift</td>
+<td style="text-align: left;">Correctly removes background drift; drift coefficient ≈ true</td>
+<td style="text-align: left;">Seasonal cycle still fully in residuals</td>
+<td style="text-align: left;">Loyalty estimate still inflated by ~$5–10; seasonal absorbed into error</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">M3: + Seasonal</td>
+<td style="text-align: left;">Removes drift and seasonal confound; all time parameters ≈ true</td>
+<td style="text-align: left;">Person-level selection: enrollees had higher baseline spending</td>
+<td style="text-align: left;">Loyalty estimate ~$3–5 too high; person-selection bias remains</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">M4: + Person RE</td>
+<td style="text-align: left;">Removes all three confounds; every DGP parameter recovered</td>
+<td style="text-align: left;">Nothing — this is the correctly specified model for this DGP</td>
+<td style="text-align: left;">None — conclusions are accurate for this DGP</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">M5: Two-way FE</td>
+<td style="text-align: left;">Non-parametrically confirms M4 without assuming time shape</td>
+<td style="text-align: left;">Less efficient (23 df on month dummies vs.&nbsp;3 for parametric)</td>
+<td style="text-align: left;">Wider CIs than necessary; cannot extrapolate beyond observation window</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="analyst-checklist-applying-this-workflow-to-real-data" class="level2">
+<h2 class="anchored" data-anchor-id="analyst-checklist-applying-this-workflow-to-real-data">Analyst Checklist: Applying This Workflow to Real Data</h2>
+<p>Use this checklist whenever you are working with a new longitudinal dataset and a time-varying predictor or treatment.</p>
+<p><strong>Before fitting anything:</strong> - [ ] Plot mean outcome by calendar time — is there visible drift? - [ ] Plot mean outcome by time-of-year (or day-of-week) — is there a seasonal/cyclical pattern? - [ ] Compare baseline characteristics of treated vs.&nbsp;untreated groups — is there person-level selection? - [ ] Understand when treatment is assigned — is timing correlated with the drift or seasonal cycle? - [ ] Check missingness by time period — do dropouts differ from completers?</p>
+<p><strong>Choosing and fitting models:</strong> - [ ] Start with the naïve model and inspect residuals by time — this shows what is uncontrolled - [ ] Add drift control (linear month term) and re-inspect calendar residuals - [ ] Add seasonal control (Fourier pair or month-of-year dummies) and re-inspect seasonal residuals and ACF - [ ] Add person random effects — does the loyalty estimate change? If yes, person-level selection was present - [ ] Run the two-way FE model as a robustness check — does it agree with the parametric model?</p>
+<p><strong>Evaluating and reporting:</strong> - [ ] Report the loyalty estimate and SE for each specification - [ ] Report whether 95% CIs of the preferred model cover the true value (in simulation) or are plausible given theory (in real data) - [ ] Report the residual SD for each model — shows how much unexplained variance remains - [ ] Report the tipping-point analysis: how large would a remaining confound need to be to reverse the conclusion? - [ ] State which assumptions the preferred model makes and which ones you tested</p>
+<hr>
+</section>
 <section id="setting-the-stage-for-growth-curve-models" class="level2">
 <h2 class="anchored" data-anchor-id="setting-the-stage-for-growth-curve-models">Setting the Stage for Growth Curve Models</h2>
 <p>This section treated <strong>time as a confounder</strong> to be controlled. The next section, Growth Curve Models, treats <strong>time as the phenomenon</strong>: how does each person’s trajectory unfold, and why do trajectories differ across people?</p>
-<p>The same five-step inferential workflow — assumptions, pre-fit checks, fitting, DGP comparison, interpretation — applies to every model in the rest of the module. The diagnostic toolkit (residual-by-time, seasonal check, ACF) remains the standard first pass before interpreting any parameter estimate.</p>
+<p>The same five-step workflow applies to every model in Parts 3–10: state what is assumed, check what can be checked before fitting, fit, compare to truth (or theory), and interpret what survives. The diagnostic toolkit — residual-by-time, seasonal check, ACF, person-mean residuals — is the standard first pass in every subsequent chapter.</p>
 
 
 </section>

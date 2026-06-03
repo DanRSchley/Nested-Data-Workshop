@@ -487,10 +487,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#growth-curve-models" id="toc-growth-curve-models" class="nav-link active" data-scroll-target="#growth-curve-models">Growth Curve Models</a>
   <ul class="collapse">
+  <li><a href="#before-fitting-three-decisions-to-make-first" id="toc-before-fitting-three-decisions-to-make-first" class="nav-link" data-scroll-target="#before-fitting-three-decisions-to-make-first">Before Fitting: Three Decisions to Make First</a>
+  <ul class="collapse">
+  <li><a href="#decision-1-is-a-growth-curve-model-the-right-tool" id="toc-decision-1-is-a-growth-curve-model-the-right-tool" class="nav-link" data-scroll-target="#decision-1-is-a-growth-curve-model-the-right-tool">Decision 1 — Is a growth curve model the right tool?</a></li>
+  <li><a href="#decision-2-what-does-time-0-mean" id="toc-decision-2-what-does-time-0-mean" class="nav-link" data-scroll-target="#decision-2-what-does-time-0-mean">Decision 2 — What does time = 0 mean?</a></li>
+  <li><a href="#decision-3-how-many-waves-and-are-they-equally-spaced" id="toc-decision-3-how-many-waves-and-are-they-equally-spaced" class="nav-link" data-scroll-target="#decision-3-how-many-waves-and-are-they-equally-spaced">Decision 3 — How many waves, and are they equally spaced?</a></li>
+  </ul></li>
   <li><a href="#trajectories-as-the-target" id="toc-trajectories-as-the-target" class="nav-link" data-scroll-target="#trajectories-as-the-target">Trajectories as the Target</a></li>
+  <li><a href="#the-example-dataset" id="toc-the-example-dataset" class="nav-link" data-scroll-target="#the-example-dataset">The Example Dataset</a></li>
+  <li><a href="#pre-fit-checks-always-plot-before-fitting" id="toc-pre-fit-checks-always-plot-before-fitting" class="nav-link" data-scroll-target="#pre-fit-checks-always-plot-before-fitting">Pre-Fit Checks: Always Plot Before Fitting</a></li>
   <li><a href="#the-unconditional-growth-model" id="toc-the-unconditional-growth-model" class="nav-link" data-scroll-target="#the-unconditional-growth-model">The Unconditional Growth Model</a></li>
   <li><a href="#adding-predictors-of-growth" id="toc-adding-predictors-of-growth" class="nav-link" data-scroll-target="#adding-predictors-of-growth">Adding Predictors of Growth</a></li>
   <li><a href="#nonlinear-growth" id="toc-nonlinear-growth" class="nav-link" data-scroll-target="#nonlinear-growth">Nonlinear Growth</a></li>
+  <li><a href="#choosing-the-functional-form-for-time" id="toc-choosing-the-functional-form-for-time" class="nav-link" data-scroll-target="#choosing-the-functional-form-for-time">Choosing the Functional Form for Time</a></li>
+  <li><a href="#diagnosing-convergence-problems" id="toc-diagnosing-convergence-problems" class="nav-link" data-scroll-target="#diagnosing-convergence-problems">Diagnosing Convergence Problems</a></li>
+  <li><a href="#post-fit-diagnostics" id="toc-post-fit-diagnostics" class="nav-link" data-scroll-target="#post-fit-diagnostics">Post-Fit Diagnostics</a></li>
+  <li><a href="#assumption-table" id="toc-assumption-table" class="nav-link" data-scroll-target="#assumption-table">Assumption Table</a></li>
+  <li><a href="#reviewer-challenge" id="toc-reviewer-challenge" class="nav-link" data-scroll-target="#reviewer-challenge">Reviewer Challenge</a></li>
+  <li><a href="#minimum-reporting-checklist" id="toc-minimum-reporting-checklist" class="nav-link" data-scroll-target="#minimum-reporting-checklist">Minimum Reporting Checklist</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -519,10 +533,229 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="growth-curve-models" class="level1">
 <h1>Growth Curve Models</h1>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Growth Curve Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>What is the scientific question?</strong> Growth curve models are for questions about <em>trajectories</em> — how fast something changes, whether change rates differ across people, and whether a predictor shifts the rate of change. If your question is only about mean levels at specific waves, a simpler repeated-measures model suffices.</p>
+<p><strong>What does this model assume about time?</strong> That each person has their own trajectory described by an intercept (their level at time = 0) and a slope (their rate of change). The model estimates the distribution of those intercepts and slopes across people.</p>
+<p><strong>What goes wrong if you ignore individual trajectory variation?</strong> A random-intercept-only model forces everyone to change at the same rate. If people genuinely differ in how fast they change — some improving rapidly, others plateauing — the model misspecifies the DGP, produces poor predictions for individuals, and may bias the average slope estimate.</p>
+</blockquote>
+</div>
+</div>
+<section id="before-fitting-three-decisions-to-make-first" class="level2">
+<h2 class="anchored" data-anchor-id="before-fitting-three-decisions-to-make-first">Before Fitting: Three Decisions to Make First</h2>
+<section id="decision-1-is-a-growth-curve-model-the-right-tool" class="level3">
+<h3 class="anchored" data-anchor-id="decision-1-is-a-growth-curve-model-the-right-tool">Decision 1 — Is a growth curve model the right tool?</h3>
+<p>Growth curve models answer: <em>“How does the outcome trajectory unfold, and what explains variation in trajectories?”</em> They are not the right tool for every longitudinal question.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 55%">
+<col style="width: 44%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Your question</th>
+<th style="text-align: left;">Right tool</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Is the group mean higher at wave 3 than wave 1?</td>
+<td style="text-align: left;">RM-ANOVA or mixed model with time as a factor</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Does a treatment shift the level at one follow-up wave?</td>
+<td style="text-align: left;">Mixed model with treatment × wave interaction</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">How fast does the outcome change, and do people differ in their rate?</td>
+<td style="text-align: left;"><strong>Growth curve model</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Does a treatment affect the <em>rate</em> of change, not just the level?</td>
+<td style="text-align: left;"><strong>Growth curve model with treatment × slope</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="decision-2-what-does-time-0-mean" class="level3">
+<h3 class="anchored" data-anchor-id="decision-2-what-does-time-0-mean">Decision 2 — What does time = 0 mean?</h3>
+<p>The intercept in a growth model is the predicted outcome when time = 0. Time coding determines what the intercept represents — choose it for interpretability.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 32%">
+<col style="width: 42%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Time coding</th>
+<th style="text-align: left;">Intercept means</th>
+<th style="text-align: left;">Best for</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">0 = first wave</td>
+<td style="text-align: left;">Baseline level</td>
+<td style="text-align: left;">Intervention studies where pre-treatment level matters</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0 = midpoint</td>
+<td style="text-align: left;">Mid-study level</td>
+<td style="text-align: left;">Reduces intercept-slope correlation; improves estimation</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">0 = last wave</td>
+<td style="text-align: left;">Final-wave level</td>
+<td style="text-align: left;">When the endpoint is the primary reference</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0 = age (individually varying)</td>
+<td style="text-align: left;">Level at a specific age</td>
+<td style="text-align: left;">Developmental and aging studies</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="decision-3-how-many-waves-and-are-they-equally-spaced" class="level3">
+<h3 class="anchored" data-anchor-id="decision-3-how-many-waves-and-are-they-equally-spaced">Decision 3 — How many waves, and are they equally spaced?</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 82%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Waves</th>
+<th style="text-align: left;">What you can reliably estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Intercept + one slope. Growth curve = change score. No information about curvature.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Linear growth. Minimal test for non-linearity.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">4+</td>
+<td style="text-align: left;">Quadratic growth, piecewise change, or splines. Recommended for detecting trajectory shape.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unequal spacing</td>
+<td style="text-align: left;">Use exact elapsed time as the time variable — not wave number.</td>
+</tr>
+</tbody>
+</table>
+<p>With only 2 waves, a growth curve model adds nothing beyond a difference score. Fit a simpler model.</p>
+<hr>
+</section>
+</section>
 <section id="trajectories-as-the-target" class="level2">
 <h2 class="anchored" data-anchor-id="trajectories-as-the-target">Trajectories as the Target</h2>
 <p>Standard repeated measures models ask: “Is the mean outcome different across time points?” Growth curve models ask something richer: “How does each unit’s trajectory unfold over time, and what explains variation in those trajectories?”</p>
 <p>The shift in framing is fundamental. We are not trying to estimate one average change — we are trying to recover the distribution of individual change processes that generated the data. Each person has their own DGP; growth curve models estimate the parameters of that distribution.</p>
+</section>
+<section id="the-example-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="the-example-dataset">The Example Dataset</h2>
+<p>To demonstrate these concepts, we simulate 60 participants each assessed at 6 weekly waves. Each person has their own true baseline stress level and their own true rate of weekly change — the DGP we want the growth model to recover.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_people <span class="ot">&lt;-</span> <span class="dv">60</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_times  <span class="ot">&lt;-</span> <span class="dv">6</span>  <span class="co"># weeks</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Each person has a random baseline and random rate of change</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>person_intercepts <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="dv">50</span>, <span class="dv">8</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>person_slopes     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="sc">-</span><span class="dv">2</span>, <span class="fl">1.5</span>)  <span class="co"># average decline of 2/week</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>df_growth <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people, <span class="at">week =</span> <span class="dv">0</span><span class="sc">:</span>(n_times <span class="sc">-</span> <span class="dv">1</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">stress =</span> person_intercepts[person] <span class="sc">+</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>             person_slopes[person] <span class="sc">*</span> week <span class="sc">+</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>             <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">person =</span> <span class="fu">factor</span>(person)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="pre-fit-checks-always-plot-before-fitting" class="level2">
+<h2 class="anchored" data-anchor-id="pre-fit-checks-always-plot-before-fitting">Pre-Fit Checks: Always Plot Before Fitting</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Spaghetti plot: individual trajectories</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>sample_ids <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">levels</span>(df_growth<span class="sc">$</span>person), <span class="dv">15</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>p_spaghetti <span class="ot">&lt;-</span> df_growth <span class="sc">|&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(person <span class="sc">%in%</span> sample_ids) <span class="sc">|&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> week, <span class="at">y =</span> stress, <span class="at">group =</span> person)) <span class="sc">+</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.45</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="fu">aes</span>(<span class="at">group =</span> <span class="cn">NULL</span>), <span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"line"</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>               <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>) <span class="sc">+</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Spaghetti plot: individual trajectories</span><span class="sc">\n</span><span class="st">(red = cohort average)"</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Fan-out = slopes differ across people → random slope needed"</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Stress score"</span>) <span class="sc">+</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Mean-by-wave with error bars</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>p_means <span class="ot">&lt;-</span> df_growth <span class="sc">|&gt;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week) <span class="sc">|&gt;</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">m =</span> <span class="fu">mean</span>(stress), <span class="at">se =</span> <span class="fu">sd</span>(stress) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">n</span>()), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> week, <span class="at">y =</span> m, <span class="at">ymin =</span> m <span class="sc">-</span> <span class="fl">1.96</span><span class="sc">*</span>se, <span class="at">ymax =</span> m <span class="sc">+</span> <span class="fl">1.96</span><span class="sc">*</span>se)) <span class="sc">+</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.1</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="at">width =</span> <span class="fl">0.15</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Mean ± 95% CI by wave"</span>,</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Flat line ≈ no growth; curve ≈ nonlinear trajectory"</span>,</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Mean stress"</span>) <span class="sc">+</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>)</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Person-level change: connect each person's first and last observation</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>p_change <span class="ot">&lt;-</span> df_growth <span class="sc">|&gt;</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">start =</span> <span class="fu">first</span>(stress), <span class="at">end =</span> <span class="fu">last</span>(stress), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">direction =</span> <span class="fu">if_else</span>(end <span class="sc">&lt;</span> start, <span class="st">"Declined"</span>, <span class="st">"Increased or flat"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> start, <span class="at">y =</span> end <span class="sc">-</span> start, <span class="at">color =</span> direction)) <span class="sc">+</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey60"</span>) <span class="sc">+</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Declined"</span> <span class="ot">=</span> <span class="st">"#2d6a4f"</span>, <span class="st">"Increased or flat"</span> <span class="ot">=</span> <span class="st">"#cb181d"</span>)) <span class="sc">+</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Individual change: first → last wave"</span>,</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Spread = heterogeneous slopes; correlation with start = need to model"</span>,</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Starting stress"</span>, <span class="at">y =</span> <span class="st">"Change (last − first)"</span>) <span class="sc">+</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>p_spaghetti <span class="sc">|</span> p_means <span class="sc">|</span> p_change</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part3_files/figure-html/pre-fit-checks-1.png" class="img-fluid figure-img" width="1056"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>What to look for:</strong></p>
+<ul>
+<li><strong>Spaghetti plot:</strong> Do trajectories fan out over time? Wide fan-out signals that individuals differ in their rate of change — a random slope is needed.</li>
+<li><strong>Mean-by-wave:</strong> Does the average look linear? If the means accelerate, decelerate, or level off, a linear model will be misspecified.</li>
+<li><strong>Individual change plot:</strong> Is the amount of change correlated with the starting level? If people who start high show larger declines, the intercept-slope correlation will be negative.</li>
+</ul>
 </section>
 <section id="the-unconditional-growth-model" class="level2">
 <h2 class="anchored" data-anchor-id="the-unconditional-growth-model">The Unconditional Growth Model</h2>
@@ -530,35 +763,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n_people <span class="ot">&lt;-</span> <span class="dv">60</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n_times  <span class="ot">&lt;-</span> <span class="dv">6</span>  <span class="co"># weeks</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Each person has a random baseline (intercept) and random rate of change (slope)</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>person_intercepts <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="dv">50</span>, <span class="dv">8</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>person_slopes     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_people, <span class="sc">-</span><span class="dv">2</span>, <span class="fl">1.5</span>)  <span class="co"># average decline of 2/week</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>df_growth <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people, <span class="at">week =</span> <span class="dv">0</span><span class="sc">:</span>(n_times<span class="dv">-1</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">stress =</span> person_intercepts[person] <span class="sc">+</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>             person_slopes[person] <span class="sc">*</span> week <span class="sc">+</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>             <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">4</span>),</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">person =</span> <span class="fu">factor</span>(person)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot individual trajectories</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>sample_people <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">levels</span>(df_growth<span class="sc">$</span>person), <span class="dv">12</span>)</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_growth <span class="sc">|&gt;</span> <span class="fu">filter</span>(person <span class="sc">%in%</span> sample_people),</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> week, <span class="at">y =</span> stress, <span class="at">group =</span> person, <span class="at">color =</span> person)) <span class="sc">+</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">data =</span> df_growth, <span class="fu">aes</span>(<span class="at">group =</span> <span class="cn">NULL</span>, <span class="at">color =</span> <span class="cn">NULL</span>),</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>, <span class="at">se =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>() <span class="sc">+</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Growth curve: individual stress trajectories over 6 weeks"</span>,</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Colored lines = 12 individuals; black line = average trajectory"</span>,</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Stress (0-100)"</span>) <span class="sc">+</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot individual trajectories from the dataset created above</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>sample_people <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">levels</span>(df_growth<span class="sc">$</span>person), <span class="dv">12</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_growth <span class="sc">|&gt;</span> <span class="fu">filter</span>(person <span class="sc">%in%</span> sample_people),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> week, <span class="at">y =</span> stress, <span class="at">group =</span> person, <span class="at">color =</span> person)) <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">data =</span> df_growth, <span class="fu">aes</span>(<span class="at">group =</span> <span class="cn">NULL</span>, <span class="at">color =</span> <span class="cn">NULL</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>, <span class="at">se =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>() <span class="sc">+</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Growth curve: individual stress trajectories over 6 weeks"</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Colored lines = 12 individuals; black line = average trajectory"</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Stress (0-100)"</span>) <span class="sc">+</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>) <span class="sc">+</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -571,9 +789,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Unconditional growth model</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>m_growth <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> week <span class="sc">+</span> (week <span class="sc">|</span> person), <span class="at">data =</span> df_growth)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m_growth)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Unconditional growth model</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>m_growth <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> week <span class="sc">+</span> (week <span class="sc">|</span> person), <span class="at">data =</span> df_growth)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m_growth)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
@@ -609,9 +827,9 @@ week -0.064</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_growth, <span class="at">effects =</span> <span class="st">"ran_pars"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Variance components: how much do people differ in their starting point and rate of change?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_growth, <span class="at">effects =</span> <span class="st">"ran_pars"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Variance components: how much do people differ in their starting point and rate of change?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -661,17 +879,17 @@ week -0.064</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a predictor: treatment condition</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>df_growth <span class="ot">&lt;-</span> df_growth <span class="sc">|&gt;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">treatment =</span> <span class="fu">rep</span>(<span class="fu">rbinom</span>(n_people, <span class="dv">1</span>, <span class="fl">0.5</span>), <span class="at">each =</span> n_times))</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Treatment might affect both initial level and rate of change</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>m_growth_pred <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> week <span class="sc">*</span> treatment <span class="sc">+</span> (week <span class="sc">|</span> person),</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> df_growth)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_growth_pred, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Growth model with treatment: interaction = different slopes by condition"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a predictor: treatment condition</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df_growth <span class="ot">&lt;-</span> df_growth <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">treatment =</span> <span class="fu">rep</span>(<span class="fu">rbinom</span>(n_people, <span class="dv">1</span>, <span class="fl">0.5</span>), <span class="at">each =</span> n_times))</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Treatment might affect both initial level and rate of change</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>m_growth_pred <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> week <span class="sc">*</span> treatment <span class="sc">+</span> (week <span class="sc">|</span> person),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data =</span> df_growth)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_growth_pred, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Growth model with treatment: interaction = different slopes by condition"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -700,38 +918,38 @@ week -0.064</code></pre>
 <tr class="odd">
 <td style="text-align: left;">fixed</td>
 <td style="text-align: left;">(Intercept)</td>
-<td style="text-align: right;">49.683</td>
-<td style="text-align: right;">1.596</td>
-<td style="text-align: right;">31.138</td>
-<td style="text-align: right;">58.003</td>
+<td style="text-align: right;">47.945</td>
+<td style="text-align: right;">1.483</td>
+<td style="text-align: right;">32.322</td>
+<td style="text-align: right;">58.000</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">fixed</td>
 <td style="text-align: left;">week</td>
-<td style="text-align: right;">-2.509</td>
-<td style="text-align: right;">0.335</td>
-<td style="text-align: right;">-7.490</td>
-<td style="text-align: right;">58.000</td>
+<td style="text-align: right;">-2.343</td>
+<td style="text-align: right;">0.324</td>
+<td style="text-align: right;">-7.242</td>
+<td style="text-align: right;">57.999</td>
 <td style="text-align: right;">0.000</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">fixed</td>
 <td style="text-align: left;">treatment</td>
-<td style="text-align: right;">-0.069</td>
-<td style="text-align: right;">2.220</td>
-<td style="text-align: right;">-0.031</td>
-<td style="text-align: right;">58.003</td>
-<td style="text-align: right;">0.975</td>
+<td style="text-align: right;">3.650</td>
+<td style="text-align: right;">2.171</td>
+<td style="text-align: right;">1.681</td>
+<td style="text-align: right;">58.000</td>
+<td style="text-align: right;">0.098</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">fixed</td>
 <td style="text-align: left;">week:treatment</td>
-<td style="text-align: right;">0.832</td>
-<td style="text-align: right;">0.466</td>
-<td style="text-align: right;">1.786</td>
-<td style="text-align: right;">58.000</td>
-<td style="text-align: right;">0.079</td>
+<td style="text-align: right;">0.567</td>
+<td style="text-align: right;">0.474</td>
+<td style="text-align: right;">1.197</td>
+<td style="text-align: right;">57.999</td>
+<td style="text-align: right;">0.236</td>
 </tr>
 </tbody>
 </table>
@@ -745,36 +963,36 @@ week -0.064</code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Quadratic growth</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df_growth_q <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people, <span class="at">week =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">8</span>) <span class="sc">|&gt;</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">person_int    =</span> <span class="fu">rep</span>(<span class="fu">rnorm</span>(n_people, <span class="dv">50</span>, <span class="dv">8</span>), <span class="at">each =</span> <span class="dv">9</span>),</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">person_lin    =</span> <span class="fu">rep</span>(<span class="fu">rnorm</span>(n_people, <span class="sc">-</span><span class="dv">5</span>, <span class="dv">2</span>), <span class="at">each =</span> <span class="dv">9</span>),</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">person_quad   =</span> <span class="fu">rep</span>(<span class="fu">rnorm</span>(n_people, <span class="fl">0.5</span>, <span class="fl">0.3</span>), <span class="at">each =</span> <span class="dv">9</span>),</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">stress        =</span> person_int <span class="sc">+</span> person_lin <span class="sc">*</span> week <span class="sc">+</span> person_quad <span class="sc">*</span> week<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">3</span>),</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">person        =</span> <span class="fu">factor</span>(person)</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit with quadratic time</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>m_quad <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> week <span class="sc">+</span> <span class="fu">I</span>(week<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> (week <span class="sc">|</span> person), <span class="at">data =</span> df_growth_q)</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot average predicted trajectory</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>df_growth_q <span class="ot">&lt;-</span> df_growth_q <span class="sc">|&gt;</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fitted_stress =</span> <span class="fu">fitted</span>(m_quad))</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>df_growth_q <span class="sc">|&gt;</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week) <span class="sc">|&gt;</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_obs =</span> <span class="fu">mean</span>(stress), <span class="at">mean_fit =</span> <span class="fu">mean</span>(fitted_stress)) <span class="sc">|&gt;</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>week) <span class="sc">|&gt;</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> week, <span class="at">y =</span> value, <span class="at">color =</span> name, <span class="at">linetype =</span> name)) <span class="sc">+</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#aec6e8"</span>, <span class="st">"#1e3a5f"</span>),</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Fitted (quadratic)"</span>, <span class="st">"Observed"</span>)) <span class="sc">+</span></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"solid"</span>, <span class="st">"dashed"</span>),</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Fitted (quadratic)"</span>, <span class="st">"Observed"</span>)) <span class="sc">+</span></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Quadratic growth: curve captures the deceleration"</span>,</span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Mean Stress"</span>, <span class="at">color =</span> <span class="cn">NULL</span>, <span class="at">linetype =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Quadratic growth: 9-week stress relief study</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df_growth_q <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">person =</span> <span class="dv">1</span><span class="sc">:</span>n_people, <span class="at">week =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">8</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">person_int    =</span> <span class="fu">rep</span>(<span class="fu">rnorm</span>(n_people, <span class="dv">50</span>, <span class="dv">8</span>), <span class="at">each =</span> <span class="dv">9</span>),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">person_lin    =</span> <span class="fu">rep</span>(<span class="fu">rnorm</span>(n_people, <span class="sc">-</span><span class="dv">5</span>, <span class="dv">2</span>), <span class="at">each =</span> <span class="dv">9</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">person_quad   =</span> <span class="fu">rep</span>(<span class="fu">rnorm</span>(n_people, <span class="fl">0.5</span>, <span class="fl">0.3</span>), <span class="at">each =</span> <span class="dv">9</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">stress        =</span> person_int <span class="sc">+</span> person_lin <span class="sc">*</span> week <span class="sc">+</span> person_quad <span class="sc">*</span> week<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, <span class="dv">3</span>),</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">person        =</span> <span class="fu">factor</span>(person)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit with quadratic time</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>m_quad <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> week <span class="sc">+</span> <span class="fu">I</span>(week<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> (week <span class="sc">|</span> person), <span class="at">data =</span> df_growth_q)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot average predicted trajectory</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>df_growth_q <span class="ot">&lt;-</span> df_growth_q <span class="sc">|&gt;</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fitted_stress =</span> <span class="fu">fitted</span>(m_quad))</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>df_growth_q <span class="sc">|&gt;</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week) <span class="sc">|&gt;</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_obs =</span> <span class="fu">mean</span>(stress), <span class="at">mean_fit =</span> <span class="fu">mean</span>(fitted_stress)) <span class="sc">|&gt;</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>week) <span class="sc">|&gt;</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> week, <span class="at">y =</span> value, <span class="at">color =</span> name, <span class="at">linetype =</span> name)) <span class="sc">+</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#aec6e8"</span>, <span class="st">"#1e3a5f"</span>),</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Fitted (quadratic)"</span>, <span class="st">"Observed"</span>)) <span class="sc">+</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"solid"</span>, <span class="st">"dashed"</span>),</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>                        <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Fitted (quadratic)"</span>, <span class="st">"Observed"</span>)) <span class="sc">+</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Quadratic growth: curve captures the deceleration"</span>,</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Mean Stress"</span>, <span class="at">color =</span> <span class="cn">NULL</span>, <span class="at">linetype =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -796,6 +1014,325 @@ week -0.064</code></pre>
 <div class="callout-body-container callout-body">
 <p><strong>What it means:</strong> Linear growth assumes constant rate of change. Quadratic growth assumes a parabolic trajectory. If the true trajectory is neither — e.g., a logarithmic curve or piecewise linear — your model will be misspecified.</p>
 <p><strong>How to check:</strong> Plot the observed means by time point. Does the pattern look linear? Is there a clear deceleration or acceleration that requires a curve? Use AIC to compare linear vs.&nbsp;quadratic models.</p>
+<p><strong>If this fails:</strong> Try a quadratic term (<code>I(week^2)</code>), a piecewise model with a knot at a theoretically meaningful wave, or a natural spline (<code>splines::ns(week, df = 3)</code>).</p>
+</div>
+</div>
+</section>
+<section id="choosing-the-functional-form-for-time" class="level2">
+<h2 class="anchored" data-anchor-id="choosing-the-functional-form-for-time">Choosing the Functional Form for Time</h2>
+<p>The most consequential decision in a growth curve model is how time enters — linear, quadratic, piecewise, or something else. <strong>Always choose functional form from the data, not from a significance test.</strong></p>
+<p>Now that we have simulated a quadratic dataset (<code>df_growth_q</code>) and a simple linear dataset (<code>df_growth</code>), we can compare how a linear vs.&nbsp;quadratic model fits the quadratic data.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare functional forms on the quadratic dataset</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>m_linear_q <span class="ot">&lt;-</span> <span class="fu">lmer</span>(stress <span class="sc">~</span> week <span class="sc">+</span> (week <span class="sc">|</span> person), <span class="at">data =</span> df_growth_q,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">control =</span> <span class="fu">lmerControl</span>(<span class="at">optimizer =</span> <span class="st">"bobyqa"</span>))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(m_linear_q, m_quad) <span class="sc">|&gt;</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"AIC/BIC and LRT: does adding quadratic time improve fit?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>AIC/BIC and LRT: does adding quadratic time improve fit?</caption>
+<colgroup>
+<col style="width: 14%">
+<col style="width: 6%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 10%">
+<col style="width: 3%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">npar</th>
+<th style="text-align: right;">AIC</th>
+<th style="text-align: right;">BIC</th>
+<th style="text-align: right;">logLik</th>
+<th style="text-align: right;">-2*log(L)</th>
+<th style="text-align: right;">Chisq</th>
+<th style="text-align: right;">Df</th>
+<th style="text-align: right;">Pr(&gt;Chisq)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">m_linear_q</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">3593.390</td>
+<td style="text-align: right;">3619.139</td>
+<td style="text-align: right;">-1790.695</td>
+<td style="text-align: right;">3581.390</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">m_quad</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">3377.618</td>
+<td style="text-align: right;">3407.659</td>
+<td style="text-align: right;">-1681.809</td>
+<td style="text-align: right;">3363.618</td>
+<td style="text-align: right;">217.771</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df_growth_q <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fit_lin  =</span> <span class="fu">predict</span>(m_linear_q),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">fit_quad =</span> <span class="fu">predict</span>(m_quad)) <span class="sc">|&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week) <span class="sc">|&gt;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Observed   =</span> <span class="fu">mean</span>(stress),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">Linear</span><span class="st">`</span>   <span class="ot">=</span> <span class="fu">mean</span>(fit_lin),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">Quadratic</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">mean</span>(fit_quad), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>week, <span class="at">names_to =</span> <span class="st">"series"</span>, <span class="at">values_to =</span> <span class="st">"stress"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">series =</span> <span class="fu">factor</span>(series, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Observed"</span>, <span class="st">"Linear"</span>, <span class="st">"Quadratic"</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> week, <span class="at">y =</span> stress, <span class="at">color =</span> series, <span class="at">linetype =</span> series)) <span class="sc">+</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="at">Observed =</span> <span class="st">"#555"</span>, <span class="at">Linear =</span> <span class="st">"#cb181d"</span>,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">Quadratic =</span> <span class="st">"#2d6a4f"</span>)) <span class="sc">+</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="at">Observed =</span> <span class="st">"solid"</span>, <span class="at">Linear =</span> <span class="st">"dashed"</span>,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">Quadratic =</span> <span class="st">"solid"</span>)) <span class="sc">+</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Functional form: observed vs. linear vs. quadratic"</span>,</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Pre-fit mean plot showed curvature — AIC and plot confirm quadratic is needed"</span>,</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Mean stress"</span>, <span class="at">color =</span> <span class="cn">NULL</span>, <span class="at">linetype =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part3_files/figure-html/functional-form-plot-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Decision rule:</strong> upgrade the functional form only when (1) the pre-fit mean-by-wave plot shows curvature AND (2) AIC/BIC clearly favor the more complex model. A quadratic term that just reaches significance with no visible curvature is likely a chance artefact.</p>
+</section>
+<section id="diagnosing-convergence-problems" class="level2">
+<h2 class="anchored" data-anchor-id="diagnosing-convergence-problems">Diagnosing Convergence Problems</h2>
+<p>Growth curve models with random slopes frequently produce convergence warnings or singular fits. These are not cosmetic — they indicate the model is over-complex for the data.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check for singularity — near-zero variances or boundary correlations</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">isSingular</span>(m_growth)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">isSingular</span>(m_growth_pred)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect the random effects structure</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">as.data.frame</span>(<span class="fu">VarCorr</span>(m_growth)) <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(grp, var1, var2, sdcor) <span class="sc">|&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">4</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Random effects: check for near-zero SDs or correlations at ±1"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Random effects: check for near-zero SDs or correlations at ±1</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">grp</th>
+<th style="text-align: left;">var1</th>
+<th style="text-align: left;">var2</th>
+<th style="text-align: right;">sdcor</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">person</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">8.0111</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">person</td>
+<td style="text-align: left;">week</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">1.5675</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">person</td>
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: left;">week</td>
+<td style="text-align: right;">0.1026</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Residual</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">4.0068</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 32%">
+<col style="width: 36%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Warning sign</th>
+<th style="text-align: left;">What it means</th>
+<th style="text-align: left;">What to do next</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>isSingular()</code> is TRUE</td>
+<td style="text-align: left;">Model too complex for the data</td>
+<td style="text-align: left;">Remove random slope or fix correlation to 0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Random slope variance ≈ 0</td>
+<td style="text-align: left;">Individuals do not differ in their rate of change</td>
+<td style="text-align: left;">Remove <code>(week \| person)</code>, keep <code>(1 \| person)</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Intercept-slope correlation = ±1</td>
+<td style="text-align: left;">Correlation not identified</td>
+<td style="text-align: left;">Use <code>(week \|\| person)</code> to fix correlation at 0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">“Model failed to converge”</td>
+<td style="text-align: left;">Optimizer stopped early</td>
+<td style="text-align: left;">Add <code>control = lmerControl(optimizer = "bobyqa")</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>allFit()</code> gives different estimates across optimizers</td>
+<td style="text-align: left;">Unstable likelihood surface</td>
+<td style="text-align: left;">Report estimates from the optimizer that converges; simplify model</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="post-fit-diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="post-fit-diagnostics">Post-Fit Diagnostics</h2>
+<p>After fitting, check whether residuals show remaining time structure. Remaining pattern means the model has not fully captured the trajectory.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>df_growth <span class="ot">&lt;-</span> df_growth <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">resid_g =</span> <span class="fu">residuals</span>(m_growth))</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>p_resid_wave <span class="ot">&lt;-</span> df_growth <span class="sc">|&gt;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week) <span class="sc">|&gt;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mr =</span> <span class="fu">mean</span>(resid_g), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> week, <span class="at">y =</span> mr)) <span class="sc">+</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey60"</span>) <span class="sc">+</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linewidth =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Mean residuals by wave"</span>,</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Remaining pattern = wrong functional form"</span>,</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Mean residual"</span>) <span class="sc">+</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>)</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>p_resid_person <span class="ot">&lt;-</span> df_growth <span class="sc">|&gt;</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(person) <span class="sc">|&gt;</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mr =</span> <span class="fu">mean</span>(resid_g), <span class="at">ms =</span> <span class="fu">mean</span>(stress), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> ms, <span class="at">y =</span> mr)) <span class="sc">+</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey60"</span>) <span class="sc">+</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Person-mean residuals vs. mean outcome"</span>,</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Slope ≠ 0 = random effects not capturing person differences"</span>,</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Person mean stress"</span>, <span class="at">y =</span> <span class="st">"Person mean residual"</span>) <span class="sc">+</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">11</span>)</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>p_resid_wave <span class="sc">|</span> p_resid_person</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part3_files/figure-html/post-fit-diagnostics-1.png" class="img-fluid figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="assumption-table" class="level2">
+<h2 class="anchored" data-anchor-id="assumption-table">Assumption Table</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Growth curve model assumption checklist</caption>
+<colgroup>
+<col style="width: 13%">
+<col style="width: 21%">
+<col style="width: 18%">
+<col style="width: 20%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Assumption</th>
+<th style="text-align: left;">Plain-language meaning</th>
+<th style="text-align: left;">What to inspect</th>
+<th style="text-align: left;">Failure looks like</th>
+<th style="text-align: left;">What to do next</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Correct functional form for time</td>
+<td style="text-align: left;">The model’s time equation matches the actual trajectory shape</td>
+<td style="text-align: left;">Mean-by-wave plot; residuals by wave after fitting</td>
+<td style="text-align: left;">Systematic curve in mean-by-wave residuals; AIC favors more complex time model</td>
+<td style="text-align: left;">Add quadratic term; piecewise model at a theoretically motivated wave; splines</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Individual variation in rate of change (random slope)</td>
+<td style="text-align: left;">People differ in how fast they change, not just in their starting level</td>
+<td style="text-align: left;">Spaghetti plot (do trajectories fan out?); LRT comparing RE structures</td>
+<td style="text-align: left;">Singular fit; near-zero slope variance; visible divergence of individual lines</td>
+<td style="text-align: left;">Add <code>(week &amp;#124; person)</code>; if singular, consider whether slope variation is theoretically expected</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Normal distribution of random effects</td>
+<td style="text-align: left;">Person-level intercepts and slopes are drawn from a bivariate normal distribution</td>
+<td style="text-align: left;">Q-Q plot of estimated random effects (BLUPs)</td>
+<td style="text-align: left;">Heavy tails or bimodality in the BLUP distribution</td>
+<td style="text-align: left;">With n &gt; 30 clusters, MLM is robust to mild non-normality; use robust SEs for severe violations</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Independence of within-person residuals</td>
+<td style="text-align: left;">After removing the individual trajectory, residuals are not autocorrelated</td>
+<td style="text-align: left;">ACF of within-person residuals; residuals by wave</td>
+<td style="text-align: left;">Significant ACF at lag 1 in within-person residuals</td>
+<td style="text-align: left;">Add AR(1) residual structure via <code>nlme::lme(correlation = corAR1())</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Random effects independent of predictors</td>
+<td style="text-align: left;">Who starts high or changes fast is unrelated to treatment or other covariates</td>
+<td style="text-align: left;">Correlate BLUPs with treatment or baseline predictors</td>
+<td style="text-align: left;">Estimated BLUPs correlate with treatment group or baseline covariate</td>
+<td style="text-align: left;">If randomized: not a concern. If observational: center predictors; consider person FE</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -810,8 +1347,41 @@ week -0.064</code></pre>
 <div class="callout-body-container callout-body">
 <p><strong>What it means:</strong> Allowing only a random intercept (but not slope) for time assumes everyone changes at exactly the same rate. This is almost always wrong for developmental or therapeutic outcomes.</p>
 <p><strong>How to check:</strong> Compare the random-intercept-only model to the random-slope model using a likelihood ratio test. Plot individual trajectories — if they clearly fan out or diverge, a random slope is needed.</p>
+<p><strong>If this fails:</strong> Add <code>(week | person)</code> to the model formula. If this causes a singular fit, the data do not support individual slope variation — simplify back to <code>(1 | person)</code> and acknowledge that the model assumes homogeneous rates of change.</p>
 </div>
 </div>
+<hr>
+</section>
+<section id="reviewer-challenge" class="level2">
+<h2 class="anchored" data-anchor-id="reviewer-challenge">Reviewer Challenge</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>What a Reviewer Would Ask
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Challenge 1:</strong> “You fit a linear growth model — but why should stress decline at a constant rate? Isn’t it more plausible that improvement is rapid at first and then decelerates?” The correct response: show the mean-by-wave plot from the pre-fit check. If that plot is approximately linear and AIC does not favor a quadratic model, argue for parsimony. If it shows clear curvature, upgrade to quadratic and show both the comparison and the improvement in residual pattern.</p>
+<p><strong>Challenge 2:</strong> “You have a random slope for time — does the model converge properly? What is the estimated slope variance and intercept-slope correlation?” Always report: <code>isSingular()</code> result, estimated random slope variance, intercept-slope correlation. If singular, explain what simplification was applied and why.</p>
+<p><strong>Challenge 3:</strong> “Your growth model uses wave number as time, but participants were measured on different calendar dates. Doesn’t that introduce error into the time variable?” If measurement timing varies across participants, use the exact elapsed time in days or weeks, not a wave label. This is especially important when intervals are unequal or participant-specific.</p>
+</div>
+</div>
+</section>
+<section id="minimum-reporting-checklist" class="level2">
+<h2 class="anchored" data-anchor-id="minimum-reporting-checklist">Minimum Reporting Checklist</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">State what time = 0 represents and the units of the slope</label></li>
+<li><label><input type="checkbox">Show the spaghetti plot and mean-by-wave plot as pre-fit evidence for the chosen functional form</label></li>
+<li><label><input type="checkbox">Report whether linear, quadratic, or another functional form was selected and why (AIC + pre-fit plot)</label></li>
+<li><label><input type="checkbox">Report the random effects structure: intercept only vs.&nbsp;intercept + slope</label></li>
+<li><label><input type="checkbox">Report whether <code>isSingular()</code> returns FALSE</label></li>
+<li><label><input type="checkbox">Report the random slope variance and intercept-slope correlation</label></li>
+<li><label><input type="checkbox">Show post-fit residuals by wave — confirms the functional form adequately captured the trajectory</label></li>
+<li><label><input type="checkbox">If a treatment × slope interaction is reported, interpret it as a difference in rates of change, not just a significance test</label></li>
+</ul>
 
 
 </section>

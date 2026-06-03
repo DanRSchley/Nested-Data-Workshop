@@ -516,6 +516,7 @@ window.Quarto = {
   <ul>
   <li><a href="#latent-growth-curve-models" id="toc-latent-growth-curve-models" class="nav-link active" data-scroll-target="#latent-growth-curve-models">Latent Growth Curve Models</a>
   <ul class="collapse">
+  <li><a href="#mlm-or-lgc-a-practical-decision" id="toc-mlm-or-lgc-a-practical-decision" class="nav-link" data-scroll-target="#mlm-or-lgc-a-practical-decision">MLM or LGC? A Practical Decision</a></li>
   <li><a href="#two-languages-for-the-same-model" id="toc-two-languages-for-the-same-model" class="nav-link" data-scroll-target="#two-languages-for-the-same-model">Two Languages for the Same Model</a></li>
   <li><a href="#the-sem-framing" id="toc-the-sem-framing" class="nav-link" data-scroll-target="#the-sem-framing">The SEM Framing</a></li>
   <li><a href="#fitting-an-lgc-model-in-lavaan" id="toc-fitting-an-lgc-model-in-lavaan" class="nav-link" data-scroll-target="#fitting-an-lgc-model-in-lavaan">Fitting an LGC Model in lavaan</a>
@@ -525,7 +526,11 @@ window.Quarto = {
   </ul></li>
   <li><a href="#the-equivalence-with-mlm" id="toc-the-equivalence-with-mlm" class="nav-link" data-scroll-target="#the-equivalence-with-mlm">The Equivalence with MLM</a></li>
   <li><a href="#when-the-sem-framing-adds-value" id="toc-when-the-sem-framing-adds-value" class="nav-link" data-scroll-target="#when-the-sem-framing-adds-value">When the SEM Framing Adds Value</a></li>
+  <li><a href="#post-fit-evaluating-model-fit" id="toc-post-fit-evaluating-model-fit" class="nav-link" data-scroll-target="#post-fit-evaluating-model-fit">Post-Fit: Evaluating Model Fit</a></li>
+  <li><a href="#assumption-table" id="toc-assumption-table" class="nav-link" data-scroll-target="#assumption-table">Assumption Table</a></li>
   <li><a href="#assumptions-of-lgc-models" id="toc-assumptions-of-lgc-models" class="nav-link" data-scroll-target="#assumptions-of-lgc-models">Assumptions of LGC Models</a></li>
+  <li><a href="#reviewer-challenge" id="toc-reviewer-challenge" class="nav-link" data-scroll-target="#reviewer-challenge">Reviewer Challenge</a></li>
+  <li><a href="#minimum-reporting-checklist" id="toc-minimum-reporting-checklist" class="nav-link" data-scroll-target="#minimum-reporting-checklist">Minimum Reporting Checklist</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -554,6 +559,65 @@ window.Quarto = {
 
 <section id="latent-growth-curve-models" class="level1">
 <h1>Latent Growth Curve Models</h1>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The LGC Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>When does the SEM framing add something?</strong> The LGC model is mathematically equivalent to an MLM growth curve for simple linear growth. The SEM framing earns its complexity when you need to model measurement error explicitly, relate two simultaneous growth processes, or produce fit indices that reviewers in your field expect.</p>
+<p><strong>What does this model assume about time?</strong> The factor loadings encode the time metric. Fixing loadings at 0, 1, 2, 3, 4 assumes linear growth. Freeing some loadings allows non-linear shape to be estimated from data.</p>
+<p><strong>What goes wrong if you choose LGC over MLM unnecessarily?</strong> More complex syntax, harder to extend to unequal spacing, and global fit indices can be misleading with small samples. Use MLM unless the SEM framing solves a specific problem.</p>
+</blockquote>
+</div>
+</div>
+<section id="mlm-or-lgc-a-practical-decision" class="level2">
+<h2 class="anchored" data-anchor-id="mlm-or-lgc-a-practical-decision">MLM or LGC? A Practical Decision</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Practical decision: MLM vs.&nbsp;LGC framing</caption>
+<colgroup>
+<col style="width: 43%">
+<col style="width: 56%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Use MLM (lmer) when…</th>
+<th style="text-align: left;">Use LGC (lavaan) when…</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Outcome is a single directly observed variable</td>
+<td style="text-align: left;">Outcome is a latent construct measured with error (e.g., scale scores)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Measurement timing is individually varying or unequal</td>
+<td style="text-align: left;">You want to model two interrelated growth processes simultaneously</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">You have many waves and need computation speed</td>
+<td style="text-align: left;">You need to constrain or free residual variances across waves</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Random slope convergence is a concern</td>
+<td style="text-align: left;">Reviewers expect SEM fit indices (CFI, RMSEA, SRMR)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Available-case ML handles missing data well enough</td>
+<td style="text-align: left;">You are extending to a structural model with latent predictors</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
 <section id="two-languages-for-the-same-model" class="level2">
 <h2 class="anchored" data-anchor-id="two-languages-for-the-same-model">Two Languages for the Same Model</h2>
 <p>The growth curve model from Part 3 and the <strong>Latent Growth Curve Model (LGC)</strong> from structural equation modeling are mathematically equivalent. They answer the same questions using different parameterizations and different software.</p>
@@ -581,7 +645,7 @@ window.Quarto = {
 <details class="code-fold">
 <summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 150 loyalty program customers tracked for 5 months</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Outcome: monthly net savings (€)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Outcome: monthly net savings ($)</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">150</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>intercepts <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">500</span>, <span class="dv">80</span>)   <span class="co"># wide between-customer variation in baseline savings</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>slopes     <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n,  <span class="dv">15</span>, <span class="dv">12</span>)   <span class="co"># some customers grow savings fast; others plateau</span></span>
@@ -620,7 +684,7 @@ window.Quarto = {
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Label: intercept at time = 0</span></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"point"</span>, <span class="at">x =</span> <span class="dv">0</span>, <span class="at">y =</span> grand_intercept, <span class="at">color =</span> <span class="st">"#d73027"</span>, <span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>,  <span class="at">x =</span> <span class="fl">0.15</span>, <span class="at">y =</span> grand_intercept <span class="sc">-</span> <span class="dv">30</span>,</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">paste0</span>(<span class="st">"Mean intercept: \u20ac"</span>, <span class="fu">round</span>(grand_intercept), <span class="st">"/month at enrollment"</span>),</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">paste0</span>(<span class="st">"Mean intercept: $"</span>, <span class="fu">round</span>(grand_intercept), <span class="st">"/month at enrollment"</span>),</span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>           <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="fl">3.5</span>, <span class="at">color =</span> <span class="st">"#d73027"</span>) <span class="sc">+</span></span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Label: slope (one-month increment on mean line)</span></span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x =</span> <span class="dv">3</span>, <span class="at">xend =</span> <span class="dv">4</span>,</span>
@@ -629,14 +693,14 @@ window.Quarto = {
 <span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"#d73027"</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>,</span>
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>           <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="fl">0.25</span>, <span class="st">"cm"</span>), <span class="at">ends =</span> <span class="st">"last"</span>)) <span class="sc">+</span></span>
 <span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>,  <span class="at">x =</span> <span class="fl">4.05</span>, <span class="at">y =</span> grand_intercept <span class="sc">+</span> <span class="fl">3.5</span> <span class="sc">*</span> grand_slope,</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">paste0</span>(<span class="st">"Mean slope:</span><span class="sc">\n</span><span class="st">+\u20ac"</span>, <span class="fu">round</span>(grand_slope), <span class="st">"/month"</span>),</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">paste0</span>(<span class="st">"Mean slope:</span><span class="sc">\n</span><span class="st">+$"</span>, <span class="fu">round</span>(grand_slope), <span class="st">"/month"</span>),</span>
 <span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>           <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="fl">3.5</span>, <span class="at">color =</span> <span class="st">"#d73027"</span>) <span class="sc">+</span></span>
 <span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>,</span>
 <span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">paste0</span>(<span class="st">"Month "</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)) <span class="sc">+</span></span>
 <span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
 <span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Latent growth curve model: loyalty program savings trajectories"</span>,</span>
 <span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Blue = individual customer trajectories; Red = average growth line</span><span class="sc">\n</span><span class="st">Intercept = baseline savings; Slope = monthly growth rate"</span>,</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Monthly net savings (\u20ac)"</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Monthly net savings ($)"</span></span>
 <span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
 <span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">4.8</span>)) <span class="sc">+</span></span>
 <span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -939,6 +1003,205 @@ Variances:
 </div>
 </div>
 </section>
+<section id="post-fit-evaluating-model-fit" class="level2">
+<h2 class="anchored" data-anchor-id="post-fit-evaluating-model-fit">Post-Fit: Evaluating Model Fit</h2>
+<p>Unlike MLM, LGC models produce global fit indices. Always inspect and report them.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fit_idx <span class="ot">&lt;-</span> <span class="fu">fitMeasures</span>(m_lgc, <span class="fu">c</span>(<span class="st">"cfi"</span>,<span class="st">"tli"</span>,<span class="st">"rmsea"</span>,<span class="st">"rmsea.ci.lower"</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"rmsea.ci.upper"</span>,<span class="st">"srmr"</span>,<span class="st">"aic"</span>,<span class="st">"bic"</span>))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Index          =</span> <span class="fu">c</span>(<span class="st">"CFI"</span>,<span class="st">"TLI"</span>,<span class="st">"RMSEA"</span>,<span class="st">"RMSEA 90% CI"</span>,<span class="st">"SRMR"</span>,<span class="st">"AIC"</span>,<span class="st">"BIC"</span>),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Value          =</span> <span class="fu">c</span>(<span class="fu">round</span>(fit_idx[<span class="fu">c</span>(<span class="st">"cfi"</span>,<span class="st">"tli"</span>,<span class="st">"rmsea"</span>)], <span class="dv">3</span>),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">sprintf</span>(<span class="st">"[%.3f, %.3f]"</span>, fit_idx[<span class="st">"rmsea.ci.lower"</span>],</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                             fit_idx[<span class="st">"rmsea.ci.upper"</span>]),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">round</span>(fit_idx[<span class="fu">c</span>(<span class="st">"srmr"</span>,<span class="st">"aic"</span>,<span class="st">"bic"</span>)], <span class="dv">1</span>)),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">Guideline      =</span> <span class="fu">c</span>(<span class="st">"&gt; .95"</span>, <span class="st">"&gt; .95"</span>, <span class="st">"&lt; .06"</span>, <span class="st">"CI should include .00 for good fit"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"&lt; .08"</span>, <span class="st">"lower = better"</span>, <span class="st">"lower = better"</span>),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">If violated, try</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Free residual covariances between adjacent waves; check model specification"</span>,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Same as CFI"</span>,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Simplify model; free residual covariances only if theoretically justified"</span>,</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Same as RMSEA"</span>,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Large average residual correlation — inspect `residuals(m_lgc, type='cor')`"</span>,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Compare to nested models with `anova()`"</span>,</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Compare to nested models; BIC penalizes complexity more heavily"</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"LGC fit indices with remedies for poor fit"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>LGC fit indices with remedies for poor fit</caption>
+<colgroup>
+<col style="width: 9%">
+<col style="width: 10%">
+<col style="width: 25%">
+<col style="width: 54%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Index</th>
+<th style="text-align: left;">Value</th>
+<th style="text-align: left;">Guideline</th>
+<th style="text-align: left;">If violated, try</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">CFI</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">&gt; .95</td>
+<td style="text-align: left;">Free residual covariances between adjacent waves; check model specification</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">TLI</td>
+<td style="text-align: left;">1.002</td>
+<td style="text-align: left;">&gt; .95</td>
+<td style="text-align: left;">Same as CFI</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">RMSEA</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">&lt; .06</td>
+<td style="text-align: left;">Simplify model; free residual covariances only if theoretically justified</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">RMSEA 90% CI</td>
+<td style="text-align: left;">[0.000, 0.067]</td>
+<td style="text-align: left;">CI should include .00 for good fit</td>
+<td style="text-align: left;">Same as RMSEA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SRMR</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">&lt; .08</td>
+<td style="text-align: left;">Large average residual correlation — inspect <code>residuals(m_lgc, type='cor')</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AIC</td>
+<td style="text-align: left;">8117.2</td>
+<td style="text-align: left;">lower = better</td>
+<td style="text-align: left;">Compare to nested models with <code>anova()</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BIC</td>
+<td style="text-align: left;">8135.2</td>
+<td style="text-align: left;">lower = better</td>
+<td style="text-align: left;">Compare to nested models; BIC penalizes complexity more heavily</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>If Fit Is Poor
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The most common causes of poor LGC fit and their remedies:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 29%">
+<col style="width: 45%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Pattern</th>
+<th style="text-align: left;">Likely cause</th>
+<th style="text-align: left;">Remedy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Large residual correlations between adjacent waves</td>
+<td style="text-align: left;">Serial dependence not captured by latent factors</td>
+<td style="text-align: left;">Free those residual covariances — but only if theoretically motivated</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Loadings inconsistent with linear growth</td>
+<td style="text-align: left;">True trajectory is nonlinear</td>
+<td style="text-align: left;">Free some slope loadings to be estimated from data</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Negative residual variance (Heywood case)</td>
+<td style="text-align: left;">Over-parameterized model</td>
+<td style="text-align: left;">Fix problematic parameter to a small positive value; simplify</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">CFI acceptable, RMSEA poor</td>
+<td style="text-align: left;">Model parsimony problem</td>
+<td style="text-align: left;">Check degrees of freedom; consider removing unnecessary constraints</td>
+</tr>
+</tbody>
+</table>
+<p>Caution: modification indices tell you what would improve fit statistically, not what is theoretically defensible. Free parameters only when there is a substantive reason.</p>
+</div>
+</div>
+</section>
+<section id="assumption-table" class="level2">
+<h2 class="anchored" data-anchor-id="assumption-table">Assumption Table</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>LGC model assumption table</caption>
+<colgroup>
+<col style="width: 13%">
+<col style="width: 24%">
+<col style="width: 18%">
+<col style="width: 21%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Assumption</th>
+<th style="text-align: left;">Plain-language meaning</th>
+<th style="text-align: left;">What to inspect</th>
+<th style="text-align: left;">Failure looks like</th>
+<th style="text-align: left;">What to do next</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Linear factor loadings for slope</td>
+<td style="text-align: left;">Growth is linear — the slope factor contributes the same increment at each additional time point</td>
+<td style="text-align: left;">Mean-by-wave plot; alternative loading patterns; modification indices</td>
+<td style="text-align: left;">Poor model fit; large adjacent-wave residual correlations</td>
+<td style="text-align: left;">Free some slope loadings; fit quadratic latent growth with quadratic loading pattern</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Multivariate normality of observed scores</td>
+<td style="text-align: left;">The joint distribution of all wave scores is approximately multivariate normal</td>
+<td style="text-align: left;">Univariate skewness and kurtosis for each wave variable</td>
+<td style="text-align: left;">Kurtosis &gt; 7 or skewness &gt; 2 for any wave variable</td>
+<td style="text-align: left;">Use robust ML estimator: <code>estimator = 'MLR'</code> in lavaan</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Equal residual variances across waves (if constrained)</td>
+<td style="text-align: left;">Measurement noise at each wave is the same size</td>
+<td style="text-align: left;">Residual variances in output; modification indices for residual variances</td>
+<td style="text-align: left;">Large LM test for residual equality; poor fit that disappears when variances are freed</td>
+<td style="text-align: left;">Remove the equality constraint (<code>a*</code>) and free each residual separately</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Correctly identified model structure</td>
+<td style="text-align: left;">The number of free parameters does not exceed the available information from the covariance matrix</td>
+<td style="text-align: left;">Model degrees of freedom; check for Heywood cases</td>
+<td style="text-align: left;">Negative residual variances; non-positive-definite covariance matrix</td>
+<td style="text-align: left;">Simplify model; fix problematic parameter; check sample size relative to parameters</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
 <section id="assumptions-of-lgc-models" class="level2">
 <h2 class="anchored" data-anchor-id="assumptions-of-lgc-models">Assumptions of LGC Models</h2>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -967,8 +1230,40 @@ Variances:
 <div class="callout-body-container callout-body">
 <p><strong>What it means:</strong> SEM estimation (default ML) assumes the observed variables are multivariate normal. Severely skewed outcomes or floor/ceiling effects can bias estimates.</p>
 <p><strong>How to check:</strong> Check univariate skewness and kurtosis. Use robust ML estimators (MLR in lavaan) if normality is questionable.</p>
+<p><strong>If this fails:</strong> Switch to <code>estimator = "MLR"</code> in the <code>growth()</code> call. MLR (robust ML) uses the Satorra-Bentler scaled chi-square and produces standard errors robust to non-normality at the cost of slightly reduced power.</p>
 </div>
 </div>
+<hr>
+</section>
+<section id="reviewer-challenge" class="level2">
+<h2 class="anchored" data-anchor-id="reviewer-challenge">Reviewer Challenge</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>What a Reviewer Would Ask
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Challenge 1:</strong> “You report CFI = .93 — that is below the conventional .95 threshold. Why is the fit acceptable?” Inspect which residual correlations are large using <code>residuals(m_lgc, type = "cor")</code>. If two adjacent-wave pairs have large residuals, free those two covariances and show the improved fit indices. Justify the change theoretically (e.g., memory carryover between adjacent monthly assessments).</p>
+<p><strong>Challenge 2:</strong> “Why use lavaan instead of lmer? You showed the estimates are identical.” If using LGC only to replicate what MLM already does, switch to MLM. The LGC framing earns its complexity when (1) modeling two interrelated processes, (2) explicitly accounting for measurement error, or (3) reviewers in your specific subfield expect SEM-style reporting. State which of these applies.</p>
+<p><strong>Challenge 3:</strong> “Your intercept-slope covariance is negative — what does that mean substantively?” A negative covariance means customers who start with higher savings grow more slowly (or decline faster). This is theoretically interesting: it could reflect ceiling effects, regression-to-the-mean, or a pattern where already-saving customers have less room to grow. Always interpret the sign and magnitude of the covariance — it is a substantive finding, not a nuisance parameter.</p>
+</div>
+</div>
+</section>
+<section id="minimum-reporting-checklist" class="level2">
+<h2 class="anchored" data-anchor-id="minimum-reporting-checklist">Minimum Reporting Checklist</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">Report all fit indices: CFI, TLI, RMSEA (with 90% CI), SRMR</label></li>
+<li><label><input type="checkbox">Report mean intercept and mean slope with standard errors</label></li>
+<li><label><input type="checkbox">Report variance of intercept, variance of slope, and their covariance</label></li>
+<li><label><input type="checkbox">State whether residual variances were constrained equal or freed</label></li>
+<li><label><input type="checkbox">If fit was poor: state which modifications were made and why</label></li>
+<li><label><input type="checkbox">Show the equivalence table comparing LGC to MLM estimates</label></li>
+<li><label><input type="checkbox">Justify why LGC was preferred over the simpler MLM approach</label></li>
+</ul>
 
 
 </section>

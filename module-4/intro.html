@@ -461,6 +461,9 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#cluster-4-missingness-and-attrition" id="toc-cluster-4-missingness-and-attrition" class="nav-link" data-scroll-target="#cluster-4-missingness-and-attrition">Cluster 4 — Missingness and Attrition</a></li>
   <li><a href="#cluster-5-causal-identification-in-panel-settings" id="toc-cluster-5-causal-identification-in-panel-settings" class="nav-link" data-scroll-target="#cluster-5-causal-identification-in-panel-settings">Cluster 5 — Causal Identification in Panel Settings</a></li>
   </ul></li>
+  <li><a href="#how-to-work-through-module-4" id="toc-how-to-work-through-module-4" class="nav-link" data-scroll-target="#how-to-work-through-module-4">How to Work Through Module 4</a></li>
+  <li><a href="#routing-table-which-part-do-you-need" id="toc-routing-table-which-part-do-you-need" class="nav-link" data-scroll-target="#routing-table-which-part-do-you-need">Routing Table: Which Part Do You Need?</a></li>
+  <li><a href="#three-layers-of-every-longitudinal-analysis" id="toc-three-layers-of-every-longitudinal-analysis" class="nav-link" data-scroll-target="#three-layers-of-every-longitudinal-analysis">Three Layers of Every Longitudinal Analysis</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -532,9 +535,145 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>Part 10: Applied Identification Strategies</strong> — The capstone. When the research question is causal — not just descriptive — panel data offer a powerful toolkit: difference-in-differences (TWFE), interrupted time series, panel instrumental variables, and time-varying propensity score matching. Each strategy maps to a specific threat from Module 3 and provides a concrete remedy in the longitudinal context. <em>JDM examples: DiD for evaluating an overdraft fee policy change across banks that adopted the policy at different times; ITS for a sudden regulatory requirement to disclose total annual costs on credit statements; panel IV using randomized encouragement to adopt a budgeting tool as an instrument for actual tool use; time-varying propensity scores for observational financial diary data where engagement with financial advice changes over time.</em></p>
 <hr>
 <p>The module closes with Part 10 as a deliberate capstone: after understanding how longitudinal data are structured, how trajectories are modeled, and how non-standard outcomes and missing data are handled, Part 10 asks the hardest question — <em>can we identify a causal effect?</em> — and provides the tools to answer it.</p>
-
-
+<hr>
 </section>
+</section>
+<section id="how-to-work-through-module-4" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-work-through-module-4">How to Work Through Module 4</h2>
+<p>Every chapter in this module follows the same five-step inferential workflow, introduced in Part 2b and repeated throughout:</p>
+<ol type="1">
+<li><strong>Assumptions</strong> — What does this model assume about time, outcomes, and people?</li>
+<li><strong>Pre-fit checks</strong> — What can you inspect before running the model?</li>
+<li><strong>Fitting the model</strong> — Code and key output</li>
+<li><strong>Against the DGP</strong> — How well does this model recover what is true?</li>
+<li><strong>Interpreting the results</strong> — What conclusions are valid, and where does the model fall short?</li>
+</ol>
+<p><strong>Part 2b is the template chapter.</strong> It shows the complete workflow applied to a fully disclosed data-generating process. Every subsequent chapter uses the same structure. When a new concept is introduced, the question is always: <em>which of these five steps does this concept affect?</em></p>
+<hr>
+</section>
+<section id="routing-table-which-part-do-you-need" class="level2">
+<h2 class="anchored" data-anchor-id="routing-table-which-part-do-you-need">Routing Table: Which Part Do You Need?</h2>
+<p>Use this table to find the right starting point for your research question. The “common failure” column describes what goes wrong when researchers skip that part’s key check.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 22%">
+<col style="width: 10%">
+<col style="width: 18%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">If your research question is…</th>
+<th style="text-align: left;">Your outcome looks like…</th>
+<th style="text-align: left;">Start with</th>
+<th style="text-align: left;">First thing to check</th>
+<th style="text-align: left;">Common failure if skipped</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Are group means different across a few fixed waves?</td>
+<td style="text-align: left;">Continuous, 2–4 balanced waves</td>
+<td style="text-align: left;">Part 1 (RM-ANOVA → Mixed)</td>
+<td style="text-align: left;">Is sphericity plausible given wave spacing?</td>
+<td style="text-align: left;">Anti-conservative F-tests; inflated Type I error</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">What is the right covariance model for my repeated measures?</td>
+<td style="text-align: left;">Continuous, any waves</td>
+<td style="text-align: left;">Part 2 (Covariance Structures)</td>
+<td style="text-align: left;">Does correlation decay with time lag?</td>
+<td style="text-align: left;">Wrong SEs; biased inference about time effects</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Is there a background drift or seasonal pattern confounding my treatment estimate?</td>
+<td style="text-align: left;">Continuous, many calendar periods</td>
+<td style="text-align: left;">Part 2b (Time Structure)</td>
+<td style="text-align: left;">Residuals by calendar month and by month-of-year</td>
+<td style="text-align: left;">Loyalty/treatment effect absorbs drift or season</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">How does the outcome trajectory unfold, and do trajectories differ?</td>
+<td style="text-align: left;">Continuous, 3+ waves, individual variation in change</td>
+<td style="text-align: left;">Part 3 (Growth Curves)</td>
+<td style="text-align: left;">Does the spaghetti plot show diverging slopes?</td>
+<td style="text-align: left;">Forcing linear growth when true change is curved</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">I need SEM fit indices or want to model two growth processes at once</td>
+<td style="text-align: left;">Continuous, measured with error</td>
+<td style="text-align: left;">Part 4 (LGC/SEM)</td>
+<td style="text-align: left;">Does the LGC fit (CFI, RMSEA) match the MLM result?</td>
+<td style="text-align: left;">Over-fitting modifications without theoretical basis</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Does today’s value predict tomorrow’s?</td>
+<td style="text-align: left;">Continuous, many close-spaced waves</td>
+<td style="text-align: left;">Part 5 (Autoregressive)</td>
+<td style="text-align: left;">ACF of residuals — is there serial dependence?</td>
+<td style="text-align: left;">Confusing trend with autocorrelation</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Does A cause B or B cause A over time?</td>
+<td style="text-align: left;">Two continuous outcomes, 3+ waves</td>
+<td style="text-align: left;">Part 6 (Cross-Lagged)</td>
+<td style="text-align: left;">Are stable trait differences large?</td>
+<td style="text-align: left;">Classic CLPM conflates within- and between-person effects</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">My outcome is binary or a count</td>
+<td style="text-align: left;">0/1 choices or counts per period</td>
+<td style="text-align: left;">Part 7 (GLMM)</td>
+<td style="text-align: left;">Event frequency; zero rate; overdispersion</td>
+<td style="text-align: left;">Linear model predicts impossible probabilities</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">My outcome is time until an event</td>
+<td style="text-align: left;">Days/months to event, censored</td>
+<td style="text-align: left;">Part 8 (Survival)</td>
+<td style="text-align: left;">Is censoring likely independent of event risk?</td>
+<td style="text-align: left;">Informative censoring biases KM and Cox estimates</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Participants are dropping out of my study</td>
+<td style="text-align: left;">Missing observations by wave</td>
+<td style="text-align: left;">Part 9 (Missing Data)</td>
+<td style="text-align: left;">Do dropouts differ from completers on observed variables?</td>
+<td style="text-align: left;">Treating MAR data as MCAR; ignoring MNAR sensitivity</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">I want to make a causal claim from panel data</td>
+<td style="text-align: left;">Observational, panel structure</td>
+<td style="text-align: left;">Part 10 (Identification)</td>
+<td style="text-align: left;">What is the identifying variation, and is the parallel-trends assumption defensible?</td>
+<td style="text-align: left;">Causal language without identification strategy</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="three-layers-of-every-longitudinal-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="three-layers-of-every-longitudinal-analysis">Three Layers of Every Longitudinal Analysis</h2>
+<p>Longitudinal modeling always involves at least three simultaneous decisions. Getting one wrong undermines the others.</p>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>The Three Layers
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Layer 1 — Time structure.</strong> How does time enter the model? As a linear drift? A seasonal cycle? A categorical wave indicator? A continuous individual trajectory? Getting the time model wrong creates residual confounding that can inflate or deflate every other estimate.</p>
+<p><strong>Layer 2 — Outcome distribution.</strong> Is the outcome continuous and approximately normal? Binary? A count? A time-to-event? The right model family (Gaussian, logistic, Poisson, Cox) must match the DGP. Using the wrong family produces impossible predictions, wrong uncertainty intervals, and misleading effect sizes.</p>
+<p><strong>Layer 3 — Identification strategy.</strong> Is the analysis descriptive or causal? If causal, what is the source of identifying variation? Random assignment? A policy discontinuity? Difference-in-differences? Without a clear identification argument, longitudinal models produce association estimates that will not survive causal scrutiny.</p>
+<p>Every chapter in Module 4 addresses at least one of these layers explicitly.</p>
+</div>
+</div>
+
+
 </section>
 </section>
 

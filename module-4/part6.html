@@ -516,6 +516,7 @@ window.Quarto = {
   <ul>
   <li><a href="#cross-lagged-panel-models" id="toc-cross-lagged-panel-models" class="nav-link active" data-scroll-target="#cross-lagged-panel-models">Cross-Lagged Panel Models</a>
   <ul class="collapse">
+  <li><a href="#should-you-use-a-clpm-at-all" id="toc-should-you-use-a-clpm-at-all" class="nav-link" data-scroll-target="#should-you-use-a-clpm-at-all">Should You Use a CLPM at All?</a></li>
   <li><a href="#two-variables-evolving-together" id="toc-two-variables-evolving-together" class="nav-link" data-scroll-target="#two-variables-evolving-together">Two Variables, Evolving Together</a></li>
   <li><a href="#the-classic-clpm" id="toc-the-classic-clpm" class="nav-link" data-scroll-target="#the-classic-clpm">The Classic CLPM</a></li>
   <li><a href="#the-problem-with-classic-clpm" id="toc-the-problem-with-classic-clpm" class="nav-link" data-scroll-target="#the-problem-with-classic-clpm">The Problem with Classic CLPM</a>
@@ -524,6 +525,9 @@ window.Quarto = {
   </ul></li>
   <li><a href="#the-random-intercept-clpm-ri-clpm" id="toc-the-random-intercept-clpm-ri-clpm" class="nav-link" data-scroll-target="#the-random-intercept-clpm-ri-clpm">The Random Intercept CLPM (RI-CLPM)</a></li>
   <li><a href="#comparing-clpm-vs.-ri-clpm" id="toc-comparing-clpm-vs.-ri-clpm" class="nav-link" data-scroll-target="#comparing-clpm-vs.-ri-clpm">Comparing CLPM vs.&nbsp;RI-CLPM</a></li>
+  <li><a href="#assumption-table" id="toc-assumption-table" class="nav-link" data-scroll-target="#assumption-table">Assumption Table</a></li>
+  <li><a href="#reviewer-challenge" id="toc-reviewer-challenge" class="nav-link" data-scroll-target="#reviewer-challenge">Reviewer Challenge</a></li>
+  <li><a href="#minimum-reporting-checklist" id="toc-minimum-reporting-checklist" class="nav-link" data-scroll-target="#minimum-reporting-checklist">Minimum Reporting Checklist</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -552,6 +556,82 @@ window.Quarto = {
 
 <section id="cross-lagged-panel-models" class="level1">
 <h1>Cross-Lagged Panel Models</h1>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Cross-Lagged Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>What is the scientific question?</strong> CLPM and RI-CLPM are for questions about <em>temporal ordering</em> — does A at time t predict B at time t+1, after controlling for B’s own stability? They are not the right tool for questions about mean levels, trajectories, or causal effects from intervention.</p>
+<p><strong>What does this model assume about time?</strong> That the relationship between the two variables is stationary — the same cross-lagged structure holds across all waves. And that autoregressive effects accurately capture the persistence of each variable.</p>
+<p><strong>The fundamental problem with classic CLPM:</strong> Cross-lagged paths in the classic model mix within-person dynamics with between-person stable differences. People who are chronically financially stressed also tend to borrow more riskily — not because stress causes borrowing, but because both reflect the same underlying stable trait. The classic CLPM conflates these two stories.</p>
+</blockquote>
+</div>
+</div>
+<section id="should-you-use-a-clpm-at-all" class="level2">
+<h2 class="anchored" data-anchor-id="should-you-use-a-clpm-at-all">Should You Use a CLPM at All?</h2>
+<p>Before fitting, assess whether CLPM is appropriate for your design and question.</p>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Pre-Fit Decision: Is CLPM the Right Tool?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>CLPM is likely <strong>not appropriate</strong> when:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 22%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Situation</th>
+<th style="text-align: left;">Problem</th>
+<th style="text-align: left;">Better alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Only 2 waves</td>
+<td style="text-align: left;">Cannot distinguish cross-lagged from concurrent correlation</td>
+<td style="text-align: left;">Collect a third wave; use change score analysis</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Waves are widely or unequally spaced</td>
+<td style="text-align: left;">Lag coefficients are hard to interpret; stationarity assumption more questionable</td>
+<td style="text-align: left;">Use continuous-time models; report the lag interval</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Strong stable between-person differences</td>
+<td style="text-align: left;">Cross-lagged paths will reflect trait differences, not within-person dynamics</td>
+<td style="text-align: left;">Use RI-CLPM to separate stable from dynamic components</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Poor reliability of either variable</td>
+<td style="text-align: left;">Attenuation bias in cross-lagged paths; ME inflates residuals</td>
+<td style="text-align: left;">Model measurement error explicitly or use RI-CLPM</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Variables have strong trends</td>
+<td style="text-align: left;">Non-stationarity violates the core assumption</td>
+<td style="text-align: left;">Detrend variables first; use growth model approach</td>
+</tr>
+</tbody>
+</table>
+<p>CLPM is most trustworthy when you have <strong>3+ equally spaced waves</strong>, the variables are <strong>relatively stable within-person</strong> (high autoregressive effects), and <strong>between-person trait differences are small</strong> relative to within-person fluctuation.</p>
+</div>
+</div>
+</section>
 <section id="two-variables-evolving-together" class="level2">
 <h2 class="anchored" data-anchor-id="two-variables-evolving-together">Two Variables, Evolving Together</h2>
 <p>Suppose you want to understand the relationship between financial stress and risky borrowing behavior over time. Does financial stress push people toward riskier borrowing? Or does risky borrowing create financial strain? Or do they mutually reinforce each other?</p>
@@ -915,8 +995,95 @@ window.Quarto = {
 <div class="callout-body-container callout-body">
 <p><strong>What it means:</strong> Both models assume all relevant variables are included. An omitted third variable that drives both S and B could produce spurious cross-lagged effects.</p>
 <p><strong>How to check:</strong> Think carefully about what else changes over time that could explain both variables. Include plausible third variables as additional nodes.</p>
+<p><strong>If this fails:</strong> Cross-lagged coefficients are observational associations, not causal estimates. Limit the interpretation to “S at time t predicts B at time t+1 above and beyond B’s own stability, while controlling for the variables in the model” — not “S causes B.”</p>
 </div>
 </div>
+</section>
+<section id="assumption-table" class="level2">
+<h2 class="anchored" data-anchor-id="assumption-table">Assumption Table</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>CLPM / RI-CLPM assumption table</caption>
+<colgroup>
+<col style="width: 13%">
+<col style="width: 21%">
+<col style="width: 22%">
+<col style="width: 21%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Assumption</th>
+<th style="text-align: left;">Plain-language meaning</th>
+<th style="text-align: left;">What to inspect</th>
+<th style="text-align: left;">Failure looks like</th>
+<th style="text-align: left;">What to do next</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Stationarity of cross-lagged effects</td>
+<td style="text-align: left;">The S→B and B→S path coefficients are the same at every wave</td>
+<td style="text-align: left;">Fit a model with wave-varying paths; compare to constrained model with LRT or modification indices</td>
+<td style="text-align: left;">Large modification indices for freeing specific cross-lagged paths at particular waves</td>
+<td style="text-align: left;">Free the path at the problematic wave; interpret as time-varying effect; report the heterogeneity</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">No omitted time-varying confounders</td>
+<td style="text-align: left;">No third variable drives both S and B over time, creating spurious cross-lagged paths</td>
+<td style="text-align: left;">Review your theory: what else changes over time that predicts both variables?</td>
+<td style="text-align: left;">Cross-lagged coefficients change substantially when a third variable is added to the model</td>
+<td style="text-align: left;">Add the confound to the model; if not measurable, narrow the causal claim</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Separation of within- and between-person variation (RI-CLPM)</td>
+<td style="text-align: left;">The random intercept fully captures each person’s stable trait level in both variables</td>
+<td style="text-align: left;">Inspect the variance of the random intercept factors; check if CLPM and RI-CLPM give similar cross-lags</td>
+<td style="text-align: left;">CLPM and RI-CLPM cross-lags differ substantially — stable traits were confounding the classic model</td>
+<td style="text-align: left;">Use RI-CLPM for within-person claims; report both models and explain why they differ</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sufficient waves to identify dynamics</td>
+<td style="text-align: left;">At least 3 waves are needed; 2 waves cannot distinguish cross-lagged from concurrent correlation</td>
+<td style="text-align: left;">Report the number of waves and the interval between them</td>
+<td style="text-align: left;">Only 2 waves: no information about temporal dynamics beyond the concurrent correlation</td>
+<td style="text-align: left;">Collect more waves; analyze as a change-score model instead</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+</section>
+<section id="reviewer-challenge" class="level2">
+<h2 class="anchored" data-anchor-id="reviewer-challenge">Reviewer Challenge</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>What a Reviewer Would Ask
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Challenge 1:</strong> “Your classic CLPM shows stress predicts borrowing — but isn’t it possible that chronically stressed people also tend to borrow more? How do you know this is a dynamic within-person effect rather than a stable between-person correlation?” The correct response: show the RI-CLPM results alongside the classic CLPM. If the RI-CLPM cross-lagged path is smaller or non-significant while the classic CLPM path is large, stable trait differences were driving the apparent dynamic effect. Report both models and interpret accordingly.</p>
+<p><strong>Challenge 2:</strong> “You constrain the cross-lagged paths to be equal across waves — but what if the stress-borrowing relationship changes over the study (e.g., as the economic environment changes)?” Fit the unconstrained model (free paths at each wave) and compare fit with a likelihood ratio test. If the unconstrained model fits significantly better, report the wave-varying paths and discuss what might explain the change.</p>
+<p><strong>Challenge 3:</strong> “You have only 3 waves — is that enough to reliably estimate cross-lagged dynamics?” Three waves is the minimum. With 3 waves, you estimate one set of cross-lagged paths (wave 1 → wave 2 and wave 2 → wave 3, constrained equal). This is adequate for a preliminary test but limited in power and unable to detect non-stationarity. More waves provide better estimates. Report this limitation explicitly.</p>
+</div>
+</div>
+</section>
+<section id="minimum-reporting-checklist" class="level2">
+<h2 class="anchored" data-anchor-id="minimum-reporting-checklist">Minimum Reporting Checklist</h2>
+<ul class="task-list">
+<li><label><input type="checkbox">State the number of waves and the interval between them</label></li>
+<li><label><input type="checkbox">Report whether cross-lagged paths were constrained equal across waves and the LRT result for that constraint</label></li>
+<li><label><input type="checkbox">Report both classic CLPM and RI-CLPM results and explain the difference</label></li>
+<li><label><input type="checkbox">Report the random intercept variance in the RI-CLPM — large variance means stable traits matter</label></li>
+<li><label><input type="checkbox">Interpret cross-lagged coefficients as “A at time t predicts B at time t+1, controlling for B’s own stability” — not as causal effects</label></li>
+<li><label><input type="checkbox">If significant cross-lagged path: show it holds in RI-CLPM before making within-person claims</label></li>
+</ul>
 
 
 </section>
