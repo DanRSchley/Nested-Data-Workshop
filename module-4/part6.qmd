@@ -12,6 +12,36 @@ set.seed(2024)
 
 # Cross-Lagged Panel Models
 
+::: {.callout-note icon=false}
+## The Cross-Lagged Question
+
+> **What is the scientific question?** CLPM and RI-CLPM are for questions about *temporal ordering* — does A at time t predict B at time t+1, after controlling for B's own stability? They are not the right tool for questions about mean levels, trajectories, or causal effects from intervention.
+>
+> **What does this model assume about time?** That the relationship between the two variables is stationary — the same cross-lagged structure holds across all waves. And that autoregressive effects accurately capture the persistence of each variable.
+>
+> **The fundamental problem with classic CLPM:** Cross-lagged paths in the classic model mix within-person dynamics with between-person stable differences. People who are chronically financially stressed also tend to borrow more riskily — not because stress causes borrowing, but because both reflect the same underlying stable trait. The classic CLPM conflates these two stories.
+:::
+
+## Should You Use a CLPM at All?
+
+Before fitting, assess whether CLPM is appropriate for your design and question.
+
+::: {.callout-warning icon=false}
+## Pre-Fit Decision: Is CLPM the Right Tool?
+
+CLPM is likely **not appropriate** when:
+
+| Situation | Problem | Better alternative |
+|:----------|:--------|:-------------------|
+| Only 2 waves | Cannot distinguish cross-lagged from concurrent correlation | Collect a third wave; use change score analysis |
+| Waves are widely or unequally spaced | Lag coefficients are hard to interpret; stationarity assumption more questionable | Use continuous-time models; report the lag interval |
+| Strong stable between-person differences | Cross-lagged paths will reflect trait differences, not within-person dynamics | Use RI-CLPM to separate stable from dynamic components |
+| Poor reliability of either variable | Attenuation bias in cross-lagged paths; ME inflates residuals | Model measurement error explicitly or use RI-CLPM |
+| Variables have strong trends | Non-stationarity violates the core assumption | Detrend variables first; use growth model approach |
+
+CLPM is most trustworthy when you have **3+ equally spaced waves**, the variables are **relatively stable within-person** (high autoregressive effects), and **between-person trait differences are small** relative to within-person fluctuation.
+:::
+
 ## Two Variables, Evolving Together
 
 Suppose you want to understand the relationship between financial stress and risky borrowing behavior over time. Does financial stress push people toward riskier borrowing? Or does risky borrowing create financial strain? Or do they mutually reinforce each other?
@@ -269,4 +299,72 @@ parameterEstimates(m_ri_clpm) |>
 **What it means:** Both models assume all relevant variables are included. An omitted third variable that drives both S and B could produce spurious cross-lagged effects.
 
 **How to check:** Think carefully about what else changes over time that could explain both variables. Include plausible third variables as additional nodes.
+
+**If this fails:** Cross-lagged coefficients are observational associations, not causal estimates. Limit the interpretation to "S at time t predicts B at time t+1 above and beyond B's own stability, while controlling for the variables in the model" — not "S causes B."
 :::
+
+## Assumption Table
+
+```{r clpm-assumption-table, echo=FALSE}
+knitr::kable(
+  tibble(
+    Assumption = c(
+      "Stationarity of cross-lagged effects",
+      "No omitted time-varying confounders",
+      "Separation of within- and between-person variation (RI-CLPM)",
+      "Sufficient waves to identify dynamics"
+    ),
+    `Plain-language meaning` = c(
+      "The S→B and B→S path coefficients are the same at every wave",
+      "No third variable drives both S and B over time, creating spurious cross-lagged paths",
+      "The random intercept fully captures each person's stable trait level in both variables",
+      "At least 3 waves are needed; 2 waves cannot distinguish cross-lagged from concurrent correlation"
+    ),
+    `What to inspect` = c(
+      "Fit a model with wave-varying paths; compare to constrained model with LRT or modification indices",
+      "Review your theory: what else changes over time that predicts both variables?",
+      "Inspect the variance of the random intercept factors; check if CLPM and RI-CLPM give similar cross-lags",
+      "Report the number of waves and the interval between them"
+    ),
+    `Failure looks like` = c(
+      "Large modification indices for freeing specific cross-lagged paths at particular waves",
+      "Cross-lagged coefficients change substantially when a third variable is added to the model",
+      "CLPM and RI-CLPM cross-lags differ substantially — stable traits were confounding the classic model",
+      "Only 2 waves: no information about temporal dynamics beyond the concurrent correlation"
+    ),
+    `What to do next` = c(
+      "Free the path at the problematic wave; interpret as time-varying effect; report the heterogeneity",
+      "Add the confound to the model; if not measurable, narrow the causal claim",
+      "Use RI-CLPM for within-person claims; report both models and explain why they differ",
+      "Collect more waves; analyze as a change-score model instead"
+    )
+  ),
+  caption = "CLPM / RI-CLPM assumption table"
+)
+```
+
+---
+
+## Reviewer Challenge
+
+::: {.callout-tip}
+## What a Reviewer Would Ask
+
+**Challenge 1:** "Your classic CLPM shows stress predicts borrowing — but isn't it possible that chronically stressed people also tend to borrow more? How do you know this is a dynamic within-person effect rather than a stable between-person correlation?"
+The correct response: show the RI-CLPM results alongside the classic CLPM. If the RI-CLPM cross-lagged path is smaller or non-significant while the classic CLPM path is large, stable trait differences were driving the apparent dynamic effect. Report both models and interpret accordingly.
+
+**Challenge 2:** "You constrain the cross-lagged paths to be equal across waves — but what if the stress-borrowing relationship changes over the study (e.g., as the economic environment changes)?"
+Fit the unconstrained model (free paths at each wave) and compare fit with a likelihood ratio test. If the unconstrained model fits significantly better, report the wave-varying paths and discuss what might explain the change.
+
+**Challenge 3:** "You have only 3 waves — is that enough to reliably estimate cross-lagged dynamics?"
+Three waves is the minimum. With 3 waves, you estimate one set of cross-lagged paths (wave 1 → wave 2 and wave 2 → wave 3, constrained equal). This is adequate for a preliminary test but limited in power and unable to detect non-stationarity. More waves provide better estimates. Report this limitation explicitly.
+:::
+
+## Minimum Reporting Checklist
+
+- [ ] State the number of waves and the interval between them
+- [ ] Report whether cross-lagged paths were constrained equal across waves and the LRT result for that constraint
+- [ ] Report both classic CLPM and RI-CLPM results and explain the difference
+- [ ] Report the random intercept variance in the RI-CLPM — large variance means stable traits matter
+- [ ] Interpret cross-lagged coefficients as "A at time t predicts B at time t+1, controlling for B's own stability" — not as causal effects
+- [ ] If significant cross-lagged path: show it holds in RI-CLPM before making within-person claims

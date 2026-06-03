@@ -61,3 +61,55 @@ The module is organized into five clusters. Each cluster addresses a distinct ch
 ---
 
 The module closes with Part 10 as a deliberate capstone: after understanding how longitudinal data are structured, how trajectories are modeled, and how non-standard outcomes and missing data are handled, Part 10 asks the hardest question — *can we identify a causal effect?* — and provides the tools to answer it.
+
+---
+
+## How to Work Through Module 4
+
+Every chapter in this module follows the same five-step inferential workflow, introduced in Part 2b and repeated throughout:
+
+1. **Assumptions** — What does this model assume about time, outcomes, and people?
+2. **Pre-fit checks** — What can you inspect before running the model?
+3. **Fitting the model** — Code and key output
+4. **Against the DGP** — How well does this model recover what is true?
+5. **Interpreting the results** — What conclusions are valid, and where does the model fall short?
+
+**Part 2b is the template chapter.** It shows the complete workflow applied to a fully disclosed data-generating process. Every subsequent chapter uses the same structure. When a new concept is introduced, the question is always: *which of these five steps does this concept affect?*
+
+---
+
+## Routing Table: Which Part Do You Need?
+
+Use this table to find the right starting point for your research question. The "common failure" column describes what goes wrong when researchers skip that part's key check.
+
+| If your research question is… | Your outcome looks like… | Start with | First thing to check | Common failure if skipped |
+|:------------------------------|:--------------------------|:-----------|:---------------------|:--------------------------|
+| Are group means different across a few fixed waves? | Continuous, 2–4 balanced waves | Part 1 (RM-ANOVA → Mixed) | Is sphericity plausible given wave spacing? | Anti-conservative F-tests; inflated Type I error |
+| What is the right covariance model for my repeated measures? | Continuous, any waves | Part 2 (Covariance Structures) | Does correlation decay with time lag? | Wrong SEs; biased inference about time effects |
+| Is there a background drift or seasonal pattern confounding my treatment estimate? | Continuous, many calendar periods | Part 2b (Time Structure) | Residuals by calendar month and by month-of-year | Loyalty/treatment effect absorbs drift or season |
+| How does the outcome trajectory unfold, and do trajectories differ? | Continuous, 3+ waves, individual variation in change | Part 3 (Growth Curves) | Does the spaghetti plot show diverging slopes? | Forcing linear growth when true change is curved |
+| I need SEM fit indices or want to model two growth processes at once | Continuous, measured with error | Part 4 (LGC/SEM) | Does the LGC fit (CFI, RMSEA) match the MLM result? | Over-fitting modifications without theoretical basis |
+| Does today's value predict tomorrow's? | Continuous, many close-spaced waves | Part 5 (Autoregressive) | ACF of residuals — is there serial dependence? | Confusing trend with autocorrelation |
+| Does A cause B or B cause A over time? | Two continuous outcomes, 3+ waves | Part 6 (Cross-Lagged) | Are stable trait differences large? | Classic CLPM conflates within- and between-person effects |
+| My outcome is binary or a count | 0/1 choices or counts per period | Part 7 (GLMM) | Event frequency; zero rate; overdispersion | Linear model predicts impossible probabilities |
+| My outcome is time until an event | Days/months to event, censored | Part 8 (Survival) | Is censoring likely independent of event risk? | Informative censoring biases KM and Cox estimates |
+| Participants are dropping out of my study | Missing observations by wave | Part 9 (Missing Data) | Do dropouts differ from completers on observed variables? | Treating MAR data as MCAR; ignoring MNAR sensitivity |
+| I want to make a causal claim from panel data | Observational, panel structure | Part 10 (Identification) | What is the identifying variation, and is the parallel-trends assumption defensible? | Causal language without identification strategy |
+
+---
+
+## Three Layers of Every Longitudinal Analysis
+
+Longitudinal modeling always involves at least three simultaneous decisions. Getting one wrong undermines the others.
+
+::: {.callout-warning icon=false}
+## The Three Layers
+
+**Layer 1 — Time structure.** How does time enter the model? As a linear drift? A seasonal cycle? A categorical wave indicator? A continuous individual trajectory? Getting the time model wrong creates residual confounding that can inflate or deflate every other estimate.
+
+**Layer 2 — Outcome distribution.** Is the outcome continuous and approximately normal? Binary? A count? A time-to-event? The right model family (Gaussian, logistic, Poisson, Cox) must match the DGP. Using the wrong family produces impossible predictions, wrong uncertainty intervals, and misleading effect sizes.
+
+**Layer 3 — Identification strategy.** Is the analysis descriptive or causal? If causal, what is the source of identifying variation? Random assignment? A policy discontinuity? Difference-in-differences? Without a clear identification argument, longitudinal models produce association estimates that will not survive causal scrutiny.
+
+Every chapter in Module 4 addresses at least one of these layers explicitly.
+:::

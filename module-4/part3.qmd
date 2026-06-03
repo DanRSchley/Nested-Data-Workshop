@@ -13,11 +13,115 @@ set.seed(2024)
 
 # Growth Curve Models
 
+::: {.callout-note icon=false}
+## The Growth Curve Question
+
+> **What is the scientific question?** Growth curve models are for questions about *trajectories* — how fast something changes, whether change rates differ across people, and whether a predictor shifts the rate of change. If your question is only about mean levels at specific waves, a simpler repeated-measures model suffices.
+>
+> **What does this model assume about time?** That each person has their own trajectory described by an intercept (their level at time = 0) and a slope (their rate of change). The model estimates the distribution of those intercepts and slopes across people.
+>
+> **What goes wrong if you ignore individual trajectory variation?** A random-intercept-only model forces everyone to change at the same rate. If people genuinely differ in how fast they change — some improving rapidly, others plateauing — the model misspecifies the DGP, produces poor predictions for individuals, and may bias the average slope estimate.
+:::
+
+## Before Fitting: Three Decisions to Make First
+
+### Decision 1 — Is a growth curve model the right tool?
+
+Growth curve models answer: *"How does the outcome trajectory unfold, and what explains variation in trajectories?"* They are not the right tool for every longitudinal question.
+
+| Your question | Right tool |
+|:--------------|:-----------|
+| Is the group mean higher at wave 3 than wave 1? | RM-ANOVA or mixed model with time as a factor |
+| Does a treatment shift the level at one follow-up wave? | Mixed model with treatment × wave interaction |
+| How fast does the outcome change, and do people differ in their rate? | **Growth curve model** |
+| Does a treatment affect the *rate* of change, not just the level? | **Growth curve model with treatment × slope** |
+
+### Decision 2 — What does time = 0 mean?
+
+The intercept in a growth model is the predicted outcome when time = 0. Time coding determines what the intercept represents — choose it for interpretability.
+
+| Time coding | Intercept means | Best for |
+|:------------|:----------------|:---------|
+| 0 = first wave | Baseline level | Intervention studies where pre-treatment level matters |
+| 0 = midpoint | Mid-study level | Reduces intercept-slope correlation; improves estimation |
+| 0 = last wave | Final-wave level | When the endpoint is the primary reference |
+| 0 = age (individually varying) | Level at a specific age | Developmental and aging studies |
+
+### Decision 3 — How many waves, and are they equally spaced?
+
+| Waves | What you can reliably estimate |
+|:------|:-------------------------------|
+| 2 | Intercept + one slope. Growth curve = change score. No information about curvature. |
+| 3 | Linear growth. Minimal test for non-linearity. |
+| 4+ | Quadratic growth, piecewise change, or splines. Recommended for detecting trajectory shape. |
+| Unequal spacing | Use exact elapsed time as the time variable — not wave number. |
+
+With only 2 waves, a growth curve model adds nothing beyond a difference score. Fit a simpler model.
+
+---
+
 ## Trajectories as the Target
 
 Standard repeated measures models ask: "Is the mean outcome different across time points?" Growth curve models ask something richer: "How does each unit's trajectory unfold over time, and what explains variation in those trajectories?"
 
 The shift in framing is fundamental. We are not trying to estimate one average change — we are trying to recover the distribution of individual change processes that generated the data. Each person has their own DGP; growth curve models estimate the parameters of that distribution.
+
+## Pre-Fit Checks: Always Plot Before Fitting
+
+```{r pre-fit-checks, fig.width=11, fig.height=4}
+library(patchwork)
+
+# Spaghetti plot: individual trajectories
+sample_ids <- sample(levels(df_growth$person), 15)
+
+p_spaghetti <- df_growth |>
+  filter(person %in% sample_ids) |>
+  ggplot(aes(x = week, y = stress, group = person)) +
+  geom_line(alpha = 0.45, color = "#1e3a5f") +
+  geom_point(size = 1.5, alpha = 0.5, color = "#1e3a5f") +
+  stat_summary(aes(group = NULL), fun = mean, geom = "line",
+               color = "#e63946", linewidth = 1.5) +
+  labs(title = "Spaghetti plot: individual trajectories\n(red = cohort average)",
+       subtitle = "Fan-out = slopes differ across people → random slope needed",
+       x = "Week", y = "Stress score") +
+  theme_minimal(base_size = 11)
+
+# Mean-by-wave with error bars
+p_means <- df_growth |>
+  group_by(week) |>
+  summarise(m = mean(stress), se = sd(stress) / sqrt(n()), .groups = "drop") |>
+  ggplot(aes(x = week, y = m, ymin = m - 1.96*se, ymax = m + 1.96*se)) +
+  geom_line(linewidth = 1.1, color = "#1e3a5f") +
+  geom_errorbar(width = 0.15, color = "#1e3a5f") +
+  geom_point(size = 3, color = "#1e3a5f") +
+  labs(title = "Mean ± 95% CI by wave",
+       subtitle = "Flat line ≈ no growth; curve ≈ nonlinear trajectory",
+       x = "Week", y = "Mean stress") +
+  theme_minimal(base_size = 11)
+
+# Person-level change: connect each person's first and last observation
+p_change <- df_growth |>
+  group_by(person) |>
+  summarise(start = first(stress), end = last(stress), .groups = "drop") |>
+  mutate(direction = if_else(end < start, "Declined", "Increased or flat")) |>
+  ggplot(aes(x = start, y = end - start, color = direction)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey60") +
+  geom_point(size = 2, alpha = 0.7) +
+  scale_color_manual(values = c("Declined" = "#2d6a4f", "Increased or flat" = "#cb181d")) +
+  labs(title = "Individual change: first → last wave",
+       subtitle = "Spread = heterogeneous slopes; correlation with start = need to model",
+       x = "Starting stress", y = "Change (last − first)") +
+  theme_minimal(base_size = 11) +
+  theme(legend.position = "bottom")
+
+p_spaghetti | p_means | p_change
+```
+
+**What to look for:**
+
+- **Spaghetti plot:** Do trajectories fan out over time? Wide fan-out signals that individuals differ in their rate of change — a random slope is needed.
+- **Mean-by-wave:** Does the average look linear? If the means accelerate, decelerate, or level off, a linear model will be misspecified.
+- **Individual change plot:** Is the amount of change correlated with the starting level? If people who start high show larger declines, the intercept-slope correlation will be negative.
 
 ## The Unconditional Growth Model
 
@@ -93,6 +197,46 @@ broom.mixed::tidy(m_growth_pred, effects = "fixed") |>
 
 The `week:treatment` interaction coefficient tells you whether the treatment group's stress declines faster or slower than the control group.
 
+## Choosing the Functional Form for Time
+
+The most consequential decision in a growth curve model is how time enters — linear, quadratic, piecewise, or something else. **Always choose functional form from the data, not from a significance test.**
+
+```{r functional-form-comparison}
+# Fit linear growth to the quadratic dataset for comparison
+m_linear_q <- lmer(stress ~ week + (week | person), data = df_growth_q,
+                   control = lmerControl(optimizer = "bobyqa"))
+m_quad     <- lmer(stress ~ week + I(week^2) + (week | person), data = df_growth_q,
+                   control = lmerControl(optimizer = "bobyqa"))
+
+anova(m_linear_q, m_quad) |>
+  knitr::kable(digits = 3,
+    caption = "AIC/BIC and LRT: does adding quadratic time improve fit?")
+```
+
+```{r functional-form-plot, fig.width=8, fig.height=3.5}
+df_growth_q |>
+  mutate(fit_lin  = predict(m_linear_q),
+         fit_quad = predict(m_quad)) |>
+  group_by(week) |>
+  summarise(Observed = mean(stress),
+            `Linear`  = mean(fit_lin),
+            `Quadratic` = mean(fit_quad), .groups = "drop") |>
+  pivot_longer(-week, names_to = "series", values_to = "stress") |>
+  mutate(series = factor(series, levels = c("Observed", "Linear", "Quadratic"))) |>
+  ggplot(aes(x = week, y = stress, color = series, linetype = series)) +
+  geom_line(linewidth = 1.2) + geom_point(size = 2.5) +
+  scale_color_manual(values = c(Observed = "#555", Linear = "#cb181d",
+                                 Quadratic = "#2d6a4f")) +
+  scale_linetype_manual(values = c(Observed = "solid", Linear = "dashed",
+                                    Quadratic = "solid")) +
+  labs(title = "Functional form: observed vs. linear vs. quadratic fit",
+       subtitle = "The pre-fit mean plot already showed curvature — AIC confirms quadratic is needed",
+       x = "Week", y = "Mean stress", color = NULL, linetype = NULL) +
+  theme_minimal(base_size = 12)
+```
+
+**Decision rule:** use the more complex form only when (1) the pre-fit mean-by-wave plot shows curvature AND (2) AIC/BIC clearly favor the more complex model. A quadratic term that just reaches significance with no visible curvature in the pre-fit plot is likely a chance artefact.
+
 ## Nonlinear Growth
 
 Some processes do not change linearly. Symptoms might improve rapidly at first, then plateau. Performance curves often show diminishing returns. The growth curve framework accommodates nonlinearity.
@@ -138,10 +282,144 @@ df_growth_q |>
 **How to check:** Plot the observed means by time point. Does the pattern look linear? Is there a clear deceleration or acceleration that requires a curve? Use AIC to compare linear vs. quadratic models.
 :::
 
+## Diagnosing Convergence Problems
+
+Growth curve models with random slopes frequently produce convergence warnings or singular fits. These are not cosmetic — they indicate the model is over-complex for the data.
+
+```{r convergence-check}
+# Check for singularity — near-zero variances or boundary correlations
+isSingular(m_growth)
+isSingular(m_growth_pred)
+
+# Inspect the random effects structure
+as.data.frame(VarCorr(m_growth)) |>
+  select(grp, var1, var2, sdcor) |>
+  knitr::kable(digits = 4,
+    caption = "Random effects: check for near-zero SDs or correlations at ±1")
+```
+
+| Warning sign | What it means | What to do next |
+|:-------------|:--------------|:----------------|
+| `isSingular()` is TRUE | Model too complex for the data | Remove random slope or fix correlation to 0 |
+| Random slope variance ≈ 0 | Individuals do not differ in their rate of change | Remove `(week \| person)`, keep `(1 \| person)` |
+| Intercept-slope correlation = ±1 | Correlation not identified | Use `(week \|\| person)` to fix correlation at 0 |
+| "Model failed to converge" | Optimizer stopped early | Add `control = lmerControl(optimizer = "bobyqa")` |
+| `allFit()` gives different estimates across optimizers | Unstable likelihood surface | Report estimates from the optimizer that converges; simplify model |
+
+## Post-Fit Diagnostics
+
+After fitting, check whether residuals show remaining time structure. Remaining pattern means the model has not fully captured the trajectory.
+
+```{r post-fit-diagnostics, fig.width=9, fig.height=3.5}
+df_growth <- df_growth |>
+  mutate(resid_g = residuals(m_growth))
+
+p_resid_wave <- df_growth |>
+  group_by(week) |>
+  summarise(mr = mean(resid_g), .groups = "drop") |>
+  ggplot(aes(x = week, y = mr)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey60") +
+  geom_line(color = "#e63946", linewidth = 1.1) +
+  geom_point(color = "#e63946", size = 2.5) +
+  labs(title = "Mean residuals by wave",
+       subtitle = "Remaining pattern = wrong functional form",
+       x = "Week", y = "Mean residual") +
+  theme_minimal(base_size = 11)
+
+p_resid_person <- df_growth |>
+  group_by(person) |>
+  summarise(mr = mean(resid_g), ms = mean(stress), .groups = "drop") |>
+  ggplot(aes(x = ms, y = mr)) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey60") +
+  geom_point(alpha = 0.4, color = "#1e3a5f", size = 2) +
+  geom_smooth(method = "lm", se = FALSE, color = "#1e3a5f", linewidth = 0.8) +
+  labs(title = "Person-mean residuals vs. mean outcome",
+       subtitle = "Slope ≠ 0 = random effects not capturing person differences",
+       x = "Person mean stress", y = "Person mean residual") +
+  theme_minimal(base_size = 11)
+
+p_resid_wave | p_resid_person
+```
+
+## Assumption Table
+
+```{r assumption-table, echo=FALSE}
+knitr::kable(
+  tibble(
+    Assumption = c(
+      "Correct functional form for time",
+      "Individual variation in rate of change (random slope)",
+      "Normal distribution of random effects",
+      "Independence of within-person residuals",
+      "Random effects independent of predictors"
+    ),
+    `Plain-language meaning` = c(
+      "The model's time equation matches the actual trajectory shape",
+      "People differ in how fast they change, not just in their starting level",
+      "Person-level intercepts and slopes are drawn from a bivariate normal distribution",
+      "After removing the individual trajectory, residuals are not autocorrelated",
+      "Who starts high or changes fast is unrelated to treatment or other covariates"
+    ),
+    `What to inspect` = c(
+      "Mean-by-wave plot; residuals by wave after fitting",
+      "Spaghetti plot (do trajectories fan out?); LRT comparing RE structures",
+      "Q-Q plot of estimated random effects (BLUPs)",
+      "ACF of within-person residuals; residuals by wave",
+      "Correlate BLUPs with treatment or baseline predictors"
+    ),
+    `Failure looks like` = c(
+      "Systematic curve in mean-by-wave residuals; AIC favors more complex time model",
+      "Singular fit; near-zero slope variance; visible divergence of individual lines",
+      "Heavy tails or bimodality in the BLUP distribution",
+      "Significant ACF at lag 1 in within-person residuals",
+      "Estimated BLUPs correlate with treatment group or baseline covariate"
+    ),
+    `What to do next` = c(
+      "Add quadratic term; piecewise model at a theoretically motivated wave; splines",
+      "Add `(week | person)`; if singular, consider whether slope variation is theoretically expected",
+      "With n > 30 clusters, MLM is robust to mild non-normality; use robust SEs for severe violations",
+      "Add AR(1) residual structure via `nlme::lme(correlation = corAR1())`",
+      "If randomized: not a concern. If observational: center predictors; consider person FE"
+    )
+  ),
+  caption = "Growth curve model assumption checklist"
+)
+```
+
 ::: {.callout-warning icon=false}
 ## Assumption: Random Slope for Time is Correctly Specified
 
 **What it means:** Allowing only a random intercept (but not slope) for time assumes everyone changes at exactly the same rate. This is almost always wrong for developmental or therapeutic outcomes.
 
 **How to check:** Compare the random-intercept-only model to the random-slope model using a likelihood ratio test. Plot individual trajectories — if they clearly fan out or diverge, a random slope is needed.
+
+**If this fails:** Add `(week | person)` to the model formula. If this causes a singular fit, the data do not support individual slope variation — simplify back to `(1 | person)` and acknowledge that the model assumes homogeneous rates of change.
 :::
+
+---
+
+## Reviewer Challenge
+
+::: {.callout-tip}
+## What a Reviewer Would Ask
+
+**Challenge 1:** "You fit a linear growth model — but why should stress decline at a constant rate? Isn't it more plausible that improvement is rapid at first and then decelerates?"
+The correct response: show the mean-by-wave plot from the pre-fit check. If that plot is approximately linear and AIC does not favor a quadratic model, argue for parsimony. If it shows clear curvature, upgrade to quadratic and show both the comparison and the improvement in residual pattern.
+
+**Challenge 2:** "You have a random slope for time — does the model converge properly? What is the estimated slope variance and intercept-slope correlation?"
+Always report: `isSingular()` result, estimated random slope variance, intercept-slope correlation. If singular, explain what simplification was applied and why.
+
+**Challenge 3:** "Your growth model uses wave number as time, but participants were measured on different calendar dates. Doesn't that introduce error into the time variable?"
+If measurement timing varies across participants, use the exact elapsed time in days or weeks, not a wave label. This is especially important when intervals are unequal or participant-specific.
+:::
+
+## Minimum Reporting Checklist
+
+- [ ] State what time = 0 represents and the units of the slope
+- [ ] Show the spaghetti plot and mean-by-wave plot as pre-fit evidence for the chosen functional form
+- [ ] Report whether linear, quadratic, or another functional form was selected and why (AIC + pre-fit plot)
+- [ ] Report the random effects structure: intercept only vs. intercept + slope
+- [ ] Report whether `isSingular()` returns FALSE
+- [ ] Report the random slope variance and intercept-slope correlation
+- [ ] Show post-fit residuals by wave — confirms the functional form adequately captured the trajectory
+- [ ] If a treatment × slope interaction is reported, interpret it as a difference in rates of change, not just a significance test

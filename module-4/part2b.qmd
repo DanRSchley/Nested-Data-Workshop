@@ -24,6 +24,20 @@ library(patchwork)
 > **What is the fix?** Include time as a predictor — as a linear drift term, Fourier terms for cyclical patterns, or period fixed effects (one dummy per calendar period). The choice depends on how much parametric structure you are willing to assume about the time DGP.
 :::
 
+::: {.callout-tip icon=false}
+## This Is the Template Chapter
+
+This chapter introduces the **five-step longitudinal inferential workflow** that every subsequent chapter in Module 4 reuses:
+
+1. **Assumptions** — what does this model assume about time, outcomes, and people?
+2. **Pre-fit checks** — what can be verified before fitting?
+3. **Fitting the model** — code and key output
+4. **Against the DGP** — how well does this model recover what is true?
+5. **Interpreting the results** — what conclusions are valid, and where does the model fall short?
+
+Every chapter from Part 3 onward uses this same structure. The wording, headers, and sequence are deliberately parallel so that the analytical routine becomes second nature.
+:::
+
 ## One Dataset, Many Models
 
 This section works differently from most of the module. We build **one realistic longitudinal dataset**, disclose the true data-generating process completely, then run it through five progressively better specifications. Each model section follows the same five-step inferential workflow:
@@ -795,8 +809,68 @@ knitr::kable(
 
 ---
 
+## Model Summary: What Each Specification Gets Right and Wrong
+
+```{r model-summary-table, echo=FALSE}
+knitr::kable(
+  tibble(
+    Model = c("M1: Naïve", "M2: + Drift", "M3: + Seasonal",
+              "M4: + Person RE", "M5: Two-way FE"),
+    `What it gets right` = c(
+      "Recovers basic sign of loyalty effect",
+      "Correctly removes background drift; drift coefficient ≈ true",
+      "Removes drift and seasonal confound; all time parameters ≈ true",
+      "Removes all three confounds; every DGP parameter recovered",
+      "Non-parametrically confirms M4 without assuming time shape"
+    ),
+    `What it still misses` = c(
+      "Background drift, seasonal cycle, and person-level selection",
+      "Seasonal cycle still fully in residuals",
+      "Person-level selection: enrollees had higher baseline spending",
+      "Nothing — this is the correctly specified model for this DGP",
+      "Less efficient (23 df on month dummies vs. 3 for parametric)"
+    ),
+    `Resulting inferential error if you stopped here` = c(
+      "Loyalty estimate inflated by ~$15–25; residual SD 2–3× too large",
+      "Loyalty estimate still inflated by ~$5–10; seasonal absorbed into error",
+      "Loyalty estimate ~$3–5 too high; person-selection bias remains",
+      "None — conclusions are accurate for this DGP",
+      "Wider CIs than necessary; cannot extrapolate beyond observation window"
+    )
+  ),
+  caption = "Five-model summary: what each specification resolves and what it leaves open."
+)
+```
+
+## Analyst Checklist: Applying This Workflow to Real Data
+
+Use this checklist whenever you are working with a new longitudinal dataset and a time-varying predictor or treatment.
+
+**Before fitting anything:**
+- [ ] Plot mean outcome by calendar time — is there visible drift?
+- [ ] Plot mean outcome by time-of-year (or day-of-week) — is there a seasonal/cyclical pattern?
+- [ ] Compare baseline characteristics of treated vs. untreated groups — is there person-level selection?
+- [ ] Understand when treatment is assigned — is timing correlated with the drift or seasonal cycle?
+- [ ] Check missingness by time period — do dropouts differ from completers?
+
+**Choosing and fitting models:**
+- [ ] Start with the naïve model and inspect residuals by time — this shows what is uncontrolled
+- [ ] Add drift control (linear month term) and re-inspect calendar residuals
+- [ ] Add seasonal control (Fourier pair or month-of-year dummies) and re-inspect seasonal residuals and ACF
+- [ ] Add person random effects — does the loyalty estimate change? If yes, person-level selection was present
+- [ ] Run the two-way FE model as a robustness check — does it agree with the parametric model?
+
+**Evaluating and reporting:**
+- [ ] Report the loyalty estimate and SE for each specification
+- [ ] Report whether 95% CIs of the preferred model cover the true value (in simulation) or are plausible given theory (in real data)
+- [ ] Report the residual SD for each model — shows how much unexplained variance remains
+- [ ] Report the tipping-point analysis: how large would a remaining confound need to be to reverse the conclusion?
+- [ ] State which assumptions the preferred model makes and which ones you tested
+
+---
+
 ## Setting the Stage for Growth Curve Models
 
 This section treated **time as a confounder** to be controlled. The next section, Growth Curve Models, treats **time as the phenomenon**: how does each person's trajectory unfold, and why do trajectories differ across people?
 
-The same five-step inferential workflow — assumptions, pre-fit checks, fitting, DGP comparison, interpretation — applies to every model in the rest of the module. The diagnostic toolkit (residual-by-time, seasonal check, ACF) remains the standard first pass before interpreting any parameter estimate.
+The same five-step workflow applies to every model in Parts 3–10: state what is assumed, check what can be checked before fitting, fit, compare to truth (or theory), and interpret what survives. The diagnostic toolkit — residual-by-time, seasonal check, ACF, person-mean residuals — is the standard first pass in every subsequent chapter.

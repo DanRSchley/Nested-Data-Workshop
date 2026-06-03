@@ -12,6 +12,40 @@ set.seed(111)
 
 # Latent Growth Curve Models
 
+::: {.callout-note icon=false}
+## The LGC Question
+
+> **When does the SEM framing add something?** The LGC model is mathematically equivalent to an MLM growth curve for simple linear growth. The SEM framing earns its complexity when you need to model measurement error explicitly, relate two simultaneous growth processes, or produce fit indices that reviewers in your field expect.
+>
+> **What does this model assume about time?** The factor loadings encode the time metric. Fixing loadings at 0, 1, 2, 3, 4 assumes linear growth. Freeing some loadings allows non-linear shape to be estimated from data.
+>
+> **What goes wrong if you choose LGC over MLM unnecessarily?** More complex syntax, harder to extend to unequal spacing, and global fit indices can be misleading with small samples. Use MLM unless the SEM framing solves a specific problem.
+:::
+
+## MLM or LGC? A Practical Decision
+
+```{r lgc-mlm-decision, echo=FALSE}
+knitr::kable(
+  tibble(
+    `Use MLM (lmer) when...` = c(
+      "Outcome is a single directly observed variable",
+      "Measurement timing is individually varying or unequal",
+      "You have many waves and need computation speed",
+      "Random slope convergence is a concern",
+      "Available-case ML handles missing data well enough"
+    ),
+    `Use LGC (lavaan) when...` = c(
+      "Outcome is a latent construct measured with error (e.g., scale scores)",
+      "You want to model two interrelated growth processes simultaneously",
+      "You need to constrain or free residual variances across waves",
+      "Reviewers expect SEM fit indices (CFI, RMSEA, SRMR)",
+      "You are extending to a structural model with latent predictors"
+    )
+  ),
+  caption = "Practical decision: MLM vs. LGC framing"
+)
+```
+
 ## Two Languages for the Same Model
 
 The growth curve model from Part 3 and the **Latent Growth Curve Model (LGC)** from structural equation modeling are mathematically equivalent. They answer the same questions using different parameterizations and different software.
@@ -48,7 +82,7 @@ These are precisely the questions the latent growth curve model answers. The int
 
 ```{r lgc-simulation}
 # 150 loyalty program customers tracked for 5 months
-# Outcome: monthly net savings (€)
+# Outcome: monthly net savings ($)
 n <- 150
 intercepts <- rnorm(n, 500, 80)   # wide between-customer variation in baseline savings
 slopes     <- rnorm(n,  15, 12)   # some customers grow savings fast; others plateau
@@ -85,7 +119,7 @@ ggplot(df_vis, aes(x = time, y = savings)) +
   # Label: intercept at time = 0
   annotate("point", x = 0, y = grand_intercept, color = "#d73027", size = 4) +
   annotate("text",  x = 0.15, y = grand_intercept - 30,
-           label = paste0("Mean intercept: \u20ac", round(grand_intercept), "/month at enrollment"),
+           label = paste0("Mean intercept: $", round(grand_intercept), "/month at enrollment"),
            hjust = 0, size = 3.5, color = "#d73027") +
   # Label: slope (one-month increment on mean line)
   annotate("segment", x = 3, xend = 4,
@@ -94,14 +128,14 @@ ggplot(df_vis, aes(x = time, y = savings)) +
            color = "#d73027", linewidth = 1.2,
            arrow = arrow(length = unit(0.25, "cm"), ends = "last")) +
   annotate("text",  x = 4.05, y = grand_intercept + 3.5 * grand_slope,
-           label = paste0("Mean slope:\n+\u20ac", round(grand_slope), "/month"),
+           label = paste0("Mean slope:\n+$", round(grand_slope), "/month"),
            hjust = 0, size = 3.5, color = "#d73027") +
   scale_x_continuous(breaks = 0:4,
                      labels = paste0("Month ", 1:5)) +
   labs(
     title    = "Latent growth curve model: loyalty program savings trajectories",
     subtitle = "Blue = individual customer trajectories; Red = average growth line\nIntercept = baseline savings; Slope = monthly growth rate",
-    x = NULL, y = "Monthly net savings (\u20ac)"
+    x = NULL, y = "Monthly net savings ($)"
   ) +
   coord_cartesian(xlim = c(0, 4.8)) +
   theme_minimal(base_size = 13)
@@ -197,6 +231,89 @@ With SEM, you can model two interrelated growth curves simultaneously. A natural
 This is difficult to do cleanly in standard MLM, which would require a multivariate response formulation or a separate bivariate outcome model.
 :::
 
+## Post-Fit: Evaluating Model Fit
+
+Unlike MLM, LGC models produce global fit indices. Always inspect and report them.
+
+```{r lgc-fit-table}
+fit_idx <- fitMeasures(m_lgc, c("cfi","tli","rmsea","rmsea.ci.lower",
+                                  "rmsea.ci.upper","srmr","aic","bic"))
+tibble(
+  Index          = c("CFI","TLI","RMSEA","RMSEA 90% CI","SRMR","AIC","BIC"),
+  Value          = c(round(fit_idx[c("cfi","tli","rmsea")], 3),
+                     sprintf("[%.3f, %.3f]", fit_idx["rmsea.ci.lower"],
+                             fit_idx["rmsea.ci.upper"]),
+                     round(fit_idx[c("srmr","aic","bic")], 1)),
+  Guideline      = c("> .95", "> .95", "< .06", "CI should include .00 for good fit",
+                     "< .08", "lower = better", "lower = better"),
+  `If violated, try` = c(
+    "Free residual covariances between adjacent waves; check model specification",
+    "Same as CFI",
+    "Simplify model; free residual covariances only if theoretically justified",
+    "Same as RMSEA",
+    "Large average residual correlation — inspect `residuals(m_lgc, type='cor')`",
+    "Compare to nested models with `anova()`",
+    "Compare to nested models; BIC penalizes complexity more heavily"
+  )
+) |>
+  knitr::kable(caption = "LGC fit indices with remedies for poor fit")
+```
+
+::: {.callout-warning icon=false}
+## If Fit Is Poor
+
+The most common causes of poor LGC fit and their remedies:
+
+| Pattern | Likely cause | Remedy |
+|:--------|:-------------|:-------|
+| Large residual correlations between adjacent waves | Serial dependence not captured by latent factors | Free those residual covariances — but only if theoretically motivated |
+| Loadings inconsistent with linear growth | True trajectory is nonlinear | Free some slope loadings to be estimated from data |
+| Negative residual variance (Heywood case) | Over-parameterized model | Fix problematic parameter to a small positive value; simplify |
+| CFI acceptable, RMSEA poor | Model parsimony problem | Check degrees of freedom; consider removing unnecessary constraints |
+
+Caution: modification indices tell you what would improve fit statistically, not what is theoretically defensible. Free parameters only when there is a substantive reason.
+:::
+
+## Assumption Table
+
+```{r lgc-assumption-table, echo=FALSE}
+knitr::kable(
+  tibble(
+    Assumption = c(
+      "Linear factor loadings for slope",
+      "Multivariate normality of observed scores",
+      "Equal residual variances across waves (if constrained)",
+      "Correctly identified model structure"
+    ),
+    `Plain-language meaning` = c(
+      "Growth is linear — the slope factor contributes the same increment at each additional time point",
+      "The joint distribution of all wave scores is approximately multivariate normal",
+      "Measurement noise at each wave is the same size",
+      "The number of free parameters does not exceed the available information from the covariance matrix"
+    ),
+    `What to inspect` = c(
+      "Mean-by-wave plot; alternative loading patterns; modification indices",
+      "Univariate skewness and kurtosis for each wave variable",
+      "Residual variances in output; modification indices for residual variances",
+      "Model degrees of freedom; check for Heywood cases"
+    ),
+    `Failure looks like` = c(
+      "Poor model fit; large adjacent-wave residual correlations",
+      "Kurtosis > 7 or skewness > 2 for any wave variable",
+      "Large LM test for residual equality; poor fit that disappears when variances are freed",
+      "Negative residual variances; non-positive-definite covariance matrix"
+    ),
+    `What to do next` = c(
+      "Free some slope loadings; fit quadratic latent growth with quadratic loading pattern",
+      "Use robust ML estimator: `estimator = 'MLR'` in lavaan",
+      "Remove the equality constraint (`a*`) and free each residual separately",
+      "Simplify model; fix problematic parameter; check sample size relative to parameters"
+    )
+  ),
+  caption = "LGC model assumption table"
+)
+```
+
 ## Assumptions of LGC Models
 
 ::: {.callout-warning icon=false}
@@ -213,4 +330,33 @@ This is difficult to do cleanly in standard MLM, which would require a multivari
 **What it means:** SEM estimation (default ML) assumes the observed variables are multivariate normal. Severely skewed outcomes or floor/ceiling effects can bias estimates.
 
 **How to check:** Check univariate skewness and kurtosis. Use robust ML estimators (MLR in lavaan) if normality is questionable.
+
+**If this fails:** Switch to `estimator = "MLR"` in the `growth()` call. MLR (robust ML) uses the Satorra-Bentler scaled chi-square and produces standard errors robust to non-normality at the cost of slightly reduced power.
 :::
+
+---
+
+## Reviewer Challenge
+
+::: {.callout-tip}
+## What a Reviewer Would Ask
+
+**Challenge 1:** "You report CFI = .93 — that is below the conventional .95 threshold. Why is the fit acceptable?"
+Inspect which residual correlations are large using `residuals(m_lgc, type = "cor")`. If two adjacent-wave pairs have large residuals, free those two covariances and show the improved fit indices. Justify the change theoretically (e.g., memory carryover between adjacent monthly assessments).
+
+**Challenge 2:** "Why use lavaan instead of lmer? You showed the estimates are identical."
+If using LGC only to replicate what MLM already does, switch to MLM. The LGC framing earns its complexity when (1) modeling two interrelated processes, (2) explicitly accounting for measurement error, or (3) reviewers in your specific subfield expect SEM-style reporting. State which of these applies.
+
+**Challenge 3:** "Your intercept-slope covariance is negative — what does that mean substantively?"
+A negative covariance means customers who start with higher savings grow more slowly (or decline faster). This is theoretically interesting: it could reflect ceiling effects, regression-to-the-mean, or a pattern where already-saving customers have less room to grow. Always interpret the sign and magnitude of the covariance — it is a substantive finding, not a nuisance parameter.
+:::
+
+## Minimum Reporting Checklist
+
+- [ ] Report all fit indices: CFI, TLI, RMSEA (with 90% CI), SRMR
+- [ ] Report mean intercept and mean slope with standard errors
+- [ ] Report variance of intercept, variance of slope, and their covariance
+- [ ] State whether residual variances were constrained equal or freed
+- [ ] If fit was poor: state which modifications were made and why
+- [ ] Show the equivalence table comparing LGC to MLM estimates
+- [ ] Justify why LGC was preferred over the simpler MLM approach
