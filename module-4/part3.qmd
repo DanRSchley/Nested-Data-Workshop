@@ -66,6 +66,27 @@ Standard repeated measures models ask: "Is the mean outcome different across tim
 
 The shift in framing is fundamental. We are not trying to estimate one average change — we are trying to recover the distribution of individual change processes that generated the data. Each person has their own DGP; growth curve models estimate the parameters of that distribution.
 
+## The Example Dataset
+
+To demonstrate these concepts, we simulate 60 participants each assessed at 6 weekly waves. Each person has their own true baseline stress level and their own true rate of weekly change — the DGP we want the growth model to recover.
+
+```{r generate-growth-data}
+n_people <- 60
+n_times  <- 6  # weeks
+
+# Each person has a random baseline and random rate of change
+person_intercepts <- rnorm(n_people, 50, 8)
+person_slopes     <- rnorm(n_people, -2, 1.5)  # average decline of 2/week
+
+df_growth <- expand_grid(person = 1:n_people, week = 0:(n_times - 1)) |>
+  mutate(
+    stress = person_intercepts[person] +
+             person_slopes[person] * week +
+             rnorm(n(), 0, 4),
+    person = factor(person)
+  )
+```
+
 ## Pre-Fit Checks: Always Plot Before Fitting
 
 ```{r pre-fit-checks, fig.width=11, fig.height=4}
@@ -128,22 +149,7 @@ p_spaghetti | p_means | p_change
 Start with no predictors. Just time and people.
 
 ```{r unconditional-growth}
-n_people <- 60
-n_times  <- 6  # weeks
-
-# Each person has a random baseline (intercept) and random rate of change (slope)
-person_intercepts <- rnorm(n_people, 50, 8)
-person_slopes     <- rnorm(n_people, -2, 1.5)  # average decline of 2/week
-
-df_growth <- expand_grid(person = 1:n_people, week = 0:(n_times-1)) |>
-  mutate(
-    stress = person_intercepts[person] +
-             person_slopes[person] * week +
-             rnorm(n(), 0, 4),
-    person = factor(person)
-  )
-
-# Plot individual trajectories
+# Plot individual trajectories from the dataset created above
 sample_people <- sample(levels(df_growth$person), 12)
 
 ggplot(df_growth |> filter(person %in% sample_people),
@@ -197,52 +203,12 @@ broom.mixed::tidy(m_growth_pred, effects = "fixed") |>
 
 The `week:treatment` interaction coefficient tells you whether the treatment group's stress declines faster or slower than the control group.
 
-## Choosing the Functional Form for Time
-
-The most consequential decision in a growth curve model is how time enters — linear, quadratic, piecewise, or something else. **Always choose functional form from the data, not from a significance test.**
-
-```{r functional-form-comparison}
-# Fit linear growth to the quadratic dataset for comparison
-m_linear_q <- lmer(stress ~ week + (week | person), data = df_growth_q,
-                   control = lmerControl(optimizer = "bobyqa"))
-m_quad     <- lmer(stress ~ week + I(week^2) + (week | person), data = df_growth_q,
-                   control = lmerControl(optimizer = "bobyqa"))
-
-anova(m_linear_q, m_quad) |>
-  knitr::kable(digits = 3,
-    caption = "AIC/BIC and LRT: does adding quadratic time improve fit?")
-```
-
-```{r functional-form-plot, fig.width=8, fig.height=3.5}
-df_growth_q |>
-  mutate(fit_lin  = predict(m_linear_q),
-         fit_quad = predict(m_quad)) |>
-  group_by(week) |>
-  summarise(Observed = mean(stress),
-            `Linear`  = mean(fit_lin),
-            `Quadratic` = mean(fit_quad), .groups = "drop") |>
-  pivot_longer(-week, names_to = "series", values_to = "stress") |>
-  mutate(series = factor(series, levels = c("Observed", "Linear", "Quadratic"))) |>
-  ggplot(aes(x = week, y = stress, color = series, linetype = series)) +
-  geom_line(linewidth = 1.2) + geom_point(size = 2.5) +
-  scale_color_manual(values = c(Observed = "#555", Linear = "#cb181d",
-                                 Quadratic = "#2d6a4f")) +
-  scale_linetype_manual(values = c(Observed = "solid", Linear = "dashed",
-                                    Quadratic = "solid")) +
-  labs(title = "Functional form: observed vs. linear vs. quadratic fit",
-       subtitle = "The pre-fit mean plot already showed curvature — AIC confirms quadratic is needed",
-       x = "Week", y = "Mean stress", color = NULL, linetype = NULL) +
-  theme_minimal(base_size = 12)
-```
-
-**Decision rule:** use the more complex form only when (1) the pre-fit mean-by-wave plot shows curvature AND (2) AIC/BIC clearly favor the more complex model. A quadratic term that just reaches significance with no visible curvature in the pre-fit plot is likely a chance artefact.
-
 ## Nonlinear Growth
 
 Some processes do not change linearly. Symptoms might improve rapidly at first, then plateau. Performance curves often show diminishing returns. The growth curve framework accommodates nonlinearity.
 
 ```{r nonlinear-growth}
-# Quadratic growth
+# Quadratic growth: 9-week stress relief study
 df_growth_q <- expand_grid(person = 1:n_people, week = 0:8) |>
   mutate(
     person_int    = rep(rnorm(n_people, 50, 8), each = 9),
@@ -280,7 +246,49 @@ df_growth_q |>
 **What it means:** Linear growth assumes constant rate of change. Quadratic growth assumes a parabolic trajectory. If the true trajectory is neither — e.g., a logarithmic curve or piecewise linear — your model will be misspecified.
 
 **How to check:** Plot the observed means by time point. Does the pattern look linear? Is there a clear deceleration or acceleration that requires a curve? Use AIC to compare linear vs. quadratic models.
+
+**If this fails:** Try a quadratic term (`I(week^2)`), a piecewise model with a knot at a theoretically meaningful wave, or a natural spline (`splines::ns(week, df = 3)`).
 :::
+
+## Choosing the Functional Form for Time
+
+The most consequential decision in a growth curve model is how time enters — linear, quadratic, piecewise, or something else. **Always choose functional form from the data, not from a significance test.**
+
+Now that we have simulated a quadratic dataset (`df_growth_q`) and a simple linear dataset (`df_growth`), we can compare how a linear vs. quadratic model fits the quadratic data.
+
+```{r functional-form-comparison}
+# Compare functional forms on the quadratic dataset
+m_linear_q <- lmer(stress ~ week + (week | person), data = df_growth_q,
+                   control = lmerControl(optimizer = "bobyqa"))
+
+anova(m_linear_q, m_quad) |>
+  knitr::kable(digits = 3,
+    caption = "AIC/BIC and LRT: does adding quadratic time improve fit?")
+```
+
+```{r functional-form-plot, fig.width=8, fig.height=3.5}
+df_growth_q |>
+  mutate(fit_lin  = predict(m_linear_q),
+         fit_quad = predict(m_quad)) |>
+  group_by(week) |>
+  summarise(Observed   = mean(stress),
+            `Linear`   = mean(fit_lin),
+            `Quadratic` = mean(fit_quad), .groups = "drop") |>
+  pivot_longer(-week, names_to = "series", values_to = "stress") |>
+  mutate(series = factor(series, levels = c("Observed", "Linear", "Quadratic"))) |>
+  ggplot(aes(x = week, y = stress, color = series, linetype = series)) +
+  geom_line(linewidth = 1.2) + geom_point(size = 2.5) +
+  scale_color_manual(values = c(Observed = "#555", Linear = "#cb181d",
+                                 Quadratic = "#2d6a4f")) +
+  scale_linetype_manual(values = c(Observed = "solid", Linear = "dashed",
+                                    Quadratic = "solid")) +
+  labs(title = "Functional form: observed vs. linear vs. quadratic",
+       subtitle = "Pre-fit mean plot showed curvature — AIC and plot confirm quadratic is needed",
+       x = "Week", y = "Mean stress", color = NULL, linetype = NULL) +
+  theme_minimal(base_size = 12)
+```
+
+**Decision rule:** upgrade the functional form only when (1) the pre-fit mean-by-wave plot shows curvature AND (2) AIC/BIC clearly favor the more complex model. A quadratic term that just reaches significance with no visible curvature is likely a chance artefact.
 
 ## Diagnosing Convergence Problems
 
