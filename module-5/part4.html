@@ -516,9 +516,13 @@ window.Quarto = {
   <ul>
   <li><a href="#multi-site-experiments" id="toc-multi-site-experiments" class="nav-link active" data-scroll-target="#multi-site-experiments">Multi-Site Experiments</a>
   <ul class="collapse">
+  <li><a href="#multi-site-design-audit" id="toc-multi-site-design-audit" class="nav-link" data-scroll-target="#multi-site-design-audit">Multi-Site Design Audit</a></li>
   <li><a href="#generalizability-is-a-nesting-problem" id="toc-generalizability-is-a-nesting-problem" class="nav-link" data-scroll-target="#generalizability-is-a-nesting-problem">Generalizability is a Nesting Problem</a></li>
   <li><a href="#the-model" id="toc-the-model" class="nav-link" data-scroll-target="#the-model">The Model</a></li>
+  <li><a href="#heterogeneity-diagnostics" id="toc-heterogeneity-diagnostics" class="nav-link" data-scroll-target="#heterogeneity-diagnostics">Heterogeneity Diagnostics</a></li>
   <li><a href="#the-icc-for-treatment-effects" id="toc-the-icc-for-treatment-effects" class="nav-link" data-scroll-target="#the-icc-for-treatment-effects">The ICC for Treatment Effects</a></li>
+  <li><a href="#reviewer-challenge" id="toc-reviewer-challenge" class="nav-link" data-scroll-target="#reviewer-challenge">Reviewer Challenge</a></li>
+  <li><a href="#reporting-checklist-for-multi-site-experiments" id="toc-reporting-checklist-for-multi-site-experiments" class="nav-link" data-scroll-target="#reporting-checklist-for-multi-site-experiments">Reporting Checklist for Multi-Site Experiments</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -547,6 +551,92 @@ window.Quarto = {
 
 <section id="multi-site-experiments" class="level1">
 <h1>Multi-Site Experiments</h1>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Multi-Site Design Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>Are sites a sample from a population of possible contexts?</strong> If yes, model site as a random effect. If your sites are the entire target population (e.g., every branch of one specific bank), fixed site effects may be more appropriate.</p>
+<p><strong>How much does the treatment effect vary across sites?</strong> This is the key scientific question in a many-labs study. A large random-slope variance for treatment means the effect is heterogeneous — it works well in some contexts and not others.</p>
+<p><strong>What claim can you make if sites are not representative?</strong> An average effect across the convenience sample of sites you recruited — not a generalizable estimate for all contexts of the type.</p>
+</blockquote>
+</div>
+</div>
+<hr>
+<section id="multi-site-design-audit" class="level3">
+<h3 class="anchored" data-anchor-id="multi-site-design-audit">Multi-Site Design Audit</h3>
+<p>Before fitting the multi-site model, audit the site structure the same way you audit participants and stimuli.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Site Audit Before Analysis
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 37%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Question</th>
+<th>Why it matters</th>
+<th>What to check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>How were sites recruited?</td>
+<td>Determines generalizability</td>
+<td>Opportunistic, systematic, or stratified recruitment</td>
+</tr>
+<tr class="even">
+<td>Are sites the target population or a convenience sample?</td>
+<td>Limits scope of inference</td>
+<td>Compare site characteristics to the intended population</td>
+</tr>
+<tr class="odd">
+<td>Was treatment randomized within site or by site?</td>
+<td>Determines assignment level</td>
+<td>If by site: site IS the unit; need many sites</td>
+</tr>
+<tr class="even">
+<td>Are sample sizes balanced across sites?</td>
+<td>Affects estimation of site-level variance</td>
+<td>Plot N by site; check range</td>
+</tr>
+<tr class="odd">
+<td>Was the protocol identical across sites?</td>
+<td>Confounds implementation vs.&nbsp;site heterogeneity</td>
+<td>Protocol fidelity documentation</td>
+</tr>
+<tr class="even">
+<td>Were experimenters trained and monitored?</td>
+<td>Experimenter effects are a form of site heterogeneity</td>
+<td>Training records; fidelity checks</td>
+</tr>
+<tr class="odd">
+<td>How many sites are there?</td>
+<td>Determines precision of random-slope variance</td>
+<td>J &lt; 10: interpret heterogeneity estimates cautiously</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+</section>
 <section id="generalizability-is-a-nesting-problem" class="level2">
 <h2 class="anchored" data-anchor-id="generalizability-is-a-nesting-problem">Generalizability is a Nesting Problem</h2>
 <p>The replication crisis in psychology revealed that many findings were fragile — they held at one university, with one sample, run by one experimenter, but failed to replicate elsewhere. The problem is that <strong>site</strong> is a nesting variable that standard analysis ignores.</p>
@@ -676,25 +766,47 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Forest plot: site-specific effect estimates</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>site_estimates <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_ml)<span class="sc">$</span>site <span class="sc">|&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_to_column</span>(<span class="st">"site"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">intercept =</span> <span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>, <span class="at">effect =</span> treatment) <span class="sc">|&gt;</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(effect)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(site_estimates, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(site, effect), <span class="at">y =</span> effect)) <span class="sc">+</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fu">fixef</span>(m_ml)[<span class="st">"treatment"</span>],</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Site-specific treatment effect estimates (forest plot)"</span>,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Red line = average effect; points = individual site estimates"</span>,</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Site"</span>,</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Treatment Effect"</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Forest plot with uncertainty intervals — not just point estimates</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract site-specific estimates: BLUP + shrinkage</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>site_coefs <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_ml)<span class="sc">$</span>site <span class="sc">|&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_to_column</span>(<span class="st">"site"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">intercept =</span> <span class="st">`</span><span class="at">(Intercept)</span><span class="st">`</span>, <span class="at">effect =</span> treatment)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Approximate SE for site estimates via simulation from the fitted model</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># (for a clean forest plot we use the lmer variance + residual to compute a naive SE)</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>n_per_site_val  <span class="ot">&lt;-</span> n_per_site <span class="sc">/</span> <span class="dv">2</span>   <span class="co"># ~20 per arm per site</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>resid_se        <span class="ot">&lt;-</span> <span class="fu">sigma</span>(m_ml)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>slope_se_approx <span class="ot">&lt;-</span> resid_se <span class="sc">/</span> <span class="fu">sqrt</span>(n_per_site_val)   <span class="co"># rough per-site SE</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>site_estimates <span class="ot">&lt;-</span> site_coefs <span class="sc">|&gt;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">se_approx =</span> slope_se_approx,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_lo     =</span> effect <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se_approx,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_hi     =</span> effect <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se_approx</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(effect)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>avg_effect <span class="ot">&lt;-</span> <span class="fu">fixef</span>(m_ml)[<span class="st">"treatment"</span>]</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(site_estimates, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(site, effect), <span class="at">y =</span> effect)) <span class="sc">+</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> avg_effect,</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> ci_lo, <span class="at">ymax =</span> ci_hi),</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>                <span class="at">width =</span> <span class="fl">0.25</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">linewidth =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"#1e3a5f"</span>) <span class="sc">+</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">1</span>, <span class="at">y =</span> avg_effect <span class="sc">+</span> <span class="fl">0.5</span>,</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">paste0</span>(<span class="st">"Average: "</span>, <span class="fu">round</span>(avg_effect, <span class="dv">1</span>)),</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">size =</span> <span class="fl">3.2</span>) <span class="sc">+</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Site-specific treatment effects with uncertainty intervals"</span>,</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Red dashed line = average effect across sites. Overlap with zero = this site's estimate is not significant alone."</span>,</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Site"</span>,</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Treatment Effect (with 95% CI)"</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -704,6 +816,113 @@ window.Quarto = {
 </div>
 </div>
 </div>
+<p><strong>Why uncertainty intervals matter in a forest plot:</strong> Site-specific point estimates from a random-effects model are <em>shrunken</em> toward the average — they understate the true variability across sites. Showing the uncertainty around each estimate reminds the reader that no individual site’s deviation from the average is precisely estimated. A site that appears to show a null effect may simply have wide uncertainty, not a true zero.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Leave-one-site-out sensitivity: how much does the average effect change?</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>loo_results <span class="ot">&lt;-</span> <span class="fu">map_dfr</span>(<span class="fu">unique</span>(df_ml<span class="sc">$</span>site), <span class="cf">function</span>(s) {</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  df_sub <span class="ot">&lt;-</span> df_ml <span class="sc">|&gt;</span> <span class="fu">filter</span>(site <span class="sc">!=</span> s)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  m_sub  <span class="ot">&lt;-</span> <span class="fu">lmer</span>(outcome <span class="sc">~</span> treatment <span class="sc">+</span> (treatment <span class="sc">|</span> site),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> df_sub, <span class="at">control =</span> <span class="fu">lmerControl</span>(<span class="at">optimizer =</span> <span class="st">"bobyqa"</span>))</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">dropped_site =</span> s,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_effect   =</span> <span class="fu">fixef</span>(m_sub)[<span class="st">"treatment"</span>]</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(loo_results, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(dropped_site, avg_effect), <span class="at">y =</span> avg_effect)) <span class="sc">+</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fu">fixef</span>(m_ml)[<span class="st">"treatment"</span>],</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">"#e63946"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"#1e3a5f"</span>, <span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Leave-one-site-out sensitivity"</span>,</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"How much does the average effect change when each site is removed?</span><span class="sc">\n</span><span class="st">Large swings suggest one site is influential."</span>,</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Site dropped"</span>,</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Average effect (leave-one-out)"</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part4_files/figure-html/leave-one-out-sensitivity-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="heterogeneity-diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="heterogeneity-diagnostics">Heterogeneity Diagnostics</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Post-fit summary: what does the site-level variance tell us?</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>var_te  <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">VarCorr</span>(m_ml))<span class="sc">$</span>vcov[<span class="dv">2</span>]</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>sd_te   <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(var_te)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>avg_te  <span class="ot">&lt;-</span> <span class="fu">fixef</span>(m_ml)[<span class="st">"treatment"</span>]</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Quantity             =</span> <span class="fu">c</span>(<span class="st">"Average treatment effect"</span>, <span class="st">"SD of effect across sites"</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"80% plausible interval for site effects"</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"Proportion of sites where effect &gt; 0 (approx)"</span>),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">Value =</span> <span class="fu">c</span>(</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(avg_te, <span class="dv">2</span>),</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(sd_te, <span class="dv">2</span>),</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(<span class="st">"["</span>, <span class="fu">round</span>(avg_te <span class="sc">-</span> <span class="fl">1.28</span> <span class="sc">*</span> sd_te, <span class="dv">1</span>), <span class="st">", "</span>, <span class="fu">round</span>(avg_te <span class="sc">+</span> <span class="fl">1.28</span> <span class="sc">*</span> sd_te, <span class="dv">1</span>), <span class="st">"]"</span>),</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">pnorm</span>(avg_te <span class="sc">/</span> sd_te), <span class="dv">2</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Treatment effect heterogeneity across sites. The 80% plausible interval shows the range of effects you would expect across a new sample of similar sites."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Treatment effect heterogeneity across sites. The 80% plausible interval shows the range of effects you would expect across a new sample of similar sites.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quantity</th>
+<th style="text-align: left;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Average treatment effect</td>
+<td style="text-align: left;">5.04</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SD of effect across sites</td>
+<td style="text-align: left;">2.7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">80% plausible interval for site effects</td>
+<td style="text-align: left;">[1.6, 8.5]</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Proportion of sites where effect &gt; 0 (approx)</td>
+<td style="text-align: left;">0.97</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Small-J Warning: Few Sites, Unreliable Heterogeneity Estimates
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The random-slope variance for treatment effects — the quantity that tells you how heterogeneous the effect is across sites — is itself estimated with substantial uncertainty when J (number of sites) is small. With J &lt; 10 sites, the random-slope variance estimate has wide confidence intervals that overlap zero even when true heterogeneity is moderate.</p>
+<p><strong>Practical consequences of few sites:</strong> - The average treatment effect remains interpretable even with few sites - The site heterogeneity estimate (random slope variance) is unreliable - Do not over-interpret whether the effect “varies meaningfully” across sites with J &lt; 10 - Forest plots with few sites should show uncertainty intervals — point-only plots hide how imprecise each site estimate is</p>
+<p><strong>What claim survives with few sites:</strong> - If sites are convenience-sampled: “The effect averaged <em>b</em> = [estimate] across the [J] sites studied, which represent [describe recruitment]. Generalization to other contexts requires similar sites.” - If implementation differed across sites: “Observed site heterogeneity may reflect implementation differences rather than genuine psychological heterogeneity across populations.”</p>
+</div>
+</div>
+<hr>
 </section>
 <section id="the-icc-for-treatment-effects" class="level2">
 <h2 class="anchored" data-anchor-id="the-icc-for-treatment-effects">The ICC for Treatment Effects</h2>
@@ -711,28 +930,28 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Variance of the treatment effect across sites</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>var_treatment_effect <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">VarCorr</span>(m_ml))<span class="sc">$</span>vcov[<span class="dv">2</span>]  <span class="co"># slope variance</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Standard deviation of treatment effect across sites:"</span>,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">sqrt</span>(var_treatment_effect), <span class="dv">2</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Variance of the treatment effect across sites</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>var_treatment_effect <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">VarCorr</span>(m_ml))<span class="sc">$</span>vcov[<span class="dv">2</span>]  <span class="co"># slope variance</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Standard deviation of treatment effect across sites:"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">sqrt</span>(var_treatment_effect), <span class="dv">2</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Standard deviation of treatment effect across sites: 2.7 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Average effect:"</span>, <span class="fu">round</span>(<span class="fu">fixef</span>(m_ml)[<span class="st">"treatment"</span>], <span class="dv">2</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Average effect:"</span>, <span class="fu">round</span>(<span class="fu">fixef</span>(m_ml)[<span class="st">"treatment"</span>], <span class="dv">2</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Average effect: 5.04 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Effect ranges approximately from"</span>,</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">fixef</span>(m_ml)[<span class="st">"treatment"</span>] <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">sqrt</span>(var_treatment_effect), <span class="dv">1</span>),</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"to"</span>,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">fixef</span>(m_ml)[<span class="st">"treatment"</span>] <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">sqrt</span>(var_treatment_effect), <span class="dv">1</span>),</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"across sites</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Effect ranges approximately from"</span>,</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">fixef</span>(m_ml)[<span class="st">"treatment"</span>] <span class="sc">-</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">sqrt</span>(var_treatment_effect), <span class="dv">1</span>),</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"to"</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">round</span>(<span class="fu">fixef</span>(m_ml)[<span class="st">"treatment"</span>] <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span><span class="fu">sqrt</span>(var_treatment_effect), <span class="dv">1</span>),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"across sites</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Effect ranges approximately from -0.4 to 10.4 across sites</code></pre>
@@ -764,6 +983,66 @@ window.Quarto = {
 <div class="callout-body-container callout-body">
 <p><strong>What it means:</strong> The “treatment” must be operationally equivalent across sites. If different labs implemented the procedure differently — different materials, different timing, different experimenter instructions — site-to-site variability reflects procedure differences, not true effect heterogeneity.</p>
 <p><strong>How to check:</strong> Pre-specify and enforce standardized protocols. Measure implementation fidelity. Include implementation fidelity as a moderator.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Assumption: Enough Sites to Estimate Heterogeneity
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What it means:</strong> Estimating random-slope variance requires a sufficient number of level-2 units. With J = 5 sites, the random-slope variance estimate can be zero even when true heterogeneity is substantial. The average effect remains estimable, but the heterogeneity estimate is unreliable.</p>
+<p><strong>What to do:</strong> With J &lt; 10, use the average effect as the primary claim. Treat heterogeneity estimates as exploratory. Consider presenting a prediction interval for the average effect rather than a confidence interval.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="reviewer-challenge" class="level2">
+<h2 class="anchored" data-anchor-id="reviewer-challenge">Reviewer Challenge</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>What a Reviewer Would Ask
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Challenge 1:</strong> “Your sites are all US universities. How does this generalize?” It generalizes to contexts similar to US university labs — convenience-sampled student populations in controlled laboratory settings. This is a limitation that should be stated, not dismissed. If generalizability is important, report it as a scope limitation and suggest what a more representative site sample would look like.</p>
+<p><strong>Challenge 2:</strong> “Your random-slope variance for treatment is large. Does that mean the intervention doesn’t work in some sites?” Possibly — or the site heterogeneity reflects implementation differences, sample composition differences, or imprecise estimation from small within-site samples. Inspect the forest plot for which sites show negative effects and whether those sites share identifiable features (e.g., smaller N, different recruitment, known implementation problems).</p>
+<p><strong>Challenge 3:</strong> “Why model sites as random effects rather than including site fixed effects?” Site random effects allow you to estimate the average treatment effect across sites and to quantify how much the effect varies. Site fixed effects absorb all between-site variance but cannot produce a generalization-weighted average effect or a heterogeneity estimate. Random effects are appropriate when sites are a sample from a population; fixed effects are appropriate when sites are the entire target population or when there is concern about confounding between site characteristics and treatment assignment.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="reporting-checklist-for-multi-site-experiments" class="level2">
+<h2 class="anchored" data-anchor-id="reporting-checklist-for-multi-site-experiments">Reporting Checklist for Multi-Site Experiments</h2>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Minimum Reporting for Multi-Site Studies
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox">Number of sites, how recruited, and description of site characteristics</label></li>
+<li><label><input type="checkbox">Whether treatment was randomized within sites or by site</label></li>
+<li><label><input type="checkbox">Protocol fidelity description</label></li>
+<li><label><input type="checkbox">Sample sizes per site (range and mean)</label></li>
+<li><label><input type="checkbox">Average treatment effect with SE and CI</label></li>
+<li><label><input type="checkbox">Random intercept and random slope variance estimates</label></li>
+<li><label><input type="checkbox">Forest plot with site-specific estimates (with uncertainty intervals)</label></li>
+<li><label><input type="checkbox">Leave-one-site-out sensitivity check</label></li>
+<li><label><input type="checkbox">Explicit statement about generalizability given the site sample</label></li>
+</ul>
 </div>
 </div>
 

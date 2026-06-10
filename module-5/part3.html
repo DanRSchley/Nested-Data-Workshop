@@ -489,8 +489,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#the-debate" id="toc-the-debate" class="nav-link" data-scroll-target="#the-debate">The Debate</a></li>
   <li><a href="#why-maximal-models-can-fail" id="toc-why-maximal-models-can-fail" class="nav-link" data-scroll-target="#why-maximal-models-can-fail">Why Maximal Models Can Fail</a></li>
+  <li><a href="#random-effects-eligibility-table" id="toc-random-effects-eligibility-table" class="nav-link" data-scroll-target="#random-effects-eligibility-table">Random Effects Eligibility Table</a></li>
+  <li><a href="#a-practical-simplification-workflow" id="toc-a-practical-simplification-workflow" class="nav-link" data-scroll-target="#a-practical-simplification-workflow">A Practical Simplification Workflow</a></li>
   <li><a href="#the-decision-framework" id="toc-the-decision-framework" class="nav-link" data-scroll-target="#the-decision-framework">The Decision Framework</a></li>
   <li><a href="#a-practical-simplification-protocol" id="toc-a-practical-simplification-protocol" class="nav-link" data-scroll-target="#a-practical-simplification-protocol">A Practical Simplification Protocol</a></li>
+  <li><a href="#reviewer-challenge" id="toc-reviewer-challenge" class="nav-link" data-scroll-target="#reviewer-challenge">Reviewer Challenge</a></li>
+  <li><a href="#preregistration-template-for-random-effects" id="toc-preregistration-template-for-random-effects" class="nav-link" data-scroll-target="#preregistration-template-for-random-effects">Preregistration Template for Random Effects</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -519,6 +523,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="maximal-vs.-parsimonious-random-effects" class="level1">
 <h1>Maximal vs.&nbsp;Parsimonious Random Effects</h1>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Random Effects Design Question
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>Which predictors vary within your grouping unit (participant, stimulus, site)?</strong> Only those can have a random slope for that unit. A random slope for a between-subjects factor is a model misspecification.</p>
+<p><strong>What is the right starting point for confirmatory tests?</strong> Start with the maximal theoretically justified structure — every random slope the design can support — then simplify transparently when the data cannot support that structure.</p>
+<p><strong>What is the tradeoff?</strong> Maximal models protect Type I error but can fail to converge or produce degenerate variance components. Parsimonious models can improve power but inflate Type I error for within-subjects effects. Report all simplification decisions so the preregistered and realized models are distinguishable.</p>
+</blockquote>
+</div>
+</div>
+<hr>
 <section id="the-debate" class="level2">
 <h2 class="anchored" data-anchor-id="the-debate">The Debate</h2>
 <p>In 2013, Barr, Levy, Scheepers, &amp; Tily published an influential paper titled “Random Effects Structure for Confirmatory Hypothesis Testing: Keep It Maximal.” Their argument:</p>
@@ -645,6 +667,97 @@ attr(,"gradient")
 </div>
 </div>
 </section>
+<section id="random-effects-eligibility-table" class="level2">
+<h2 class="anchored" data-anchor-id="random-effects-eligibility-table">Random Effects Eligibility Table</h2>
+<p>The first question is not “should I use a random slope?” but “<strong>can</strong> I use a random slope?” A random slope for predictor X by grouping unit G requires that X varies within G. If X is constant within G, there is no within-G variation to estimate a slope on.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 21%">
+<col style="width: 20%">
+<col style="width: 25%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Predictor</th>
+<th>Varies within participant?</th>
+<th>Varies within stimulus?</th>
+<th>Can have by-participant slope?</th>
+<th>Can have by-stimulus slope?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Within-subjects condition (e.g., framing)</td>
+<td>✓ yes</td>
+<td>✓ yes (if counterbalanced)</td>
+<td>✓ yes</td>
+<td>✓ yes</td>
+</tr>
+<tr class="even">
+<td>Between-subjects condition (e.g., disclosure arm)</td>
+<td>✗ no</td>
+<td>✓ yes (if stimuli span conditions)</td>
+<td>✗ no — between-subjects</td>
+<td>✓ possibly</td>
+</tr>
+<tr class="odd">
+<td>Trial number (time-within-session)</td>
+<td>✓ yes</td>
+<td>✓ yes</td>
+<td>✓ yes</td>
+<td>✓ yes</td>
+</tr>
+<tr class="even">
+<td>Stimulus difficulty/valence</td>
+<td>✗ no (fixed per stimulus)</td>
+<td>— (stimulus-level predictor)</td>
+<td>✗ no</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Participant-level covariate (age, literacy)</td>
+<td>✗ no</td>
+<td>✓ yes</td>
+<td>—</td>
+<td>✓ yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key rule:</strong> If a predictor does not vary within the grouping unit, including a random slope for it either crashes the model or produces a degenerate zero-variance component. The coefficient table in <code>summary()</code> will show a variance estimate of 0 or near 0 for that slope.</p>
+<hr>
+</section>
+<section id="a-practical-simplification-workflow" class="level2">
+<h2 class="anchored" data-anchor-id="a-practical-simplification-workflow">A Practical Simplification Workflow</h2>
+<p>Use this sequence for every confirmatory mixed model:</p>
+<ol type="1">
+<li><strong>List all grouping factors</strong> — participants, stimuli, sites, advisors, etc.</li>
+<li><strong>List all predictors</strong> — for each, note whether it varies within each grouping factor (see table above).</li>
+<li><strong>Specify the maximal theoretically justified structure</strong> — include random slopes for every within-unit predictor; omit for between-unit predictors.</li>
+<li><strong>Fit the maximal model</strong> with a robust optimizer (e.g., <code>bobyqa</code>).</li>
+<li><strong>Check convergence and singularity</strong> — <code>isSingular()</code>, <code>performance::check_convergence()</code>, warnings in the console.</li>
+<li><strong>If singular or non-convergent</strong>: first remove the correlation parameter between random intercept and slope (<code>(1 | G) + (0 + X | G)</code> instead of <code>(X | G)</code>).</li>
+<li><strong>If still problematic</strong>: remove the random slope with the smallest variance component — but document this as a deviation from the preregistered structure.</li>
+<li><strong>Report all simplification decisions</strong>, including the likelihood ratio test result that motivated each removal.</li>
+</ol>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>What “Singular” Means and Why It Matters
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>isSingular()</code> returns <code>TRUE</code> when one or more variance components are estimated at exactly the boundary of the parameter space (typically: variance = 0, or a correlation = ±1). This is not an error — it is information. It means the data do not support the complexity of the model.</p>
+<p><strong>Observable signs of singularity:</strong> - Random slope variance estimated at exactly 0.000 - Correlation between random intercept and slope estimated at exactly +1.000 or −1.000 - The <code>lme4</code> message: “Model is nearly unidentifiable: very large eigenvalue…”</p>
+<p><strong>What to do:</strong> - First try removing the correlation: <code>(1 | G) + (0 + X | G)</code> instead of <code>(X | G)</code> - If variance is still at zero, use an LRT to test whether the random slope improves fit; if <em>p</em> &gt; .10, drop it and document the decision - Do not use a singular model as the final model without disclosing the singularity</p>
+</div>
+</div>
+<hr>
+</section>
 <section id="the-decision-framework" class="level2">
 <h2 class="anchored" data-anchor-id="the-decision-framework">The Decision Framework</h2>
 <p>The current consensus among methodologists:</p>
@@ -659,7 +772,7 @@ attr(,"gradient")
 </div>
 <div class="callout-body-container callout-body">
 <ol type="1">
-<li><p><strong>Within-subjects experimental manipulations:</strong> Always include random slopes for within-subjects factors. This is the critical case. Barr et al.&nbsp;(2013) are correct: omitting random slopes for within-subject conditions inflates Type I error.</p></li>
+<li><p><strong>Within-subjects experimental manipulations:</strong> For confirmatory tests, start with random slopes for within-subjects factors. Barr et al.&nbsp;(2013) are correct that omitting these inflates Type I error — but only when the data can support the structure. If convergence fails, simplify transparently rather than silently defaulting to a misspecified parsimonious model.</p></li>
 <li><p><strong>When theory or pilot data suggests heterogeneous effects:</strong> If you have prior reason to believe the treatment effect varies substantially across participants, include the random slope.</p></li>
 <li><p><strong>Large samples:</strong> With enough data, complex models converge and the efficiency loss from over-parameterization is small.</p></li>
 </ol>
@@ -774,6 +887,50 @@ attr(,"gradient")
 <p><strong>What it means:</strong> The random effects you include should reflect the actual nesting structure of your design. A random slope for a between-subjects factor makes no statistical sense (between-subjects factors cannot vary within a subject).</p>
 <p><strong>Common mistake:</strong> Including a random slope for a between-subjects condition. This will either produce a degenerate model or absorb all variance in a nonsensical way.</p>
 <p><strong>How to check:</strong> For each predictor, ask: does this variable vary <em>within</em> the grouping unit (participant, stimulus)? If yes, it can have a random slope for that unit. If no (between-subjects), it cannot.</p>
+<p><strong>What to do if the maximal model fails:</strong> Remove correlation parameters first, then remove slopes with near-zero variance. Document each step and report it in the methods section as a pre-specified or transparent deviation.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="reviewer-challenge" class="level2">
+<h2 class="anchored" data-anchor-id="reviewer-challenge">Reviewer Challenge</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>What a Reviewer Would Ask
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Challenge 1:</strong> “Barr et al.&nbsp;(2013) say you need to keep the random effects maximal. Why did you simplify?” The Barr et al.&nbsp;recommendation applies specifically to the maximal <em>theoretically justified</em> structure. If the random slope variance was estimated near zero (σ² = 0.001) and the LRT showed no improvement (χ²(2) = 0.4, <em>p</em> = .82), removing it follows Matuschek et al.&nbsp;(2017): the data provide no evidence that participants differ in their slope. The simplified model avoids degenerate variance estimates without inflating Type I error in this case.</p>
+<p><strong>Challenge 2:</strong> “Your model gave a singularity warning. Doesn’t that invalidate the results?” Singularity means one variance component is at its boundary, typically because the data do not support that complexity. It does not automatically invalidate the fixed effects. The correct response is to investigate which component caused the singularity, remove it if the LRT supports it, and report the decision transparently.</p>
+<p><strong>Challenge 3:</strong> “You included a random slope for the between-subjects manipulation. Why?” It is not possible to have a random slope for a pure between-subjects predictor — participants are each in one condition, so there is no within-participant variation to estimate a slope on. If the model appeared to converge, the slope variance estimate is meaningless or it was absorbed into the intercept variance. This is a specification error.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="preregistration-template-for-random-effects" class="level2">
+<h2 class="anchored" data-anchor-id="preregistration-template-for-random-effects">Preregistration Template for Random Effects</h2>
+<p>When preregistering a mixed model experiment, specify the random effects structure explicitly:</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Preregistration Prompts for Random Effects
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Primary random effects structure:</strong> (e.g., “Random intercepts and slopes for condition by participant; random intercepts for stimulus.”)</li>
+<li><strong>Maximal justified structure:</strong> List all predictors that vary within each grouping factor and the corresponding random slopes.</li>
+<li><strong>Simplification sequence:</strong> “If the maximal model fails to converge or is singular: (1) remove correlation parameters, (2) remove the slope with the smallest variance component, (3) repeat until convergence.”</li>
+<li><strong>Criterion for removing a slope:</strong> “Likelihood ratio test <em>p</em> &gt; .10 and variance estimate &lt; 0.001.”</li>
+<li><strong>What will be disclosed:</strong> “Any deviation from the preregistered structure will be reported in the methods section along with the LRT result that motivated the change.”</li>
+</ul>
 </div>
 </div>
 

@@ -525,9 +525,12 @@ window.Quarto = {
   <li><a href="#visual-what-happens-to-each-type-when-assignment-changes" id="toc-visual-what-happens-to-each-type-when-assignment-changes" class="nav-link" data-scroll-target="#visual-what-happens-to-each-type-when-assignment-changes">Visual: What Happens to Each Type When Assignment Changes?</a></li>
   </ul></li>
   <li><a href="#section-3-the-late-formula" id="toc-section-3-the-late-formula" class="nav-link" data-scroll-target="#section-3-the-late-formula">Section 3: The LATE Formula</a></li>
+  <li><a href="#compliance-audit-before-analysis" id="toc-compliance-audit-before-analysis" class="nav-link" data-scroll-target="#compliance-audit-before-analysis">Compliance Audit Before Analysis</a></li>
   <li><a href="#section-4-worked-example-digital-budgeting-tool-experiment" id="toc-section-4-worked-example-digital-budgeting-tool-experiment" class="nav-link" data-scroll-target="#section-4-worked-example-digital-budgeting-tool-experiment">Section 4: Worked Example — Digital Budgeting Tool Experiment</a>
   <ul class="collapse">
+  <li><a href="#true-dgp-parameters" id="toc-true-dgp-parameters" class="nav-link" data-scroll-target="#true-dgp-parameters">True DGP parameters</a></li>
   <li><a href="#simulation" id="toc-simulation" class="nav-link" data-scroll-target="#simulation">Simulation</a></li>
+  <li><a href="#pre-model-diagnostics" id="toc-pre-model-diagnostics" class="nav-link" data-scroll-target="#pre-model-diagnostics">Pre-model diagnostics</a></li>
   <li><a href="#estimating-all-three-quantities" id="toc-estimating-all-three-quantities" class="nav-link" data-scroll-target="#estimating-all-three-quantities">Estimating all three quantities</a></li>
   <li><a href="#manual-wald-check" id="toc-manual-wald-check" class="nav-link" data-scroll-target="#manual-wald-check">Manual Wald check</a></li>
   <li><a href="#visualization" id="toc-visualization" class="nav-link" data-scroll-target="#visualization">Visualization</a></li>
@@ -597,29 +600,29 @@ window.Quarto = {
 <tr class="header">
 <th>Estimand</th>
 <th>Definition</th>
-<th>Bias?</th>
+<th>Status</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>Intent-to-treat (ITT)</td>
 <td>Effect of assignment (<span class="math inline">\(Z \rightarrow Y\)</span>)</td>
-<td>Unbiased but attenuated</td>
+<td>Unbiased for the assignment effect <em>under</em>: random assignment, no differential attrition, no interference, stable measurement</td>
 </tr>
 <tr class="even">
 <td>As-treated (AT)</td>
 <td>Compare <span class="math inline">\(D=1\)</span> to <span class="math inline">\(D=0\)</span> regardless of <span class="math inline">\(Z\)</span></td>
-<td>Biased (self-selection into compliance)</td>
+<td>Biased: self-selection into compliance</td>
 </tr>
 <tr class="odd">
 <td>Per-protocol</td>
 <td>Analyze only observed compliers</td>
-<td>Biased (excludes non-compliers non-randomly)</td>
+<td>Biased: excludes non-compliers non-randomly</td>
 </tr>
 <tr class="even">
 <td>LATE via IV</td>
 <td>Effect for compliers, using <span class="math inline">\(Z\)</span> as instrument for <span class="math inline">\(D\)</span></td>
-<td>Unbiased for compliers</td>
+<td>Identifies complier effect <em>under</em>: relevance, independence, exclusion restriction, monotonicity, no interference</td>
 </tr>
 </tbody>
 </table>
@@ -742,16 +745,59 @@ window.Quarto = {
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Tip</span>Four Assumptions for LATE to Be Valid
+<span class="screen-reader-only">Tip</span>LATE Assumptions: What Can Be Tested and What to Do When They Fail
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<ol type="1">
-<li><strong>Relevance</strong>: The instrument <span class="math inline">\(Z\)</span> must affect take-up <span class="math inline">\(D\)</span> (testable — check first-stage <span class="math inline">\(F &gt; 10\)</span>).</li>
-<li><strong>Exclusion restriction</strong>: <span class="math inline">\(Z\)</span> affects <span class="math inline">\(Y\)</span> <em>only</em> through <span class="math inline">\(D\)</span>, not directly. This is an untestable assumption that must be justified by design.</li>
-<li><strong>Monotonicity</strong>: No defiers. Assignment can only push people toward treatment, never away from it.</li>
-<li><strong>Independence</strong>: <span class="math inline">\(Z\)</span> is as good as randomly assigned (satisfied by design in an RCT).</li>
-</ol>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 35%">
+<col style="width: 22%">
+<col style="width: 24%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Assumption</th>
+<th>Plain-language meaning</th>
+<th>How to check</th>
+<th>If this fails</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Relevance</strong></td>
+<td>Z must move D</td>
+<td>First-stage F-statistic — F &lt; 10 = weak instrument</td>
+<td>Report ITT only; treat LATE as fragile and note the weak-instrument problem</td>
+</tr>
+<tr class="even">
+<td><strong>Independence</strong></td>
+<td>Z is as good as randomly assigned</td>
+<td>Covariate balance table by Z</td>
+<td>If Z is not randomized, IV requires a strong design justification; consider sensitivity analysis</td>
+</tr>
+<tr class="odd">
+<td><strong>Exclusion restriction</strong></td>
+<td>Z affects Y only through D, not directly</td>
+<td>Not directly testable — must be argued from design</td>
+<td>If questionable (e.g., notification itself changes behavior), do not interpret IV as the causal effect of treatment receipt</td>
+</tr>
+<tr class="even">
+<td><strong>Monotonicity</strong></td>
+<td>No defiers: assignment never <em>reduces</em> uptake</td>
+<td>Not directly testable — must be argued substantively</td>
+<td>If defiers are plausible, report sensitivity analysis and narrow the claim</td>
+</tr>
+<tr class="odd">
+<td><strong>SUTVA / No interference</strong></td>
+<td>One person’s treatment doesn’t affect others</td>
+<td>Check for network spillovers, shared households, proximity effects</td>
+<td>If interference exists, LATE interpretation does not hold as stated — consider cluster-level IV</td>
+</tr>
+</tbody>
+</table>
+<p>The exclusion restriction is the most frequently violated and the hardest to defend. <strong>Access to the tool</strong> must not change behavior in ways beyond whether they use the tool. For example, if participants in the treatment arm <em>also</em> receive an encouraging email just for being offered the tool, the exclusion restriction is violated and IV does not identify the effect of tool use.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-warning no-icon callout-titled">
@@ -775,21 +821,174 @@ window.Quarto = {
 </div>
 <hr>
 </section>
+<section id="compliance-audit-before-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="compliance-audit-before-analysis">Compliance Audit Before Analysis</h2>
+<p>Before fitting ITT or IV models, audit the compliance structure in your data. Many apparent IV failures trace back to design questions that could have been answered before modeling.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Compliance Audit Checklist
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 40%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Question</th>
+<th>Why it matters</th>
+<th>How to check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Who was assigned to treatment?</td>
+<td>Defines the ITT denominator</td>
+<td>Verify assignment records; N in each arm</td>
+</tr>
+<tr class="even">
+<td>Who actually received treatment (D = 1)?</td>
+<td>Defines compliance rate</td>
+<td>Activation logs, attendance records</td>
+</tr>
+<tr class="odd">
+<td>Can controls access the treatment on their own?</td>
+<td>One- vs.&nbsp;two-sided compliance</td>
+<td>Check D in control arm; crossover rate</td>
+</tr>
+<tr class="even">
+<td>Is take-up measured accurately?</td>
+<td>First stage requires reliable D</td>
+<td>Validate the take-up definition; consider self-report bias</td>
+</tr>
+<tr class="odd">
+<td>Is noncompliance one-sided or two-sided?</td>
+<td>Changes the Wald denominator</td>
+<td>E[D | Z=0] near zero → one-sided</td>
+</tr>
+<tr class="even">
+<td>Is there differential attrition by assignment?</td>
+<td>Biases even the ITT if yes</td>
+<td>Compare retention rates by Z</td>
+</tr>
+<tr class="odd">
+<td>Is there interference across participants?</td>
+<td>SUTVA required for IV</td>
+<td>Check for information spillovers or network effects</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+</section>
 <section id="section-4-worked-example-digital-budgeting-tool-experiment" class="level2">
 <h2 class="anchored" data-anchor-id="section-4-worked-example-digital-budgeting-tool-experiment">Section 4: Worked Example — Digital Budgeting Tool Experiment</h2>
+<section id="true-dgp-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="true-dgp-parameters">True DGP parameters</h3>
+<p>The simulation is designed so the three estimators give meaningfully different answers, consistent with the prose:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 17%">
+<col style="width: 53%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Parameter</th>
+<th>Value</th>
+<th>Expected consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>True causal effect for compliers</td>
+<td>+8 pp savings rate</td>
+<td>LATE should recover this</td>
+</tr>
+<tr class="even">
+<td>Compliance rate in treatment arm</td>
+<td>~65% (motivation-driven)</td>
+<td>ITT diluted below 8</td>
+</tr>
+<tr class="odd">
+<td>Motivation → activation (log-odds)</td>
+<td>β = 1.2</td>
+<td>High motivation → more likely to activate</td>
+</tr>
+<tr class="even">
+<td>Motivation → savings outcome</td>
+<td>β = 3 pp per SD</td>
+<td>Activators are systematically more motivated → <strong>as-treated biased upward</strong></td>
+</tr>
+<tr class="odd">
+<td>Direction of bias</td>
+<td>ITT &lt; 8 &lt; As-treated</td>
+<td>LATE should split the difference and recover 8</td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="simulation" class="level3">
 <h3 class="anchored" data-anchor-id="simulation">Simulation</h3>
-<p>We simulate a budgeting tool experiment: 200 participants randomized 1:1. In the treatment arm, 65% activate and use the tool (one-sided noncompliance — no control participants access the tool). The true causal effect of activating and using the tool is +8 percentage points of monthly savings rate.</p>
+<p>We simulate a budgeting tool experiment: 200 participants randomized 1:1. In the treatment arm, activation depends on <strong>financial motivation</strong> (a latent variable representing self-efficacy and goal orientation). Motivation also independently predicts savings behavior. This creates the bias the prose describes: as-treated compares self-selected activators (high motivation) to non-activators and controls (lower motivation) — a comparison that reflects both the tool effect <em>and</em> the motivation advantage of activators.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> <span class="dv">100</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(Z <span class="sc">==</span> <span class="dv">1</span>, <span class="fu">rbinom</span>(<span class="dv">100</span>, <span class="dv">1</span>, <span class="fl">0.65</span>), <span class="dv">0</span>)   <span class="co"># one-sided: 65% activate tool</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>savings_rate <span class="ot">&lt;-</span> <span class="dv">10</span> <span class="sc">+</span> <span class="dv">8</span> <span class="sc">*</span> D <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">6</span>)    <span class="co"># true effect for compliers = 8</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>df_nc <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span>n, <span class="at">Z =</span> <span class="fu">factor</span>(Z), <span class="at">D =</span> <span class="fu">factor</span>(D), savings_rate)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> <span class="dv">100</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Latent motivation: financial self-efficacy, goal orientation, savings habits</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>motivation  <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># In the treatment arm, higher motivation → higher probability of activating the tool</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Average compliance rate ≈ 65% (plogis(-0.4) ≈ 0.40 at motivation=0;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># ranges from ~0.40 to ~0.85 across motivation distribution)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>p_activate  <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">0.4</span> <span class="sc">+</span> <span class="fl">1.2</span> <span class="sc">*</span> motivation)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(Z <span class="sc">==</span> <span class="dv">1</span>, <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p_activate), <span class="dv">0</span>)   <span class="co"># one-sided noncompliance</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># True DGP: tool raises savings by 8 pp; motivation also independently raises savings</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># → Activators (D=1) are both using the tool AND more motivated: as-treated is biased upward</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>savings_rate <span class="ot">&lt;-</span> <span class="dv">10</span> <span class="sc">+</span> <span class="dv">8</span> <span class="sc">*</span> D <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> motivation <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>df_nc <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span>n, <span class="at">Z =</span> <span class="fu">factor</span>(Z), <span class="at">D =</span> <span class="fu">factor</span>(D), motivation, savings_rate)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Confirm the bias mechanism is present</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Compliance rate (treatment arm):  "</span>, <span class="fu">round</span>(<span class="fu">mean</span>(D[Z<span class="sc">==</span><span class="dv">1</span>]), <span class="dv">2</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Compliance rate (treatment arm):   0.38 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mean motivation among activators: "</span>, <span class="fu">round</span>(<span class="fu">mean</span>(motivation[D<span class="sc">==</span><span class="dv">1</span>]), <span class="dv">2</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean motivation among activators:  0.43 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mean motivation among non-activators:"</span>, <span class="fu">round</span>(<span class="fu">mean</span>(motivation[D<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> Z<span class="sc">==</span><span class="dv">1</span>]), <span class="dv">2</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean motivation among non-activators: -0.4 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"→ Activators are more motivated by"</span>, <span class="fu">round</span>(<span class="fu">mean</span>(motivation[D<span class="sc">==</span><span class="dv">1</span>]) <span class="sc">-</span> <span class="fu">mean</span>(motivation[D<span class="sc">==</span><span class="dv">0</span> <span class="sc">&amp;</span> Z<span class="sc">==</span><span class="dv">1</span>]), <span class="dv">2</span>),</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"SDs — this is what biases the as-treated estimate upward.</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>→ Activators are more motivated by 0.83 SDs — this is what biases the as-treated estimate upward.</code></pre>
+</div>
 </div>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
@@ -815,14 +1014,124 @@ window.Quarto = {
 </div>
 <p>The ITT estimate contrasts everyone in the offered group (N=100) with everyone in the control group (N=100) — regardless of activation. The LATE estimate uses the offer as an instrument for actual activation, recovering the causal effect for the sub-population whose tool use changed because of the offer (the compliers — roughly 65 of the 100 offered participants). Never-takers and the control group both have D = 0, but for different reasons.</p>
 </section>
+<section id="pre-model-diagnostics" class="level3">
+<h3 class="anchored" data-anchor-id="pre-model-diagnostics">Pre-model diagnostics</h3>
+<p>Before fitting the IV model, check three things: compliance rates by arm, balance on pre-treatment covariates by assignment, and the motivational profile of compliers vs.&nbsp;non-compliers.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compliance rates by arm</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df_nc <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Z) <span class="sc">|&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_activated =</span> <span class="fu">sum</span>(<span class="fu">as.integer</span>(<span class="fu">as.character</span>(D))),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">compliance_rate =</span> <span class="fu">mean</span>(<span class="fu">as.integer</span>(<span class="fu">as.character</span>(D))),</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_motivation =</span> <span class="fu">mean</span>(motivation),</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Compliance by assignment group. Mean motivation should be balanced by Z (randomization). Within Z=1, compliers (D=1) should show higher motivation than non-compliers."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Compliance by assignment group. Mean motivation should be balanced by Z (randomization). Within Z=1, compliers (D=1) should show higher motivation than non-compliers.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Z</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">n_activated</th>
+<th style="text-align: right;">compliance_rate</th>
+<th style="text-align: right;">mean_motivation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">0</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.033</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">0.38</td>
+<td style="text-align: right;">-0.087</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Profile of compliers vs. non-compliers on motivation</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>df_nc <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">compliance_type =</span> <span class="fu">case_when</span>(</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>      Z <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"Control (no offer)"</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>      Z <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> D <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">"Complier (offered + activated)"</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>      Z <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> D <span class="sc">==</span> <span class="dv">0</span> <span class="sc">~</span> <span class="st">"Non-complier (offered but not activated)"</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(compliance_type) <span class="sc">|&gt;</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_motivation =</span> <span class="fu">mean</span>(motivation),</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_savings =</span> <span class="fu">mean</span>(savings_rate),</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Complier profile. Compliers are more motivated than non-compliers — this is the self-selection mechanism that biases the as-treated estimate."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Complier profile. Compliers are more motivated than non-compliers — this is the self-selection mechanism that biases the as-treated estimate.</caption>
+<colgroup>
+<col style="width: 55%">
+<col style="width: 5%">
+<col style="width: 21%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">compliance_type</th>
+<th style="text-align: right;">n</th>
+<th style="text-align: right;">mean_motivation</th>
+<th style="text-align: right;">mean_savings</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Complier (offered + activated)</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">0.427</td>
+<td style="text-align: right;">19.145</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Control (no offer)</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0.033</td>
+<td style="text-align: right;">10.262</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Non-complier (offered but not activated)</td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">-0.403</td>
+<td style="text-align: right;">7.925</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
 <section id="estimating-all-three-quantities" class="level3">
 <h3 class="anchored" data-anchor-id="estimating-all-three-quantities">Estimating all three quantities</h3>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>m_itt  <span class="ot">&lt;-</span> <span class="fu">lm</span>(savings_rate <span class="sc">~</span> Z,   <span class="at">data =</span> df_nc)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>m_at   <span class="ot">&lt;-</span> <span class="fu">lm</span>(savings_rate <span class="sc">~</span> D,   <span class="at">data =</span> df_nc)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>m_late <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(savings_rate <span class="sc">~</span> D <span class="sc">|</span> Z, <span class="at">data =</span> df_nc)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>m_itt  <span class="ot">&lt;-</span> <span class="fu">lm</span>(savings_rate <span class="sc">~</span> Z,   <span class="at">data =</span> df_nc)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>m_at   <span class="ot">&lt;-</span> <span class="fu">lm</span>(savings_rate <span class="sc">~</span> D,   <span class="at">data =</span> df_nc)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>m_late <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(savings_rate <span class="sc">~</span> D <span class="sc">|</span> Z, <span class="at">data =</span> df_nc)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div class="cell">
@@ -840,21 +1149,21 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">ITT (assignment)</td>
-<td style="text-align: right;">4.904</td>
-<td style="text-align: right;">0.866</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.926</td>
+<td style="text-align: right;">0.941</td>
+<td style="text-align: right;">0.042</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">As-treated (biased — self-selection)</td>
-<td style="text-align: right;">7.627</td>
-<td style="text-align: right;">0.862</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">9.777</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">0.000</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">LATE via IV (Wald estimator)</td>
-<td style="text-align: right;">8.174</td>
-<td style="text-align: right;">1.319</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">5.069</td>
+<td style="text-align: right;">2.163</td>
+<td style="text-align: right;">0.020</td>
 </tr>
 </tbody>
 </table>
@@ -867,35 +1176,35 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>itt_est   <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_itt)[<span class="st">"Z1"</span>]</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>comp_rate <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">as.integer</span>(<span class="fu">as.character</span>(df_nc<span class="sc">$</span>D))[Z <span class="sc">==</span> <span class="dv">1</span>]) <span class="sc">-</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>             <span class="fu">mean</span>(<span class="fu">as.integer</span>(<span class="fu">as.character</span>(df_nc<span class="sc">$</span>D))[Z <span class="sc">==</span> <span class="dv">0</span>])</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"ITT estimate:      "</span>, <span class="fu">round</span>(itt_est, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>itt_est   <span class="ot">&lt;-</span> <span class="fu">coef</span>(m_itt)[<span class="st">"Z1"</span>]</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>comp_rate <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">as.integer</span>(<span class="fu">as.character</span>(df_nc<span class="sc">$</span>D))[Z <span class="sc">==</span> <span class="dv">1</span>]) <span class="sc">-</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>             <span class="fu">mean</span>(<span class="fu">as.integer</span>(<span class="fu">as.character</span>(df_nc<span class="sc">$</span>D))[Z <span class="sc">==</span> <span class="dv">0</span>])</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"ITT estimate:      "</span>, <span class="fu">round</span>(itt_est, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>ITT estimate:       4.904 </code></pre>
+<pre><code>ITT estimate:       1.926 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Compliance rate:   "</span>, <span class="fu">round</span>(comp_rate, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Compliance rate:   "</span>, <span class="fu">round</span>(comp_rate, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Compliance rate:    0.6 </code></pre>
+<pre><code>Compliance rate:    0.38 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Wald LATE:         "</span>, <span class="fu">round</span>(itt_est <span class="sc">/</span> comp_rate, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Wald LATE:         "</span>, <span class="fu">round</span>(itt_est <span class="sc">/</span> comp_rate, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Wald LATE:          8.174 </code></pre>
+<pre><code>Wald LATE:          5.069 </code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"ivreg LATE:        "</span>, <span class="fu">round</span>(<span class="fu">coef</span>(m_late)[<span class="st">"D1"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"ivreg LATE:        "</span>, <span class="fu">round</span>(<span class="fu">coef</span>(m_late)[<span class="st">"D1"</span>], <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>ivreg LATE:         8.174 </code></pre>
+<pre><code>ivreg LATE:         5.069 </code></pre>
 </div>
 </div>
 <p>The manual Wald calculation and <code>ivreg()</code> agree (up to rounding). This confirms the mechanics: <code>ivreg()</code> is just solving the Wald formula via two-stage least squares.</p>
@@ -905,36 +1214,36 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>est_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(m_itt)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"Z1"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">method =</span> <span class="st">"ITT"</span>),</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(m_at)   <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"D1"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">method =</span> <span class="st">"As-treated"</span>),</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(m_late) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"D1"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">method =</span> <span class="st">"LATE (IV)"</span>)</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">method   =</span> <span class="fu">factor</span>(method, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"ITT"</span>, <span class="st">"As-treated"</span>, <span class="st">"LATE (IV)"</span>)),</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">biased   =</span> method <span class="sc">==</span> <span class="st">"As-treated"</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(est_df, <span class="fu">aes</span>(<span class="at">x =</span> method, <span class="at">y =</span> estimate, <span class="at">fill =</span> biased)) <span class="sc">+</span></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="fl">0.55</span>, <span class="at">alpha =</span> <span class="fl">0.85</span>) <span class="sc">+</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> estimate <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> std.error,</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>                    <span class="at">ymax =</span> estimate <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> std.error),</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>                <span class="at">width =</span> <span class="fl">0.18</span>) <span class="sc">+</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">8</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#c0392b"</span>, <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">3.45</span>, <span class="at">y =</span> <span class="fl">8.5</span>, <span class="at">label =</span> <span class="st">"True effect = 8"</span>,</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"#c0392b"</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"FALSE"</span> <span class="ot">=</span> <span class="st">"#1e3a5f"</span>, <span class="st">"TRUE"</span> <span class="ot">=</span> <span class="st">"#e67e22"</span>),</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>                    <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"ITT, as-treated, and LATE estimates — budgeting tool experiment"</span>,</span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"ITT diluted by non-activators; as-treated biased by self-selection; LATE recovers true effect"</span>,</span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="cn">NULL</span>,</span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Estimated effect on savings rate (pp)"</span></span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>est_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(m_itt)  <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"Z1"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">method =</span> <span class="st">"ITT"</span>),</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(m_at)   <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"D1"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">method =</span> <span class="st">"As-treated"</span>),</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>(m_late) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"D1"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">method =</span> <span class="st">"LATE (IV)"</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">method   =</span> <span class="fu">factor</span>(method, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"ITT"</span>, <span class="st">"As-treated"</span>, <span class="st">"LATE (IV)"</span>)),</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">biased   =</span> method <span class="sc">==</span> <span class="st">"As-treated"</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(est_df, <span class="fu">aes</span>(<span class="at">x =</span> method, <span class="at">y =</span> estimate, <span class="at">fill =</span> biased)) <span class="sc">+</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="fl">0.55</span>, <span class="at">alpha =</span> <span class="fl">0.85</span>) <span class="sc">+</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> estimate <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> std.error,</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>                    <span class="at">ymax =</span> estimate <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> std.error),</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>                <span class="at">width =</span> <span class="fl">0.18</span>) <span class="sc">+</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">8</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"#c0392b"</span>, <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">3.45</span>, <span class="at">y =</span> <span class="fl">8.5</span>, <span class="at">label =</span> <span class="st">"True effect = 8"</span>,</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>           <span class="at">color =</span> <span class="st">"#c0392b"</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"FALSE"</span> <span class="ot">=</span> <span class="st">"#1e3a5f"</span>, <span class="st">"TRUE"</span> <span class="ot">=</span> <span class="st">"#e67e22"</span>),</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>                    <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"ITT, as-treated, and LATE estimates — budgeting tool experiment"</span>,</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"ITT diluted by non-activators; as-treated biased by self-selection; LATE recovers true effect"</span>,</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="cn">NULL</span>,</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Estimated effect on savings rate (pp)"</span></span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -999,21 +1308,21 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>n   <span class="ot">&lt;-</span> <span class="dv">200</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>Z   <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> <span class="dv">100</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>D   <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(Z <span class="sc">==</span> <span class="dv">1</span>,</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>              <span class="fu">rbinom</span>(<span class="dv">100</span>, <span class="dv">1</span>, <span class="fl">0.75</span>),   <span class="co"># 75% compliance in treatment</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>              <span class="fu">rbinom</span>(<span class="dv">100</span>, <span class="dv">1</span>, <span class="fl">0.10</span>))   <span class="co"># 10% crossover in control</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>Y   <span class="ot">&lt;-</span> <span class="dv">50</span> <span class="sc">-</span> <span class="dv">8</span> <span class="sc">*</span> D <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">7</span>)</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>df_2s      <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">Z =</span> <span class="fu">factor</span>(Z), <span class="at">D =</span> <span class="fu">factor</span>(D), Y)</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>m_late_2s  <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(Y <span class="sc">~</span> D <span class="sc">|</span> Z, <span class="at">data =</span> df_2s)</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>broom<span class="sc">::</span><span class="fu">tidy</span>(m_late_2s) <span class="sc">|&gt;</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"D1"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>               <span class="at">caption =</span> <span class="st">"Two-sided noncompliance: ivreg() generalizes automatically. True effect = -8."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>n   <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>Z   <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> <span class="dv">100</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>D   <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(Z <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>              <span class="fu">rbinom</span>(<span class="dv">100</span>, <span class="dv">1</span>, <span class="fl">0.75</span>),   <span class="co"># 75% compliance in treatment</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>              <span class="fu">rbinom</span>(<span class="dv">100</span>, <span class="dv">1</span>, <span class="fl">0.10</span>))   <span class="co"># 10% crossover in control</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>Y   <span class="ot">&lt;-</span> <span class="dv">50</span> <span class="sc">-</span> <span class="dv">8</span> <span class="sc">*</span> D <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">7</span>)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>df_2s      <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">Z =</span> <span class="fu">factor</span>(Z), <span class="at">D =</span> <span class="fu">factor</span>(D), Y)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>m_late_2s  <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(Y <span class="sc">~</span> D <span class="sc">|</span> Z, <span class="at">data =</span> df_2s)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>broom<span class="sc">::</span><span class="fu">tidy</span>(m_late_2s) <span class="sc">|&gt;</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"D1"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(estimate, std.error, p.value) <span class="sc">|&gt;</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>               <span class="at">caption =</span> <span class="st">"Two-sided noncompliance: ivreg() generalizes automatically. True effect = -8."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -1027,8 +1336,8 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">-7.889</td>
-<td style="text-align: right;">1.526</td>
+<td style="text-align: right;">-8.875</td>
+<td style="text-align: right;">1.399</td>
 <td style="text-align: right;">0</td>
 </tr>
 </tbody>
@@ -1058,10 +1367,10 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sandwich)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Assume df_nc has a 'site' variable</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">coeftest</span>(m_late, <span class="at">vcov =</span> <span class="fu">vcovCL</span>(m_late, <span class="at">cluster =</span> <span class="sc">~</span>site))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sandwich)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Assume df_nc has a 'site' variable</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">coeftest</span>(m_late, <span class="at">vcov =</span> <span class="fu">vcovCL</span>(m_late, <span class="at">cluster =</span> <span class="sc">~</span>site))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>When site-level compliance rates vary substantially, it can also be informative to model compliance as a site-level random effect — sites with low compliance contribute attenuated ITT estimates, and the LATE for each site reflects that site’s compliance rate.</p>
@@ -1076,14 +1385,14 @@ window.Quarto = {
 </div>
 <div class="callout-body-container callout-body">
 <p>If site-level compliance is itself of interest (e.g., “does full implementation matter?”), you can model it explicitly:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Site-level compliance rate as a predictor</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>site_compliance <span class="ot">&lt;-</span> df_nested <span class="sc">|&gt;</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Z <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(site) <span class="sc">|&gt;</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">compliance_rate =</span> <span class="fu">mean</span>(<span class="fu">as.integer</span>(<span class="fu">as.character</span>(D))))</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>df_nested <span class="ot">&lt;-</span> <span class="fu">left_join</span>(df_nested, site_compliance, <span class="at">by =</span> <span class="st">"site"</span>)</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="fu">lmer</span>(savings_rate <span class="sc">~</span> compliance_rate <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site), <span class="at">data =</span> df_nested <span class="sc">|&gt;</span> <span class="fu">filter</span>(Z <span class="sc">==</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Site-level compliance rate as a predictor</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>site_compliance <span class="ot">&lt;-</span> df_nested <span class="sc">|&gt;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(Z <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(site) <span class="sc">|&gt;</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">compliance_rate =</span> <span class="fu">mean</span>(<span class="fu">as.integer</span>(<span class="fu">as.character</span>(D))))</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>df_nested <span class="ot">&lt;-</span> <span class="fu">left_join</span>(df_nested, site_compliance, <span class="at">by =</span> <span class="st">"site"</span>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="fu">lmer</span>(savings_rate <span class="sc">~</span> compliance_rate <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> site), <span class="at">data =</span> df_nested <span class="sc">|&gt;</span> <span class="fu">filter</span>(Z <span class="sc">==</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This is a “dose-response” analysis at the site level and requires its own identification argument (why does compliance vary across sites independent of site characteristics?).</p>
 </div>
 </div>

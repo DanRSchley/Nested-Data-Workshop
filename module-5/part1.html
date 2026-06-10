@@ -516,12 +516,14 @@ window.Quarto = {
   <ul>
   <li><a href="#crossed-random-effects-in-experiments" id="toc-crossed-random-effects-in-experiments" class="nav-link active" data-scroll-target="#crossed-random-effects-in-experiments">Crossed Random Effects in Experiments</a>
   <ul class="collapse">
+  <li><a href="#stimulus-audit-before-analysis" id="toc-stimulus-audit-before-analysis" class="nav-link" data-scroll-target="#stimulus-audit-before-analysis">Stimulus Audit Before Analysis</a></li>
   <li><a href="#the-stimuli-are-random-problem" id="toc-the-stimuli-are-random-problem" class="nav-link" data-scroll-target="#the-stimuli-are-random-problem">The Stimuli-Are-Random Problem</a></li>
   <li><a href="#crossed-not-nested" id="toc-crossed-not-nested" class="nav-link" data-scroll-target="#crossed-not-nested">Crossed, Not Nested</a></li>
   <li><a href="#simulation-gain-vs.-loss-framing-and-wtp" id="toc-simulation-gain-vs.-loss-framing-and-wtp" class="nav-link" data-scroll-target="#simulation-gain-vs.-loss-framing-and-wtp">Simulation: Gain vs.&nbsp;Loss Framing and WTP</a>
   <ul class="collapse">
   <li><a href="#two-models-two-answers" id="toc-two-models-two-answers" class="nav-link" data-scroll-target="#two-models-two-answers">Two models, two answers</a></li>
   <li><a href="#visualizing-the-two-variance-components" id="toc-visualizing-the-two-variance-components" class="nav-link" data-scroll-target="#visualizing-the-two-variance-components">Visualizing the two variance components</a></li>
+  <li><a href="#post-fit-report-stimulus-icc-and-compare-models" id="toc-post-fit-report-stimulus-icc-and-compare-models" class="nav-link" data-scroll-target="#post-fit-report-stimulus-icc-and-compare-models">Post-fit: report stimulus ICC and compare models</a></li>
   </ul></li>
   <li><a href="#the-juddwestfallkenny-2012-argument" id="toc-the-juddwestfallkenny-2012-argument" class="nav-link" data-scroll-target="#the-juddwestfallkenny-2012-argument">The Judd–Westfall–Kenny (2012) Argument</a></li>
   <li><a href="#power-depends-on-both-n-and-number-of-stimuli" id="toc-power-depends-on-both-n-and-number-of-stimuli" class="nav-link" data-scroll-target="#power-depends-on-both-n-and-number-of-stimuli">Power Depends on Both N and Number of Stimuli</a></li>
@@ -572,6 +574,84 @@ window.Quarto = {
 </blockquote>
 </div>
 </div>
+<section id="stimulus-audit-before-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="stimulus-audit-before-analysis">Stimulus Audit Before Analysis</h2>
+<p>Before fitting a crossed random-effects model, audit the stimulus structure. Many of the most common errors in JDM experiments trace back to stimulus decisions made before analysis — not statistical choices.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Stimulus Audit Checklist
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 37%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Question</th>
+<th>Why it matters</th>
+<th>What to check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Were stimuli sampled, constructed, or selected after piloting?</td>
+<td>Piloted-then-retained stimuli are not a random sample</td>
+<td>Describe the stimulus selection process</td>
+</tr>
+<tr class="even">
+<td>Can each stimulus appear in each condition?</td>
+<td>Enables full counterbalancing and crossed RE</td>
+<td>Check design matrix</td>
+</tr>
+<tr class="odd">
+<td>Are stimulus features (valence, concreteness, EV) balanced across conditions?</td>
+<td>Unbalanced features confound the manipulation effect</td>
+<td>Compare mean stimulus features by condition</td>
+</tr>
+<tr class="even">
+<td>How many stimuli per condition?</td>
+<td>Drives stimulus-side power</td>
+<td>Count N_stimuli by condition</td>
+</tr>
+<tr class="odd">
+<td>Is the stimulus population the target of generalization?</td>
+<td>Determines whether stimulus RE is appropriate</td>
+<td>State what you want to generalize to</td>
+</tr>
+<tr class="even">
+<td>Are stimuli the same across participants, or are they sampled per participant?</td>
+<td>Determines whether design is crossed or nested</td>
+<td>Check whether each participant sees the same stimuli</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>When Stimuli Are Condition-Specific
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If each stimulus belongs to only one condition — gain-framed messages were written for gain framing, loss-framed messages were written for loss framing — the condition effect and the stimulus-quality difference are <strong>perfectly confounded</strong>. The crossed random-effects model cannot disentangle them.</p>
+<p><strong>What claim survives:</strong> The treatment effect estimate for these specific stimuli is still valid. Generalization requires that the condition-specific stimuli are representative of the broader classes, which must be argued conceptually — it cannot be verified statistically.</p>
+<p><strong>What to check:</strong> Report the stimulus-level ICC. If it is substantially above zero, stimulus quality differences exist and should be acknowledged. If you have coded stimulus features (concreteness, familiarity, expected value), include them as covariates to rule out feature confounds.</p>
+</div>
+</div>
+<hr>
+</section>
 <section id="the-stimuli-are-random-problem" class="level2">
 <h2 class="anchored" data-anchor-id="the-stimuli-are-random-problem">The Stimuli-Are-Random Problem</h2>
 <p>Every JDM experiment that presents multiple stimuli — gain- and loss-framed messages, product descriptions, gamble pairs, disclosure formats, price offers, policy options — has the same structural feature: the stimuli you used are a <em>sample</em> from a larger population of possible stimuli.</p>
@@ -790,6 +870,58 @@ window.Quarto = {
 </div>
 <hr>
 </section>
+<section id="post-fit-report-stimulus-icc-and-compare-models" class="level3">
+<h3 class="anchored" data-anchor-id="post-fit-report-stimulus-icc-and-compare-models">Post-fit: report stimulus ICC and compare models</h3>
+<p>After fitting, always report the stimulus ICC and show what the SE would have been if stimulus variance had been ignored. This is the evidence that the crossed model was necessary.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stimulus ICC from the correct model</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>vc <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">VarCorr</span>(m_correct))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>var_message  <span class="ot">&lt;-</span> vc<span class="sc">$</span>vcov[vc<span class="sc">$</span>grp <span class="sc">==</span> <span class="st">"message"</span>]</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>var_residual <span class="ot">&lt;-</span> vc<span class="sc">$</span>vcov[vc<span class="sc">$</span>grp <span class="sc">==</span> <span class="st">"Residual"</span>]</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>icc_message  <span class="ot">&lt;-</span> var_message <span class="sc">/</span> (var_message <span class="sc">+</span> var_residual)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Message ICC:"</span>, <span class="fu">round</span>(icc_message, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Message ICC: 0.641 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Interpretation: "</span>, <span class="fu">round</span>(icc_message <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>),</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"% of residual variance (after participant effects) is due to stable message differences.</span><span class="sc">\n\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Interpretation:  64.1 % of residual variance (after participant effects) is due to stable message differences.</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SE comparison</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>se_wrong   <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_wrong,   <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"conditionloss"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(std.error)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>se_correct <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_correct, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span> <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"conditionloss"</span>) <span class="sc">|&gt;</span> <span class="fu">pull</span>(std.error)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"SE ignoring messages: "</span>, <span class="fu">round</span>(se_wrong, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>SE ignoring messages:  0.633 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"SE with message RE:   "</span>, <span class="fu">round</span>(se_correct, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>SE with message RE:    2.787 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"SE inflation from ignoring messages:"</span>, <span class="fu">round</span>((se_wrong <span class="sc">/</span> se_correct <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>), <span class="st">"% smaller</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>SE inflation from ignoring messages: -77.3 % smaller</code></pre>
+</div>
+</div>
+<hr>
+</section>
 </section>
 <section id="the-juddwestfallkenny-2012-argument" class="level2">
 <h2 class="anchored" data-anchor-id="the-juddwestfallkenny-2012-argument">The Judd–Westfall–Kenny (2012) Argument</h2>
@@ -808,31 +940,31 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Schematic: how SE changes with N_stimuli vs. N_participants</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (simplified illustration, not simulation-calibrated)</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>se_grid <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_stim =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">32</span>),</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_part =</span> <span class="fu">seq</span>(<span class="dv">20</span>, <span class="dv">200</span>, <span class="at">by =</span> <span class="dv">20</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Approximate SE ∝ 1/sqrt(n_part) + 1/sqrt(n_stim), simplified</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">approx_se =</span> <span class="fu">sqrt</span>(<span class="dv">64</span> <span class="sc">/</span> n_part <span class="sc">+</span> <span class="dv">36</span> <span class="sc">/</span> n_stim),</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_stim    =</span> <span class="fu">factor</span>(<span class="fu">paste</span>(n_stim, <span class="st">"stimuli"</span>), <span class="at">levels =</span> <span class="fu">paste</span>(<span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">32</span>), <span class="st">"stimuli"</span>))</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(se_grid, <span class="fu">aes</span>(<span class="at">x =</span> n_part, <span class="at">y =</span> approx_se, <span class="at">color =</span> n_stim, <span class="at">group =</span> n_stim)) <span class="sc">+</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#c0392b"</span>, <span class="st">"#e67e22"</span>, <span class="st">"#2d6a4f"</span>, <span class="st">"#1e3a5f"</span>),</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">name   =</span> <span class="cn">NULL</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"SE of treatment effect as function of N participants and N stimuli"</span>,</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"With few stimuli, adding participants has limited impact. Expand the stimulus set."</span>,</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Number of participants"</span>,</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Approximate SE of treatment effect"</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Schematic: how SE changes with N_stimuli vs. N_participants</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (simplified illustration, not simulation-calibrated)</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>se_grid <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_stim =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">32</span>),</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_part =</span> <span class="fu">seq</span>(<span class="dv">20</span>, <span class="dv">200</span>, <span class="at">by =</span> <span class="dv">20</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Approximate SE ∝ 1/sqrt(n_part) + 1/sqrt(n_stim), simplified</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">approx_se =</span> <span class="fu">sqrt</span>(<span class="dv">64</span> <span class="sc">/</span> n_part <span class="sc">+</span> <span class="dv">36</span> <span class="sc">/</span> n_stim),</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_stim    =</span> <span class="fu">factor</span>(<span class="fu">paste</span>(n_stim, <span class="st">"stimuli"</span>), <span class="at">levels =</span> <span class="fu">paste</span>(<span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">32</span>), <span class="st">"stimuli"</span>))</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(se_grid, <span class="fu">aes</span>(<span class="at">x =</span> n_part, <span class="at">y =</span> approx_se, <span class="at">color =</span> n_stim, <span class="at">group =</span> n_stim)) <span class="sc">+</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#c0392b"</span>, <span class="st">"#e67e22"</span>, <span class="st">"#2d6a4f"</span>, <span class="st">"#1e3a5f"</span>),</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">name   =</span> <span class="cn">NULL</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"SE of treatment effect as function of N participants and N stimuli"</span>,</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"With few stimuli, adding participants has limited impact. Expand the stimulus set."</span>,</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Number of participants"</span>,</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Approximate SE of treatment effect"</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>

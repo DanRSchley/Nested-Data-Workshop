@@ -516,7 +516,7 @@ window.Quarto = {
   <ul>
   <li><a href="#effect-sizes-reporting-and-reproducibility" id="toc-effect-sizes-reporting-and-reproducibility" class="nav-link active" data-scroll-target="#effect-sizes-reporting-and-reproducibility">Effect Sizes, Reporting, and Reproducibility</a>
   <ul class="collapse">
-  <li><a href="#why-this-chapter-exists" id="toc-why-this-chapter-exists" class="nav-link" data-scroll-target="#why-this-chapter-exists">Why This Chapter Exists</a></li>
+  <li><a href="#why-this-chapter-is-the-capstone-for-module-5" id="toc-why-this-chapter-is-the-capstone-for-module-5" class="nav-link" data-scroll-target="#why-this-chapter-is-the-capstone-for-module-5">Why This Chapter Is the Capstone for Module 5</a></li>
   <li><a href="#part-1-effect-size-in-mixed-models" id="toc-part-1-effect-size-in-mixed-models" class="nav-link" data-scroll-target="#part-1-effect-size-in-mixed-models">Part 1: Effect Size in Mixed Models</a>
   <ul class="collapse">
   <li><a href="#the-problem-with-standard-effect-sizes" id="toc-the-problem-with-standard-effect-sizes" class="nav-link" data-scroll-target="#the-problem-with-standard-effect-sizes">The Problem with Standard Effect Sizes</a></li>
@@ -536,6 +536,12 @@ window.Quarto = {
   <li><a href="#part-5-reporting-standards-for-nested-experimental-data" id="toc-part-5-reporting-standards-for-nested-experimental-data" class="nav-link" data-scroll-target="#part-5-reporting-standards-for-nested-experimental-data">Part 5: Reporting Standards for Nested Experimental Data</a>
   <ul class="collapse">
   <li><a href="#what-to-report" id="toc-what-to-report" class="nav-link" data-scroll-target="#what-to-report">What to Report</a></li>
+  </ul></li>
+  <li><a href="#design-specific-reporting-templates" id="toc-design-specific-reporting-templates" class="nav-link" data-scroll-target="#design-specific-reporting-templates">Design-Specific Reporting Templates</a></li>
+  <li><a href="#minimum-reproducible-model-report" id="toc-minimum-reproducible-model-report" class="nav-link" data-scroll-target="#minimum-reproducible-model-report">Minimum Reproducible Model Report</a></li>
+  <li><a href="#preregistration-prompts-for-nested-experimental-designs" id="toc-preregistration-prompts-for-nested-experimental-designs" class="nav-link" data-scroll-target="#preregistration-prompts-for-nested-experimental-designs">Preregistration Prompts for Nested Experimental Designs</a></li>
+  <li><a href="#claim-calibration-narrowing-the-claim-when-assumptions-are-weak" id="toc-claim-calibration-narrowing-the-claim-when-assumptions-are-weak" class="nav-link" data-scroll-target="#claim-calibration-narrowing-the-claim-when-assumptions-are-weak">Claim Calibration: Narrowing the Claim When Assumptions Are Weak</a>
+  <ul class="collapse">
   <li><a href="#example-apa-style-results-paragraph" id="toc-example-apa-style-results-paragraph" class="nav-link" data-scroll-target="#example-apa-style-results-paragraph">Example APA-Style Results Paragraph</a></li>
   </ul></li>
   <li><a href="#part-6-reproducibility-practices" id="toc-part-6-reproducibility-practices" class="nav-link" data-scroll-target="#part-6-reproducibility-practices">Part 6: Reproducibility Practices</a>
@@ -575,15 +581,22 @@ window.Quarto = {
 
 <section id="effect-sizes-reporting-and-reproducibility" class="level1">
 <h1>Effect Sizes, Reporting, and Reproducibility</h1>
-<section id="why-this-chapter-exists" class="level2">
-<h2 class="anchored" data-anchor-id="why-this-chapter-exists">Why This Chapter Exists</h2>
-<p>Nested data creates reporting problems that do not exist in simple ANOVA or OLS regression. When effects are estimated at multiple levels, when random effects have their own variance components, and when outcomes live on transformed scales, the standard playbook for effect sizes (Cohen’s <span class="math inline">\(d\)</span>, <span class="math inline">\(\eta^2\)</span>, <span class="math inline">\(R^2\)</span>) breaks down or becomes ambiguous.</p>
+<section id="why-this-chapter-is-the-capstone-for-module-5" class="level2">
+<h2 class="anchored" data-anchor-id="why-this-chapter-is-the-capstone-for-module-5">Why This Chapter Is the Capstone for Module 5</h2>
+<p>This chapter does two things. First, it covers the statistical mechanics of effect sizes for mixed models — what they mean and how to compute them. Second, and more importantly, it provides <strong>design-specific reporting templates</strong> so that a reader who completed Module 5 can write up any nested experimental analysis in a way that is transparent, verifiable, and reviewer-ready.</p>
+<p>The guiding question:</p>
+<blockquote class="blockquote">
+<p>Given the nesting structure, estimand, and assumption profile of your analysis, what does a reviewer need to see to evaluate whether the design and model are appropriate?</p>
+</blockquote>
 <p>This chapter covers:</p>
 <ol type="1">
 <li>Effect size measures for mixed models — what they mean and how to compute them</li>
 <li>Translating fixed effect estimates to interpretable metrics</li>
 <li>Conditional vs.&nbsp;marginal <span class="math inline">\(R^2\)</span></li>
-<li>Reporting standards for nested experimental data</li>
+<li>Design-specific reporting templates (crossed RE, partially nested, multi-site, GLMM, noncompliance, quasi-experimental)</li>
+<li>A minimum reproducible model report</li>
+<li>Preregistration prompts for nested experimental designs</li>
+<li>Claim calibration: how to narrow your claim when assumptions are weak</li>
 <li>Reproducibility practices: seeds, version pinning, and transparent reporting</li>
 </ol>
 <hr>
@@ -907,7 +920,221 @@ window.Quarto = {
 <p><strong>For non-normal outcomes:</strong> - [ ] Overdispersion check (for count models) - [ ] Predicted probabilities or counts at substantively meaningful covariate values</p>
 </div>
 </div>
+<hr>
 </section>
+</section>
+<section id="design-specific-reporting-templates" class="level2">
+<h2 class="anchored" data-anchor-id="design-specific-reporting-templates">Design-Specific Reporting Templates</h2>
+<p>Different designs require different minimum disclosures. Use the template for your design.</p>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Crossed Participant × Stimulus Design (Part 1)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p>“We fitted a linear mixed model with participant and message as crossed random effects (<code>lmer(Y ~ condition + (1|participant) + (1|message)</code>). The participant ICC was [value], indicating [X]% of response variance was stable between-person. The message ICC was [value]. Treating messages as fixed effects (ignoring message variance) would have underestimated the SE of the framing effect by approximately [X]%. The framing effect was <em>b</em> = [estimate], SE = [SE], 95% CI [CI], <em>t</em>([df]) = [t], <em>p</em> = [p].”</p>
+</blockquote>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Partially Nested Design (Part 2)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p>“Participants were randomly assigned to a group coaching condition (<em>n</em> = [N], [K] coaches, [m] per coach) or an independent self-serve condition (<em>n</em> = [N]). Because only the coaching arm had shared group context, we used the Bauer et al.&nbsp;partially nested model: coaching groups were modeled with a random effect, while control participants each received a unique singleton cluster ID. The coaching-group ICC was [value]. The coaching effect estimate was <em>b</em> = [estimate], SE = [SE], <em>p</em> = [p]. We verified that using a naive model without clustering inflated the coaching effect SE by [X]%.”</p>
+</blockquote>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Multi-Site Experiment (Part 4)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p>“The study was run across [K] sites ([describe recruitment]). Sites were modeled as random effects; the treatment effect was allowed to vary by site (random slope for treatment by site). The average treatment effect across sites was <em>b</em> = [estimate], SE = [SE], 95% CI [CI]. The SD of treatment effects across sites was [value], indicating that the 80% plausible range of site effects was approximately [[lower], [upper]]. A leave-one-site-out analysis confirmed no single site was driving the average estimate. Because sites were [convenience-sampled / systematically recruited], results generalize to [describe population].”</p>
+</blockquote>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>GLMM with Binary or Bounded Count Outcome (Part 6)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p><strong>Binary:</strong> “We fitted a logistic mixed model with [random effects structure]. The condition effect was <em>b</em> = [log-odds], OR = [exp(b)], 95% CI [CI], <em>z</em> = [z], <em>p</em> = [p]. At the sample mean baseline probability of [X]%, the treatment increased acceptance probability by approximately [Y] percentage points (to [Z]%). The random intercept variance was [τ²], ICC = [value].”</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><strong>Bounded count (binomial):</strong> “Risky choices out of 10 gambles per block were modeled with a binomial GLMM using <code>cbind(risky_count, 10-risky_count)</code>. Using Poisson for this bounded outcome would have been incorrect — the DGP is binomial, not Poisson. The disclosure effect was OR = [estimate] (per-gamble acceptance odds ratio), 95% CI [CI], <em>p</em> = [p].”</p>
+</blockquote>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Non-Compliance / LATE Analysis (Part 8)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p>“Compliance in the treatment arm was [X]% (one-sided noncompliance — controls could not access the tool). We report both the intent-to-treat effect (ITT = [estimate], SE = [SE], <em>p</em> = [p]) and the complier average causal effect (LATE = [estimate], SE = [SE], <em>p</em> = [p]), estimated via instrumental variables regression with assignment as the instrument. The first-stage <em>F</em>-statistic was <em>F</em> = [F], supporting instrument relevance. The exclusion restriction — that assignment affected savings only through tool activation — is supported by [design argument].”</p>
+</blockquote>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Attrition / IPW Analysis (Part 9)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<blockquote class="blockquote">
+<p>“At follow-up, [X]% of participants were retained. Retention was lower in the control arm ([X]%) than the treatment arm ([Y]%), and predicted by baseline [covariate]. We estimated inverse probability weights for attrition using a logistic model for retention on baseline covariates. The IPW-corrected ITT was <em>b</em> = [estimate], SE = [SE], <em>p</em> = [p], compared to the naive complete-case estimate of <em>b</em> = [biased estimate]. The IPW analysis assumes dropout was missing at random given observed baseline covariates; if dropout was driven by unobserved outcomes, this correction will not fully remove bias.”</p>
+</blockquote>
+</div>
+</div>
+<hr>
+</section>
+<section id="minimum-reproducible-model-report" class="level2">
+<h2 class="anchored" data-anchor-id="minimum-reproducible-model-report">Minimum Reproducible Model Report</h2>
+<p>Every mixed model analysis should include enough information for a reader to exactly reproduce it.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Minimum Reproducible Report Box
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Report all of these:</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Formula</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>Y <span class="sc">~</span> condition <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> condition <span class="sc">|</span> participant) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> stimulus)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Contrast coding</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># condition: treatment = 1, control = 0 (dummy coding)</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Optimizer</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">lmerControl</span>(<span class="at">optimizer =</span> <span class="st">"bobyqa"</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. REML vs. ML</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Fixed effects: REML = TRUE (default); LRT comparisons: REML = FALSE</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Convergence check</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="fu">isSingular</span>(model)             <span class="co"># TRUE = degenerate variance</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>performance<span class="sc">::</span><span class="fu">check_convergence</span>(model)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 6. Key diagnostics run</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(model)                   <span class="co"># residuals vs. fitted</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(<span class="fu">ranef</span>(model)<span class="sc">$</span>participant[[<span class="dv">1</span>]])  <span class="co"># RE normality</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 7. Package versions</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<hr>
+</section>
+<section id="preregistration-prompts-for-nested-experimental-designs" class="level2">
+<h2 class="anchored" data-anchor-id="preregistration-prompts-for-nested-experimental-designs">Preregistration Prompts for Nested Experimental Designs</h2>
+<p>These prompts cover the decisions that are most consequential for nested experimental analyses and are most commonly left unspecified in preregistrations.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Preregistration Checklist
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>What is randomized and at what level?</strong> - [ ] Unit of randomization (individual, dyad, classroom, site) - [ ] Whether stimuli are counterbalanced or condition-specific</p>
+<p><strong>What is the estimand?</strong> - [ ] ATE, ITT, LATE, ATT — be explicit - [ ] Whether the estimand is population-level or complier-restricted</p>
+<p><strong>What is the primary model formula?</strong> - [ ] Fixed effects and coding scheme - [ ] Random effects structure (exactly as you plan to fit it) - [ ] Model family and link function (for GLMMs)</p>
+<p><strong>Random effects simplification sequence:</strong> - [ ] Starting structure (maximal theoretically justified) - [ ] Step 1 if singular/non-convergent: remove correlation parameters - [ ] Step 2: remove smallest variance component (with LRT criterion) - [ ] Disclosure: deviations from registered structure will be reported</p>
+<p><strong>Exclusions and attrition rules:</strong> - [ ] Criteria for excluding participants from analysis - [ ] How attrition will be handled (complete case, IPW, FIML) - [ ] Minimum follow-up rate for IPW</p>
+<p><strong>Compliance and instrument:</strong> - [ ] Expected compliance rate and how compliance is measured - [ ] Whether LATE will be reported and what the exclusion restriction argument is</p>
+<p><strong>Sensitivity analyses:</strong> - [ ] Alternative random effects structures - [ ] Alternative model families (e.g., negative binomial vs.&nbsp;Poisson) - [ ] Sensitivity to outlier sites or clusters</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="claim-calibration-narrowing-the-claim-when-assumptions-are-weak" class="level2">
+<h2 class="anchored" data-anchor-id="claim-calibration-narrowing-the-claim-when-assumptions-are-weak">Claim Calibration: Narrowing the Claim When Assumptions Are Weak</h2>
+<p>Not every analysis can sustain its intended claim. When assumptions are questionable, the right response is to narrow the claim — not to hide the limitation.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 38%">
+<col style="width: 30%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>If this is weak…</th>
+<th>Standard claim</th>
+<th>Narrowed claim</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Stimulus sample is small or non-representative</td>
+<td>“This framing effect generalizes to all messages of this type”</td>
+<td>“This effect held for the specific stimuli tested; generalizability to other messages is unknown”</td>
+</tr>
+<tr class="even">
+<td>Sites are convenience-sampled</td>
+<td>“This effect generalizes across contexts”</td>
+<td>“This effect was observed across [K] [convenience-sampled] sites; generalization to other contexts requires similar recruitment”</td>
+</tr>
+<tr class="odd">
+<td>Compliance is partial and exclusion restriction is debatable</td>
+<td>“Tool use causally improves savings (LATE)”</td>
+<td>“Assignment to the tool offer increased savings rates (ITT); the as-treated comparison is biased by motivation; IV assumptions require further defense”</td>
+</tr>
+<tr class="even">
+<td>Attrition is potentially MNAR</td>
+<td>“IPW-corrected ITT is unbiased”</td>
+<td>“The IPW correction assumes MAR; if high-risk participants dropped out because of worsening outcomes (MNAR), residual bias is possible”</td>
+</tr>
+<tr class="odd">
+<td>Parallel trends assumption is untestable with only two waves</td>
+<td>“DiD estimate is causal”</td>
+<td>“The DiD estimate is consistent with a causal interpretation under the parallel trends assumption, which cannot be directly tested with two waves”</td>
+</tr>
+<tr class="even">
+<td>Random effects structure was simplified from preregistered</td>
+<td>“Results are confirmatory”</td>
+<td>“Results are confirmatory for the primary model; the preregistered maximal model was simplified due to convergence failure (reported in Appendix)”</td>
+</tr>
+</tbody>
+</table>
+<hr>
 <section id="example-apa-style-results-paragraph" class="level3">
 <h3 class="anchored" data-anchor-id="example-apa-style-results-paragraph">Example APA-Style Results Paragraph</h3>
 <blockquote class="blockquote">
@@ -924,13 +1151,13 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set seed at the top of every analysis script</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># For parallel computing, set seeds for each worker explicitly</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(parallel)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">RNGkind</span>(<span class="st">"L'Ecuyer-CMRG"</span>)  <span class="co"># safe for parallel streams</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set seed at the top of every analysis script</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># For parallel computing, set seeds for each worker explicitly</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(parallel)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">RNGkind</span>(<span class="st">"L'Ecuyer-CMRG"</span>)  <span class="co"># safe for parallel streams</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>A single <code>set.seed()</code> call at the top of the script is sufficient for non-parallel analyses. Document the seed in the manuscript methods section.</p>
@@ -941,22 +1168,22 @@ window.Quarto = {
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># At the end of every analysis script:</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Or more concisely:</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">capture.output</span>(<span class="fu">sessionInfo</span>()), <span class="st">"session_info.txt"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># At the end of every analysis script:</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Or more concisely:</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">capture.output</span>(<span class="fu">sessionInfo</span>()), <span class="st">"session_info.txt"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>For fully reproducible environments, use <code>renv</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize renv in the project root</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">init</span>()</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># After installing/updating packages:</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">snapshot</span>()  <span class="co"># saves renv.lock with exact package versions</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># To restore the environment on a new machine:</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">restore</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize renv in the project root</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">init</span>()</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># After installing/updating packages:</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">snapshot</span>()  <span class="co"># saves renv.lock with exact package versions</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># To restore the environment on a new machine:</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">restore</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="preregistration-for-experimental-analyses" class="level3">
 <h3 class="anchored" data-anchor-id="preregistration-for-experimental-analyses">Preregistration for Experimental Analyses</h3>

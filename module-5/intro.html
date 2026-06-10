@@ -73,6 +73,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -482,6 +485,11 @@ window.Quarto = {
   <li><a href="#module-5-experimental-designs-with-nesting" id="toc-module-5-experimental-designs-with-nesting" class="nav-link active" data-scroll-target="#module-5-experimental-designs-with-nesting">Module 5: Experimental Designs with Nesting</a>
   <ul class="collapse">
   <li><a href="#experiments-are-not-flat" id="toc-experiments-are-not-flat" class="nav-link" data-scroll-target="#experiments-are-not-flat">Experiments Are Not Flat</a></li>
+  <li><a href="#the-experimental-design-audit" id="toc-the-experimental-design-audit" class="nav-link" data-scroll-target="#the-experimental-design-audit">The Experimental Design Audit</a>
+  <ul class="collapse">
+  <li><a href="#routing-guide-which-part-covers-your-design-problem" id="toc-routing-guide-which-part-covers-your-design-problem" class="nav-link" data-scroll-target="#routing-guide-which-part-covers-your-design-problem">Routing guide: which part covers your design problem?</a></li>
+  <li><a href="#three-layers-every-experimental-analysis-must-address" id="toc-three-layers-every-experimental-analysis-must-address" class="nav-link" data-scroll-target="#three-layers-every-experimental-analysis-must-address">Three layers every experimental analysis must address</a></li>
+  </ul></li>
   <li><a href="#what-this-module-covers" id="toc-what-this-module-covers" class="nav-link" data-scroll-target="#what-this-module-covers">What This Module Covers</a>
   <ul class="collapse">
   <li><a href="#cluster-1-design-structure-and-model-specification" id="toc-cluster-1-design-structure-and-model-specification" class="nav-link" data-scroll-target="#cluster-1-design-structure-and-model-specification">Cluster 1 — Design Structure and Model Specification</a></li>
@@ -528,6 +536,149 @@ window.Quarto = {
 <p>When stimuli are treated as fixed — as if your 20 gamble descriptions are the only 20 that exist — the generalization to other stimuli is silent. Your p-values are too small because stimulus-level variance is being absorbed into the residual, artificially tightening standard errors.</p>
 <p><em>A concrete JDM example:</em> In a study of gain vs.&nbsp;loss framing, each participant sees multiple product offers (stimuli), some framed as gains and others as losses. The offers are sampled from a larger set of possible framings that vary in magnitude, probability, and domain. Ignoring stimulus-level clustering — treating each offer response as an independent observation rather than as one draw from a participant-by-stimulus interaction — inflates Type I error for the framing effect. The apparent precision of the estimate is false.</p>
 <p>Judd, Westfall, &amp; Kenny (2012, 2017) documented that this mistake is pervasive in social psychology and leads to systematic Type I error inflation. The same critique applies directly to JDM research using repeated-stimulus designs.</p>
+</section>
+<section id="the-experimental-design-audit" class="level2">
+<h2 class="anchored" data-anchor-id="the-experimental-design-audit">The Experimental Design Audit</h2>
+<p>Before fitting any model, audit the structure of your experiment. The choices that matter most for model specification were made during design — not at the analysis stage.</p>
+<table class="caption-top table">
+<caption>Experimental design audit checklist</caption>
+<colgroup>
+<col style="width: 25%">
+<col style="width: 20%">
+<col style="width: 25%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Design question</th>
+<th>Why it matters</th>
+<th>Example answer</th>
+<th>Consequence for model</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>What is randomized?</td>
+<td>Determines what comparison is causal</td>
+<td>Treatment condition, by participant</td>
+<td>Treatment is a fixed effect; inference is about the offer</td>
+</tr>
+<tr class="even">
+<td>At what level is treatment assigned?</td>
+<td>Drives the assignment-level analysis</td>
+<td>Individual participants</td>
+<td>Between-subjects main effect</td>
+</tr>
+<tr class="odd">
+<td>What is the unit of observation?</td>
+<td>Each row in the data</td>
+<td>One trial per participant per stimulus</td>
+<td>Multiple rows per participant</td>
+</tr>
+<tr class="even">
+<td>What is the unit of analysis?</td>
+<td>Level at which the target effect is defined</td>
+<td>Participant average</td>
+<td>Random intercept for participants</td>
+</tr>
+<tr class="odd">
+<td>Are stimuli sampled or fixed?</td>
+<td>Determines whether stimulus RE is needed</td>
+<td>12 sampled messages</td>
+<td>Add stimulus random effect (Part 1)</td>
+</tr>
+<tr class="even">
+<td>Are participants crossed with stimuli?</td>
+<td>Determines whether design is crossed or nested</td>
+<td>Each participant sees 6 of 12 messages</td>
+<td>Crossed random effects (Part 1)</td>
+</tr>
+<tr class="odd">
+<td>Is one arm clustered and the other not?</td>
+<td>Determines whether partially nested model is needed</td>
+<td>Treatment arm has shared coach; control is independent</td>
+<td>Partially nested model (Part 2)</td>
+</tr>
+<tr class="even">
+<td>Are sites sampled?</td>
+<td>Determines whether site RE is needed</td>
+<td>8 university labs</td>
+<td>Multi-site model (Part 4)</td>
+</tr>
+<tr class="odd">
+<td>Is compliance perfect?</td>
+<td>Determines whether IV is needed</td>
+<td>70% activate the tool</td>
+<td>Report ITT and LATE (Part 8)</td>
+</tr>
+<tr class="even">
+<td>Is attrition ignorable?</td>
+<td>Determines whether IPW is needed</td>
+<td>High-risk participants drop out</td>
+<td>IPW-corrected ITT (Part 9)</td>
+</tr>
+<tr class="odd">
+<td>What is the outcome type?</td>
+<td>Determines the model family</td>
+<td>Binary choice (accepted / declined)</td>
+<td>Logistic GLMM (Part 6)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<section id="routing-guide-which-part-covers-your-design-problem" class="level3">
+<h3 class="anchored" data-anchor-id="routing-guide-which-part-covers-your-design-problem">Routing guide: which part covers your design problem?</h3>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+    A["What is the\nmain design feature?"]
+
+    A --&gt;|"Multiple stimuli per participant"| B["Crossed random effects\nPart 1"]
+    A --&gt;|"One arm has groups,\none arm is independent"| C["Partially nested design\nPart 2"]
+    A --&gt;|"Random effects structure\nunclear"| D["Maximal vs. parsimonious RE\nPart 3"]
+    A --&gt;|"Same study across\nmultiple sites/labs"| E["Multi-site experiment\nPart 4"]
+    A --&gt;|"Need to plan\nsample size"| F["Power analysis\nPart 5"]
+    A --&gt;|"Binary or count\noutcome"| G["GLMM\nPart 6"]
+    A --&gt;|"Report &amp; preregister"| H["Effect sizes and reporting\nPart 7"]
+    A --&gt;|"Some assigned participants\ndid not comply"| I["ITT and LATE\nPart 8"]
+    A --&gt;|"Attrition, dosage,\nor eligibility cutoff"| J["Quasi-experimental fixes\nPart 9"]
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="three-layers-every-experimental-analysis-must-address" class="level3">
+<h3 class="anchored" data-anchor-id="three-layers-every-experimental-analysis-must-address">Three layers every experimental analysis must address</h3>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>The Recurring Workflow Across Module 5
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Every chapter in this module follows the same six-step audit logic:</p>
+<ol type="1">
+<li><strong>Design audit</strong> — What structure did the experiment create? (randomization level, clustering, stimuli)</li>
+<li><strong>Estimand audit</strong> — What causal quantity can this design identify? (ATE, ITT, LATE, ATT)</li>
+<li><strong>Model audit</strong> — Does the model match the assignment level, measurement level, and outcome distribution?</li>
+<li><strong>Assumption audit</strong> — Which assumptions are guaranteed by design, which are testable, and which require conceptual defense?</li>
+<li><strong>Failure audit</strong> — If an assumption is weak, what alternative model or narrower claim is appropriate?</li>
+<li><strong>Reporting audit</strong> — What must be reported so a reviewer can evaluate the design and model?</li>
+</ol>
+<p>Part 2b of Module 4 introduced this same workflow for longitudinal data. Module 5 repeats it for experimental designs.</p>
+</div>
+</div>
+<hr>
+</section>
 </section>
 <section id="what-this-module-covers" class="level2">
 <h2 class="anchored" data-anchor-id="what-this-module-covers">What This Module Covers</h2>

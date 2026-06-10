@@ -490,6 +490,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#partially-nested-designs" id="toc-partially-nested-designs" class="nav-link active" data-scroll-target="#partially-nested-designs">Partially Nested Designs</a>
   <ul class="collapse">
+  <li><a href="#partial-nesting-design-audit" id="toc-partial-nesting-design-audit" class="nav-link" data-scroll-target="#partial-nesting-design-audit">Partial-Nesting Design Audit</a></li>
   <li><a href="#when-only-one-condition-has-clustering" id="toc-when-only-one-condition-has-clustering" class="nav-link" data-scroll-target="#when-only-one-condition-has-clustering">When Only One Condition Has Clustering</a>
   <ul class="collapse">
   <li><a href="#why-this-creates-a-modeling-problem" id="toc-why-this-creates-a-modeling-problem" class="nav-link" data-scroll-target="#why-this-creates-a-modeling-problem">Why this creates a modeling problem</a></li>
@@ -500,6 +501,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#fitting-the-partially-nested-model-in-lme4" id="toc-fitting-the-partially-nested-model-in-lme4" class="nav-link" data-scroll-target="#fitting-the-partially-nested-model-in-lme4">Fitting the Partially Nested Model in lme4</a>
   <ul class="collapse">
   <li><a href="#visualizing-coach-level-variance" id="toc-visualizing-coach-level-variance" class="nav-link" data-scroll-target="#visualizing-coach-level-variance">Visualizing coach-level variance</a></li>
+  <li><a href="#reporting-checklist-for-partially-nested-designs" id="toc-reporting-checklist-for-partially-nested-designs" class="nav-link" data-scroll-target="#reporting-checklist-for-partially-nested-designs">Reporting checklist for partially nested designs</a></li>
   </ul></li>
   <li><a href="#the-observationalexperimental-bridge" id="toc-the-observationalexperimental-bridge" class="nav-link" data-scroll-target="#the-observationalexperimental-bridge">The Observational–Experimental Bridge</a></li>
   <li><a href="#assumptions" id="toc-assumptions" class="nav-link" data-scroll-target="#assumptions">Assumptions</a></li>
@@ -549,6 +551,69 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </blockquote>
 </div>
 </div>
+<section id="partial-nesting-design-audit" class="level2">
+<h2 class="anchored" data-anchor-id="partial-nesting-design-audit">Partial-Nesting Design Audit</h2>
+<p>Before fitting, verify that your design is actually partially nested — that one arm has genuine shared context and the other does not.</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Partial-Nesting Audit Checklist
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 37%">
+<col style="width: 37%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Question</th>
+<th>Why it matters</th>
+<th>What to check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Which arm has shared context?</td>
+<td>Must correctly specify which condition has the cluster RE</td>
+<td>Coaching arm, not control arm</td>
+</tr>
+<tr class="even">
+<td>What defines the cluster?</td>
+<td>The cluster is the unit of shared experience</td>
+<td>Coach, facilitator, classroom, lab section</td>
+</tr>
+<tr class="odd">
+<td>Who assigns participants to clusters?</td>
+<td>Random vs.&nbsp;non-random assignment to clusters</td>
+<td>Randomization records</td>
+</tr>
+<tr class="even">
+<td>Are control participants truly independent?</td>
+<td>If not, the “partially nested” premise is wrong</td>
+<td>Check for shared platform, shared recruiter, etc.</td>
+</tr>
+<tr class="odd">
+<td>Are cluster sizes equal?</td>
+<td>Unequal sizes reduce power</td>
+<td>Plot cluster size distribution</td>
+</tr>
+<tr class="even">
+<td>Are cluster-level covariates measured?</td>
+<td>May be needed as controls or moderators</td>
+<td>Coach experience, training received, etc.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+</section>
 <section id="when-only-one-condition-has-clustering" class="level2">
 <h2 class="anchored" data-anchor-id="when-only-one-condition-has-clustering">When Only One Condition Has Clustering</h2>
 <p>Consider a financial coaching field experiment. The treatment group receives <strong>group financial coaching</strong>: 8 participants share a coach, 15 coaches total. The control group receives a <strong>self-serve information module</strong> — there is no coach and no shared group structure. Control participants are fully independent of each other.</p>
@@ -715,6 +780,96 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>The spread in these estimates is what the naive model ignores. It treats participants from an effective coach and participants from an ineffective coach as if they were drawn from the same independent distribution — understating uncertainty about the coaching condition’s overall effect.</p>
+<hr>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Implementation Notes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Singleton clusters for controls</strong> (each control participant gets a unique cluster ID) is the standard practical approach. It is not a trick — it correctly tells the model that control participants share no group context.</li>
+<li><strong>Heteroskedastic residuals</strong>: The standard partially nested model assumes equal residual variance in both arms. If coaching experiences homogenize behavior (reducing within-group variance) or introduce idiosyncratic variation (increasing it), fit a heteroskedastic model using <code>nlme::lme()</code> with <code>weights = varIdent(form = ~ 1 | condition)</code>.</li>
+<li><strong>Few clusters</strong>: With J &lt; 10 coaches, the random coach effect is estimated imprecisely. Consider using fixed coach effects (absorbs all between-coach variance, generalizes to these specific coaches) or a cluster bootstrap for standard errors.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>If This Fails
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 40%">
+<col style="width: 34%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Problem</th>
+<th>What it means</th>
+<th>What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Control arm also shows clustering</td>
+<td>“Partially nested” premise is wrong</td>
+<td>Model clustering in both arms — use a different cluster ID scheme</td>
+</tr>
+<tr class="even">
+<td>Coach assignment is not random</td>
+<td>Coach RE is confounded with participant characteristics</td>
+<td>Control for assignment variables or narrow the causal claim</td>
+</tr>
+<tr class="odd">
+<td>Coach effects are not exchangeable</td>
+<td>Random effects are a poor model for highly heterogeneous coaches</td>
+<td>Use fixed coach effects; report coach-specific estimates</td>
+</tr>
+<tr class="even">
+<td>Very few clusters (J &lt; 5)</td>
+<td>Random effect variance is unreliable</td>
+<td>Use fixed effects for coaches or cluster bootstrap</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+</section>
+<section id="reporting-checklist-for-partially-nested-designs" class="level3">
+<h3 class="anchored" data-anchor-id="reporting-checklist-for-partially-nested-designs">Reporting checklist for partially nested designs</h3>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Minimum Reporting Checklist
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox">Number of clusters (coaches) and participants per cluster</label></li>
+<li><label><input type="checkbox">How cluster assignment was done (random, matched, self-selected)</label></li>
+<li><label><input type="checkbox">Whether control participants shared any context (and why independence is assumed)</label></li>
+<li><label><input type="checkbox">Treatment-arm ICC (variance attributed to clustering)</label></li>
+<li><label><input type="checkbox">Whether residual variances differed by condition (and result of test)</label></li>
+<li><label><input type="checkbox">Standard errors from both naive and partially nested model (to show why the model mattered)</label></li>
+</ul>
+</div>
+</div>
 <hr>
 </section>
 </section>

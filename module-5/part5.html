@@ -516,11 +516,14 @@ window.Quarto = {
   <ul>
   <li><a href="#power-analysis-for-nested-designs" id="toc-power-analysis-for-nested-designs" class="nav-link active" data-scroll-target="#power-analysis-for-nested-designs">Power Analysis for Nested Designs</a>
   <ul class="collapse">
+  <li><a href="#a-practical-power-planning-workflow" id="toc-a-practical-power-planning-workflow" class="nav-link" data-scroll-target="#a-practical-power-planning-workflow">A Practical Power Planning Workflow</a></li>
   <li><a href="#why-standard-power-formulas-are-wrong" id="toc-why-standard-power-formulas-are-wrong" class="nav-link" data-scroll-target="#why-standard-power-formulas-are-wrong">Why Standard Power Formulas Are Wrong</a></li>
   <li><a href="#the-icc-power-relationship" id="toc-the-icc-power-relationship" class="nav-link" data-scroll-target="#the-icc-power-relationship">The ICC-Power Relationship</a></li>
   <li><a href="#simulation-based-power-analysis" id="toc-simulation-based-power-analysis" class="nav-link" data-scroll-target="#simulation-based-power-analysis">Simulation-Based Power Analysis</a></li>
   <li><a href="#the-simr-package-for-complex-designs" id="toc-the-simr-package-for-complex-designs" class="nav-link" data-scroll-target="#the-simr-package-for-complex-designs">The <code>simr</code> Package for Complex Designs</a></li>
+  <li><a href="#power-for-crossed-designs-participants-stimuli" id="toc-power-for-crossed-designs-participants-stimuli" class="nav-link" data-scroll-target="#power-for-crossed-designs-participants-stimuli">Power for Crossed Designs: Participants × Stimuli</a></li>
   <li><a href="#key-takeaways-for-power-planning" id="toc-key-takeaways-for-power-planning" class="nav-link" data-scroll-target="#key-takeaways-for-power-planning">Key Takeaways for Power Planning</a></li>
+  <li><a href="#minimum-reporting-checklist-for-power" id="toc-minimum-reporting-checklist-for-power" class="nav-link" data-scroll-target="#minimum-reporting-checklist-for-power">Minimum Reporting Checklist for Power</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/DanRSchley/Nested-Data-Workshop/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
@@ -549,6 +552,103 @@ window.Quarto = {
 
 <section id="power-analysis-for-nested-designs" class="level1">
 <h1>Power Analysis for Nested Designs</h1>
+<section id="a-practical-power-planning-workflow" class="level2">
+<h2 class="anchored" data-anchor-id="a-practical-power-planning-workflow">A Practical Power Planning Workflow</h2>
+<p>Power analysis is not a single calculation — it is a design exploration. The goal is to understand how power changes across the design space so you can make an informed choice, not to produce a single “magic number.”</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Power Planning Workflow
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li><strong>Define the estimand</strong> — what is the effect you are testing? (average treatment effect, ITT, LATE, etc.)</li>
+<li><strong>Identify the assignment level</strong> — is treatment assigned to individuals, clusters, or sites?</li>
+<li><strong>Identify the analysis model</strong> — the power simulation must fit the <em>exact</em> planned analysis model</li>
+<li><strong>Estimate plausible ICCs</strong> from pilot data, the literature, or a range of assumptions</li>
+<li><strong>Specify plausible effect sizes</strong> — express uncertainty in the assumed effect; simulate a range</li>
+<li><strong>Simulate several designs</strong> — vary N, clusters, stimuli, and compliance rate</li>
+<li><strong>Report uncertainty</strong> — power is a range across plausible assumptions, not a single number</li>
+<li><strong>Document inputs</strong> for the preregistration: assumed ICC, assumed effect size, attrition rate, compliance rate, simulation code or package, number of replications</li>
+</ol>
+</div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 32%">
+<col style="width: 42%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Design lever</th>
+<th>What it controls</th>
+<th>When to prioritize it</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Number of participants</td>
+<td>Within-cluster precision</td>
+<td>When ICC is low and clusters are large</td>
+</tr>
+<tr class="even">
+<td>Number of clusters</td>
+<td>Between-cluster variance</td>
+<td>When ICC is high — adding clusters &gt; adding per-cluster observations</td>
+</tr>
+<tr class="odd">
+<td>Number of stimuli</td>
+<td>Stimulus-level variance</td>
+<td>When stimulus RE variance is large (Part 1 designs)</td>
+</tr>
+<tr class="even">
+<td>Number of sites</td>
+<td>Site heterogeneity estimation</td>
+<td>When multi-site generalization is the goal</td>
+</tr>
+<tr class="odd">
+<td>Waves / time points</td>
+<td>Longitudinal power</td>
+<td>For growth curves, more waves help more than more participants</td>
+</tr>
+<tr class="even">
+<td>Compliance rate</td>
+<td>First-stage strength</td>
+<td>Affects LATE precision; low compliance → wide LATE SE</td>
+</tr>
+<tr class="odd">
+<td>Attrition rate</td>
+<td>Effective N</td>
+<td>Even 20% attrition substantially reduces power</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Simulation Quality Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Simulation-based power is only as good as the assumed DGP. If your ICC assumption is off by a factor of 2, your power estimate can be dramatically wrong. Best practice:</p>
+<ul>
+<li>Run sensitivity analyses across a plausible ICC range (e.g., 0.05, 0.10, 0.20)</li>
+<li>Run sensitivity analyses across a plausible effect size range (small, medium, expected)</li>
+<li>Report a <strong>power curve</strong> or <strong>power surface</strong>, not a single number</li>
+<li>State explicitly which assumptions are uncertain and how sensitive power is to them</li>
+</ul>
+</div>
+</div>
+<hr>
+</section>
 <section id="why-standard-power-formulas-are-wrong" class="level2">
 <h2 class="anchored" data-anchor-id="why-standard-power-formulas-are-wrong">Why Standard Power Formulas Are Wrong</h2>
 <p>Standard power formulas (Cohen’s power tables, G*Power) assume independent observations. They compute: given my expected effect size and desired power, how many participants do I need?</p>
@@ -716,6 +816,71 @@ window.Quarto = {
 </details>
 </div>
 </section>
+<section id="power-for-crossed-designs-participants-stimuli" class="level2">
+<h2 class="anchored" data-anchor-id="power-for-crossed-designs-participants-stimuli">Power for Crossed Designs: Participants × Stimuli</h2>
+<p>In a crossed participant-by-stimulus design (Part 1), power depends on <strong>both</strong> the number of participants and the number of stimuli. This is the most commonly misunderstood case in JDM power planning.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Power as a function of N_participants AND N_stimuli simultaneously</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>simulate_crossed_power <span class="ot">&lt;-</span> <span class="cf">function</span>(n_part, n_stim, <span class="at">true_effect =</span> <span class="dv">3</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">sigma_part =</span> <span class="dv">8</span>, <span class="at">sigma_stim =</span> <span class="dv">6</span>, <span class="at">sigma_e =</span> <span class="dv">5</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                                   <span class="at">n_sims =</span> <span class="dv">300</span>) {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  p_vals <span class="ot">&lt;-</span> <span class="fu">replicate</span>(n_sims, {</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    p_eff <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_part, <span class="dv">0</span>, sigma_part)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    s_eff <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_stim, <span class="dv">0</span>, sigma_stim)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    cond  <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">each =</span> <span class="fu">ceiling</span>(n_stim <span class="sc">/</span> <span class="dv">2</span>))[<span class="dv">1</span><span class="sc">:</span>n_stim]</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    df_c <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(<span class="at">p =</span> <span class="dv">1</span><span class="sc">:</span>n_part, <span class="at">s =</span> <span class="dv">1</span><span class="sc">:</span>n_stim) <span class="sc">|&gt;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">slice_sample</span>(<span class="at">prop =</span> <span class="fl">0.5</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">Y   =</span> <span class="dv">50</span> <span class="sc">+</span> true_effect <span class="sc">*</span> cond[s] <span class="sc">+</span> p_eff[p] <span class="sc">+</span> s_eff[s] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="fu">n</span>(), <span class="dv">0</span>, sigma_e),</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">p   =</span> <span class="fu">factor</span>(p), <span class="at">s =</span> <span class="fu">factor</span>(s), <span class="at">cond =</span> <span class="fu">factor</span>(cond[s])</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tryCatch</span>({</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>      m <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Y <span class="sc">~</span> cond <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> p) <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> s), <span class="at">data =</span> df_c, <span class="at">REML =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                <span class="at">control =</span> <span class="fu">lmerControl</span>(<span class="at">optimizer =</span> <span class="st">"bobyqa"</span>))</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">coef</span>(<span class="fu">summary</span>(m))[<span class="st">"cond1"</span>, <span class="st">"Pr(&gt;|t|)"</span>]</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="cn">NA_real_</span>, <span class="at">warning =</span> <span class="cf">function</span>(w) <span class="cn">NA_real_</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(p_vals <span class="sc">&lt;</span> <span class="fl">0.05</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Power grid: varies N_stimuli at fixed N_participants</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>crossed_grid <span class="ot">&lt;-</span> <span class="fu">expand_grid</span>(</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_stim =</span> <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">16</span>, <span class="dv">24</span>, <span class="dv">32</span>),</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_part =</span> <span class="fu">c</span>(<span class="dv">40</span>, <span class="dv">80</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">power  =</span> <span class="fu">map2_dbl</span>(n_part, n_stim, <span class="sc">~</span><span class="fu">simulate_crossed_power</span>(.x, .y, <span class="at">n_sims =</span> <span class="dv">150</span>)),</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">design =</span> <span class="fu">paste0</span>(n_part, <span class="st">" participants"</span>)</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(crossed_grid, <span class="fu">aes</span>(<span class="at">x =</span> n_stim, <span class="at">y =</span> power, <span class="at">color =</span> design, <span class="at">group =</span> design)) <span class="sc">+</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.80</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"#1e3a5f"</span>, <span class="st">"#e63946"</span>), <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Power in a crossed design: stimuli matter as much as participants"</span>,</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Effect size = 3 units; σ_participant = 8; σ_stimulus = 6. Adding stimuli gains more power than adding participants once N_participants &gt; 40."</span>,</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Number of stimuli"</span>,</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Power"</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="part5_files/figure-html/crossed-power-sim-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>The take-home:</strong> Increasing participants cannot fully compensate for too few stimuli when stimulus variance is substantial. If you have 8 stimuli and σ_stimulus = 6, no amount of participant recruitment will push power to 80% for a small effect — the stimulus-level variance is the binding constraint. Westfall, Kenny &amp; Judd (2014) showed this is the reason many JDM replications fail even with seemingly large samples.</p>
+<hr>
+</section>
 <section id="key-takeaways-for-power-planning" class="level2">
 <h2 class="anchored" data-anchor-id="key-takeaways-for-power-planning">Key Takeaways for Power Planning</h2>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -733,7 +898,35 @@ window.Quarto = {
 <li><p><strong>The ICC threshold:</strong> If ICC &gt; 0.10 and cluster size &gt; 10, standard power formulas underestimate required N by 50–100%.</p></li>
 <li><p><strong>For crossed designs (participants × stimuli):</strong> Power depends on both the number of participants <em>and</em> the number of stimuli. Westfall, Kenny &amp; Judd (2014) showed that many published studies are severely underpowered on the stimulus side.</p></li>
 <li><p><strong>Collect pilot ICC estimates:</strong> Run a small pilot study and compute the ICC before committing to a full design.</p></li>
+<li><p><strong>Simulate uncertainty:</strong> Report a range of power values across plausible ICC and effect size assumptions, not a single number.</p></li>
 </ol>
+</div>
+</div>
+<hr>
+</section>
+<section id="minimum-reporting-checklist-for-power" class="level2">
+<h2 class="anchored" data-anchor-id="minimum-reporting-checklist-for-power">Minimum Reporting Checklist for Power</h2>
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>What to Report in a Power Section or Preregistration
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="task-list">
+<li><label><input type="checkbox">Assumed ICC (with source: pilot data, literature, or sensitivity range)</label></li>
+<li><label><input type="checkbox">Assumed random slope variance (if applicable)</label></li>
+<li><label><input type="checkbox">Assumed effect size (with justification)</label></li>
+<li><label><input type="checkbox">Assumed attrition rate and compliance rate (if non-trivial)</label></li>
+<li><label><input type="checkbox">Analysis model used in the simulation (exact formula)</label></li>
+<li><label><input type="checkbox">Simulation code or package name and version</label></li>
+<li><label><input type="checkbox">Number of simulation replications</label></li>
+<li><label><input type="checkbox">Power curve or sensitivity table across plausible ICC × effect size combinations</label></li>
+<li><label><input type="checkbox">Final design choice and rationale (why this N over other options)</label></li>
+</ul>
 </div>
 </div>
 
