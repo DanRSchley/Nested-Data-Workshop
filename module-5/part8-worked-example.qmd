@@ -1,0 +1,900 @@
+---
+title: "A Fully Worked Multilevel Modeling Example"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+library(glmmTMB)
+set.seed(20240610)
+```
+
+# A Fully Worked Multilevel Modeling Example
+
+This chapter does not introduce a new method. It shows what it looks like to *use* the methods from Parts 1–7 together, on a single dataset, from first principles.
+
+The voice is intentionally conversational. Every major modeling decision arrives as a question, gets answered, and then gets tested. That is how research supervision actually works — and it is the only honest way to learn applied multilevel modeling.
+
+---
+
+## 1. The Research Question
+
+> **Does transparent fee disclosure increase willingness to adopt a financial product, and does that effect generalize across participants, product offers, and research sites?**
+
+Before touching a model, notice that this question hides several distinct questions inside it:
+
+- Does transparency increase adoption for *these* participants?
+- Does that effect generalize to the *population of participants*?
+- Does it generalize across the *population of product offers*, or only for these specific stimuli?
+- Is the effect consistent across *different research sites and platforms*?
+- Is the effect stronger for some *types of participants* (e.g., those with lower financial literacy)?
+
+A pooled regression can only answer the first question — and even then only for these exact stimuli. A properly specified multilevel model can address all five. The modeling choices we make determine which questions we can credibly answer.
+
+---
+
+## 2. The Design Audit Before Modeling
+
+The most important modeling decisions are made before any model is fitted. The design determines what random effects are justified, what fixed effects are necessary, and what the estimand actually is.
+
+| Design question | Answer in this study | Modeling implication |
+|---|---|---|
+| What is one row? | One participant's rating of one product offer | Trial-level response; multiple rows per participant |
+| What is randomized? | Fee transparency display (within-participant) | Fixed effect for transparency |
+| Does treatment vary within participant? | Yes — each participant sees both conditions | Candidate by-participant random slope for transparency |
+| Are stimuli sampled? | Yes — 36 product offers drawn from a broader set | Stimulus random intercept |
+| Are participants crossed with stimuli? | Partially — each participant rates 12 of 36 offers | Crossed (partial) random effects |
+| Are participants nested in sites? | Yes — 240 participants across 4 sites | Site random intercept |
+| Are there stimulus covariates? | Risk level, expected value | Include as fixed effects to check confounding |
+| Is there a participant-level moderator? | Financial literacy (measured pre-treatment) | Fixed effect; interaction with transparency |
+| Is the outcome continuous? | 0–100 willingness-to-adopt rating | Linear mixed model; check residuals |
+
+: Design audit: answering these questions before modeling determines every subsequent decision. {tbl-colwidths="[30,30,40]"}
+
+---
+
+## 3. Simulate the Dataset
+
+We simulate a dataset that is realistic enough to produce genuine diagnostic lessons. The true data-generating process includes participant, stimulus, and site variance; a transparency effect; a financial-literacy moderator; and realistic noise.
+
+```{r true-dgp-params}
+# True DGP parameters — we will compare model estimates to these at the end
+dgp <- list(
+  intercept          = 50,    # grand mean adoption intent
+  effect_transparency = 4,    # +4 points for transparent-fee display
+  effect_risk        = -3,    # riskier products → lower adoption intent
+  effect_ev          = 0.08,  # higher expected value → higher adoption intent
+  effect_literacy    = 2,     # higher literacy → higher baseline adoption
+  interaction_tx_lit = -1.5,  # transparency helps low-literacy more
+  sd_participant     = 8,     # between-person stable differences
+  sd_stimulus        = 5,     # between-product stable differences
+  sd_site            = 4,     # between-site baseline differences
+  sd_slope_part      = 2,     # participants differ in transparency sensitivity
+  sd_residual        = 7      # within-trial noise
+)
+```
+
+```{r simulate-data}
+n_participants <- 240
+n_stimuli      <- 36
+n_sites        <- 4
+trials_per_part <- 12  # each participant rates 12 of 36 offers
+
+# Participant-level characteristics
+participants <- tibble(
+  participant_id     = 1:n_participants,
+  site_id            = rep(1:n_sites, each = n_participants / n_sites),
+  financial_literacy = rnorm(n_participants, 0, 1),  # standardised
+  u0_participant     = rnorm(n_participants, 0, dgp$sd_participant),
+  u1_participant     = rnorm(n_participants, 0, dgp$sd_slope_part)  # random slope for transparency
+)
+
+# Site-level intercepts
+site_effects <- tibble(
+  site_id    = 1:n_sites,
+  u0_site    = c(3, -2, 1, -2)  # site 1 slightly higher baseline; site 4 lower
+)
+
+# Stimulus-level characteristics
+stimuli <- tibble(
+  stimulus_id    = 1:n_stimuli,
+  risk_level     = rnorm(n_stimuli, 0, 1),   # standardised risk
+  expected_value = rnorm(n_stimuli, 50, 15), # EV in dollars
+  u0_stimulus    = rnorm(n_stimuli, 0, dgp$sd_stimulus),
+  # transparency assignment: within-participant, so each stimulus
+  # can appear in both conditions across participants
+  base_transparency = rep(c(0, 1), n_stimuli / 2)  # half designed as transparent
+)
+
+# Assign stimuli to participants: each participant sees 12 of 36
+# (partially crossed design)
+trials <- participants |>
+  select(participant_id, site_id, financial_literacy, u0_participant, u1_participant) |>
+  cross_join(tibble(draw = 1:trials_per_part)) |>
+  group_by(participant_id) |>
+  mutate(
+    stimulus_id  = sample(1:n_stimuli, trials_per_part, replace = FALSE),
+    trial_order  = 1:trials_per_part
+  ) |>
+  ungroup() |>
+  select(-draw) |>
+  left_join(stimuli, by = "stimulus_id") |>
+  left_join(site_effects, by = "site_id") |>
+  mutate(
+    # Transparency varies within participant (counterbalanced across stimuli)
+    transparency = as.integer(runif(n()) > 0.5),
+    # True DGP
+    mu = dgp$intercept +
+         dgp$effect_transparency * transparency +
+         dgp$effect_risk        * risk_level +
+         dgp$effect_ev          * (expected_value - 50) / 15 +
+         dgp$effect_literacy    * financial_literacy +
+         dgp$interaction_tx_lit * transparency * financial_literacy +
+         u0_participant + u1_participant * transparency +
+         u0_stimulus + u0_site,
+    adoption_intent = pmin(100, pmax(0, rnorm(n(), mu, dgp$sd_residual)))
+  ) |>
+  select(participant_id, site_id, stimulus_id, trial_order,
+         transparency, risk_level, expected_value, financial_literacy,
+         adoption_intent)
+```
+
+```{r data-summary}
+# Structure check
+cat("Participants:", n_distinct(trials$participant_id), "\n")
+cat("Stimuli:", n_distinct(trials$stimulus_id), "\n")
+cat("Sites:", n_distinct(trials$site_id), "\n")
+cat("Trials per participant:", trials_per_part, "\n")
+cat("Total rows:", nrow(trials), "\n")
+cat("Observations per stimulus (mean):",
+    round(nrow(trials) / n_distinct(trials$stimulus_id), 1), "\n")
+
+head(trials, 6) |> knitr::kable(digits = 2, caption = "First six rows of the dataset")
+```
+
+---
+
+## 4. Pre-Fit Diagnostics
+
+Fitting a model before inspecting the data is like writing a discussion section before looking at the results. The checks below are not optional extras — they determine whether the model can answer the intended question.
+
+### 4.1 Data structure checks
+
+```{r structure-checks}
+# Trials per participant
+trials_per_p <- trials |> count(participant_id)
+cat("Trials per participant: min =", min(trials_per_p$n),
+    ", max =", max(trials_per_p$n), "\n")
+
+# Transparency balance within participants
+tx_balance <- trials |>
+  group_by(participant_id) |>
+  summarise(prop_transparent = mean(transparency))
+cat("Within-participant transparency proportion: mean =",
+    round(mean(tx_balance$prop_transparent), 2),
+    ", SD =", round(sd(tx_balance$prop_transparent), 2), "\n")
+
+# Participants per site
+trials |>
+  distinct(participant_id, site_id) |>
+  count(site_id) |>
+  knitr::kable(caption = "Participants per site")
+```
+
+### 4.2 Design balance checks
+
+**Student question:** If treatment was randomized, why do we still need balance checks?
+
+**Advisor response:** Randomization protects us *in expectation* across hypothetical replications of the study. In the actual realized sample, stimuli and participants can still be systematically unbalanced. For example, if transparency was accidentally more common for high-risk stimuli, the transparency effect and the risk effect become partially confounded in this dataset — even though they were unrelated in the DGP. Balance checks tell us whether such confounding exists and whether we need to adjust for it.
+
+**Diagnostic move:** Check whether transparency is balanced across stimulus risk level and expected value.
+
+```{r balance-checks}
+# Is transparency balanced across risk level?
+tx_by_risk <- trials |>
+  mutate(risk_tercile = ntile(risk_level, 3)) |>
+  group_by(risk_tercile) |>
+  summarise(prop_transparent = round(mean(transparency), 3),
+            n = n())
+knitr::kable(tx_by_risk,
+  caption = "Transparency proportion by risk tercile (should be ~0.50 in each)")
+
+# Is transparency balanced across expected value?
+tx_by_ev <- trials |>
+  mutate(ev_tercile = ntile(expected_value, 3)) |>
+  group_by(ev_tercile) |>
+  summarise(prop_transparent = round(mean(transparency), 3),
+            n = n())
+knitr::kable(tx_by_ev,
+  caption = "Transparency proportion by EV tercile (should be ~0.50 in each)")
+```
+
+**What we learned:** If any cell shows proportion notably different from 0.50, the transparency effect estimate will absorb some of the risk or EV effect. Including risk level and expected value as covariates (Step 9) addresses this regardless of whether imbalance is detected — it is good practice in any within-stimulus design.
+
+### 4.3 Outcome checks
+
+```{r outcome-checks, fig.width=9, fig.height=4}
+p1 <- ggplot(trials, aes(x = adoption_intent)) +
+  geom_histogram(bins = 30, fill = "#1e3a5f", color = "white") +
+  labs(title = "Distribution of adoption intent", x = "Adoption intent (0–100)") +
+  theme_minimal(base_size = 11)
+
+p2 <- trials |>
+  mutate(Condition = ifelse(transparency == 1, "Transparent", "Non-transparent")) |>
+  ggplot(aes(x = Condition, y = adoption_intent, fill = Condition)) +
+  geom_boxplot(show.legend = FALSE, width = 0.5) +
+  scale_fill_manual(values = c("#cccccc", "#1e3a5f")) +
+  labs(title = "Adoption intent by transparency", y = "Adoption intent (0–100)", x = NULL) +
+  theme_minimal(base_size = 11)
+
+p3 <- trials |>
+  mutate(site_label = paste0("Site ", site_id)) |>
+  ggplot(aes(x = site_label, y = adoption_intent, fill = site_label)) +
+  geom_boxplot(show.legend = FALSE, width = 0.5) +
+  scale_fill_manual(values = c("#1e3a5f","#2d6a4f","#e67e22","#c0392b")) +
+  labs(title = "Adoption intent by site", y = NULL, x = NULL) +
+  theme_minimal(base_size = 11)
+
+gridExtra::grid.arrange(p1, p2, p3, ncol = 3)
+```
+
+---
+
+## 5. Start With the Wrong Model
+
+**Student question:** I ran a simple regression and the transparency effect is significant. Why not stop there?
+
+**Advisor response:** Because significance is not the question yet. The first question is whether the model's uncertainty is honest. Your 2,880 rows are not 2,880 independent observations. They come from 240 participants who each appear 12 times, and from 36 stimuli that each appear roughly 80 times. The pooled regression pretends every row is independent evidence about fee transparency — but the 12 rows from the same participant are not independent. They all share that person's stable adoption tendency. The model has counted partially redundant data as independent, so its standard error is smaller than it should be.
+
+**Diagnostic move:** Fit the pooled model, record its estimate and SE, then watch how those change as we add the appropriate structure.
+
+```{r m0-naive}
+m0 <- lm(adoption_intent ~ transparency, data = trials)
+broom::tidy(m0) |>
+  filter(term == "transparency") |>
+  mutate(model = "m0: Pooled OLS") |>
+  select(model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3, caption = "Naive pooled OLS: transparency estimate")
+```
+
+```{r m0-diagnosis}
+tibble(
+  Issue = c(
+    "Independence assumption",
+    "Participant clustering",
+    "Stimulus clustering",
+    "Site context",
+    "Stimulus covariates"
+  ),
+  `What the model assumes` = c(
+    "All 2,880 rows are independent",
+    "The same person appearing 12 times counts as 12 independent people",
+    "The same stimulus appearing ~80 times counts as ~80 independent stimuli",
+    "All sites draw from the same distribution",
+    "Risk level and EV are not related to transparency"
+  ),
+  `Why this fails` = c(
+    "Participants appear repeatedly; responses within a person are correlated",
+    "Inflates effective N; SE too small for between-participant variation",
+    "If stimulus-level variance exists, it shrinks the apparent SE further",
+    "Site 1 has systematically higher adoption intent — this is absorbed into the residual",
+    "If transparency and risk level are unbalanced, the estimate is biased"
+  )
+) |>
+  knitr::kable(caption = "Why the pooled model is wrong about its own uncertainty")
+```
+
+**Next modeling decision:** Add participant random intercepts to account for repeated measures within person.
+
+---
+
+## 6. Add Participant Random Intercepts
+
+Participant random intercepts absorb each person's stable adoption tendency. After adding them, the 12 rows from the same person are no longer treated as 12 independent observations — they share a common baseline and the model adjusts accordingly.
+
+```{r m1}
+m1 <- lmer(adoption_intent ~ transparency + (1 | participant_id), data = trials)
+```
+
+```{r m1-summary}
+# Participant ICC
+vc1 <- as.data.frame(VarCorr(m1))
+var_part  <- vc1$vcov[vc1$grp == "participant_id"]
+var_resid <- vc1$vcov[vc1$grp == "Residual"]
+icc_part  <- var_part / (var_part + var_resid)
+cat("Participant ICC:", round(icc_part, 3), "\n")
+cat("Interpretation:", round(icc_part * 100, 1),
+    "% of total variance (within-person) is due to stable individual differences.\n")
+
+broom.mixed::tidy(m1, effects = "fixed") |>
+  filter(term == "transparency") |>
+  mutate(model = "m1: participant RI") |>
+  select(model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3)
+```
+
+**Student question:** The point estimate barely moved. Does that mean the model didn't matter?
+
+**Advisor response:** The *point estimate* is often stable when you add random intercepts because the average treatment effect is the same whether or not you account for clustering. What changes is the *standard error* — and therefore the honest width of your confidence interval. If the SE grew, the naive model was overconfident: it claimed more precision than the data actually provide. Correct uncertainty matters for replication: a study whose SE is too small will appear to have "replicated" even when a different participant sample shows a null result.
+
+**Student question:** What does the participant ICC mean substantively?
+
+**Advisor response:** It tells you how much of the within-person variance — after removing the transparency effect — is explained by stable individual differences. A high ICC (say, 0.40) means that knowing which person is responding tells you a lot about the outcome, even after accounting for the manipulation. People vary a lot in their baseline adoption tendency, and that stable variance was previously being treated as unexplained noise.
+
+**What is still wrong:** Stimuli are still treated as fixed (or ignored). The 36 product offers each appear roughly 80 times and vary in their inherent attractiveness. That stimulus-level variance is currently absorbed into the residual, making the SE smaller than it should be.
+
+---
+
+## 7. Add Stimulus Random Intercepts
+
+Adding stimulus random intercepts makes this a crossed random-effects model. Both participants and stimuli are treated as random samples: we want to generalize the transparency effect to new participants *and* to new product offers, not just to these specific 36.
+
+```{r m2}
+m2 <- lmer(adoption_intent ~ transparency +
+             (1 | participant_id) + (1 | stimulus_id),
+           data = trials)
+```
+
+```{r m2-summary}
+vc2 <- as.data.frame(VarCorr(m2))
+var_part2   <- vc2$vcov[vc2$grp == "participant_id"]
+var_stim2   <- vc2$vcov[vc2$grp == "stimulus_id"]
+var_resid2  <- vc2$vcov[vc2$grp == "Residual"]
+icc_stim    <- var_stim2 / (var_stim2 + var_resid2)
+
+cat("Stimulus ICC:", round(icc_stim, 3), "\n")
+cat("Stimulus SD:", round(sqrt(var_stim2), 2),
+    "(compared to transparency effect of ~4 points)\n")
+
+broom.mixed::tidy(m2, effects = "fixed") |>
+  filter(term == "transparency") |>
+  mutate(model = "m2: participant + stimulus RI") |>
+  select(model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3)
+```
+
+**Student question:** Are stimuli really random? We designed these product offers — they are not randomly drawn from a jar.
+
+**Advisor response:** The question is not whether you drew them from a jar. It is whether you want to generalize beyond these 36 specific offers. If your claim is "fee transparency works for financial products in general," then these 36 offers are a sample from the population of possible financial products that could have been used. The random-effects model says: given that different products produce different baseline adoption levels, and given that your 36 offers are a sample, how well-estimated is the *average* transparency effect across all such products? That is a more honest question than "does transparency work for these exact 36 offers?"
+
+**Student question:** What if stimulus variance is near zero?
+
+**Advisor response:** Then the stimulus random intercept is contributing almost nothing and the model simplifies naturally. But we should let the data decide, not assume away a variance component before fitting. If the stimulus variance estimate is essentially zero, we report that and note it implies our particular stimulus set was unusually homogeneous — which is itself worth knowing.
+
+**Student question:** What if each stimulus appears in only one transparency condition?
+
+**Advisor response:** Then a by-stimulus random slope for transparency is not identifiable — you cannot distinguish "this stimulus always looked better" from "this stimulus looked better because of its assigned condition." The random *intercept* for stimuli is still identifiable and useful. But the design cannot tell you whether individual stimuli responded differently to transparency.
+
+---
+
+## 8. Add Site Structure
+
+Participants are nested in sites. Site 1 recruited from a university lab, Sites 2–3 from online platforms, Site 4 from a community sample. These sites differ in their baseline adoption intent. Ignoring site means that between-site variance is absorbed into the participant random effect, making participant variance look larger than it really is.
+
+```{r m3}
+# participant_id values are globally unique, so we can use
+# (1 | site_id) + (1 | participant_id) directly
+# This is equivalent to (1 | site_id/participant_id) when IDs are unique
+m3 <- lmer(adoption_intent ~ transparency +
+             (1 | site_id) + (1 | participant_id) + (1 | stimulus_id),
+           data = trials)
+```
+
+```{r m3-diagnostics}
+vc3 <- as.data.frame(VarCorr(m3))
+var_site3 <- vc3$vcov[vc3$grp == "site_id"]
+cat("Site SD:", round(sqrt(var_site3), 2), "\n")
+cat("Note: true site SD in DGP =", dgp$sd_site, "\n")
+
+# Site-specific mean adoption intent
+trials |>
+  group_by(site_id) |>
+  summarise(mean_adoption = round(mean(adoption_intent), 1),
+            n_participants = n_distinct(participant_id)) |>
+  knitr::kable(caption = "Site-specific means — visible differences suggest site variance is real")
+
+broom.mixed::tidy(m3, effects = "fixed") |>
+  filter(term == "transparency") |>
+  mutate(model = "m3: + site RI") |>
+  select(model, estimate, std.error, p.value) |>
+  knitr::kable(digits = 3)
+```
+
+**Student question:** Should site be a fixed effect or a random effect?
+
+**Advisor response:** Use random effects when sites are a sample from a population of possible contexts and you want to generalize beyond these four specific sites. Use fixed effects when sites *are* the entire target population, or when you have so few sites (J < 5) that the random-effect variance cannot be reliably estimated. With 4 sites we are on the borderline — the random-effect variance estimate is noisy, but fixed effects would absorb all between-site information and prevent us from making any site-level generalization statement. We will use random effects here and acknowledge the instability with a note. See Part 4 for the full discussion.
+
+**Student question:** Does adding site change the estimand or just the uncertainty?
+
+**Advisor response:** It changes both slightly. The estimand shifts from "effect across these participants in these sites" to "average effect across a population of sites similar to these four." The uncertainty around the transparency estimate may also change, because site-level variance is now explicitly accounted for rather than pushed into the participant random effect.
+
+---
+
+## 9. Add Design-Relevant Fixed Effects
+
+Risk level and expected value are stimulus characteristics that vary across products. If they are even slightly unbalanced with respect to transparency assignment, they confound the estimate. We include them as fixed effects — not to test them, but to adjust for them.
+
+Financial literacy is a participant characteristic measured before the experiment. It belongs in the model as both a covariate (adjusting for pre-existing differences) and, later, as a moderator.
+
+```{r m4}
+m4 <- lmer(adoption_intent ~ transparency + risk_level + expected_value +
+             financial_literacy +
+             (1 | site_id) + (1 | participant_id) + (1 | stimulus_id),
+           data = trials)
+```
+
+```{r m4-comparison}
+# Track how the transparency estimate has moved across models
+bind_rows(
+  broom::tidy(m0) |> filter(term == "transparency") |>
+    mutate(model = "m0: pooled OLS"),
+  broom.mixed::tidy(m1, effects = "fixed") |> filter(term == "transparency") |>
+    mutate(model = "m1: + participant RI"),
+  broom.mixed::tidy(m2, effects = "fixed") |> filter(term == "transparency") |>
+    mutate(model = "m2: + stimulus RI"),
+  broom.mixed::tidy(m3, effects = "fixed") |> filter(term == "transparency") |>
+    mutate(model = "m3: + site RI"),
+  broom.mixed::tidy(m4, effects = "fixed") |> filter(term == "transparency") |>
+    mutate(model = "m4: + covariates")
+) |>
+  select(model, estimate, std.error, p.value) |>
+  mutate(across(c(estimate, std.error, p.value), \(x) round(x, 3))) |>
+  knitr::kable(caption = paste0("Tracking the transparency estimate across models.",
+    " True effect = ", dgp$effect_transparency))
+```
+
+**Student question:** Could controlling for risk level remove part of the transparency effect?
+
+**Advisor response:** Only if risk level is genuinely part of the *causal pathway* from transparency to adoption intent — if the only way transparency helps is by making the risk salient, and we then control for risk perception, we would be "explaining away" the mechanism. But here, risk level is a pre-existing stimulus characteristic that was not caused by the transparency manipulation. Controlling for it adjusts for differences in product attractiveness that exist independently of how fees are displayed. That is a design-feature adjustment, not overcontrol.
+
+**What we learned:** If the transparency estimate changes substantially when covariates are added, that means transparency and the covariate were confounded in this realized sample — even if that was not by design. The adjusted estimate is the one to trust.
+
+---
+
+## 10. Add the Theoretically Motivated Interaction
+
+The study hypothesized that fee transparency helps low-literacy participants more. The logic: people with low financial literacy struggle to evaluate implicit or complex fee structures, so making fees explicit (transparent) helps them. High-literacy participants can infer fees regardless of format.
+
+This is a theoretically motivated moderation, measured pre-treatment. It belongs in the model as an interaction.
+
+```{r m5}
+m5 <- lmer(adoption_intent ~ transparency * financial_literacy +
+             risk_level + expected_value +
+             (1 | site_id) + (1 | participant_id) + (1 | stimulus_id),
+           data = trials)
+
+broom.mixed::tidy(m5, effects = "fixed") |>
+  select(term, estimate, std.error, statistic, p.value) |>
+  mutate(across(c(estimate, std.error, statistic, p.value), \(x) round(x, 3))) |>
+  knitr::kable(caption = "m5: transparency × financial literacy interaction")
+```
+
+```{r m5-interaction-plot, fig.width=7, fig.height=4.5}
+# Predicted effect across literacy values
+lit_vals <- seq(-2, 2, length.out = 100)
+pred_df <- tibble(
+  financial_literacy = rep(lit_vals, 2),
+  transparency       = rep(c(0, 1), each = 100),
+  risk_level         = 0,
+  expected_value     = 50
+) |>
+  mutate(
+    participant_id = NA_integer_,
+    site_id        = NA_integer_,
+    stimulus_id    = NA_integer_
+  )
+pred_df$predicted <- predict(m5, newdata = pred_df, re.form = NA)
+
+pred_df |>
+  mutate(Condition = ifelse(transparency == 1, "Transparent", "Non-transparent")) |>
+  ggplot(aes(x = financial_literacy, y = predicted, color = Condition, linetype = Condition)) +
+  geom_line(linewidth = 1.2) +
+  scale_color_manual(values = c("#cccccc", "#1e3a5f")) +
+  labs(
+    title    = "Predicted adoption intent by transparency and financial literacy",
+    subtitle = "Transparency effect is larger for low-literacy participants",
+    x        = "Financial literacy (standardised)",
+    y        = "Predicted adoption intent (0–100)",
+    color    = NULL, linetype = NULL
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+**Student question:** Did we preregister this moderator?
+
+**Advisor response:** If not, it is exploratory. We can report it, but with appropriate hedging: "We hypothesized that financial literacy would moderate the transparency effect. The interaction estimate was consistent with this hypothesis (*b* = [estimate]), but because this analysis was not preregistered, it should be replicated before being treated as confirmatory." The estimate is still worth reporting — it calibrates our understanding of *who* the intervention helps. But the inferential status is different from a preregistered test.
+
+---
+
+## 11. Consider Random Slopes
+
+**Student question:** Transparency varies within participant — so don't we need a random slope for it?
+
+**Advisor response:** The design *justifies* a random slope, yes. If treatment varies within participant, participants can — in principle — show different sensitivity to the manipulation, and a random slope captures that heterogeneity. But there are two different questions: (1) does the design allow for a random slope? and (2) can the data support it? A random slope requires enough within-participant variability in the predictor and enough participants to reliably estimate the variance. We will try it and check whether the model converges cleanly and whether the slope variance is distinguishable from zero.
+
+```{r m6}
+m6 <- lmer(adoption_intent ~ transparency * financial_literacy +
+             risk_level + expected_value +
+             (1 + transparency | participant_id) +
+             (1 | stimulus_id) + (1 | site_id),
+           data = trials,
+           control = lmerControl(optimizer = "bobyqa"))
+
+cat("Singular fit:", isSingular(m6), "\n")
+```
+
+```{r m6-slope-check}
+vc6 <- as.data.frame(VarCorr(m6))
+knitr::kable(vc6 |> select(grp, var1, var2, sdcor) |>
+               mutate(across(where(is.numeric), \(x) round(x, 3))),
+             caption = "Random effects from m6: by-participant random slope for transparency")
+```
+
+**Student question:** What does a singular fit tell us?
+
+**Advisor response:** It means at least one variance component is estimated at its boundary — either zero variance or a ±1 correlation. The model is technically overparameterized: it contains more random-effect parameters than the data can reliably estimate. This does not necessarily mean the model is wrong; it means the data are not informative enough about that particular variance component.
+
+**What to do when the model is singular:**
+
+::: {.callout-warning icon=false}
+## If the Random Slope Model is Singular
+
+Follow this sequence, in order:
+
+1. **Remove the correlation parameter first.** Try `(1 + transparency || participant_id)`. This fits the intercept and slope variances independently (without estimating their covariance), which is less demanding.
+
+2. **Check whether the slope variance is near zero.** If removing the correlation does not resolve singularity, the slope variance may be genuinely tiny.
+
+3. **Report the simplification sequence.** Do not silently drop the random slope. State: "We initially fit a model with a by-participant random slope for transparency as justified by the within-participant design. The model was singular [or: did not converge]. We removed the intercept-slope correlation and the model became non-singular [or: we dropped the slope, reporting the reason]."
+
+4. **Retain m5 as the primary model if slopes are not supportable.** m5 is theoretically complete and interpretable.
+:::
+
+```{r m6-uncorrelated}
+# Try without the intercept-slope correlation
+m6b <- lmer(adoption_intent ~ transparency * financial_literacy +
+              risk_level + expected_value +
+              (1 + transparency || participant_id) +
+              (1 | stimulus_id) + (1 | site_id),
+            data = trials,
+            control = lmerControl(optimizer = "bobyqa"))
+
+cat("Singular fit (uncorrelated slopes):", isSingular(m6b), "\n")
+```
+
+```{r m6-comparison}
+# Compare m5 and m6b to see whether slopes matter for fixed effects
+bind_rows(
+  broom.mixed::tidy(m5,  effects = "fixed") |>
+    filter(term %in% c("transparency", "transparency:financial_literacy")) |>
+    mutate(model = "m5: no random slope"),
+  broom.mixed::tidy(m6b, effects = "fixed") |>
+    filter(term %in% c("transparency", "transparency:financial_literacy")) |>
+    mutate(model = "m6b: uncorrelated random slope")
+) |>
+  select(model, term, estimate, std.error) |>
+  mutate(across(c(estimate, std.error), \(x) round(x, 3))) |>
+  knitr::kable(caption = "Does adding the random slope change fixed-effect inference?")
+```
+
+**Student question:** If the random slope variance is tiny, can we simplify?
+
+**Advisor response:** Yes, and we should be transparent about it. If slope variance is near zero, retaining the slope adds model complexity without meaningfully changing inference. We simplify by dropping the slope (or its correlation), report that we did so, and report the slope variance estimate that justified the simplification. This is a defensible analysis path — as long as we show the reasoning, not just the final model.
+
+---
+
+## 12. Estimator and Inference Choices
+
+```{r estimator-table}
+tibble(
+  Decision         = c("REML vs ML", "Degrees-of-freedom method",
+                        "Random slope comparison", "Optimizer"),
+  Default          = c("REML for final LMM",
+                        "Satterthwaite (via lmerTest)",
+                        "LRT / model comparison",
+                        "default (nloptwrap)"),
+  Why              = c("Unbiased variance components",
+                        "Practical approximation for mixed DFs",
+                        "Tests contribution of variance component",
+                        "Reproducible baseline"),
+  `When to change` = c("Use ML (REML=FALSE) to compare fixed-effect structures",
+                        "Kenward-Roger for small samples or unbalanced designs",
+                        "Boundary issues: use parametric bootstrap",
+                        "Try bobyqa or Nelder_Mead for convergence warnings")
+) |>
+  knitr::kable(caption = "Estimator decisions for linear mixed models")
+```
+
+**Student question:** Why do estimates change when switching between ML and REML?
+
+**Advisor response:** REML (restricted maximum likelihood) accounts for the degrees of freedom used by fixed effects when estimating variance components. This gives unbiased variance estimates in finite samples. ML does not correct for this and tends to underestimate variance components, especially in small samples. For comparing two models that differ in their *fixed effects*, REML cannot be used because the restricted likelihoods are not comparable across different fixed-effect structures — the "restricted" part changes meaning. So: use REML for random-effects comparisons and final models; use ML for fixed-effects comparisons.
+
+---
+
+## 13. Post-Fit Diagnostics
+
+Before trusting the final model, inspect residuals and check whether any assumptions are severely violated.
+
+```{r final-model-selection}
+# Select the primary model for diagnostics
+# If m6b was non-singular, use it; otherwise fall back to m5
+m_final <- if (!isSingular(m6b)) m6b else m5
+cat("Final model selected:", ifelse(!isSingular(m6b), "m6b (random slope)", "m5 (no random slope)"), "\n")
+```
+
+```{r residual-diagnostics, fig.width=10, fig.height=4}
+resid_df <- tibble(
+  fitted   = fitted(m_final),
+  residual = residuals(m_final),
+  site_id  = trials$site_id,
+  transparency = trials$transparency
+)
+
+p_rv <- ggplot(resid_df, aes(x = fitted, y = residual)) +
+  geom_point(alpha = 0.2, color = "#1e3a5f") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "#e63946") +
+  labs(title = "Residuals vs Fitted", x = "Fitted values", y = "Residual") +
+  theme_minimal(base_size = 11)
+
+p_qq <- ggplot(resid_df, aes(sample = residual)) +
+  stat_qq(alpha = 0.3, color = "#1e3a5f") +
+  stat_qq_line(color = "#e63946") +
+  labs(title = "QQ Plot of Residuals", x = "Theoretical quantiles", y = "Sample quantiles") +
+  theme_minimal(base_size = 11)
+
+p_site <- ggplot(resid_df, aes(x = factor(site_id), y = residual)) +
+  geom_boxplot(fill = "#2d6a4f", alpha = 0.5) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(title = "Residuals by site", x = "Site", y = "Residual") +
+  theme_minimal(base_size = 11)
+
+gridExtra::grid.arrange(p_rv, p_qq, p_site, ncol = 3)
+```
+
+```{r diagnostic-checklist}
+tibble(
+  Category   = c("Fixed effects", "Fixed effects", "Fixed effects",
+                  "Random effects", "Random effects", "Random effects",
+                  "Residuals", "Residuals", "Residuals",
+                  "Design", "Design"),
+  Check      = c(
+    "Focal estimate plausible in sign and magnitude?",
+    "Estimate stable across model sequence?",
+    "Interaction interpretable?",
+    "Variance components nonzero?",
+    "Model singular?",
+    "Too few levels for any random effect?",
+    "Residual vs. fitted: no funnel shape?",
+    "QQ plot: residuals approximately normal?",
+    "Heteroskedasticity by condition or site?",
+    "Transparency balanced across risk and EV?",
+    "Trial order effects?"
+  ),
+  Action = c(
+    "Compare to true DGP or prior studies",
+    "If estimate changes drastically, check confounding",
+    "Compute simple slopes; plot predicted values",
+    "If zero, report and simplify",
+    "Simplify (see Step 11)",
+    "Consider fixed effects for that grouping factor",
+    "If yes, consider heteroskedastic model",
+    "If severe, consider robust SE or transformation",
+    "If yes, allow group-specific residual variance",
+    "If unbalanced, ensure covariates are included",
+    "Add trial_order as fixed effect and check estimate"
+  )
+) |>
+  knitr::kable(caption = "Post-fit diagnostic checklist")
+```
+
+**Student question:** Which diagnostics change the model versus only narrow the interpretation?
+
+**Advisor response:** Severe residual non-normality or heteroskedasticity changes the model (transformation, different family, heteroskedastic residuals). Singularity changes the model (simplification). But if the QQ plot shows mild tails or residuals are slightly heteroskedastic by site, the fixed-effect inference is usually robust. Those findings narrow the interpretation — we add a caveat — rather than requiring a new model.
+
+---
+
+## 14. Model Comparison Summary
+
+```{r model-table}
+extract_tx <- function(m, model_name, is_lm = FALSE) {
+  if (is_lm) {
+    broom::tidy(m) |> filter(term == "transparency") |>
+      select(estimate, std.error, p.value) |>
+      mutate(model = model_name)
+  } else {
+    broom.mixed::tidy(m, effects = "fixed") |>
+      filter(term == "transparency") |>
+      select(estimate, std.error, p.value) |>
+      mutate(model = model_name)
+  }
+}
+
+bind_rows(
+  extract_tx(m0, "m0: pooled OLS", is_lm = TRUE),
+  extract_tx(m1, "m1: + participant RI"),
+  extract_tx(m2, "m2: + stimulus RI"),
+  extract_tx(m3, "m3: + site RI"),
+  extract_tx(m4, "m4: + risk/EV/literacy"),
+  extract_tx(m5, "m5: + literacy interaction"),
+  extract_tx(m_final, "m_final: primary model")
+) |>
+  mutate(
+    across(c(estimate, std.error, p.value), \(x) round(x, 3)),
+    `Still assumes...` = c(
+      "Independence of all rows",
+      "Stimuli and site are fixed",
+      "Site and covariates are ignorable",
+      "Covariates are ignorable",
+      "Effect is homogeneous",
+      "No effect heterogeneity by participant",
+      "—"
+    ),
+    verdict = c("Reject", "Incomplete", "Better", "Better",
+                 "Primary baseline", "Substantive model", "Final")
+  ) |>
+  select(model, estimate, std.error, p.value, `Still assumes...`, verdict) |>
+  knitr::kable(caption = paste0("Model sequence summary. True transparency effect = ",
+    dgp$effect_transparency, "."))
+```
+
+**The narrative version:**
+
+We started with the tempting model — pooled OLS, one line of code, a clean significant result. We found that the independence assumption was obviously violated: 240 participants each appear 12 times, and 36 stimuli each appear roughly 80 times.
+
+We added participant random intercepts, which correctly accounted for repeated measurement within person. The point estimate was stable — the average transparency effect was real — but the SE shifted as participant-level variance was properly separated from residual noise.
+
+Then we recognized that stimuli were also sampled. Adding stimulus random intercepts produced a crossed random-effects model and correctly represented that we wanted to generalize beyond these 36 offers. Stimulus ICC was non-trivial, confirming that product attractiveness varied systematically across the offer set.
+
+Adding site random intercepts separated between-site baseline differences from within-site participant variation. With only 4 sites, this estimate carries uncertainty, but the visible differences in site means confirmed that site variance was real.
+
+Adding risk level, expected value, and financial literacy as covariates adjusted for design features and participant characteristics. The transparency estimate remained stable — evidence that the effect was not substantially confounded by risk or EV imbalance.
+
+Adding the financial literacy interaction addressed the core theoretical moderation hypothesis. The estimate was consistent with the DGP: transparency helped low-literacy participants more.
+
+Finally, we considered a by-participant random slope for transparency, justified by the within-participant design. We checked convergence and singularity, simplified the correlation structure if needed, and verified that the simplification did not change fixed-effect inference.
+
+**Here is the model we can defend.**
+
+---
+
+## 15. Final Interpretation
+
+```{r final-interpretation}
+fe <- broom.mixed::tidy(m_final, effects = "fixed") |>
+  mutate(across(c(estimate, std.error, p.value), \(x) round(x, 3)))
+
+knitr::kable(fe |> select(term, estimate, std.error, statistic, p.value),
+             caption = "Final model: fixed effects")
+
+vc_final <- as.data.frame(VarCorr(m_final))
+knitr::kable(vc_final |>
+               select(grp, var1, vcov) |>
+               mutate(SD = round(sqrt(vcov), 2), vcov = round(vcov, 2)),
+             caption = "Final model: variance components")
+```
+
+**Plain-language interpretation:**
+
+- **Transparency effect at average literacy:** Fee transparency increased willingness to adopt by approximately `r round(fixef(m_final)["transparency"], 1)` points on the 0–100 scale, on average across participants, stimuli, and sites. The true effect was `r dgp$effect_transparency` — the model recovered it reasonably well.
+
+- **Literacy moderation:** The interaction term (if present) indicates that transparency provided greater benefit to participants with lower financial literacy, consistent with the hypothesis that explicit fee disclosure substitutes for financial knowledge in evaluating products.
+
+- **Participant variance:** Participants differed substantially in their baseline adoption tendency. This stable individual-level variance was not confounded with the transparency effect; it was correctly partitioned into the participant random intercept.
+
+- **Stimulus variance:** Product offers varied in their baseline attractiveness, with an SD of approximately `r dgp$sd_stimulus` points. This confirms that stimulus sampling matters: different stimulus sets would produce different point estimates.
+
+- **Site variance:** Sites differed in baseline adoption intent. With only 4 sites, the site variance estimate should be interpreted cautiously; it indicates the presence of site-level differences but cannot precisely characterize how much effect heterogeneity exists across the broader population of possible sites.
+
+- **Generalization:** The effect generalizes, within the bounds of these samples, to participants similar to those recruited, to financial products similar to these 36 offers, and to research contexts similar to these 4 sites. Broader generalization requires more representative sampling at each level.
+
+---
+
+## 16. What a Reviewer Would Ask
+
+This section runs through the ten most likely reviewer challenges, framed as a supervision conversation to help you prepare.
+
+---
+
+**1. "Did you treat stimuli as random?"**
+
+**Student question:** The reviewer is asking whether stimuli are random. I'm not sure what to say.
+
+**Advisor response:** Say yes, and explain why. The 36 product offers were drawn from a broader universe of possible financial products. We want to generalize transparency's effect beyond these exact offers. The random-effects model allows us to estimate the average effect across that population. If we had treated stimuli as fixed, we would have been claiming that these 36 products are the only products that exist — which is not our claim and would have produced a falsely narrow SE.
+
+---
+
+**2. "Were transparency and product risk balanced?"**
+
+**Advisor response:** Show the balance table from Step 4. If you used randomization within each participant-stimulus pairing, the allocation is balanced in expectation. Show the realized proportions. If there was imbalance, explain that including risk level and expected value as covariates adjusts for this in the analysis.
+
+---
+
+**3. "Can you generalize beyond these stimuli?"**
+
+**Advisor response:** Only to the extent these 36 offers represent the population of financial products of this type. We should describe the offer set (product categories, fee structures represented, range of risk and EV) and note what kinds of products are not represented. The honest answer is: we can generalize to products similar to these, under the assumption that the sample was reasonably representative.
+
+---
+
+**4. "Why did you include participant random slopes?"**
+
+**Advisor response:** Because transparency varied within participant — each person saw both transparent and non-transparent offers. This within-participant variation means participants *could* differ in how much the manipulation moved them. A random slope allows the model to estimate that heterogeneity rather than assuming every participant responds to transparency identically. The design justifies it; we then checked whether the data supported it.
+
+---
+
+**5. "Why did you drop a random slope if you dropped one?"**
+
+**Student question:** What if the reviewer asks why we simplified?
+
+**Advisor response:** Show the singularity check. "We initially fit a model with a by-participant random slope for transparency as justified by the within-participant design. The model was [singular / showed convergence warnings]. We removed the intercept-slope correlation and confirmed that the simplified model was non-singular. The slope variance estimate was [value], and removing it did not change the transparency fixed-effect estimate meaningfully [show comparison table]. We retained the simpler model and report the simplification."
+
+---
+
+**6. "Are site effects meaningful with only 4 sites?"**
+
+**Advisor response:** "We included site as a random effect because participants were nested in sites and site means differed visibly. With J = 4 sites, the site variance estimate is imprecise — it should be interpreted as an indication that site-level baseline differences exist, not as a precise characterization of effect heterogeneity across contexts. The transparency effect is estimated within sites, so site variance does not directly threaten the focal estimate. We recommend future work with more diverse site sampling."
+
+---
+
+**7. "Could trial order or fatigue explain the effect?"**
+
+**Advisor response:** Check the trial-order correlation. "We examined trial order as a potential confound. If transparency was accidentally more common in later trials — when fatigue effects are larger — the transparency estimate would be downward-biased. We checked that transparency assignment was balanced across trial order positions. [Show the check.] We also fit a model including trial order as a fixed effect and confirmed the transparency estimate was stable."
+
+---
+
+**8. "Does financial literacy moderate the effect, or is that post hoc?"**
+
+**Advisor response:** "Financial literacy was measured before the experiment began and was specified as a theoretically motivated moderator based on prior work suggesting that fee transparency aids understanding primarily for those with lower financial knowledge. If preregistered, this is confirmatory. If not preregistered, it is exploratory and should be replicated."
+
+---
+
+**9. "Did the model converge cleanly?"**
+
+**Advisor response:** "The final model [m_final] converged without warnings using the bobyqa optimizer. The model is non-singular [check with isSingular()]. We checked convergence by restarting with two additional optimizers and obtained equivalent estimates."
+
+---
+
+**10. "What is the estimand?"**
+
+**Advisor response:** The estimand is the average treatment effect of fee transparency on willingness to adopt, averaged across the population of participants from which our sample was drawn, across the population of financial product offers that our stimuli represent, and across the population of research contexts similar to our sites. It is *not* the effect for these specific 36 products or these specific 4 sites. The crossed random-effects structure is what licenses the "across the population" part of that claim.
+
+---
+
+## 17. Reporting Template
+
+Adapt this template for a methods section. Replace bracketed values with actual estimates.
+
+---
+
+> We analyzed adoption-intent ratings (0–100) using a linear mixed-effects model fitted with `lme4` (Bates et al., 2015) and degrees of freedom estimated via the Satterthwaite approximation (`lmerTest`; Kuznetsova et al., 2017).
+>
+> **Design structure.** Each participant rated 12 of 36 product offers; participants were nested in 4 research sites. Fee transparency varied within participant across trials. The design is partially crossed: participants and stimuli form a partially crossed random-effects structure, while participants are nested within sites.
+>
+> **Model specification.** The model included fixed effects for fee transparency (0/1), financial literacy (standardized, measured pre-experiment), their interaction, product risk level (standardized), and expected value. Random intercepts were included for participants, stimuli, and sites, treating all three as random samples from their respective populations. [If random slopes were retained: A by-participant random slope for transparency was included because transparency varied within participant; the intercept-slope correlation was removed to address [singular fit / convergence issues]. If dropped: A by-participant random slope for transparency was initially considered but produced [singular fit / near-zero slope variance; *SD* = X]; it was dropped and the result was stable.]
+>
+> **Model selection.** Models were compared sequentially: pooled OLS → participant random intercepts → crossed participant + stimulus random intercepts → + site random intercepts → + design covariates → + literacy interaction → + random slopes. The final model was selected after confirming convergence and non-singularity.
+>
+> **Results.** Fee transparency increased willingness to adopt by *b* = [X.X] points (95% CI: [X.X, X.X]), *t*([df]) = [X.X], *p* = [.XXX], on average across participants, stimuli, and sites. Financial literacy moderated this effect, *b* = [X.X], *t*([df]) = [X.X], *p* = [.XXX]: the transparency benefit was larger for participants lower in financial literacy [describe direction]. Participant, stimulus, and site random-intercept SDs were [X.X], [X.X], and [X.X], respectively.
+>
+> **Generalization.** Because stimuli were treated as a random sample from the population of possible financial product descriptions, the transparency effect estimate generalizes beyond these specific 36 offers, under the assumption that the offer set was reasonably representative of the target class of products. Site generalization is limited by the small number of sites (J = 4).
+
+---
+
+::: {.callout-tip icon=false}
+## Minimum Reproducible Model Report
+
+Any multilevel analysis of a nested experiment should include:
+
+- [ ] Model formula (verbatim or in mathematical notation)
+- [ ] Software and version used
+- [ ] Optimizer used and whether the model converged
+- [ ] Whether the model is singular (`isSingular()`)
+- [ ] Estimator (REML or ML) and df method
+- [ ] All fixed-effect estimates with SEs and CIs
+- [ ] All random-effect variance components (SDs) with grp labels
+- [ ] Sequence of models compared and why the final model was chosen
+- [ ] What was tried and simplified, and why
+- [ ] Explicit statement about the estimand (what population does this generalize to?)
+- [ ] At least one residual diagnostic inspection
+:::
