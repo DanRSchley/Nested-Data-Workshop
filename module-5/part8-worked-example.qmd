@@ -747,18 +747,23 @@ Before trusting the final model, inspect residuals and check whether any assumpt
 # 3. Model is non-singular
 # 4. Fixed-effect SEs are stable (checked in m6-comparison above)
 slope_sd <- tryCatch({
-  vc_m6b <- as.data.frame(VarCorr(m6b))
-  sqrt(vc_m6b$vcov[vc_m6b$grp == "participant_id" &
-                    !is.na(vc_m6b$var1) & vc_m6b$var1 == "transparency" &
-                    is.na(vc_m6b$var2)])
+  vc_m6b  <- as.data.frame(VarCorr(m6b))
+  # With || syntax lme4 may use different grp labels; match on var1 only
+  tx_row  <- vc_m6b[!is.na(vc_m6b$var1) & vc_m6b$var1 == "transparency" &
+                      is.na(vc_m6b$var2), ]
+  if (nrow(tx_row) > 0) sqrt(tx_row$vcov[1]) else NA_real_
 }, error = function(e) NA_real_)
 
-keep_slope <- !isSingular(m6b) && !is.na(slope_sd) && slope_sd > 0.5
+# isTRUE() guards against NA / length-0 logicals from any of the three checks
+keep_slope <- isTRUE(!isSingular(m6b)) &&
+              isTRUE(!is.na(slope_sd))  &&
+              isTRUE(slope_sd > 0.5)
 
 m_final <- if (keep_slope) m6b else m5
-cat("Slope SD:", round(slope_sd, 2), "\n")
+cat("Slope SD:", if (is.na(slope_sd)) "NA" else round(slope_sd, 2), "\n")
 cat("Model singular (m6b):", isSingular(m6b), "\n")
-cat("Final model selected:", ifelse(keep_slope, "m6b (random slope retained)", "m5 (slope dropped)"), "\n")
+cat("Final model selected:",
+    ifelse(keep_slope, "m6b (random slope retained)", "m5 (slope dropped)"), "\n")
 ```
 
 ```{r residual-diagnostics, fig.width=10, fig.height=4}
