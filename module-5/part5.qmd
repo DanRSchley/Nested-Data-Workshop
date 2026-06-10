@@ -12,6 +12,46 @@ set.seed(42)
 
 # Power Analysis for Nested Designs
 
+## A Practical Power Planning Workflow
+
+Power analysis is not a single calculation — it is a design exploration. The goal is to understand how power changes across the design space so you can make an informed choice, not to produce a single "magic number."
+
+::: {.callout-note icon=false}
+## Power Planning Workflow
+
+1. **Define the estimand** — what is the effect you are testing? (average treatment effect, ITT, LATE, etc.)
+2. **Identify the assignment level** — is treatment assigned to individuals, clusters, or sites?
+3. **Identify the analysis model** — the power simulation must fit the *exact* planned analysis model
+4. **Estimate plausible ICCs** from pilot data, the literature, or a range of assumptions
+5. **Specify plausible effect sizes** — express uncertainty in the assumed effect; simulate a range
+6. **Simulate several designs** — vary N, clusters, stimuli, and compliance rate
+7. **Report uncertainty** — power is a range across plausible assumptions, not a single number
+8. **Document inputs** for the preregistration: assumed ICC, assumed effect size, attrition rate, compliance rate, simulation code or package, number of replications
+:::
+
+| Design lever | What it controls | When to prioritize it |
+|-------------|-----------------|----------------------|
+| Number of participants | Within-cluster precision | When ICC is low and clusters are large |
+| Number of clusters | Between-cluster variance | When ICC is high — adding clusters > adding per-cluster observations |
+| Number of stimuli | Stimulus-level variance | When stimulus RE variance is large (Part 1 designs) |
+| Number of sites | Site heterogeneity estimation | When multi-site generalization is the goal |
+| Waves / time points | Longitudinal power | For growth curves, more waves help more than more participants |
+| Compliance rate | First-stage strength | Affects LATE precision; low compliance → wide LATE SE |
+| Attrition rate | Effective N | Even 20% attrition substantially reduces power |
+
+::: {.callout-warning icon=false}
+## Simulation Quality Warning
+
+Simulation-based power is only as good as the assumed DGP. If your ICC assumption is off by a factor of 2, your power estimate can be dramatically wrong. Best practice:
+
+- Run sensitivity analyses across a plausible ICC range (e.g., 0.05, 0.10, 0.20)
+- Run sensitivity analyses across a plausible effect size range (small, medium, expected)
+- Report a **power curve** or **power surface**, not a single number
+- State explicitly which assumptions are uncertain and how sensitive power is to them
+:::
+
+---
+
 ## Why Standard Power Formulas Are Wrong
 
 Standard power formulas (Cohen's power tables, G\*Power) assume independent observations. They compute: given my expected effect size and desired power, how many participants do I need?
@@ -159,6 +199,64 @@ power_curve <- powerCurve(m_pilot,
 plot(power_curve)
 ```
 
+## Power for Crossed Designs: Participants × Stimuli
+
+In a crossed participant-by-stimulus design (Part 1), power depends on **both** the number of participants and the number of stimuli. This is the most commonly misunderstood case in JDM power planning.
+
+```{r crossed-power-sim}
+# Power as a function of N_participants AND N_stimuli simultaneously
+simulate_crossed_power <- function(n_part, n_stim, true_effect = 3,
+                                   sigma_part = 8, sigma_stim = 6, sigma_e = 5,
+                                   n_sims = 300) {
+  p_vals <- replicate(n_sims, {
+    p_eff <- rnorm(n_part, 0, sigma_part)
+    s_eff <- rnorm(n_stim, 0, sigma_stim)
+    cond  <- rep(c(0, 1), each = ceiling(n_stim / 2))[1:n_stim]
+
+    df_c <- expand_grid(p = 1:n_part, s = 1:n_stim) |>
+      slice_sample(prop = 0.5) |>
+      mutate(
+        Y   = 50 + true_effect * cond[s] + p_eff[p] + s_eff[s] + rnorm(n(), 0, sigma_e),
+        p   = factor(p), s = factor(s), cond = factor(cond[s])
+      )
+
+    tryCatch({
+      m <- lmer(Y ~ cond + (1 | p) + (1 | s), data = df_c, REML = FALSE,
+                control = lmerControl(optimizer = "bobyqa"))
+      coef(summary(m))["cond1", "Pr(>|t|)"]
+    }, error = function(e) NA_real_, warning = function(w) NA_real_)
+  })
+  mean(p_vals < 0.05, na.rm = TRUE)
+}
+
+# Power grid: varies N_stimuli at fixed N_participants
+crossed_grid <- expand_grid(
+  n_stim = c(8, 16, 24, 32),
+  n_part = c(40, 80)
+) |>
+  mutate(
+    power  = map2_dbl(n_part, n_stim, ~simulate_crossed_power(.x, .y, n_sims = 150)),
+    design = paste0(n_part, " participants")
+  )
+
+ggplot(crossed_grid, aes(x = n_stim, y = power, color = design, group = design)) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 2.5) +
+  geom_hline(yintercept = 0.80, linetype = "dashed", color = "gray50") +
+  scale_color_manual(values = c("#1e3a5f", "#e63946"), name = NULL) +
+  labs(
+    title    = "Power in a crossed design: stimuli matter as much as participants",
+    subtitle = "Effect size = 3 units; σ_participant = 8; σ_stimulus = 6. Adding stimuli gains more power than adding participants once N_participants > 40.",
+    x        = "Number of stimuli",
+    y        = "Power"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+**The take-home:** Increasing participants cannot fully compensate for too few stimuli when stimulus variance is substantial. If you have 8 stimuli and σ_stimulus = 6, no amount of participant recruitment will push power to 80% for a small effect — the stimulus-level variance is the binding constraint. Westfall, Kenny & Judd (2014) showed this is the reason many JDM replications fail even with seemingly large samples.
+
+---
+
 ## Key Takeaways for Power Planning
 
 ::: {.callout-note}
@@ -171,4 +269,25 @@ plot(power_curve)
 3. **For crossed designs (participants × stimuli):** Power depends on both the number of participants *and* the number of stimuli. Westfall, Kenny & Judd (2014) showed that many published studies are severely underpowered on the stimulus side.
 
 4. **Collect pilot ICC estimates:** Run a small pilot study and compute the ICC before committing to a full design.
+
+5. **Simulate uncertainty:** Report a range of power values across plausible ICC and effect size assumptions, not a single number.
 :::
+
+---
+
+## Minimum Reporting Checklist for Power
+
+::: {.callout-tip icon=false}
+## What to Report in a Power Section or Preregistration
+
+- [ ] Assumed ICC (with source: pilot data, literature, or sensitivity range)
+- [ ] Assumed random slope variance (if applicable)
+- [ ] Assumed effect size (with justification)
+- [ ] Assumed attrition rate and compliance rate (if non-trivial)
+- [ ] Analysis model used in the simulation (exact formula)
+- [ ] Simulation code or package name and version
+- [ ] Number of simulation replications
+- [ ] Power curve or sensitivity table across plausible ICC × effect size combinations
+- [ ] Final design choice and rationale (why this N over other options)
+:::
+

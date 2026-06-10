@@ -35,12 +35,12 @@ This is the **compliance problem**: the treatment assigned ($Z$) diverges from t
 
 Four estimands address this situation, each answering a different question:
 
-| Estimand | Definition | Bias? |
+| Estimand | Definition | Status |
 |---------|-----------|-------|
-| Intent-to-treat (ITT) | Effect of assignment ($Z \rightarrow Y$) | Unbiased but attenuated |
-| As-treated (AT) | Compare $D=1$ to $D=0$ regardless of $Z$ | Biased (self-selection into compliance) |
-| Per-protocol | Analyze only observed compliers | Biased (excludes non-compliers non-randomly) |
-| LATE via IV | Effect for compliers, using $Z$ as instrument for $D$ | Unbiased for compliers |
+| Intent-to-treat (ITT) | Effect of assignment ($Z \rightarrow Y$) | Unbiased for the assignment effect *under*: random assignment, no differential attrition, no interference, stable measurement |
+| As-treated (AT) | Compare $D=1$ to $D=0$ regardless of $Z$ | Biased: self-selection into compliance |
+| Per-protocol | Analyze only observed compliers | Biased: excludes non-compliers non-randomly |
+| LATE via IV | Effect for compliers, using $Z$ as instrument for $D$ | Identifies complier effect *under*: relevance, independence, exclusion restriction, monotonicity, no interference |
 
 The **as-treated** and **per-protocol** estimators are both biased for the same reason: compliers are not a random subset of assigned participants. People who activate a budgeting tool likely differ from non-activators on financial motivation, savings goals, and prior financial literacy — all of which also predict savings outcomes. Comparing them to non-activators is an observational comparison, not a causal one.
 
@@ -135,12 +135,17 @@ $$\text{LATE} = \frac{\text{ITT}}{\text{Compliance rate in treatment group}}$$
 This simplification applies whenever the control condition makes treatment practically impossible (e.g., access to the tool is gated behind a unique code given only to treatment participants).
 
 ::: {.callout-tip}
-## Four Assumptions for LATE to Be Valid
+## LATE Assumptions: What Can Be Tested and What to Do When They Fail
 
-1. **Relevance**: The instrument $Z$ must affect take-up $D$ (testable — check first-stage $F > 10$).
-2. **Exclusion restriction**: $Z$ affects $Y$ *only* through $D$, not directly. This is an untestable assumption that must be justified by design.
-3. **Monotonicity**: No defiers. Assignment can only push people toward treatment, never away from it.
-4. **Independence**: $Z$ is as good as randomly assigned (satisfied by design in an RCT).
+| Assumption | Plain-language meaning | How to check | If this fails |
+|-----------|----------------------|--------------|---------------|
+| **Relevance** | Z must move D | First-stage F-statistic — F < 10 = weak instrument | Report ITT only; treat LATE as fragile and note the weak-instrument problem |
+| **Independence** | Z is as good as randomly assigned | Covariate balance table by Z | If Z is not randomized, IV requires a strong design justification; consider sensitivity analysis |
+| **Exclusion restriction** | Z affects Y only through D, not directly | Not directly testable — must be argued from design | If questionable (e.g., notification itself changes behavior), do not interpret IV as the causal effect of treatment receipt |
+| **Monotonicity** | No defiers: assignment never *reduces* uptake | Not directly testable — must be argued substantively | If defiers are plausible, report sensitivity analysis and narrow the claim |
+| **SUTVA / No interference** | One person's treatment doesn't affect others | Check for network spillovers, shared households, proximity effects | If interference exists, LATE interpretation does not hold as stated — consider cluster-level IV |
+
+The exclusion restriction is the most frequently violated and the hardest to defend. **Access to the tool** must not change behavior in ways beyond whether they use the tool. For example, if participants in the treatment arm *also* receive an encouraging email just for being offered the tool, the exclusion restriction is violated and IV does not identify the effect of tool use.
 :::
 
 ::: {.callout-warning icon=false}
@@ -159,19 +164,71 @@ LATE is precise but narrow. A few things it does **not** tell you:
 
 ---
 
+## Compliance Audit Before Analysis
+
+Before fitting ITT or IV models, audit the compliance structure in your data. Many apparent IV failures trace back to design questions that could have been answered before modeling.
+
+::: {.callout-note icon=false}
+## Compliance Audit Checklist
+
+| Question | Why it matters | How to check |
+|----------|----------------|--------------|
+| Who was assigned to treatment? | Defines the ITT denominator | Verify assignment records; N in each arm |
+| Who actually received treatment (D = 1)? | Defines compliance rate | Activation logs, attendance records |
+| Can controls access the treatment on their own? | One- vs. two-sided compliance | Check D in control arm; crossover rate |
+| Is take-up measured accurately? | First stage requires reliable D | Validate the take-up definition; consider self-report bias |
+| Is noncompliance one-sided or two-sided? | Changes the Wald denominator | E[D \| Z=0] near zero → one-sided |
+| Is there differential attrition by assignment? | Biases even the ITT if yes | Compare retention rates by Z |
+| Is there interference across participants? | SUTVA required for IV | Check for information spillovers or network effects |
+
+:::
+
+---
+
 ## Section 4: Worked Example — Digital Budgeting Tool Experiment
+
+### True DGP parameters
+
+The simulation is designed so the three estimators give meaningfully different answers, consistent with the prose:
+
+| Parameter | Value | Expected consequence |
+|-----------|-------|---------------------|
+| True causal effect for compliers | +8 pp savings rate | LATE should recover this |
+| Compliance rate in treatment arm | ~65% (motivation-driven) | ITT diluted below 8 |
+| Motivation → activation (log-odds) | β = 1.2 | High motivation → more likely to activate |
+| Motivation → savings outcome | β = 3 pp per SD | Activators are systematically more motivated → **as-treated biased upward** |
+| Direction of bias | ITT < 8 < As-treated | LATE should split the difference and recover 8 |
 
 ### Simulation
 
-We simulate a budgeting tool experiment: 200 participants randomized 1:1. In the treatment arm, 65% activate and use the tool (one-sided noncompliance — no control participants access the tool). The true causal effect of activating and using the tool is +8 percentage points of monthly savings rate.
+We simulate a budgeting tool experiment: 200 participants randomized 1:1. In the treatment arm, activation depends on **financial motivation** (a latent variable representing self-efficacy and goal orientation). Motivation also independently predicts savings behavior. This creates the bias the prose describes: as-treated compares self-selected activators (high motivation) to non-activators and controls (lower motivation) — a comparison that reflects both the tool effect *and* the motivation advantage of activators.
 
 ```{r sim-coaching}
+set.seed(42)
 n <- 200
 Z <- rep(c(0, 1), each = 100)
-D <- ifelse(Z == 1, rbinom(100, 1, 0.65), 0)   # one-sided: 65% activate tool
-savings_rate <- 10 + 8 * D + rnorm(n, 0, 6)    # true effect for compliers = 8
 
-df_nc <- tibble(id = 1:n, Z = factor(Z), D = factor(D), savings_rate)
+# Latent motivation: financial self-efficacy, goal orientation, savings habits
+motivation  <- rnorm(n, 0, 1)
+
+# In the treatment arm, higher motivation → higher probability of activating the tool
+# Average compliance rate ≈ 65% (plogis(-0.4) ≈ 0.40 at motivation=0;
+# ranges from ~0.40 to ~0.85 across motivation distribution)
+p_activate  <- plogis(-0.4 + 1.2 * motivation)
+D <- ifelse(Z == 1, rbinom(n, 1, p_activate), 0)   # one-sided noncompliance
+
+# True DGP: tool raises savings by 8 pp; motivation also independently raises savings
+# → Activators (D=1) are both using the tool AND more motivated: as-treated is biased upward
+savings_rate <- 10 + 8 * D + 3 * motivation + rnorm(n, 0, 5)
+
+df_nc <- tibble(id = 1:n, Z = factor(Z), D = factor(D), motivation, savings_rate)
+
+# Confirm the bias mechanism is present
+cat("Compliance rate (treatment arm):  ", round(mean(D[Z==1]), 2), "\n")
+cat("Mean motivation among activators: ", round(mean(motivation[D==1]), 2), "\n")
+cat("Mean motivation among non-activators:", round(mean(motivation[D==0 & Z==1]), 2), "\n")
+cat("→ Activators are more motivated by", round(mean(motivation[D==1]) - mean(motivation[D==0 & Z==1]), 2),
+    "SDs — this is what biases the as-treated estimate upward.\n")
 ```
 
 ```{mermaid}
@@ -189,6 +246,43 @@ flowchart TD
 ```
 
 The ITT estimate contrasts everyone in the offered group (N=100) with everyone in the control group (N=100) — regardless of activation. The LATE estimate uses the offer as an instrument for actual activation, recovering the causal effect for the sub-population whose tool use changed because of the offer (the compliers — roughly 65 of the 100 offered participants). Never-takers and the control group both have D = 0, but for different reasons.
+
+### Pre-model diagnostics
+
+Before fitting the IV model, check three things: compliance rates by arm, balance on pre-treatment covariates by assignment, and the motivational profile of compliers vs. non-compliers.
+
+```{r compliance-diagnostics}
+# Compliance rates by arm
+df_nc |>
+  group_by(Z) |>
+  summarise(
+    n = n(),
+    n_activated = sum(as.integer(as.character(D))),
+    compliance_rate = mean(as.integer(as.character(D))),
+    mean_motivation = mean(motivation),
+    .groups = "drop"
+  ) |>
+  knitr::kable(digits = 3, caption = "Compliance by assignment group. Mean motivation should be balanced by Z (randomization). Within Z=1, compliers (D=1) should show higher motivation than non-compliers.")
+
+# Profile of compliers vs. non-compliers on motivation
+df_nc |>
+  mutate(
+    compliance_type = case_when(
+      Z == 0 ~ "Control (no offer)",
+      Z == 1 & D == 1 ~ "Complier (offered + activated)",
+      Z == 1 & D == 0 ~ "Non-complier (offered but not activated)"
+    )
+  ) |>
+  group_by(compliance_type) |>
+  summarise(
+    n = n(),
+    mean_motivation = mean(motivation),
+    mean_savings = mean(savings_rate),
+    .groups = "drop"
+  ) |>
+  knitr::kable(digits = 3,
+    caption = "Complier profile. Compliers are more motivated than non-compliers — this is the self-selection mechanism that biases the as-treated estimate.")
+```
 
 ### Estimating all three quantities
 

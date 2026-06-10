@@ -12,6 +12,38 @@ set.seed(2024)
 
 # Multi-Site Experiments
 
+::: {.callout-note icon=false}
+## The Multi-Site Design Question
+
+> **Are sites a sample from a population of possible contexts?** If yes, model site as a random effect. If your sites are the entire target population (e.g., every branch of one specific bank), fixed site effects may be more appropriate.
+>
+> **How much does the treatment effect vary across sites?** This is the key scientific question in a many-labs study. A large random-slope variance for treatment means the effect is heterogeneous — it works well in some contexts and not others.
+>
+> **What claim can you make if sites are not representative?** An average effect across the convenience sample of sites you recruited — not a generalizable estimate for all contexts of the type.
+:::
+
+---
+
+### Multi-Site Design Audit
+
+Before fitting the multi-site model, audit the site structure the same way you audit participants and stimuli.
+
+::: {.callout-note icon=false}
+## Site Audit Before Analysis
+
+| Question | Why it matters | What to check |
+|----------|---------------|---------------|
+| How were sites recruited? | Determines generalizability | Opportunistic, systematic, or stratified recruitment |
+| Are sites the target population or a convenience sample? | Limits scope of inference | Compare site characteristics to the intended population |
+| Was treatment randomized within site or by site? | Determines assignment level | If by site: site IS the unit; need many sites |
+| Are sample sizes balanced across sites? | Affects estimation of site-level variance | Plot N by site; check range |
+| Was the protocol identical across sites? | Confounds implementation vs. site heterogeneity | Protocol fidelity documentation |
+| Were experimenters trained and monitored? | Experimenter effects are a form of site heterogeneity | Training records; fidelity checks |
+| How many sites are there? | Determines precision of random-slope variance | J < 10: interpret heterogeneity estimates cautiously |
+:::
+
+---
+
 ## Generalizability is a Nesting Problem
 
 The replication crisis in psychology revealed that many findings were fragile — they held at one university, with one sample, run by one experimenter, but failed to replicate elsewhere. The problem is that **site** is a nesting variable that standard analysis ignores.
@@ -67,26 +99,120 @@ broom.mixed::tidy(m_ml, effects = "ran_pars") |>
 ```
 
 ```{r forest-plot}
-# Forest plot: site-specific effect estimates
-site_estimates <- coef(m_ml)$site |>
+# Forest plot with uncertainty intervals — not just point estimates
+# Use ranef() conditional modes plus approximate SE from arm package for illustration
+library(arm)
+
+# Extract site-specific estimates: BLUP + shrinkage
+site_coefs <- coef(m_ml)$site |>
   as.data.frame() |>
   rownames_to_column("site") |>
-  rename(intercept = `(Intercept)`, effect = treatment) |>
+  rename(intercept = `(Intercept)`, effect = treatment)
+
+# Approximate SE for site estimates via simulation from the fitted model
+# (for a clean forest plot we use the lmer variance + residual to compute a naive SE)
+n_per_site_val  <- n_per_site / 2   # ~20 per arm per site
+resid_se        <- sigma(m_ml)
+slope_se_approx <- resid_se / sqrt(n_per_site_val)   # rough per-site SE
+
+site_estimates <- site_coefs |>
+  mutate(
+    se_approx = slope_se_approx,
+    ci_lo     = effect - 1.96 * se_approx,
+    ci_hi     = effect + 1.96 * se_approx
+  ) |>
   arrange(effect)
 
+avg_effect <- fixef(m_ml)["treatment"]
+
 ggplot(site_estimates, aes(x = reorder(site, effect), y = effect)) +
-  geom_hline(yintercept = fixef(m_ml)["treatment"],
+  geom_hline(yintercept = avg_effect,
              color = "#e63946", linetype = "dashed", linewidth = 1) +
+  geom_errorbar(aes(ymin = ci_lo, ymax = ci_hi),
+                width = 0.25, color = "#1e3a5f", linewidth = 0.7) +
   geom_point(size = 3, color = "#1e3a5f") +
+  annotate("text", x = 1, y = avg_effect + 0.5,
+           label = paste0("Average: ", round(avg_effect, 1)),
+           color = "#e63946", hjust = 0, size = 3.2) +
   coord_flip() +
   labs(
-    title    = "Site-specific treatment effect estimates (forest plot)",
-    subtitle = "Red line = average effect; points = individual site estimates",
+    title    = "Site-specific treatment effects with uncertainty intervals",
+    subtitle = "Red dashed line = average effect across sites. Overlap with zero = this site's estimate is not significant alone.",
     x        = "Site",
-    y        = "Treatment Effect"
+    y        = "Treatment Effect (with 95% CI)"
   ) +
   theme_minimal(base_size = 12)
 ```
+
+**Why uncertainty intervals matter in a forest plot:** Site-specific point estimates from a random-effects model are *shrunken* toward the average — they understate the true variability across sites. Showing the uncertainty around each estimate reminds the reader that no individual site's deviation from the average is precisely estimated. A site that appears to show a null effect may simply have wide uncertainty, not a true zero.
+
+```{r leave-one-out-sensitivity}
+# Leave-one-site-out sensitivity: how much does the average effect change?
+loo_results <- map_dfr(unique(df_ml$site), function(s) {
+  df_sub <- df_ml |> filter(site != s)
+  m_sub  <- lmer(outcome ~ treatment + (treatment | site),
+                 data = df_sub, control = lmerControl(optimizer = "bobyqa"))
+  tibble(
+    dropped_site = s,
+    avg_effect   = fixef(m_sub)["treatment"]
+  )
+})
+
+ggplot(loo_results, aes(x = reorder(dropped_site, avg_effect), y = avg_effect)) +
+  geom_hline(yintercept = fixef(m_ml)["treatment"],
+             color = "#e63946", linetype = "dashed") +
+  geom_point(color = "#1e3a5f", size = 2.5) +
+  coord_flip() +
+  labs(
+    title    = "Leave-one-site-out sensitivity",
+    subtitle = "How much does the average effect change when each site is removed?\nLarge swings suggest one site is influential.",
+    x        = "Site dropped",
+    y        = "Average effect (leave-one-out)"
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+---
+
+## Heterogeneity Diagnostics
+
+```{r heterogeneity-table}
+# Post-fit summary: what does the site-level variance tell us?
+var_te  <- as.data.frame(VarCorr(m_ml))$vcov[2]
+sd_te   <- sqrt(var_te)
+avg_te  <- fixef(m_ml)["treatment"]
+
+tibble(
+  Quantity             = c("Average treatment effect", "SD of effect across sites",
+                           "80% plausible interval for site effects",
+                           "Proportion of sites where effect > 0 (approx)"),
+  Value = c(
+    round(avg_te, 2),
+    round(sd_te, 2),
+    paste0("[", round(avg_te - 1.28 * sd_te, 1), ", ", round(avg_te + 1.28 * sd_te, 1), "]"),
+    round(pnorm(avg_te / sd_te), 2)
+  )
+) |>
+  knitr::kable(caption = "Treatment effect heterogeneity across sites. The 80% plausible interval shows the range of effects you would expect across a new sample of similar sites.")
+```
+
+::: {.callout-warning icon=false}
+## Small-J Warning: Few Sites, Unreliable Heterogeneity Estimates
+
+The random-slope variance for treatment effects — the quantity that tells you how heterogeneous the effect is across sites — is itself estimated with substantial uncertainty when J (number of sites) is small. With J < 10 sites, the random-slope variance estimate has wide confidence intervals that overlap zero even when true heterogeneity is moderate.
+
+**Practical consequences of few sites:**
+- The average treatment effect remains interpretable even with few sites
+- The site heterogeneity estimate (random slope variance) is unreliable
+- Do not over-interpret whether the effect "varies meaningfully" across sites with J < 10
+- Forest plots with few sites should show uncertainty intervals — point-only plots hide how imprecise each site estimate is
+
+**What claim survives with few sites:**
+- If sites are convenience-sampled: "The effect averaged *b* = [estimate] across the [J] sites studied, which represent [describe recruitment]. Generalization to other contexts requires similar sites."
+- If implementation differed across sites: "Observed site heterogeneity may reflect implementation differences rather than genuine psychological heterogeneity across populations."
+:::
+
+---
 
 ## The ICC for Treatment Effects
 
@@ -120,3 +246,47 @@ cat("Effect ranges approximately from",
 
 **How to check:** Pre-specify and enforce standardized protocols. Measure implementation fidelity. Include implementation fidelity as a moderator.
 :::
+
+::: {.callout-warning icon=false}
+## Assumption: Enough Sites to Estimate Heterogeneity
+
+**What it means:** Estimating random-slope variance requires a sufficient number of level-2 units. With J = 5 sites, the random-slope variance estimate can be zero even when true heterogeneity is substantial. The average effect remains estimable, but the heterogeneity estimate is unreliable.
+
+**What to do:** With J < 10, use the average effect as the primary claim. Treat heterogeneity estimates as exploratory. Consider presenting a prediction interval for the average effect rather than a confidence interval.
+:::
+
+---
+
+## Reviewer Challenge
+
+::: {.callout-tip}
+## What a Reviewer Would Ask
+
+**Challenge 1:** "Your sites are all US universities. How does this generalize?"
+It generalizes to contexts similar to US university labs — convenience-sampled student populations in controlled laboratory settings. This is a limitation that should be stated, not dismissed. If generalizability is important, report it as a scope limitation and suggest what a more representative site sample would look like.
+
+**Challenge 2:** "Your random-slope variance for treatment is large. Does that mean the intervention doesn't work in some sites?"
+Possibly — or the site heterogeneity reflects implementation differences, sample composition differences, or imprecise estimation from small within-site samples. Inspect the forest plot for which sites show negative effects and whether those sites share identifiable features (e.g., smaller N, different recruitment, known implementation problems).
+
+**Challenge 3:** "Why model sites as random effects rather than including site fixed effects?"
+Site random effects allow you to estimate the average treatment effect across sites and to quantify how much the effect varies. Site fixed effects absorb all between-site variance but cannot produce a generalization-weighted average effect or a heterogeneity estimate. Random effects are appropriate when sites are a sample from a population; fixed effects are appropriate when sites are the entire target population or when there is concern about confounding between site characteristics and treatment assignment.
+:::
+
+---
+
+## Reporting Checklist for Multi-Site Experiments
+
+::: {.callout-note icon=false}
+## Minimum Reporting for Multi-Site Studies
+
+- [ ] Number of sites, how recruited, and description of site characteristics
+- [ ] Whether treatment was randomized within sites or by site
+- [ ] Protocol fidelity description
+- [ ] Sample sizes per site (range and mean)
+- [ ] Average treatment effect with SE and CI
+- [ ] Random intercept and random slope variance estimates
+- [ ] Forest plot with site-specific estimates (with uncertainty intervals)
+- [ ] Leave-one-site-out sensitivity check
+- [ ] Explicit statement about generalizability given the site sample
+:::
+

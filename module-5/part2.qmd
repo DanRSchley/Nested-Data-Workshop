@@ -22,6 +22,25 @@ set.seed(2025)
 > **What is the right model?** The partially nested model (Bauer, Sterba & Hallfors, 2008): a cluster random effect that operates only within the coaching condition, leaving the control condition's flat variance structure intact.
 :::
 
+## Partial-Nesting Design Audit
+
+Before fitting, verify that your design is actually partially nested — that one arm has genuine shared context and the other does not.
+
+::: {.callout-note icon=false}
+## Partial-Nesting Audit Checklist
+
+| Question | Why it matters | What to check |
+|----------|---------------|---------------|
+| Which arm has shared context? | Must correctly specify which condition has the cluster RE | Coaching arm, not control arm |
+| What defines the cluster? | The cluster is the unit of shared experience | Coach, facilitator, classroom, lab section |
+| Who assigns participants to clusters? | Random vs. non-random assignment to clusters | Randomization records |
+| Are control participants truly independent? | If not, the "partially nested" premise is wrong | Check for shared platform, shared recruiter, etc. |
+| Are cluster sizes equal? | Unequal sizes reduce power | Plot cluster size distribution |
+| Are cluster-level covariates measured? | May be needed as controls or moderators | Coach experience, training received, etc. |
+:::
+
+---
+
 ## When Only One Condition Has Clustering
 
 Consider a financial coaching field experiment. The treatment group receives **group financial coaching**: 8 participants share a coach, 15 coaches total. The control group receives a **self-serve information module** — there is no coach and no shared group structure. Control participants are fully independent of each other.
@@ -168,6 +187,42 @@ ggplot(re_df, aes(x = reorder(cluster, blup), y = blup)) +
 ```
 
 The spread in these estimates is what the naive model ignores. It treats participants from an effective coach and participants from an ineffective coach as if they were drawn from the same independent distribution — understating uncertainty about the coaching condition's overall effect.
+
+---
+
+::: {.callout-note icon=false}
+## Implementation Notes
+
+- **Singleton clusters for controls** (each control participant gets a unique cluster ID) is the standard practical approach. It is not a trick — it correctly tells the model that control participants share no group context.
+- **Heteroskedastic residuals**: The standard partially nested model assumes equal residual variance in both arms. If coaching experiences homogenize behavior (reducing within-group variance) or introduce idiosyncratic variation (increasing it), fit a heteroskedastic model using `nlme::lme()` with `weights = varIdent(form = ~ 1 | condition)`.
+- **Few clusters**: With J < 10 coaches, the random coach effect is estimated imprecisely. Consider using fixed coach effects (absorbs all between-coach variance, generalizes to these specific coaches) or a cluster bootstrap for standard errors.
+:::
+
+::: {.callout-warning icon=false}
+## If This Fails
+
+| Problem | What it means | What to do |
+|---------|--------------|------------|
+| Control arm also shows clustering | "Partially nested" premise is wrong | Model clustering in both arms — use a different cluster ID scheme |
+| Coach assignment is not random | Coach RE is confounded with participant characteristics | Control for assignment variables or narrow the causal claim |
+| Coach effects are not exchangeable | Random effects are a poor model for highly heterogeneous coaches | Use fixed coach effects; report coach-specific estimates |
+| Very few clusters (J < 5) | Random effect variance is unreliable | Use fixed effects for coaches or cluster bootstrap |
+:::
+
+---
+
+### Reporting checklist for partially nested designs
+
+::: {.callout-tip icon=false}
+## Minimum Reporting Checklist
+
+- [ ] Number of clusters (coaches) and participants per cluster
+- [ ] How cluster assignment was done (random, matched, self-selected)
+- [ ] Whether control participants shared any context (and why independence is assumed)
+- [ ] Treatment-arm ICC (variance attributed to clustering)
+- [ ] Whether residual variances differed by condition (and result of test)
+- [ ] Standard errors from both naive and partially nested model (to show why the model mattered)
+:::
 
 ---
 

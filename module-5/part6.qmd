@@ -217,109 +217,160 @@ tibble(
 
 ---
 
-## Part 2: Count Outcomes — Poisson and Negative Binomial Mixed Models
+## Part 2: Bounded and Unbounded Count Outcomes
+
+### Know your count type before choosing a model
+
+Not all counts are Poisson. The DGP — how the count was generated — determines the model family.
+
+::: {.callout-note icon=false}
+## Outcome Type Audit
+
+| Outcome type | DGP | Correct model | Common mistake |
+|-------------|-----|---------------|----------------|
+| Binary single trial | Bernoulli(p) | Logistic GLMM | — |
+| Repeated binary trials per person | Bernoulli(p) across trials | Logistic GLMM with random intercepts | Treating proportions as continuous |
+| Count from a **fixed number of trials** | Binomial(n, p) — bounded at n | **Binomial GLMM**: `cbind(k, n−k)` | Using Poisson (unbounded, wrong DGP) |
+| Unbounded count in a time window | Poisson(λ) or NB | Poisson/NB GLMM; add offset if exposure differs | Using a bounded-count family |
+| Many structural zeros | Two-process model | Zero-inflated / hurdle | Poisson underestimates zeros |
+:::
+
+### The bounded count problem
+
+"Number of risky choices out of 10 gambles" is a **bounded count**: it ranges from 0 to 10, not 0 to ∞. Generating this with a Poisson distribution and then truncating at 10 is wrong — the Poisson mean-variance relationship ($\text{Var} = \mu$) does not hold for bounded data, and the truncation does not correspond to any standard distributional family.
+
+**The correct DGP:** each of the 10 gambles is a Bernoulli trial — the participant accepts (1) or declines (0). The total count is the sum: $Y_i \sim \text{Binomial}(n = 10, p_i)$. The corresponding model is a **binomial GLMM** using `cbind(successes, failures)` syntax.
 
 ### The model
 
-For a count outcome $Y_{ij} \geq 0$ (e.g., number of risky choices out of a block of 10 gambles):
+$$\text{logit}\bigl(p_{ij}\bigr) = \beta_0 + u_{0j} + \beta_1 \cdot \text{condition}_{ij}$$
 
-$$\log\bigl(E[Y_{ij}]\bigr) = \beta_0 + u_{0j} + \beta_1 \cdot \text{condition}_{ij}$$
+where $p_{ij}$ is the per-gamble acceptance probability for participant $j$ in block $i$, and the outcome is $Y_{ij} \sim \text{Binomial}(10, p_{ij})$. Exponentiating $\beta_1$ gives an **odds ratio** for per-gamble acceptance.
 
-Exponentiating $\beta_1$ gives the **rate ratio** — the multiplicative factor by which the expected count changes in the treatment condition relative to control.
+### Example: Information disclosure and risky choices (bounded count)
 
-### Example: Information disclosure and count of risky choices
-
-We simulate a between-subjects experiment: 100 participants (50 per arm) complete a block of 10 gambles. The control arm receives standard framing; the treatment arm receives an information disclosure showing the expected value of each gamble. Disclosures are expected to reduce risky choice frequency: true rate ratio = 0.65 (35% reduction in accepted gambles).
+We simulate a within-subjects experiment: 60 participants each complete 4 blocks per condition (control vs. disclosure). In each block, they evaluate 10 gambles and choose to accept or decline. The true per-gamble acceptance probability is ~55% in control and ~40% under disclosure (log-odds effect ≈ −0.6, OR ≈ 0.55).
 
 ```{r simulate-count-experiment}
-n_per_cond <- 50
+n_per_cond <- 60
+n_blocks   <- 4   # 4 blocks of 10 gambles per condition (within-subjects)
 
-df_risky <- tibble(
-  participant = 1:(n_per_cond * 2),
-  condition   = rep(c("control", "disclosure"), each = n_per_cond)
+df_risky <- expand_grid(
+  participant = 1:n_per_cond,
+  condition   = c("control", "disclosure"),
+  block       = 1:n_blocks
 ) |>
   mutate(
-    u0          = rnorm(n(), 0, 0.4),
-    log_mu      = 1.8 + u0 + (-0.43) * as.integer(condition == "disclosure"),  # log(0.65)
-    mu          = exp(log_mu),
-    risky_count = rpois(n(), mu),    # out of 10 gambles; rare values > 10 are truncated for realism
-    risky_count = pmin(risky_count, 10),
+    u0          = rnorm(n_per_cond, 0, 0.5)[participant],   # stable individual risk tolerance
+    p_risky     = plogis(0.2 + u0 - 0.6 * as.integer(condition == "disclosure")),
+    risky_count = rbinom(n(), size = 10, prob = p_risky),   # bounded 0–10: correct DGP
+    participant = factor(participant),
     condition   = factor(condition, levels = c("control", "disclosure"))
   )
 
 df_risky |>
   group_by(condition) |>
   summarise(
-    mean_risky = mean(risky_count),
-    sd_risky   = sd(risky_count),
-    prop_zero  = mean(risky_count == 0),
-    .groups    = "drop"
+    n_observations = n(),
+    mean_accepted  = mean(risky_count),
+    sd_accepted    = sd(risky_count),
+    mean_prop      = mean(risky_count / 10),
+    .groups = "drop"
   ) |>
   knitr::kable(digits = 3,
-    caption = "Count of risky choices (out of 10 gambles) by condition")
+    caption = "Risky choices out of 10 gambles per block, by condition. True per-gamble probability: ~55% control, ~40% disclosure.")
 ```
 
-### Fitting and checking the count model
+### Fitting the binomial GLMM
 
-```{r fit-poisson-experiment}
+```{r fit-binomial-experiment}
 m_risky <- glmmTMB(
-  risky_count ~ condition + (1 | participant),
+  cbind(risky_count, 10 - risky_count) ~ condition + (1 | participant),
   data   = df_risky,
-  family = poisson
+  family = binomial
 )
-
-# Dispersion check: values near 1 indicate no overdispersion
-pearson_resid <- residuals(m_risky, type = "pearson")
-dispersion    <- sum(pearson_resid^2) / df.residual(m_risky)
-cat("Dispersion ratio:", round(dispersion, 3), "\n")
-cat("Values near 1.0 = no overdispersion; values > 1.5 = switch to negative binomial.\n\n")
 
 broom.mixed::tidy(m_risky, effects = "fixed", exponentiate = TRUE, conf.int = TRUE) |>
   filter(term != "(Intercept)") |>
   select(term, estimate, conf.low, conf.high, p.value) |>
   knitr::kable(
     digits = 3,
-    caption = "Disclosure effect as rate ratio. True RR = 0.65: disclosure reduces risky choices by ~35%."
+    caption = "Disclosure effect as odds ratio (per-gamble acceptance). True OR ≈ 0.55: disclosure reduces acceptance odds by ~45%."
   )
 ```
 
-### When Poisson is not enough: overdispersion
+### When binomial is not enough: beta-binomial overdispersion
 
-In within-subjects designs, the same participant makes repeated choices across multiple blocks. Individual heterogeneity generates more variance than a Poisson model allows — variance exceeds the mean. This **overdispersion** requires a negative binomial family:
+The standard binomial GLMM assumes that, after conditioning on the random intercept, all 10 trials within a block are independent with the same $p$. In practice there can be **extra-binomial variability** — within a block a participant may be in a streak, or their threshold may shift partway through. This makes variance exceed the binomial prediction.
+
+The **beta-binomial** family handles this: it models $p$ itself as random, adding a dispersion parameter that allows variance beyond the binomial.
 
 ```{r overdispersion-within}
-n_par_within  <- 60
-n_blocks      <- 6   # 6 blocks of 10 gambles per condition
+m_risky_bb <- glmmTMB(
+  cbind(risky_count, 10 - risky_count) ~ condition + (1 | participant),
+  data   = df_risky,
+  family = betabinomial
+)
 
-df_risky_within <- expand_grid(
-  participant = 1:n_par_within,
-  condition   = c("control", "disclosure"),
-  block       = 1:n_blocks
+tibble(
+  Model = c("Binomial GLMM", "Beta-binomial GLMM"),
+  AIC   = c(AIC(m_risky), AIC(m_risky_bb)),
+  Notes = c("Assumes within-block trials are exchangeable",
+            "Allows per-block overdispersion")
+) |>
+  knitr::kable(digits = 1,
+    caption = "Model comparison. Use beta-binomial if there is overdispersion (streaky choices, shifting thresholds).")
+```
+
+### When unbounded counts are the right outcome
+
+If your count has no ceiling — **number of times a participant checked their savings app in a week**, number of optional information requests, number of financial decisions logged — use Poisson or negative binomial:
+
+```{r unbounded-count-example}
+n_par_w  <- 60
+n_weeks  <- 4
+
+df_checkups <- expand_grid(
+  participant = 1:n_par_w,
+  condition   = c("control", "nudge"),
+  week        = 1:n_weeks
 ) |>
   mutate(
-    u0         = rnorm(n_par_within, 0, 0.5)[participant],
-    log_mu     = 1.5 + u0 - 0.43 * as.integer(condition == "disclosure"),
-    mu         = exp(log_mu),
-    phi        = rgamma(n(), shape = 3, rate = 3),   # extra-Poisson variability
-    risky_count = rpois(n(), mu * phi),
+    u0          = rnorm(n_par_w, 0, 0.5)[participant],
+    log_mu      = 1.5 + u0 - 0.43 * as.integer(condition == "control"),
+    mu          = exp(log_mu),
+    phi         = rgamma(n(), shape = 3, rate = 3),
+    check_count = rpois(n(), mu * phi),
     participant = factor(participant),
-    condition  = factor(condition, levels = c("control", "disclosure"))
+    condition   = factor(condition, levels = c("control", "nudge"))
   )
 
 m_nb_within <- glmmTMB(
-  risky_count ~ condition + (1 | participant),
-  data   = df_risky_within,
+  check_count ~ condition + (1 | participant),
+  data   = df_checkups,
   family = nbinom2
 )
 
 broom.mixed::tidy(m_nb_within, effects = "fixed", exponentiate = TRUE, conf.int = TRUE) |>
   filter(term != "(Intercept)") |>
   select(term, estimate, conf.low, conf.high, p.value) |>
-  knitr::kable(
-    digits = 3,
-    caption = "Negative binomial mixed model: within-subjects disclosure effect on risky choice count."
-  )
+  knitr::kable(digits = 3,
+    caption = "Negative binomial GLMM for unbounded weekly check-in count. Rate ratio: nudge vs. control.")
 ```
+
+::: {.callout-warning icon=false}
+## If This Fails — Count Outcome Diagnostics
+
+| Problem | What you see | What to do |
+|---------|-------------|------------|
+| **Separation** (binary) | Huge coefficients, enormous SEs | Use Firth's penalized likelihood (`brglm2`) or Bayesian estimation |
+| **Overdispersion** (Poisson) | Dispersion ratio > 1.5 | Switch to negative binomial (`nbinom2`) |
+| **Overdispersion** (binomial) | Beta-binomial AIC lower by > 4 | Switch to beta-binomial family |
+| **Excess zeros** | Observed zero proportion >> predicted | Zero-inflated or hurdle model |
+| **Too few trials per participant** | Random effects variance unstable | Simplify random effects; consider Bayesian regularization |
+| **Using bounded count as Poisson** | Variance inflated; truncation artifacts | Use `cbind(k, n-k)` with binomial family |
+:::
+
 
 ---
 

@@ -20,6 +20,66 @@ When stimuli are treated as fixed — as if your 20 gamble descriptions are the 
 
 Judd, Westfall, & Kenny (2012, 2017) documented that this mistake is pervasive in social psychology and leads to systematic Type I error inflation. The same critique applies directly to JDM research using repeated-stimulus designs.
 
+## The Experimental Design Audit
+
+Before fitting any model, audit the structure of your experiment. The choices that matter most for model specification were made during design — not at the analysis stage.
+
+| Design question | Why it matters | Example answer | Consequence for model |
+|----------------|---------------|----------------|----------------------|
+| What is randomized? | Determines what comparison is causal | Treatment condition, by participant | Treatment is a fixed effect; inference is about the offer |
+| At what level is treatment assigned? | Drives the assignment-level analysis | Individual participants | Between-subjects main effect |
+| What is the unit of observation? | Each row in the data | One trial per participant per stimulus | Multiple rows per participant |
+| What is the unit of analysis? | Level at which the target effect is defined | Participant average | Random intercept for participants |
+| Are stimuli sampled or fixed? | Determines whether stimulus RE is needed | 12 sampled messages | Add stimulus random effect (Part 1) |
+| Are participants crossed with stimuli? | Determines whether design is crossed or nested | Each participant sees 6 of 12 messages | Crossed random effects (Part 1) |
+| Is one arm clustered and the other not? | Determines whether partially nested model is needed | Treatment arm has shared coach; control is independent | Partially nested model (Part 2) |
+| Are sites sampled? | Determines whether site RE is needed | 8 university labs | Multi-site model (Part 4) |
+| Is compliance perfect? | Determines whether IV is needed | 70% activate the tool | Report ITT and LATE (Part 8) |
+| Is attrition ignorable? | Determines whether IPW is needed | High-risk participants drop out | IPW-corrected ITT (Part 9) |
+| What is the outcome type? | Determines the model family | Binary choice (accepted / declined) | Logistic GLMM (Part 6) |
+
+: Experimental design audit checklist {tbl-colwidths="[25,20,25,30]"}
+
+---
+
+### Routing guide: which part covers your design problem?
+
+```{mermaid}
+flowchart TD
+    A["What is the\nmain design feature?"]
+
+    A -->|"Multiple stimuli per participant"| B["Crossed random effects\nPart 1"]
+    A -->|"One arm has groups,\none arm is independent"| C["Partially nested design\nPart 2"]
+    A -->|"Random effects structure\nunclear"| D["Maximal vs. parsimonious RE\nPart 3"]
+    A -->|"Same study across\nmultiple sites/labs"| E["Multi-site experiment\nPart 4"]
+    A -->|"Need to plan\nsample size"| F["Power analysis\nPart 5"]
+    A -->|"Binary or count\noutcome"| G["GLMM\nPart 6"]
+    A -->|"Report & preregister"| H["Effect sizes and reporting\nPart 7"]
+    A -->|"Some assigned participants\ndid not comply"| I["ITT and LATE\nPart 8"]
+    A -->|"Attrition, dosage,\nor eligibility cutoff"| J["Quasi-experimental fixes\nPart 9"]
+```
+
+---
+
+### Three layers every experimental analysis must address
+
+::: {.callout-note icon=false}
+## The Recurring Workflow Across Module 5
+
+Every chapter in this module follows the same six-step audit logic:
+
+1. **Design audit** — What structure did the experiment create? (randomization level, clustering, stimuli)
+2. **Estimand audit** — What causal quantity can this design identify? (ATE, ITT, LATE, ATT)
+3. **Model audit** — Does the model match the assignment level, measurement level, and outcome distribution?
+4. **Assumption audit** — Which assumptions are guaranteed by design, which are testable, and which require conceptual defense?
+5. **Failure audit** — If an assumption is weak, what alternative model or narrower claim is appropriate?
+6. **Reporting audit** — What must be reported so a reviewer can evaluate the design and model?
+
+Part 2b of Module 4 introduced this same workflow for longitudinal data. Module 5 repeats it for experimental designs.
+:::
+
+---
+
 ## What This Module Covers
 
 The module is organized into three clusters, moving from design-structure modeling through inferential planning to handling real-world experimental imperfections.

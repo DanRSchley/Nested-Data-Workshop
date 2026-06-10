@@ -14,17 +14,24 @@ set.seed(2024)
 
 # Effect Sizes, Reporting, and Reproducibility
 
-## Why This Chapter Exists
+## Why This Chapter Is the Capstone for Module 5
 
-Nested data creates reporting problems that do not exist in simple ANOVA or OLS regression. When effects are estimated at multiple levels, when random effects have their own variance components, and when outcomes live on transformed scales, the standard playbook for effect sizes (Cohen's $d$, $\eta^2$, $R^2$) breaks down or becomes ambiguous.
+This chapter does two things. First, it covers the statistical mechanics of effect sizes for mixed models — what they mean and how to compute them. Second, and more importantly, it provides **design-specific reporting templates** so that a reader who completed Module 5 can write up any nested experimental analysis in a way that is transparent, verifiable, and reviewer-ready.
+
+The guiding question:
+
+> Given the nesting structure, estimand, and assumption profile of your analysis, what does a reviewer need to see to evaluate whether the design and model are appropriate?
 
 This chapter covers:
 
 1. Effect size measures for mixed models — what they mean and how to compute them
 2. Translating fixed effect estimates to interpretable metrics
 3. Conditional vs. marginal $R^2$
-4. Reporting standards for nested experimental data
-5. Reproducibility practices: seeds, version pinning, and transparent reporting
+4. Design-specific reporting templates (crossed RE, partially nested, multi-site, GLMM, noncompliance, quasi-experimental)
+5. A minimum reproducible model report
+6. Preregistration prompts for nested experimental designs
+7. Claim calibration: how to narrow your claim when assumptions are weak
+8. Reproducibility practices: seeds, version pinning, and transparent reporting
 
 ---
 
@@ -253,6 +260,146 @@ A complete report for a mixed model analysis includes:
 - [ ] Overdispersion check (for count models)
 - [ ] Predicted probabilities or counts at substantively meaningful covariate values
 :::
+
+---
+
+## Design-Specific Reporting Templates
+
+Different designs require different minimum disclosures. Use the template for your design.
+
+::: {.callout-tip icon=false}
+## Crossed Participant × Stimulus Design (Part 1)
+
+> "We fitted a linear mixed model with participant and message as crossed random effects (`lmer(Y ~ condition + (1|participant) + (1|message)`). The participant ICC was [value], indicating [X]% of response variance was stable between-person. The message ICC was [value]. Treating messages as fixed effects (ignoring message variance) would have underestimated the SE of the framing effect by approximately [X]%. The framing effect was *b* = [estimate], SE = [SE], 95% CI [CI], *t*([df]) = [t], *p* = [p]."
+:::
+
+::: {.callout-tip icon=false}
+## Partially Nested Design (Part 2)
+
+> "Participants were randomly assigned to a group coaching condition (*n* = [N], [K] coaches, [m] per coach) or an independent self-serve condition (*n* = [N]). Because only the coaching arm had shared group context, we used the Bauer et al. partially nested model: coaching groups were modeled with a random effect, while control participants each received a unique singleton cluster ID. The coaching-group ICC was [value]. The coaching effect estimate was *b* = [estimate], SE = [SE], *p* = [p]. We verified that using a naive model without clustering inflated the coaching effect SE by [X]%."
+:::
+
+::: {.callout-tip icon=false}
+## Multi-Site Experiment (Part 4)
+
+> "The study was run across [K] sites ([describe recruitment]). Sites were modeled as random effects; the treatment effect was allowed to vary by site (random slope for treatment by site). The average treatment effect across sites was *b* = [estimate], SE = [SE], 95% CI [CI]. The SD of treatment effects across sites was [value], indicating that the 80% plausible range of site effects was approximately [[lower], [upper]]. A leave-one-site-out analysis confirmed no single site was driving the average estimate. Because sites were [convenience-sampled / systematically recruited], results generalize to [describe population]."
+:::
+
+::: {.callout-tip icon=false}
+## GLMM with Binary or Bounded Count Outcome (Part 6)
+
+> **Binary:** "We fitted a logistic mixed model with [random effects structure]. The condition effect was *b* = [log-odds], OR = [exp(b)], 95% CI [CI], *z* = [z], *p* = [p]. At the sample mean baseline probability of [X]%, the treatment increased acceptance probability by approximately [Y] percentage points (to [Z]%). The random intercept variance was [τ²], ICC = [value]."
+
+> **Bounded count (binomial):** "Risky choices out of 10 gambles per block were modeled with a binomial GLMM using `cbind(risky_count, 10-risky_count)`. Using Poisson for this bounded outcome would have been incorrect — the DGP is binomial, not Poisson. The disclosure effect was OR = [estimate] (per-gamble acceptance odds ratio), 95% CI [CI], *p* = [p]."
+:::
+
+::: {.callout-tip icon=false}
+## Non-Compliance / LATE Analysis (Part 8)
+
+> "Compliance in the treatment arm was [X]% (one-sided noncompliance — controls could not access the tool). We report both the intent-to-treat effect (ITT = [estimate], SE = [SE], *p* = [p]) and the complier average causal effect (LATE = [estimate], SE = [SE], *p* = [p]), estimated via instrumental variables regression with assignment as the instrument. The first-stage *F*-statistic was *F* = [F], supporting instrument relevance. The exclusion restriction — that assignment affected savings only through tool activation — is supported by [design argument]."
+:::
+
+::: {.callout-tip icon=false}
+## Attrition / IPW Analysis (Part 9)
+
+> "At follow-up, [X]% of participants were retained. Retention was lower in the control arm ([X]%) than the treatment arm ([Y]%), and predicted by baseline [covariate]. We estimated inverse probability weights for attrition using a logistic model for retention on baseline covariates. The IPW-corrected ITT was *b* = [estimate], SE = [SE], *p* = [p], compared to the naive complete-case estimate of *b* = [biased estimate]. The IPW analysis assumes dropout was missing at random given observed baseline covariates; if dropout was driven by unobserved outcomes, this correction will not fully remove bias."
+:::
+
+---
+
+## Minimum Reproducible Model Report
+
+Every mixed model analysis should include enough information for a reader to exactly reproduce it.
+
+::: {.callout-note icon=false}
+## Minimum Reproducible Report Box
+
+```r
+# Report all of these:
+# 1. Formula
+Y ~ condition + (1 + condition | participant) + (1 | stimulus)
+
+# 2. Contrast coding
+# condition: treatment = 1, control = 0 (dummy coding)
+
+# 3. Optimizer
+lmerControl(optimizer = "bobyqa")
+
+# 4. REML vs. ML
+# Fixed effects: REML = TRUE (default); LRT comparisons: REML = FALSE
+
+# 5. Convergence check
+isSingular(model)             # TRUE = degenerate variance
+performance::check_convergence(model)
+
+# 6. Key diagnostics run
+plot(model)                   # residuals vs. fitted
+qqnorm(ranef(model)$participant[[1]])  # RE normality
+
+# 7. Package versions
+sessionInfo()
+```
+:::
+
+---
+
+## Preregistration Prompts for Nested Experimental Designs
+
+These prompts cover the decisions that are most consequential for nested experimental analyses and are most commonly left unspecified in preregistrations.
+
+::: {.callout-note icon=false}
+## Preregistration Checklist
+
+**What is randomized and at what level?**
+- [ ] Unit of randomization (individual, dyad, classroom, site)
+- [ ] Whether stimuli are counterbalanced or condition-specific
+
+**What is the estimand?**
+- [ ] ATE, ITT, LATE, ATT — be explicit
+- [ ] Whether the estimand is population-level or complier-restricted
+
+**What is the primary model formula?**
+- [ ] Fixed effects and coding scheme
+- [ ] Random effects structure (exactly as you plan to fit it)
+- [ ] Model family and link function (for GLMMs)
+
+**Random effects simplification sequence:**
+- [ ] Starting structure (maximal theoretically justified)
+- [ ] Step 1 if singular/non-convergent: remove correlation parameters
+- [ ] Step 2: remove smallest variance component (with LRT criterion)
+- [ ] Disclosure: deviations from registered structure will be reported
+
+**Exclusions and attrition rules:**
+- [ ] Criteria for excluding participants from analysis
+- [ ] How attrition will be handled (complete case, IPW, FIML)
+- [ ] Minimum follow-up rate for IPW
+
+**Compliance and instrument:**
+- [ ] Expected compliance rate and how compliance is measured
+- [ ] Whether LATE will be reported and what the exclusion restriction argument is
+
+**Sensitivity analyses:**
+- [ ] Alternative random effects structures
+- [ ] Alternative model families (e.g., negative binomial vs. Poisson)
+- [ ] Sensitivity to outlier sites or clusters
+:::
+
+---
+
+## Claim Calibration: Narrowing the Claim When Assumptions Are Weak
+
+Not every analysis can sustain its intended claim. When assumptions are questionable, the right response is to narrow the claim — not to hide the limitation.
+
+| If this is weak... | Standard claim | Narrowed claim |
+|--------------------|----------------|----------------|
+| Stimulus sample is small or non-representative | "This framing effect generalizes to all messages of this type" | "This effect held for the specific stimuli tested; generalizability to other messages is unknown" |
+| Sites are convenience-sampled | "This effect generalizes across contexts" | "This effect was observed across [K] [convenience-sampled] sites; generalization to other contexts requires similar recruitment" |
+| Compliance is partial and exclusion restriction is debatable | "Tool use causally improves savings (LATE)" | "Assignment to the tool offer increased savings rates (ITT); the as-treated comparison is biased by motivation; IV assumptions require further defense" |
+| Attrition is potentially MNAR | "IPW-corrected ITT is unbiased" | "The IPW correction assumes MAR; if high-risk participants dropped out because of worsening outcomes (MNAR), residual bias is possible" |
+| Parallel trends assumption is untestable with only two waves | "DiD estimate is causal" | "The DiD estimate is consistent with a causal interpretation under the parallel trends assumption, which cannot be directly tested with two waves" |
+| Random effects structure was simplified from preregistered | "Results are confirmatory" | "Results are confirmatory for the primary model; the preregistered maximal model was simplified due to convergence failure (reported in Appendix)" |
+
+---
 
 ### Example APA-Style Results Paragraph
 

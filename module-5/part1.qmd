@@ -22,6 +22,36 @@ set.seed(2025)
 > **What is the fix?** Add stimuli as a second random factor. Both participants *and* stimuli are sampled from populations of interest — both belong in the model.
 :::
 
+## Stimulus Audit Before Analysis
+
+Before fitting a crossed random-effects model, audit the stimulus structure. Many of the most common errors in JDM experiments trace back to stimulus decisions made before analysis — not statistical choices.
+
+::: {.callout-note icon=false}
+## Stimulus Audit Checklist
+
+| Question | Why it matters | What to check |
+|----------|---------------|---------------|
+| Were stimuli sampled, constructed, or selected after piloting? | Piloted-then-retained stimuli are not a random sample | Describe the stimulus selection process |
+| Can each stimulus appear in each condition? | Enables full counterbalancing and crossed RE | Check design matrix |
+| Are stimulus features (valence, concreteness, EV) balanced across conditions? | Unbalanced features confound the manipulation effect | Compare mean stimulus features by condition |
+| How many stimuli per condition? | Drives stimulus-side power | Count N_stimuli by condition |
+| Is the stimulus population the target of generalization? | Determines whether stimulus RE is appropriate | State what you want to generalize to |
+| Are stimuli the same across participants, or are they sampled per participant? | Determines whether design is crossed or nested | Check whether each participant sees the same stimuli |
+
+:::
+
+::: {.callout-warning icon=false}
+## When Stimuli Are Condition-Specific
+
+If each stimulus belongs to only one condition — gain-framed messages were written for gain framing, loss-framed messages were written for loss framing — the condition effect and the stimulus-quality difference are **perfectly confounded**. The crossed random-effects model cannot disentangle them.
+
+**What claim survives:** The treatment effect estimate for these specific stimuli is still valid. Generalization requires that the condition-specific stimuli are representative of the broader classes, which must be argued conceptually — it cannot be verified statistically.
+
+**What to check:** Report the stimulus-level ICC. If it is substantially above zero, stimulus quality differences exist and should be acknowledged. If you have coded stimulus features (concreteness, familiarity, expected value), include them as covariates to rule out feature confounds.
+:::
+
+---
+
 ## The Stimuli-Are-Random Problem
 
 Every JDM experiment that presents multiple stimuli — gain- and loss-framed messages, product descriptions, gamble pairs, disclosure formats, price offers, policy options — has the same structural feature: the stimuli you used are a *sample* from a larger population of possible stimuli.
@@ -142,6 +172,31 @@ ggplot(vc_all, aes(x = component, y = sd, fill = component)) +
     y        = "SD (variance component)"
   ) +
   theme_minimal(base_size = 12)
+```
+
+---
+
+### Post-fit: report stimulus ICC and compare models
+
+After fitting, always report the stimulus ICC and show what the SE would have been if stimulus variance had been ignored. This is the evidence that the crossed model was necessary.
+
+```{r stimulus-diagnostics}
+# Stimulus ICC from the correct model
+vc <- as.data.frame(VarCorr(m_correct))
+var_message  <- vc$vcov[vc$grp == "message"]
+var_residual <- vc$vcov[vc$grp == "Residual"]
+icc_message  <- var_message / (var_message + var_residual)
+
+cat("Message ICC:", round(icc_message, 3), "\n")
+cat("Interpretation: ", round(icc_message * 100, 1),
+    "% of residual variance (after participant effects) is due to stable message differences.\n\n")
+
+# SE comparison
+se_wrong   <- broom.mixed::tidy(m_wrong,   effects = "fixed") |> filter(term == "conditionloss") |> pull(std.error)
+se_correct <- broom.mixed::tidy(m_correct, effects = "fixed") |> filter(term == "conditionloss") |> pull(std.error)
+cat("SE ignoring messages: ", round(se_wrong, 3), "\n")
+cat("SE with message RE:   ", round(se_correct, 3), "\n")
+cat("SE inflation from ignoring messages:", round((se_wrong / se_correct - 1) * 100, 1), "% smaller\n")
 ```
 
 ---

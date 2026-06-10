@@ -11,6 +11,18 @@ set.seed(77)
 
 # Maximal vs. Parsimonious Random Effects
 
+::: {.callout-note icon=false}
+## The Random Effects Design Question
+
+> **Which predictors vary within your grouping unit (participant, stimulus, site)?** Only those can have a random slope for that unit. A random slope for a between-subjects factor is a model misspecification.
+>
+> **What is the right starting point for confirmatory tests?** Start with the maximal theoretically justified structure — every random slope the design can support — then simplify transparently when the data cannot support that structure.
+>
+> **What is the tradeoff?** Maximal models protect Type I error but can fail to converge or produce degenerate variance components. Parsimonious models can improve power but inflate Type I error for within-subjects effects. Report all simplification decisions so the preregistered and realized models are distinguishable.
+:::
+
+---
+
 ## The Debate
 
 In 2013, Barr, Levy, Scheepers, & Tily published an influential paper titled "Random Effects Structure for Confirmatory Hypothesis Testing: Keep It Maximal." Their argument:
@@ -72,6 +84,53 @@ m_pars <- lmer(Y ~ condition + (1 | participant), data = df_within)
 anova(m_pars, m_max)
 ```
 
+## Random Effects Eligibility Table
+
+The first question is not "should I use a random slope?" but "**can** I use a random slope?" A random slope for predictor X by grouping unit G requires that X varies within G. If X is constant within G, there is no within-G variation to estimate a slope on.
+
+| Predictor | Varies within participant? | Varies within stimulus? | Can have by-participant slope? | Can have by-stimulus slope? |
+|-----------|--------------------------|------------------------|-------------------------------|----------------------------|
+| Within-subjects condition (e.g., framing) | ✓ yes | ✓ yes (if counterbalanced) | ✓ yes | ✓ yes |
+| Between-subjects condition (e.g., disclosure arm) | ✗ no | ✓ yes (if stimuli span conditions) | ✗ no — between-subjects | ✓ possibly |
+| Trial number (time-within-session) | ✓ yes | ✓ yes | ✓ yes | ✓ yes |
+| Stimulus difficulty/valence | ✗ no (fixed per stimulus) | — (stimulus-level predictor) | ✗ no | — |
+| Participant-level covariate (age, literacy) | ✗ no | ✓ yes | — | ✓ yes |
+
+**Key rule:** If a predictor does not vary within the grouping unit, including a random slope for it either crashes the model or produces a degenerate zero-variance component. The coefficient table in `summary()` will show a variance estimate of 0 or near 0 for that slope.
+
+---
+
+## A Practical Simplification Workflow
+
+Use this sequence for every confirmatory mixed model:
+
+1. **List all grouping factors** — participants, stimuli, sites, advisors, etc.
+2. **List all predictors** — for each, note whether it varies within each grouping factor (see table above).
+3. **Specify the maximal theoretically justified structure** — include random slopes for every within-unit predictor; omit for between-unit predictors.
+4. **Fit the maximal model** with a robust optimizer (e.g., `bobyqa`).
+5. **Check convergence and singularity** — `isSingular()`, `performance::check_convergence()`, warnings in the console.
+6. **If singular or non-convergent**: first remove the correlation parameter between random intercept and slope (`(1 | G) + (0 + X | G)` instead of `(X | G)`).
+7. **If still problematic**: remove the random slope with the smallest variance component — but document this as a deviation from the preregistered structure.
+8. **Report all simplification decisions**, including the likelihood ratio test result that motivated each removal.
+
+::: {.callout-warning icon=false}
+## What "Singular" Means and Why It Matters
+
+`isSingular()` returns `TRUE` when one or more variance components are estimated at exactly the boundary of the parameter space (typically: variance = 0, or a correlation = ±1). This is not an error — it is information. It means the data do not support the complexity of the model.
+
+**Observable signs of singularity:**
+- Random slope variance estimated at exactly 0.000
+- Correlation between random intercept and slope estimated at exactly +1.000 or −1.000
+- The `lme4` message: "Model is nearly unidentifiable: very large eigenvalue..."
+
+**What to do:**
+- First try removing the correlation: `(1 | G) + (0 + X | G)` instead of `(X | G)`
+- If variance is still at zero, use an LRT to test whether the random slope improves fit; if *p* > .10, drop it and document the decision
+- Do not use a singular model as the final model without disclosing the singularity
+:::
+
+---
+
 ## The Decision Framework
 
 The current consensus among methodologists:
@@ -79,7 +138,7 @@ The current consensus among methodologists:
 ::: {.callout-note}
 ## When to Use Maximal Random Effects
 
-1. **Within-subjects experimental manipulations:** Always include random slopes for within-subjects factors. This is the critical case. Barr et al. (2013) are correct: omitting random slopes for within-subject conditions inflates Type I error.
+1. **Within-subjects experimental manipulations:** For confirmatory tests, start with random slopes for within-subjects factors. Barr et al. (2013) are correct that omitting these inflates Type I error — but only when the data can support the structure. If convergence fails, simplify transparently rather than silently defaulting to a misspecified parsimonious model.
 
 2. **When theory or pilot data suggests heterogeneous effects:** If you have prior reason to believe the treatment effect varies substantially across participants, include the random slope.
 
@@ -124,4 +183,40 @@ anova(m_pars, m_no_corr)
 **Common mistake:** Including a random slope for a between-subjects condition. This will either produce a degenerate model or absorb all variance in a nonsensical way.
 
 **How to check:** For each predictor, ask: does this variable vary *within* the grouping unit (participant, stimulus)? If yes, it can have a random slope for that unit. If no (between-subjects), it cannot.
+
+**What to do if the maximal model fails:** Remove correlation parameters first, then remove slopes with near-zero variance. Document each step and report it in the methods section as a pre-specified or transparent deviation.
 :::
+
+---
+
+## Reviewer Challenge
+
+::: {.callout-tip}
+## What a Reviewer Would Ask
+
+**Challenge 1:** "Barr et al. (2013) say you need to keep the random effects maximal. Why did you simplify?"
+The Barr et al. recommendation applies specifically to the maximal *theoretically justified* structure. If the random slope variance was estimated near zero (σ² = 0.001) and the LRT showed no improvement (χ²(2) = 0.4, *p* = .82), removing it follows Matuschek et al. (2017): the data provide no evidence that participants differ in their slope. The simplified model avoids degenerate variance estimates without inflating Type I error in this case.
+
+**Challenge 2:** "Your model gave a singularity warning. Doesn't that invalidate the results?"
+Singularity means one variance component is at its boundary, typically because the data do not support that complexity. It does not automatically invalidate the fixed effects. The correct response is to investigate which component caused the singularity, remove it if the LRT supports it, and report the decision transparently.
+
+**Challenge 3:** "You included a random slope for the between-subjects manipulation. Why?"
+It is not possible to have a random slope for a pure between-subjects predictor — participants are each in one condition, so there is no within-participant variation to estimate a slope on. If the model appeared to converge, the slope variance estimate is meaningless or it was absorbed into the intercept variance. This is a specification error.
+:::
+
+---
+
+## Preregistration Template for Random Effects
+
+When preregistering a mixed model experiment, specify the random effects structure explicitly:
+
+::: {.callout-note icon=false}
+## Preregistration Prompts for Random Effects
+
+- **Primary random effects structure:** (e.g., "Random intercepts and slopes for condition by participant; random intercepts for stimulus.")
+- **Maximal justified structure:** List all predictors that vary within each grouping factor and the corresponding random slopes.
+- **Simplification sequence:** "If the maximal model fails to converge or is singular: (1) remove correlation parameters, (2) remove the slope with the smallest variance component, (3) repeat until convergence."
+- **Criterion for removing a slope:** "Likelihood ratio test *p* > .10 and variance estimate < 0.001."
+- **What will be disclosed:** "Any deviation from the preregistered structure will be reported in the methods section along with the LRT result that motivated the change."
+:::
+
