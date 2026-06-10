@@ -1,0 +1,458 @@
+---
+title: "Non-Compliance: ITT and LATE"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(AER)
+library(broom)
+library(ggplot2)
+library(patchwork)
+library(sandwich)
+library(lmtest)
+set.seed(42)
+```
+
+# Non-Compliance: ITT and LATE
+
+::: {.callout-note icon=false}
+## The Experimental Recovery Question
+
+> **If this experiment had gone perfectly — full compliance, zero attrition, no crossover — what would randomization have identified?** An average treatment effect (ATE) for all participants — provided there is no interference, no differential attrition, and measurement is stable.
+>
+> **What complication prevents that here?** Non-compliance: some assigned participants do not receive treatment, so the treated group is a self-selected subset of the assigned group.
+>
+> **What is the next-best estimand?** The intent-to-treat effect (ITT) — unbiased under random assignment and no differential attrition, but diluted — or the local average treatment effect (LATE) for compliers, recovered via instrumental variables with assignment as the instrument.
+:::
+
+## Section 1: The Compliance Problem
+
+Random assignment supports **intent-to-treat (ITT)** estimates that are unbiased under standard conditions (no differential attrition, exclusion restriction, no interference) — the effect of being offered or assigned to treatment. But ITT is not always the quantity of interest.
+
+Consider a randomized budgeting tool experiment: half the participants are given access to a digital budgeting tool, the other half to a standard information email. At 3 months, the ITT estimate is the effect of *being offered* the tool — but if only 65% of offered participants actually activated it, the ITT averages together the tool's effect with a zero effect for the 35% who never engaged. The ITT underestimates the effect of the budgeting tool itself for people who would comply.
+
+This is the **compliance problem**: the treatment assigned ($Z$) diverges from the treatment received ($D$).
+
+Four estimands address this situation, each answering a different question:
+
+| Estimand | Definition | Status |
+|---------|-----------|-------|
+| Intent-to-treat (ITT) | Effect of assignment ($Z \rightarrow Y$) | Unbiased for the assignment effect *under*: random assignment, no differential attrition, no interference, stable measurement |
+| As-treated (AT) | Compare $D=1$ to $D=0$ regardless of $Z$ | Biased: self-selection into compliance |
+| Per-protocol | Analyze only observed compliers | Biased: excludes non-compliers non-randomly |
+| LATE via IV | Effect for compliers, using $Z$ as instrument for $D$ | Identifies complier effect *under*: relevance, independence, exclusion restriction, monotonicity, no interference |
+
+The **as-treated** and **per-protocol** estimators are both biased for the same reason: compliers are not a random subset of assigned participants. People who activate a budgeting tool likely differ from non-activators on financial motivation, savings goals, and prior financial literacy — all of which also predict savings outcomes. Comparing them to non-activators is an observational comparison, not a causal one.
+
+---
+
+## Section 2: The Four Compliance Types
+
+To understand what IV recovers, we need to categorize participants by their potential compliance behavior. Imagine each person has a latent compliance type that determines how they respond to each value of the instrument:
+
+| | Z = 0 (Control assigned) | Z = 1 (Treatment assigned) |
+|---|---|---|
+| **D = 0 (no treatment received)** | Never-takers & Compliers | Never-takers & Defiers |
+| **D = 1 (treatment received)** | Always-takers & Defiers | Always-takers & Compliers |
+
+The four types:
+
+- **Compliers**: Take treatment when assigned ($Z=1$), do not take it when not assigned ($Z=0$). Treatment status follows assignment.
+- **Never-takers**: Never take treatment regardless of assignment. Their $D$ is unaffected by $Z$.
+- **Always-takers**: Always take treatment regardless of assignment. Their $D$ is also unaffected by $Z$.
+- **Defiers**: Do the opposite of their assignment. Assumed away by the **monotonicity** assumption.
+
+The key insight: **only compliers are affected by the instrument**. Never-takers and always-takers have the same $D$ regardless of $Z$, so the instrument creates no variation in $D$ for them. Comparing outcomes by $Z$ among never-takers and always-takers is just noise. The ITT effect is therefore a diluted average: it reflects the treatment effect for compliers but zero for never- and always-takers.
+
+Instrumental variables "zooms in" on compliers by scaling the ITT by the compliance rate.
+
+### Visual: What Happens to Each Type When Assignment Changes?
+
+```{r compliance-diagram, fig.width=8, fig.height=3.5}
+# Visual illustration of the four compliance types
+compliance_grid <- tibble(
+  type      = rep(c("Compliers", "Never-takers", "Always-takers", "Defiers (assumed absent)"), each = 2),
+  condition = rep(c("Z = 0 (Control)", "Z = 1 (Treatment)"), times = 4),
+  D         = c(0, 1,   # Compliers: 0 when control, 1 when treatment
+                0, 0,   # Never-takers: always 0
+                1, 1,   # Always-takers: always 1
+                1, 0),  # Defiers: opposite of assignment
+  affected  = c(TRUE, TRUE,   # Compliers are affected
+                FALSE, FALSE, # Never-takers not affected
+                FALSE, FALSE, # Always-takers not affected
+                TRUE, TRUE)   # Defiers are affected (but assumed away)
+) |>
+  mutate(
+    D_label    = ifelse(D == 1, "Uses tool (D=1)", "Does not use (D=0)"),
+    type       = factor(type, levels = c("Compliers", "Never-takers",
+                                         "Always-takers", "Defiers (assumed absent)")),
+    condition  = factor(condition, levels = c("Z = 0 (Control)", "Z = 1 (Treatment)"))
+  )
+
+fill_colors <- c("Uses tool (D=1)"    = "#1e3a5f",
+                 "Does not use (D=0)" = "#d9e8f5")
+text_colors <- c("Uses tool (D=1)"    = "white",
+                 "Does not use (D=0)" = "#1e3a5f")
+
+ggplot(compliance_grid,
+       aes(x = condition, y = type, fill = D_label)) +
+  geom_tile(color = "white", linewidth = 1.2, aes(alpha = ifelse(type == "Defiers (assumed absent)", 0.35, 1))) +
+  geom_text(aes(label = D_label, color = D_label), size = 3.4, fontface = "bold") +
+  # Highlight complier column change
+  annotate("rect", xmin = 1.45, xmax = 2.55, ymin = 0.5, ymax = 1.5,
+           fill = NA, color = "#e63946", linewidth = 1.5) +
+  annotate("text",  x = 2.62, y = 1, label = "\u2190 LATE\nidentified\nhere",
+           hjust = 0, size = 3.2, color = "#e63946", linewidth = 0.8) +
+  scale_fill_manual(values = fill_colors) +
+  scale_color_manual(values = text_colors) +
+  scale_alpha_identity() +
+  coord_cartesian(xlim = c(0.4, 2.9)) +
+  labs(
+    title    = "The four compliance types: what each group does when assignment changes",
+    subtitle = "IV identifies the effect for Compliers (red box) — the only group whose D changes with Z.\nNever- and Always-takers contribute noise; Defiers are assumed absent (monotonicity).",
+    x = NULL, y = NULL
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "none",
+        panel.grid     = element_blank(),
+        axis.text.x    = element_text(face = "bold", size = 12))
+```
+
+---
+
+## Section 3: The LATE Formula
+
+The **Local Average Treatment Effect (LATE)** — the average causal effect for compliers — is recovered via the Wald estimator:
+
+$$\text{LATE} = \frac{\overbrace{E[Y \mid Z=1] - E[Y \mid Z=0]}^{\text{ITT (reduced form)}}}{\underbrace{E[D \mid Z=1] - E[D \mid Z=0]}_{\text{Compliance rate (first stage)}}}$$
+
+The numerator is the ITT: the effect of assignment on the outcome. The denominator is the **first stage**: the effect of assignment on treatment receipt, i.e., the share of the sample whose treatment status is changed by the instrument. Dividing by the compliance rate "scales up" the diluted ITT to recover the effect for the sub-population whose treatment changed.
+
+**One-sided noncompliance** is the special case where the control group has zero take-up ($E[D \mid Z=0] = 0$ — no always-takers, no crossover). Then:
+
+$$\text{LATE} = \frac{\text{ITT}}{\text{Compliance rate in treatment group}}$$
+
+This simplification applies whenever the control condition makes treatment practically impossible (e.g., access to the tool is gated behind a unique code given only to treatment participants).
+
+::: {.callout-tip}
+## LATE Assumptions: What Can Be Tested and What to Do When They Fail
+
+| Assumption | Plain-language meaning | How to check | If this fails |
+|-----------|----------------------|--------------|---------------|
+| **Relevance** | Z must move D | First-stage F-statistic — F < 10 = weak instrument | Report ITT only; treat LATE as fragile and note the weak-instrument problem |
+| **Independence** | Z is as good as randomly assigned | Covariate balance table by Z | If Z is not randomized, IV requires a strong design justification; consider sensitivity analysis |
+| **Exclusion restriction** | Z affects Y only through D, not directly | Not directly testable — must be argued from design | If questionable (e.g., notification itself changes behavior), do not interpret IV as the causal effect of treatment receipt |
+| **Monotonicity** | No defiers: assignment never *reduces* uptake | Not directly testable — must be argued substantively | If defiers are plausible, report sensitivity analysis and narrow the claim |
+| **SUTVA / No interference** | One person's treatment doesn't affect others | Check for network spillovers, shared households, proximity effects | If interference exists, LATE interpretation does not hold as stated — consider cluster-level IV |
+
+The exclusion restriction is the most frequently violated and the hardest to defend. **Access to the tool** must not change behavior in ways beyond whether they use the tool. For example, if participants in the treatment arm *also* receive an encouraging email just for being offered the tool, the exclusion restriction is violated and IV does not identify the effect of tool use.
+:::
+
+::: {.callout-warning icon=false}
+## What LATE Does Not Identify
+
+LATE is precise but narrow. A few things it does **not** tell you:
+
+- **The effect for never-takers.** People who would not activate the tool regardless of the offer are excluded from the LATE estimate. If uptake is lowest among the most financially distressed users — perhaps those who need it most — LATE reflects the effect for those already inclined to engage.
+
+- **The average treatment effect (ATE).** LATE = ATE only if compliance is universal (everyone assigned to treatment uses it). With partial compliance, LATE estimates the effect for compliers only.
+
+- **Transportability.** Compliers in this experiment may be a self-selected group (motivated, tech-comfortable, low inertia). The LATE from one context may not predict uptake effects in a population with different compliance rates.
+
+**The question LATE answers well:** "If we offer this tool and some people adopt it because of the offer, how much does adoption help those people?" That is often the right question for evaluating a real-world rollout.
+:::
+
+---
+
+## Compliance Audit Before Analysis
+
+Before fitting ITT or IV models, audit the compliance structure in your data. Many apparent IV failures trace back to design questions that could have been answered before modeling.
+
+::: {.callout-note icon=false}
+## Compliance Audit Checklist
+
+| Question | Why it matters | How to check |
+|----------|----------------|--------------|
+| Who was assigned to treatment? | Defines the ITT denominator | Verify assignment records; N in each arm |
+| Who actually received treatment (D = 1)? | Defines compliance rate | Activation logs, attendance records |
+| Can controls access the treatment on their own? | One- vs. two-sided compliance | Check D in control arm; crossover rate |
+| Is take-up measured accurately? | First stage requires reliable D | Validate the take-up definition; consider self-report bias |
+| Is noncompliance one-sided or two-sided? | Changes the Wald denominator | E[D \| Z=0] near zero → one-sided |
+| Is there differential attrition by assignment? | Biases even the ITT if yes | Compare retention rates by Z |
+| Is there interference across participants? | SUTVA required for IV | Check for information spillovers or network effects |
+
+:::
+
+---
+
+## Section 4: Worked Example — Digital Budgeting Tool Experiment
+
+### True DGP parameters
+
+The simulation is designed so the three estimators give meaningfully different answers, consistent with the prose:
+
+| Parameter | Value | Expected consequence |
+|-----------|-------|---------------------|
+| True causal effect for compliers | +8 pp savings rate | LATE should recover this |
+| Compliance rate in treatment arm | ~65% (motivation-driven) | ITT diluted below 8 |
+| Motivation → activation (log-odds) | β = 1.2 | High motivation → more likely to activate |
+| Motivation → savings outcome | β = 3 pp per SD | Activators are systematically more motivated → **as-treated biased upward** |
+| Direction of bias | ITT < 8 < As-treated | LATE should split the difference and recover 8 |
+
+### Simulation
+
+We simulate a budgeting tool experiment: 200 participants randomized 1:1. In the treatment arm, activation depends on **financial motivation** (a latent variable representing self-efficacy and goal orientation). Motivation also independently predicts savings behavior. This creates the bias the prose describes: as-treated compares self-selected activators (high motivation) to non-activators and controls (lower motivation) — a comparison that reflects both the tool effect *and* the motivation advantage of activators.
+
+```{r sim-coaching}
+set.seed(42)
+n <- 200
+Z <- rep(c(0, 1), each = 100)
+
+# Latent motivation: financial self-efficacy, goal orientation, savings habits
+motivation  <- rnorm(n, 0, 1)
+
+# In the treatment arm, higher motivation → higher probability of activating the tool
+# Average compliance rate ≈ 65% (plogis(-0.4) ≈ 0.40 at motivation=0;
+# ranges from ~0.40 to ~0.85 across motivation distribution)
+p_activate  <- plogis(-0.4 + 1.2 * motivation)
+D <- ifelse(Z == 1, rbinom(n, 1, p_activate), 0)   # one-sided noncompliance
+
+# True DGP: tool raises savings by 8 pp; motivation also independently raises savings
+# → Activators (D=1) are both using the tool AND more motivated: as-treated is biased upward
+savings_rate <- 10 + 8 * D + 3 * motivation + rnorm(n, 0, 5)
+
+df_nc <- tibble(id = 1:n, Z = factor(Z), D = factor(D), motivation, savings_rate)
+
+# Confirm the bias mechanism is present
+cat("Compliance rate (treatment arm):  ", round(mean(D[Z==1]), 2), "\n")
+cat("Mean motivation among activators: ", round(mean(motivation[D==1]), 2), "\n")
+cat("Mean motivation among non-activators:", round(mean(motivation[D==0 & Z==1]), 2), "\n")
+cat("→ Activators are more motivated by", round(mean(motivation[D==1]) - mean(motivation[D==0 & Z==1]), 2),
+    "SDs — this is what biases the as-treated estimate upward.\n")
+```
+
+```{mermaid}
+flowchart TD
+    A["Randomized — N = 200"] --> B["Offered tool<br/>N = 100"]
+    A --> C["Control — no offer<br/>N = 100"]
+    B --> D["Activated tool<br/>Compliers ≈ 65"]
+    B --> E["Did not activate<br/>Never-takers ≈ 35"]
+    D --> F["Outcome measured<br/>D = 1: tool users"]
+    E --> G["Outcome measured<br/>D = 0: assigned but unused"]
+    C --> H["Outcome measured<br/>D = 0: no access"]
+    style D fill:#e8f5e9,stroke:#2d6a4f
+    style E fill:#fff3e0,stroke:#e67e22
+    style H fill:#f0f0f0,stroke:#888888
+```
+
+The ITT estimate contrasts everyone in the offered group (N=100) with everyone in the control group (N=100) — regardless of activation. The LATE estimate uses the offer as an instrument for actual activation, recovering the causal effect for the sub-population whose tool use changed because of the offer (the compliers — roughly 65 of the 100 offered participants). Never-takers and the control group both have D = 0, but for different reasons.
+
+### Pre-model diagnostics
+
+Before fitting the IV model, check three things: compliance rates by arm, balance on pre-treatment covariates by assignment, and the motivational profile of compliers vs. non-compliers.
+
+```{r compliance-diagnostics}
+# Compliance rates by arm
+df_nc |>
+  group_by(Z) |>
+  summarise(
+    n = n(),
+    n_activated = sum(as.integer(as.character(D))),
+    compliance_rate = mean(as.integer(as.character(D))),
+    mean_motivation = mean(motivation),
+    .groups = "drop"
+  ) |>
+  knitr::kable(digits = 3, caption = "Compliance by assignment group. Mean motivation should be balanced by Z (randomization). Within Z=1, compliers (D=1) should show higher motivation than non-compliers.")
+
+# Profile of compliers vs. non-compliers on motivation
+df_nc |>
+  mutate(
+    compliance_type = case_when(
+      Z == 0 ~ "Control (no offer)",
+      Z == 1 & D == 1 ~ "Complier (offered + activated)",
+      Z == 1 & D == 0 ~ "Non-complier (offered but not activated)"
+    )
+  ) |>
+  group_by(compliance_type) |>
+  summarise(
+    n = n(),
+    mean_motivation = mean(motivation),
+    mean_savings = mean(savings_rate),
+    .groups = "drop"
+  ) |>
+  knitr::kable(digits = 3,
+    caption = "Complier profile. Compliers are more motivated than non-compliers — this is the self-selection mechanism that biases the as-treated estimate.")
+```
+
+### Estimating all three quantities
+
+```{r coaching-models}
+m_itt  <- lm(savings_rate ~ Z,   data = df_nc)
+m_at   <- lm(savings_rate ~ D,   data = df_nc)
+m_late <- ivreg(savings_rate ~ D | Z, data = df_nc)
+```
+
+```{r coaching-table, echo=FALSE}
+bind_rows(
+  broom::tidy(m_itt)  |> filter(term == "Z1") |>
+    mutate(method = "ITT (assignment)"),
+  broom::tidy(m_at)   |> filter(term == "D1") |>
+    mutate(method = "As-treated (biased — self-selection)"),
+  broom::tidy(m_late) |> filter(term == "D1") |>
+    mutate(method = "LATE via IV (Wald estimator)")
+) |>
+  select(method, estimate, std.error, p.value) |>
+  knitr::kable(
+    digits  = 3,
+    caption = "True effect for compliers = 8. ITT is diluted by the 35% non-activators. As-treated is biased upward (activators are more motivated to save). LATE recovers the true complier effect."
+  )
+```
+
+### Manual Wald check
+
+The IV estimate should equal ITT divided by the compliance rate:
+
+```{r wald-check}
+itt_est   <- coef(m_itt)["Z1"]
+comp_rate <- mean(as.integer(as.character(df_nc$D))[Z == 1]) -
+             mean(as.integer(as.character(df_nc$D))[Z == 0])
+
+cat("ITT estimate:      ", round(itt_est, 3), "\n")
+cat("Compliance rate:   ", round(comp_rate, 3), "\n")
+cat("Wald LATE:         ", round(itt_est / comp_rate, 3), "\n")
+cat("ivreg LATE:        ", round(coef(m_late)["D1"], 3), "\n")
+```
+
+The manual Wald calculation and `ivreg()` agree (up to rounding). This confirms the mechanics: `ivreg()` is just solving the Wald formula via two-stage least squares.
+
+### Visualization
+
+```{r coaching-plot, fig.width=7, fig.height=4.5}
+est_df <- bind_rows(
+  broom::tidy(m_itt)  |> filter(term == "Z1") |>
+    mutate(method = "ITT"),
+  broom::tidy(m_at)   |> filter(term == "D1") |>
+    mutate(method = "As-treated"),
+  broom::tidy(m_late) |> filter(term == "D1") |>
+    mutate(method = "LATE (IV)")
+) |>
+  mutate(
+    method   = factor(method, levels = c("ITT", "As-treated", "LATE (IV)")),
+    biased   = method == "As-treated"
+  )
+
+ggplot(est_df, aes(x = method, y = estimate, fill = biased)) +
+  geom_col(width = 0.55, alpha = 0.85) +
+  geom_errorbar(aes(ymin = estimate - 1.96 * std.error,
+                    ymax = estimate + 1.96 * std.error),
+                width = 0.18) +
+  geom_hline(yintercept = 8, linetype = "dashed", color = "#c0392b", linewidth = 0.9) +
+  annotate("text", x = 3.45, y = 8.5, label = "True effect = 8",
+           color = "#c0392b", hjust = 1, size = 3.5) +
+  scale_fill_manual(values = c("FALSE" = "#1e3a5f", "TRUE" = "#e67e22"),
+                    guide = "none") +
+  labs(
+    title    = "ITT, as-treated, and LATE estimates — budgeting tool experiment",
+    subtitle = "ITT diluted by non-activators; as-treated biased by self-selection; LATE recovers true effect",
+    x        = NULL,
+    y        = "Estimated effect on savings rate (pp)"
+  ) +
+  theme_minimal(base_size = 13)
+```
+
+---
+
+## Section 5: When Is ITT vs. LATE the Right Estimand?
+
+Both ITT and LATE are valid causal estimands — they answer different questions. The choice depends on what the researcher or policymaker actually wants to know.
+
+| Estimand | Right for | Policy analog |
+|---------|-----------|---------------|
+| **ITT** | "What happens if we *offer* this program?" | Opt-in program evaluation — you offer it, some take it |
+| **LATE** | "What is the effect of *actually receiving* treatment?" | Compliance-based evaluation — effect among those who engage |
+
+**Policy example 1 — Budgeting tool rollout**: A financial platform evaluates whether to offer a budgeting tool to customers. Some will activate it, others will not. The policy assigns the *offer*, not the tool engagement itself. The ITT (effect of receiving access, even if unused) is the directly relevant estimand for evaluating whether to expand the offer — it captures the real-world effect of deploying the tool at scale.
+
+**Policy example 2 — Behavioral effect of tool engagement**: A researcher wants to know whether the budgeting tool itself changes savings behavior for users who engage with it. The instrument is random assignment to access; LATE — the effect for those who activated because they were offered access — is the behaviorally relevant quantity. The ITT (effect of the offer) captures the effect of the *deployment*, which is less informative about whether the tool mechanism itself works.
+
+::: {.callout-tip}
+## Practical Guidance
+
+When writing up results, report **both** ITT and LATE. The ITT is interpretable as an "offer effect" that any policymaker can use directly. The LATE is interpretable as the treatment effect for those who would engage, given the design. Report the first-stage compliance rate and the $F$-statistic so readers can evaluate the strength of the instrument.
+:::
+
+---
+
+## Section 6: Two-Sided Noncompliance
+
+**Two-sided noncompliance** occurs when some control-group participants find the treatment on their own (always-takers, crossover). This is common in studies of freely available digital tools — an app that is publicly downloadable cannot be restricted to the treatment arm. The control group no longer has zero take-up.
+
+```{r two-sided}
+n   <- 200
+Z   <- rep(c(0, 1), each = 100)
+D   <- ifelse(Z == 1,
+              rbinom(100, 1, 0.75),   # 75% compliance in treatment
+              rbinom(100, 1, 0.10))   # 10% crossover in control
+Y   <- 50 - 8 * D + rnorm(n, 0, 7)
+
+df_2s      <- tibble(Z = factor(Z), D = factor(D), Y)
+m_late_2s  <- ivreg(Y ~ D | Z, data = df_2s)
+
+broom::tidy(m_late_2s) |>
+  filter(term == "D1") |>
+  select(estimate, std.error, p.value) |>
+  knitr::kable(digits = 3,
+               caption = "Two-sided noncompliance: ivreg() generalizes automatically. True effect = -8.")
+```
+
+The Wald formula generalizes: the denominator is now $E[D \mid Z=1] - E[D \mid Z=0] = 0.75 - 0.10 = 0.65$, reflecting that 65% of the sample has their treatment status determined by the instrument (the compliers). `ivreg()` handles this automatically.
+
+::: {.callout-warning icon=false}
+## Two-Sided Non-Compliance Shrinks the Complier Pool
+
+With 10% crossover in the control group, the effective "complier" share drops. The first-stage $F$-statistic will be lower than in the one-sided case with the same treatment-group compliance rate, because there is less net variation in $D$ driven by $Z$. Monitor the first-stage $F$-statistic carefully when crossover is suspected.
+:::
+
+---
+
+## Section 7: Noncompliance in Nested Experimental Designs
+
+In multi-site experiments (employees nested in firms, customers nested in bank branches), **noncompliance can cluster at the site level**: in a multi-employer experiment on financial wellness tools, an entire employer site may implement the tool poorly (IT barriers, low managerial support). Treating compliance as independent across participants in the same site understates uncertainty.
+
+The remedy is cluster-robust standard errors at the site level:
+
+```{r cluster-se, eval=FALSE}
+library(sandwich)
+
+# Assume df_nc has a 'site' variable
+coeftest(m_late, vcov = vcovCL(m_late, cluster = ~site))
+```
+
+When site-level compliance rates vary substantially, it can also be informative to model compliance as a site-level random effect — sites with low compliance contribute attenuated ITT estimates, and the LATE for each site reflects that site's compliance rate.
+
+::: {.callout-tip}
+## Site-Level Compliance in Multi-Site Studies
+
+If site-level compliance is itself of interest (e.g., "does full implementation matter?"), you can model it explicitly:
+
+```r
+# Site-level compliance rate as a predictor
+site_compliance <- df_nested |>
+  filter(Z == 1) |>
+  group_by(site) |>
+  summarise(compliance_rate = mean(as.integer(as.character(D))))
+
+df_nested <- left_join(df_nested, site_compliance, by = "site")
+lmer(savings_rate ~ compliance_rate + (1 | site), data = df_nested |> filter(Z == 1))
+```
+
+This is a "dose-response" analysis at the site level and requires its own identification argument (why does compliance vary across sites independent of site characteristics?).
+:::
+
+---
+
+## Section 8: Reporting Template
+
+Use the following template for APA-style reporting of ITT and LATE results:
+
+> Participants were randomly assigned to receive access to a [*digital budgeting tool*] (*n* = 100) or standard information email (*n* = 100). Compliance was 65% in the treatment group (one-sided noncompliance; no control participants accessed the tool). Intent-to-treat analysis — using treatment assignment as the predictor regardless of compliance — showed a statistically significant but attenuated effect (*b* = [*ITT estimate*], *SE* = [*ITT SE*], *p* = [*p*]). To estimate the effect for participants who complied with treatment, we used instrumental variables regression (two-stage least squares) with treatment assignment as the instrument for treatment receipt. The complier average causal effect (LATE) was *b* = [*LATE estimate*], *SE* = [*LATE SE*], *p* = [*p*], consistent with a [*direction and magnitude*] effect on savings rate for participants who activated the tool. The first-stage *F*-statistic (*F* = [*F*]) exceeded the conventional weak-instruments threshold of 10, supporting the instrument's relevance.

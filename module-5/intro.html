@@ -441,12 +441,7 @@ window.Quarto = {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../module-5/part8.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Non-Compliance: ITT and LATE</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../module-5/part9.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Quasi-Experimental Methods for Applied Researchers</span></a>
+  <a href="../module-5/part8-worked-example.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">A Fully Worked Multilevel Modeling Example</span></a>
   </div>
 </li>
       </ul>
@@ -494,7 +489,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#cluster-1-design-structure-and-model-specification" id="toc-cluster-1-design-structure-and-model-specification" class="nav-link" data-scroll-target="#cluster-1-design-structure-and-model-specification">Cluster 1 — Design Structure and Model Specification</a></li>
   <li><a href="#cluster-2-planning-and-inference" id="toc-cluster-2-planning-and-inference" class="nav-link" data-scroll-target="#cluster-2-planning-and-inference">Cluster 2 — Planning and Inference</a></li>
-  <li><a href="#cluster-3-imperfect-randomization-and-quasi-experimental-fixes" id="toc-cluster-3-imperfect-randomization-and-quasi-experimental-fixes" class="nav-link" data-scroll-target="#cluster-3-imperfect-randomization-and-quasi-experimental-fixes">Cluster 3 — Imperfect Randomization and Quasi-Experimental Fixes</a></li>
+  <li><a href="#capstone-full-worked-analysis" id="toc-capstone-full-worked-analysis" class="nav-link" data-scroll-target="#capstone-full-worked-analysis">Capstone — Full Worked Analysis</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -606,18 +601,6 @@ window.Quarto = {
 <td>Multi-site model (Part 4)</td>
 </tr>
 <tr class="odd">
-<td>Is compliance perfect?</td>
-<td>Determines whether IV is needed</td>
-<td>70% activate the tool</td>
-<td>Report ITT and LATE (Part 8)</td>
-</tr>
-<tr class="even">
-<td>Is attrition ignorable?</td>
-<td>Determines whether IPW is needed</td>
-<td>High-risk participants drop out</td>
-<td>IPW-corrected ITT (Part 9)</td>
-</tr>
-<tr class="odd">
 <td>What is the outcome type?</td>
 <td>Determines the model family</td>
 <td>Binary choice (accepted / declined)</td>
@@ -643,8 +626,7 @@ window.Quarto = {
     A --&gt;|"Need to plan\nsample size"| F["Power analysis\nPart 5"]
     A --&gt;|"Binary or count\noutcome"| G["GLMM\nPart 6"]
     A --&gt;|"Report &amp; preregister"| H["Effect sizes and reporting\nPart 7"]
-    A --&gt;|"Some assigned participants\ndid not comply"| I["ITT and LATE\nPart 8"]
-    A --&gt;|"Attrition, dosage,\nor eligibility cutoff"| J["Quasi-experimental fixes\nPart 9"]
+    A --&gt;|"Full analysis walkthrough\nfrom design to reporting"| I["Worked MLM example\nPart 8"]
 </pre>
 </div>
 <p></p></figure><p></p>
@@ -682,7 +664,7 @@ window.Quarto = {
 </section>
 <section id="what-this-module-covers" class="level2">
 <h2 class="anchored" data-anchor-id="what-this-module-covers">What This Module Covers</h2>
-<p>The module is organized into three clusters, moving from design-structure modeling through inferential planning to handling real-world experimental imperfections.</p>
+<p>The module is organized into two clusters followed by a capstone, moving from design-structure modeling through inferential planning to a full worked analysis.</p>
 <hr>
 <section id="cluster-1-design-structure-and-model-specification" class="level3">
 <h3 class="anchored" data-anchor-id="cluster-1-design-structure-and-model-specification">Cluster 1 — Design Structure and Model Specification</h3>
@@ -697,13 +679,9 @@ window.Quarto = {
 <p><strong>Part 6: Binary and Count Outcomes in Experiments</strong> — When experimental outcomes are binary (chose the risky option / chose the safe option; opted out of the default / remained enrolled) or counts (number of risky choices out of a block of ten), GLMMs with the correct link function are required. Logistic and Poisson mixed models with crossed random effects for participants and stimuli.</p>
 <p><strong>Part 7: Effect Sizes, Reporting, and Reproducibility</strong> — Standardized effect sizes for mixed models, <span class="math inline">\(R^2\)</span> decomposition by level, translating log-odds to probability for binary JDM outcomes, and pre-registration practices that make nested-data analyses credible.</p>
 </section>
-<section id="cluster-3-imperfect-randomization-and-quasi-experimental-fixes" class="level3">
-<h3 class="anchored" data-anchor-id="cluster-3-imperfect-randomization-and-quasi-experimental-fixes">Cluster 3 — Imperfect Randomization and Quasi-Experimental Fixes</h3>
-<p>The final two parts form a self-contained mini-unit on what to do when randomization does not work exactly as planned.</p>
-<p><strong>Part 8: Non-Compliance — ITT and LATE</strong> — When participants are randomized but not all comply with their assigned condition, the naive treatment-vs-control comparison is diluted or biased. This part covers the intent-to-treat estimand (ITT), the complier average causal effect (LATE) via instrumental variables, the Wald estimator, and the compliance typology (compliers, always-takers, never-takers). <em>JDM example: randomized assignment to a budgeting tool — some participants never activate the tool despite being assigned to the treatment condition (non-compliance). ITT = the effect of being offered the tool, averaged over compliers and non-compliers; LATE = the effect for those whose activation status changed because of the offer. The two estimands answer different questions and require different assumptions.</em></p>
-<p><strong>Part 9: Quasi-Experimental Methods for Applied Researchers</strong> — The broader toolkit for experiments with observational features. <em>JDM examples: DiD logic applied to a WTP pre-post design where a subset of participants received an unexpected information shock between measurement occasions; IPW to correct for non-random dropout from a repeated risky-choice study where higher-risk participants dropped out at greater rates; PSM within the treatment arm to estimate dose-response effects of financial tool engagement (comparing heavy users to light users while controlling for pre-treatment risk profiles); RDD using a credit score threshold or account balance cutoff that determines eligibility for a financial product, enabling causal inference at the margin.</em> Each method maps to a specific randomization failure and provides a principled remedy.</p>
-<hr>
-<p>Parts 8 and 9 together cover the full arc from “randomization was imperfect” to “here is the estimand you can credibly claim and the method to estimate it.” Readers who have worked through Modules 1–5 will recognize how each quasi-experimental tool inherits from the broader mixed-model and identification framework built earlier in the workshop.</p>
+<section id="capstone-full-worked-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="capstone-full-worked-analysis">Capstone — Full Worked Analysis</h3>
+<p><strong>Part 8: A Fully Worked Multilevel Modeling Example</strong> — A start-to-finish tutorial showing how an experienced researcher thinks through a nested experimental analysis. The chapter walks through every decision from raw design structure to final model defense, using a JDM scenario where participants evaluate financial product offers across multiple sites. Written as an advisor-student supervision conversation: every modeling decision is questioned, every model revision is explained, and the final model is explicitly defended against reviewer challenges. Readers who have worked through Parts 1–7 will see all of the preceding material integrated into a single coherent analysis workflow.</p>
 
 
 </section>
