@@ -287,7 +287,7 @@ trials |>
   knitr::kable(caption = "Missingness by financial literacy tertile — low-literacy participants more likely to drop out")
 ```
 
-**What we learned:** Missingness is higher in the transparent condition, in later trials, and for low-literacy participants. This is not random. A complete-case analysis will systematically underrepresent high-risk/late-trial/low-literacy observations. We will return to this when checking robustness (Section 14).
+**What we learned:** Missingness is higher in the transparent condition, in later trials, and for low-literacy participants. This is not random. A complete-case analysis will systematically underrepresent high-risk/late-trial/low-literacy observations. We will return to this when checking robustness (Section 15).
 
 ### 5.3 Outcome checks
 
@@ -825,7 +825,7 @@ m_miss_adj <- lmer(
 bind_rows(
   broom.mixed::tidy(m6b,       effects = "fixed") |>
     filter(term == "transparency") |>
-    mutate(model = "m6b: complete-case, without device/full trial_order adjustment",
+    mutate(model = "m6b: complete-case, without device_mobile",
            n_obs = nobs(m6b)),
   broom.mixed::tidy(m_miss_adj, effects = "fixed") |>
     filter(term == "transparency") |>
@@ -883,7 +883,7 @@ m_final <- if (keep_slope) m_miss_adj else m5
 
 cat("Slope SD:", if (is.na(slope_sd_check)) "NA" else round(slope_sd_check, 2), "\n")
 cat("Singular (m6b):", isSingular(m6b), "\n")
-cat("Final model: m_miss_adj (missingness-adjusted with slope)\n")
+cat("Final model selected:", if (keep_slope) "m_miss_adj (missingness-adjusted + slope)" else "m5 (slope singular, no missingness adjustment)", "\n")
 ```
 
 ```{r residual-diagnostics, fig.width=10, fig.height=3.5}
@@ -1016,7 +1016,7 @@ knitr::kable(vc_final |> select(grp, var1, vcov) |>
 - **Literacy moderation:** The interaction confirms that low-literacy participants benefit more from transparency. After m5, the "main effect" is the effect at average literacy — not a universal constant.
 - **Participant variance:** Stable individual differences in adoption tendency are large. Random intercepts for participants correctly separate this from the within-person transparency contrast.
 - **Stimulus variance:** Between-product attractiveness differences are larger than the transparency effect. This confirms that the stimulus set matters for generalization.
-- **Missingness sensitivity:** The estimate was [stable / shifted by X points] when missingness predictors were included, suggesting complete-case analysis [is / may not be] fully defensible.
+- **Missingness sensitivity:** When device platform (a missingness predictor) was added, the transparency estimate shifted from `r round(fixef(m6b)["transparency"], 2)` to `r round(fixef(m_miss_adj)["transparency"], 2)` points (difference: `r round(abs(fixef(m_miss_adj)["transparency"] - fixef(m6b)["transparency"]), 2)` points). A small shift suggests complete-case analysis captured the main effect with minimal differential-dropout bias; unobserved MNAR drivers remain a caveat.
 
 ---
 
