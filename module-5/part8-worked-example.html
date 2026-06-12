@@ -1099,7 +1099,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 </div>
 </div>
-<p><strong>What we learned:</strong> Missingness is higher in the transparent condition, in later trials, and for low-literacy participants. This is not random. A complete-case analysis will systematically underrepresent high-risk/late-trial/low-literacy observations. We will return to this when checking robustness (Section 14).</p>
+<p><strong>What we learned:</strong> Missingness is higher in the transparent condition, in later trials, and for low-literacy participants. This is not random. A complete-case analysis will systematically underrepresent high-risk/late-trial/low-literacy observations. We will return to this when checking robustness (Section 15).</p>
 </section>
 <section id="outcome-checks" class="level3">
 <h3 class="anchored" data-anchor-id="outcome-checks">5.3 Outcome checks</h3>
@@ -2313,7 +2313,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb53-14"><a href="#cb53-14" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
 <span id="cb53-15"><a href="#cb53-15" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m6b,       <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb53-16"><a href="#cb53-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"transparency"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb53-17"><a href="#cb53-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"m6b: complete-case, without device/full trial_order adjustment"</span>,</span>
+<span id="cb53-17"><a href="#cb53-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"m6b: complete-case, without device_mobile"</span>,</span>
 <span id="cb53-18"><a href="#cb53-18" aria-hidden="true" tabindex="-1"></a>           <span class="at">n_obs =</span> <span class="fu">nobs</span>(m6b)),</span>
 <span id="cb53-19"><a href="#cb53-19" aria-hidden="true" tabindex="-1"></a>  broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(m_miss_adj, <span class="at">effects =</span> <span class="st">"fixed"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb53-20"><a href="#cb53-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"transparency"</span>) <span class="sc">|&gt;</span></span>
@@ -2330,11 +2330,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <table class="caption-top table table-sm table-striped small">
 <caption>Missingness sensitivity: does adjusting for missingness-related predictors change the transparency estimate? True effect = 4</caption>
 <colgroup>
-<col style="width: 65%">
-<col style="width: 6%">
-<col style="width: 9%">
+<col style="width: 61%">
+<col style="width: 7%">
 <col style="width: 10%">
-<col style="width: 8%">
+<col style="width: 11%">
+<col style="width: 9%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -2347,7 +2347,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">m6b: complete-case, without device/full trial_order adjustment</td>
+<td style="text-align: left;">m6b: complete-case, without device_mobile</td>
 <td style="text-align: right;">2735</td>
 <td style="text-align: right;">3.61</td>
 <td style="text-align: right;">0.322</td>
@@ -2464,10 +2464,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Final model: m_miss_adj (missingness-adjusted with slope)</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Final model selected:"</span>, <span class="cf">if</span> (keep_slope) <span class="st">"m_miss_adj (missingness-adjusted + slope)"</span> <span class="cf">else</span> <span class="st">"m5 (slope singular, no missingness adjustment)"</span>, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Final model: m_miss_adj (missingness-adjusted with slope)</code></pre>
+<pre><code>Final model selected: m_miss_adj (missingness-adjusted + slope) </code></pre>
 </div>
 </div>
 <div class="cell">
@@ -2905,7 +2905,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><strong>Literacy moderation:</strong> The interaction confirms that low-literacy participants benefit more from transparency. After m5, the “main effect” is the effect at average literacy — not a universal constant.</li>
 <li><strong>Participant variance:</strong> Stable individual differences in adoption tendency are large. Random intercepts for participants correctly separate this from the within-person transparency contrast.</li>
 <li><strong>Stimulus variance:</strong> Between-product attractiveness differences are larger than the transparency effect. This confirms that the stimulus set matters for generalization.</li>
-<li><strong>Missingness sensitivity:</strong> The estimate was [stable / shifted by X points] when missingness predictors were included, suggesting complete-case analysis [is / may not be] fully defensible.</li>
+<li><strong>Missingness sensitivity:</strong> When device platform (a missingness predictor) was added, the transparency estimate shifted from 3.61 to 3.61 points (difference: 0 points). A small shift suggests complete-case analysis captured the main effect with minimal differential-dropout bias; unobserved MNAR drivers remain a caveat.</li>
 </ul>
 <hr>
 </section>
