@@ -10,13 +10,30 @@ library(broom.mixed)
 set.seed(20240610)
 ```
 
-# A Fully Worked Multilevel Modeling Example
-
 A student brings us a result: transparent fee disclosure appears to increase adoption intent. The p-value is small. The plot looks clean. But before we believe the estimate, we audit the data. We find **seven threats**: repeated observations, sampled stimuli, treatment-risk imbalance, nonlinear product valuation and fatigue, differential missingness, post-treatment exclusion risk, and treatment-effect heterogeneity.
 
-The rest of this chapter shows how to diagnose where each threat comes from, which statistical adjustment reduces it, and what remains when the chapter ends.
+The rest of this chapter diagnoses where each threat comes from, which adjustment reduces it, and what remains when we are done.
 
-> **The key framing:** Statistical fixes minimize threats — they do not erase them. The goal is not to find an analysis that says everything was fine. It is to show exactly what each adjustment addressed, what it could not address, and what the final claim depends on.
+> **The key framing:** Statistical fixes minimize threats — they do not erase them. The goal is not to find an analysis that says everything was fine. It is to document what each adjustment addressed, what it could not address, and what the final claim depends on.
+
+---
+
+## How to Read This Worked Example
+
+You do not need to read every paragraph to follow the logic. Each step answers one diagnostic question.
+
+| Section | Diagnostic question | Model | What to watch |
+|---|---|---|---|
+| §7 | Is the naive estimate credible? | m0: pooled OLS | Estimate far below true effect of 4 |
+| §8 | Are rows independent? | m1: + participant RI | Participant ICC; SE change |
+| §9 | Do products dominate responses? | m2: + stimulus RI | **Large estimate jump — product-level confounding absorbed** |
+| §10 | Are sites confounded with assignment? | m3: + site RI | Site means; small movement |
+| §11 | Is product-level adjustment explicit? | m4: + risk/EV covariates | Interpretability, not large movement |
+| §12 | Is functional form right? | m4b: + nonlinear + fatigue | **Estimate moves again — remaining bias corrected** |
+| §13 | Are observed rows selected? | m4c: + device | Missingness sensitivity |
+| §14 | Do exclusions change the estimand? | m4d: attention excluded | Estimand change, not magnitude |
+| §15 | For whom does it work? | m5: + literacy interaction | Claim changes |
+| §16 | Does the effect vary across people? | m6b: + random slope | SE; heterogeneity |
 
 ---
 
@@ -24,15 +41,7 @@ The rest of this chapter shows how to diagnose where each threat comes from, whi
 
 > **Does transparent fee disclosure increase willingness to adopt a financial product, and does that effect generalize across participants, product offers, and research sites?**
 
-The **target estimand** is the average total effect of *assigned* fee transparency on willingness to adopt, averaged over the population of participants, product offers, and research contexts similar to those sampled. This is an intention-to-treat estimand: the effect of the display assignment, not the effect of comprehension or perceived clarity.
-
-This question contains several distinct questions a naive regression cannot answer:
-
-- Effect for *these* participants (descriptive)
-- Effect across the *population of participants* (requires participant random effects)
-- Effect across the *population of product offers* (requires stimulus random effects)
-- Effect across *different sites* (requires site random effects)
-- Effect conditional on *financial literacy* (requires the interaction)
+The **target estimand** is the average total effect of *assigned* fee transparency on willingness to adopt, averaged over the population of participants, product offers, and contexts similar to those sampled. This is an intention-to-treat estimand: the effect of the display assignment, not the effect of comprehension or perceived clarity. Comprehension and perceived transparency are potential mechanisms and must be excluded from the main model.
 
 ---
 
@@ -41,36 +50,35 @@ This question contains several distinct questions a naive regression cannot answ
 | Design question | Answer | Modeling implication |
 |---|---|---|
 | What is one row? | One participant's rating of one product | Trial-level outcome; multiple rows per participant |
-| What is randomized? | Fee transparency display (within-participant) | Fixed effect for transparency |
-| Does treatment vary within participant? | Yes — each sees both conditions | Candidate by-participant random slope |
-| Are stimuli sampled? | Yes — 36 product offers from a larger set | Stimulus random intercept |
-| Are participants crossed with stimuli? | Partially — each rates 12 of 36 | Crossed (partial) random effects |
+| What is randomized? | Fee transparency (within-participant) | Fixed effect for transparency |
+| Does treatment vary within participant? | Yes | Candidate by-participant random slope |
+| Are stimuli sampled? | Yes — 36 from a larger set | Stimulus random intercept |
+| Are participants crossed with stimuli? | Partially — 12 of 36 each | Crossed (partial) random effects |
 | Are participants nested in sites? | Yes — 240 across 4 sites | Site random intercept |
-| Is the assignment perfectly randomized? | **No** — correlated with risk, trial order, site 2 | Covariate adjustment needed |
+| Is assignment perfectly randomized? | **No — correlated with risk, trial order, site 2** | Covariate adjustment needed |
 | What missingness is plausible? | Higher for transparent, high-risk, late, low-literacy | Missingness audit required |
 | Which variables are post-treatment? | Comprehension, perceived transparency | Exclude from main model |
-
-: Design audit: the assignment is not clean. This is not a drill.
 
 ---
 
 ## 3. Simulate the Latent DGP
 
-The true data-generating process is known. But the *realized* data will not look like it, for three reasons: (1) the fee-transparency display was more often served to high-risk products in later trials and at site 2 — a real implementation pattern mimicking a platform rollout; (2) trial-order fatigue is real and non-trivial; (3) the observation process introduces non-random missingness and attention failures.
+The true data-generating process is known. The *realized* data will not look like it because: (1) the fee-transparency display was more commonly served to high-risk products in later trials — a real implementation pattern; (2) trial-order fatigue is real; (3) the observation process introduces non-random missingness and post-treatment attention failures.
 
 ```{r true-dgp-params}
+#| code-summary: "Show DGP parameters"
 dgp <- list(
   intercept           = 50,
-  effect_transparency = 4,      # +4 at average literacy — the true target
+  effect_transparency = 4,      # +4 at average literacy — the target
   effect_risk         = -2.0,   # linear risk penalty
-  effect_risk_high    = -2.5,   # extra threshold penalty for risk > 0.75
-  effect_ev_linear    = 2.2,    # EV (standardised), linear
-  effect_ev_quad      = -1.0,   # diminishing returns on EV
+  effect_risk_high    = -2.5,   # threshold penalty for risk > 0.75
+  effect_ev_linear    = 2.2,    # EV (standardised)
+  effect_ev_quad      = -1.0,   # diminishing returns
   effect_literacy     = 2,
   interaction_tx_lit  = -1.5,   # transparency helps low-literacy more
   effect_fatigue      = -0.18,  # per trial
-  effect_fatigue_late = -1.20,  # additional penalty for trials 10–12
-  effect_device       = -1.5,   # mobile device: lower ratings
+  effect_fatigue_late = -1.20,  # extra penalty for trials 10–12
+  effect_device       = -1.5,   # mobile: lower ratings
   sd_participant      = 8,
   sd_stimulus         = 5,
   sd_site             = 4,
@@ -80,6 +88,7 @@ dgp <- list(
 ```
 
 ```{r simulate-latent}
+#| code-summary: "Show simulation code (participants, stimuli, trials)"
 n_participants  <- 240
 n_stimuli       <- 36
 n_sites         <- 4
@@ -122,17 +131,15 @@ trials <- participants |>
   left_join(stimuli, by = "stimulus_id") |>
   left_join(site_effects, by = "site_id") |>
   mutate(
-    # Device: more common at sites 2–3 (online platforms)
     device_mobile = rbinom(n(), 1, plogis(-0.3 + 0.6 * as.integer(site_id %in% c(2, 3)))),
 
-    # IMPERFECT ASSIGNMENT: transparency correlated with risk, trial order, and site 2
-    # This mimics a platform that served the transparent display more often for
-    # high-risk products and in later trials — a realistic implementation artefact
+    # IMPERFECT ASSIGNMENT: transparent display more common for high-risk products,
+    # later trial positions, and at site 2 — a realistic platform rollout pattern
     trial_order_z = (trial_order - 6.5) / 3.452,
-    p_tx = plogis(0.70 * risk_level + 0.40 * trial_order_z + 0.50 * as.integer(site_id == 2)),
+    p_tx          = plogis(0.70 * risk_level + 0.40 * trial_order_z +
+                             0.50 * as.integer(site_id == 2)),
     transparency  = rbinom(n(), 1, p_tx),
 
-    # Latent mean (true DGP — clean causal structure)
     mu = dgp$intercept +
          dgp$effect_transparency  * transparency +
          dgp$effect_risk          * risk_level +
@@ -147,11 +154,8 @@ trials <- participants |>
          u0_participant + u1_participant * transparency +
          u0_stimulus + u0_site,
 
-    # Heteroskedastic residuals: more variance for high-risk products and
-    # low-literacy participants
     resid_sd = dgp$sd_residual * exp(
-      0.25 * abs(risk_level) +
-      0.20 * as.integer(financial_literacy < -1)
+      0.25 * abs(risk_level) + 0.20 * as.integer(financial_literacy < -1)
     ),
     adoption_intent = pmin(100, pmax(0, rnorm(n(), mu, resid_sd)))
   ) |>
@@ -164,37 +168,21 @@ trials <- participants |>
 
 ## 4. The Observation Process
 
-A real experiment does not deliver `adoption_intent` for every trial. Between the latent DGP and the analyst's dataset:
-
-- Some trials are missing because participants quit, skip, or time out.
-- Missingness depends on the treatment (transparent displays require more effort), risk level, trial position, literacy, and device.
-- Some trials produce attention-check failures — and those failures are partly caused by the treatment.
-
 ```{r simulate-observed}
+#| code-summary: "Show observation-process simulation (missingness, attention)"
 set.seed(20240611)
-
 trials <- trials |>
   mutate(
-    # Missingness: related to treatment, risk, trial fatigue, literacy, device
     p_missing = plogis(
-      -2.5 +
-        0.45 * transparency +
-        0.55 * risk_level +
+      -2.5 + 0.45 * transparency + 0.55 * risk_level +
         0.45 * as.integer(trial_order > 9) -
-        0.50 * financial_literacy +
-        0.35 * device_mobile
+        0.50 * financial_literacy + 0.35 * device_mobile
     ),
     missing_y           = rbinom(n(), 1, p_missing),
     adoption_intent_obs = if_else(missing_y == 1, NA_real_, adoption_intent),
-
-    # Attention failures: more common under transparent displays, late trials,
-    # and for low-literacy participants — a post-treatment process variable
-    attention_fail = rbinom(n(), 1,
-      plogis(-3.0 +
-             0.50 * transparency +
-             0.35 * risk_level +
-             0.45 * as.integer(trial_order > 9) -
-             0.40 * financial_literacy))
+    attention_fail      = rbinom(n(), 1,
+      plogis(-3.0 + 0.50 * transparency + 0.35 * risk_level +
+               0.45 * as.integer(trial_order > 9) - 0.40 * financial_literacy))
   ) |>
   select(-p_missing)
 ```
@@ -206,64 +194,54 @@ trials <- trials |>
 ::: {.callout-important icon=false}
 ## We Are Starting With 7 Open Threats
 
-Before fitting a single model, we inventory the inference problems visible in the data. These are not hypothetical — we can see each one in tables and plots.
-
-1. **Participant dependence** — same participants appear in multiple rows.
-2. **Stimulus generalization** — product-level attractiveness dominates responses; stimuli are sampled, not exhaustive.
-3. **Treatment-risk imbalance** — transparent trials disproportionately involve high-risk products and later trial positions.
-4. **Nonlinear product valuation and fatigue** — risk and EV have threshold/diminishing effects; late-trial fatigue is non-trivial.
-5. **Differential missingness** — missing outcomes are more common for transparent, high-risk, late-trial, low-literacy, and mobile trials.
-6. **Post-treatment exclusion risk** — attention failures are partially caused by the treatment; excluding them narrows the sample in a non-neutral way.
+1. **Participant dependence** — same participants appear across multiple rows.
+2. **Stimulus heterogeneity** — product attractiveness varies widely; stimuli are sampled, not exhaustive.
+3. **Treatment–risk imbalance** — transparent trials disproportionately involve high-risk products.
+4. **Nonlinear valuation and fatigue** — risk and EV have threshold/diminishing effects; late-trial fatigue is real.
+5. **Differential missingness** — missing outcomes are more common for transparent, high-risk, late, and low-literacy trials.
+6. **Post-treatment exclusion risk** — attention failures are partly caused by the treatment; excluding them conditions on a post-treatment variable.
 7. **Treatment-effect heterogeneity** — the transparency effect varies across participants and by financial literacy.
-
-Each section below addresses one or more of these. We keep a running count.
 :::
 
 ```{r threat-dashboard}
+#| code-summary: "Show threat dashboard table"
 tibble(
   `#` = 1:7,
-  Threat = c(
-    "Participant dependence",
-    "Stimulus generalization",
-    "Treatment–risk imbalance",
-    "Nonlinear valuation/fatigue",
-    "Differential missingness",
-    "Post-treatment exclusions",
-    "Effect heterogeneity"
-  ),
+  Threat = c("Participant dependence", "Stimulus heterogeneity",
+             "Treatment–risk imbalance", "Nonlinear valuation/fatigue",
+             "Differential missingness", "Post-treatment exclusions",
+             "Effect heterogeneity"),
   `Diagnostic evidence` = c(
-    "Same participant rated 12 products (ICC ≈ large)",
-    "Product attractiveness SD > transparency effect",
-    "Transparent trials have higher mean risk; more common late/at site 2",
-    "Residuals curve against risk, EV, and trial order",
-    "Missing rate: transparent > non-transparent; late > early; mobile > non-mobile",
-    "Attention failure rate: transparent > non-transparent",
-    "Participant-level effect distribution is wide"
+    "ICC ≈ large; repeated observations within person",
+    "Product random-effect SD > transparency effect",
+    "Risk coefficient 0.741 predicting transparency in assignment audit",
+    "Residuals curve against risk and EV; later trials lower",
+    "Missing rate: transparent 19.9% vs non-transparent 11.6%",
+    "Attention failure: transparent 12.1% vs non-transparent 5.4%",
+    "Wide distribution of empirical per-person effects"
   ),
-  Severity = c("High", "High", "High", "Medium–High", "High", "Medium", "Medium"),
-  `First response` = c(
-    "Participant random intercept",
-    "Stimulus random intercept",
-    "Add risk terms + check imbalance",
-    "Nonlinear terms + trial order in model",
-    "Missingness predictors / IPW sensitivity",
-    "Report both including and excluding failures",
-    "Random slope; literacy interaction"
+  Severity = c("High","High","High","Medium–High","High","Medium","Medium"),
+  `Primary response` = c(
+    "Participant random intercept (m1)",
+    "Stimulus random intercept (m2)",
+    "Stimulus RI absorbs most; covariates make it explicit (m2, m4)",
+    "Nonlinear terms + trial order (m4b)",
+    "Missingness-predictor sensitivity (m4c)",
+    "Report all-observed vs excluded (m4d)",
+    "Random slope; literacy interaction (m5, m6b)"
   )
 ) |>
-  knitr::kable(caption = "Initial threat dashboard — built from data diagnostics before any model is fit")
+  knitr::kable(caption = "Initial threat dashboard — each line tracks to a specific model or sensitivity check")
 ```
 
 ---
 
 ## 6. Diagnose the Threats: Empirical Evidence
 
-We now examine each threat with actual data. These diagnostics should happen before the first model, not after.
-
 ### 6.1 Assignment imbalance
 
 ```{r assignment-audit}
-# Check whether transparency correlates with pre-treatment variables
+#| code-summary: "Show assignment audit code"
 tx_audit <- glm(
   transparency ~ risk_level + expected_value_z + financial_literacy +
     factor(site_id) + trial_order_z,
@@ -274,87 +252,56 @@ tx_audit <- glm(
 broom::tidy(tx_audit) |>
   filter(term != "(Intercept)") |>
   mutate(
-    `Magnitude` = case_when(
-      abs(estimate) > 0.30 ~ "Large — imbalance present",
-      abs(estimate) > 0.10 ~ "Moderate",
-      TRUE                  ~ "Small"
-    ),
+    flag = case_when(abs(estimate) > 0.30 ~ "⚠ Large", abs(estimate) > 0.10 ~ "Moderate", TRUE ~ "Small"),
     across(c(estimate, std.error, p.value), \(x) round(x, 3))
   ) |>
-  select(term, estimate, std.error, p.value, Magnitude) |>
-  knitr::kable(caption = paste0(
-    "Assignment audit: logistic regression predicting transparency from pre-treatment variables.",
-    " Coefficients near 0 = clean assignment; large coefficients = implementation imbalance."))
+  select(term, estimate, std.error, p.value, flag) |>
+  knitr::kable(caption = "Assignment audit: large coefficients confirm treatment–risk and trial-order imbalance")
 ```
 
-**What we see:** Risk level and trial order strongly predict assignment. Site 2 shows elevated transparency. This is *not* a minor issue: the risk imbalance will pull the naive transparency estimate downward because transparent trials tend to involve products that are harder to evaluate (higher risk → lower adoption).
-
-### 6.2 Missingness by condition and design variables
+### 6.2 Missingness and attention failures
 
 ```{r missingness-audit}
-cat("Overall missing rate:", round(100 * mean(trials$missing_y), 1), "%\n\n")
+#| code-summary: "Show missingness tables"
+cat("Overall missing rate:", round(100 * mean(trials$missing_y), 1), "%\n")
 
-# By transparency
-miss_by_tx <- trials |>
+trials |>
   group_by(Condition = ifelse(transparency == 1, "Transparent", "Non-transparent")) |>
-  summarise(n_trials = n(), n_missing = sum(missing_y),
-            miss_rate = round(100 * mean(missing_y), 1))
-knitr::kable(miss_by_tx, caption = "Missingness by condition — differential dropout is visible")
+  summarise(n = n(), n_miss = sum(missing_y), miss_pct = round(100 * mean(missing_y), 1),
+            attn_fail_pct = round(100 * mean(attention_fail), 1)) |>
+  knitr::kable(caption = "Missingness and attention failures by condition — both are higher for transparent trials")
 
-# By trial order
-miss_by_order <- trials |>
+trials |>
   group_by(trial_order) |>
-  summarise(miss_rate = round(100 * mean(missing_y), 1))
-knitr::kable(miss_by_order, caption = "Missingness by trial order — late-trial dropout")
-
-# By financial literacy tertile
-trials |>
-  mutate(lit_tertile = ntile(financial_literacy, 3)) |>
-  group_by(lit_tertile) |>
-  summarise(miss_rate = round(100 * mean(missing_y), 1), n = n()) |>
-  knitr::kable(caption = "Missingness by literacy tertile")
-```
-
-```{r attention-by-condition}
-trials |>
-  group_by(Condition = ifelse(transparency == 1, "Transparent", "Non-transparent")) |>
-  summarise(
-    n = n(),
-    n_fail = sum(attention_fail),
-    fail_rate = round(100 * mean(attention_fail), 1)
-  ) |>
-  knitr::kable(caption = "Attention failure rate by condition — failures are post-treatment and condition-dependent")
+  summarise(miss_pct = round(100 * mean(missing_y), 1)) |>
+  knitr::kable(caption = "Missingness by trial order: late-trial dropout is real")
 ```
 
 ### 6.3 Data retention
 
 ```{r retention-table}
-n_intended <- nrow(trials)
-n_observed <- sum(!is.na(trials$adoption_intent_obs))
-n_attfail  <- sum(trials$attention_fail == 1)
-n_analytic <- sum(!is.na(trials$adoption_intent_obs) & trials$attention_fail == 0)
-
+#| code-summary: "Show retention table"
+n_int <- nrow(trials)
+n_obs <- sum(!is.na(trials$adoption_intent_obs))
 tibble(
-  Stage = c("Intended (all planned trials)",
-            "Observed (non-missing outcome)",
-            "Attention failures (in all trials)",
-            "Clean analytic sample (no miss, no attn fail)"),
-  n   = c(n_intended, n_observed, n_attfail, n_analytic),
-  pct = round(100 * c(n_intended, n_observed, n_attfail, n_analytic) / n_intended, 1)
+  Stage = c("Intended", "Observed (non-missing)", "Attention failures (all trials)",
+            "Clean analytic sample"),
+  n   = c(n_int, n_obs, sum(trials$attention_fail), sum(!is.na(trials$adoption_intent_obs) & !trials$attention_fail)),
+  pct = round(100 * c(n_int, n_obs, sum(trials$attention_fail), sum(!is.na(trials$adoption_intent_obs) & !trials$attention_fail)) / n_int, 1)
 ) |>
-  knitr::kable(caption = "Data flow: how many rows are available at each stage?")
+  knitr::kable(caption = "Data flow: rows available at each stage")
 ```
 
 ### 6.4 Outcome overview
 
 ```{r outcome-checks, fig.width=9, fig.height=3.5}
+#| code-summary: "Show outcome diagnostic plots"
 p1 <- ggplot(trials, aes(x = adoption_intent_obs)) +
   geom_histogram(bins = 30, fill = "#1e3a5f", color = "white", na.rm = TRUE) +
-  labs(title = "Observed outcome distribution", x = "Adoption intent (0–100)") +
+  labs(title = "Observed distribution", x = "Adoption intent (0–100)") +
   theme_minimal(base_size = 10)
 
-p2 <- trials |>
-  filter(!is.na(adoption_intent_obs)) |>
+p2 <- trials |> filter(!is.na(adoption_intent_obs)) |>
   mutate(Condition = ifelse(transparency == 1, "Transparent", "Non-transparent")) |>
   ggplot(aes(x = Condition, y = adoption_intent_obs, fill = Condition)) +
   geom_boxplot(show.legend = FALSE, width = 0.5) +
@@ -362,162 +309,149 @@ p2 <- trials |>
   labs(title = "By condition", y = "Adoption intent", x = NULL) +
   theme_minimal(base_size = 10)
 
-p3 <- trials |>
-  filter(!is.na(adoption_intent_obs)) |>
+p3 <- trials |> filter(!is.na(adoption_intent_obs)) |>
   ggplot(aes(x = trial_order, y = adoption_intent_obs, group = trial_order)) +
   geom_boxplot(fill = "#2d6a4f", alpha = 0.6, outlier.size = 0.5) +
-  labs(title = "By trial order — fatigue", y = NULL, x = "Trial") +
+  labs(title = "By trial order", y = NULL, x = "Trial") +
   theme_minimal(base_size = 10)
 
 gridExtra::grid.arrange(p1, p2, p3, ncol = 3)
-
-cat("Proportion at floor (≤2):", round(mean(trials$adoption_intent_obs <= 2, na.rm=TRUE), 3), "\n")
-cat("Proportion at ceiling (≥98):", round(mean(trials$adoption_intent_obs >= 98, na.rm=TRUE), 3), "\n")
+cat("Floor (≤2):", round(mean(trials$adoption_intent_obs <= 2, na.rm=TRUE), 3),
+    "| Ceiling (≥98):", round(mean(trials$adoption_intent_obs >= 98, na.rm=TRUE), 3), "\n")
 ```
 
 ### 6.5 Post-treatment variable timing
 
-Not every variable belongs in the main model. Including post-treatment variables changes the estimand.
-
 ```{r timing-table}
+#| code-summary: "Show variable-timing table"
 tibble(
-  Variable = c("Risk level", "Expected value", "Financial literacy",
-               "Trial order", "Device type",
-               "Attention check", "Perceived transparency", "Comprehension"),
+  Variable = c("Risk level", "Expected value", "Financial literacy", "Trial order",
+               "Device type", "Attention check", "Perceived transparency", "Comprehension"),
   Timing   = c("Pre-treatment stimulus", "Pre-treatment stimulus",
-               "Pre-treatment participant",
-               "Design/process variable", "Pre-treatment contextual",
-               "Post-trial — ambiguous", "Post-treatment mediator",
-               "Post-treatment mediator"),
-  `Safe in main model?` = c("Yes", "Yes", "Yes", "Yes — controls fatigue confound",
-                             "Yes — controls missingness", "Caution",
-                             "No — changes estimand", "No — changes estimand"),
-  Rationale = c(
-    "Stimulus attribute not affected by the display",
-    "Stimulus attribute not affected by the display",
-    "Measured before any trial",
-    "Controls trial-order fatigue; removes a source of assignment imbalance",
-    "Predicts missingness; adding it makes the estimand closer to the intended sample",
-    "Failure may reflect difficulty of processing the transparent display",
-    "Blocks the mechanism; estimates only non-comprehension pathway",
-    "Same"
-  )
+               "Pre-treatment participant", "Design/process variable",
+               "Pre-treatment contextual", "Post-trial — ambiguous",
+               "Post-treatment mediator", "Post-treatment mediator"),
+  `Safe in main model?` = c("Yes","Yes","Yes","Yes — controls fatigue",
+                             "Yes — controls missingness","Caution",
+                             "No — changes estimand","No — changes estimand")
 ) |>
-  knitr::kable(caption = "Post-treatment timing audit: what enters the main model?")
+  knitr::kable(caption = "Post-treatment timing audit: comprehension and perceived transparency must be excluded")
 ```
 
 ::: {.callout-warning icon=false}
-## Why Comprehension Must Stay Out of the Model
+## Comprehension Must Stay Out of the Model
 
 ```{mermaid}
 flowchart LR
-  T["Transparency\n(assigned)"] --> C["Comprehension /\nclarity"]
+  T["Transparency (assigned)"] --> C["Comprehension"]
   C --> Y["Adoption intent"]
   T --> Y
   L["Literacy"] --> C
   L --> Y
 ```
 
-Controlling for comprehension estimates only the direct transparency effect that does not work through understanding fees — a narrower and different claim. The main model should not include comprehension or perceived transparency.
+Including comprehension estimates only the non-comprehension pathway — a different and narrower estimand than "does the display change adoption intent?"
 :::
 
 ---
 
 ## 7. Start With the Wrong Model
 
+::: {.callout-note icon=false}
+## At a Glance
+
+- **Open threat:** All seven — nothing addressed yet.
+- **Model:** Pooled OLS on complete cases.
+- **What to watch:** Estimate relative to the true effect of `r dgp$effect_transparency`. How many rows were silently dropped?
+:::
+
 ```{r m0-naive}
 m0 <- lm(adoption_intent_obs ~ transparency, data = trials)
 
-cat("Rows in dataset:", nrow(trials), "\n")
-cat("Rows used (non-missing):", nobs(m0), "\n")
-cat("Rows silently dropped:", nrow(trials) - nobs(m0), "\n\n")
+cat("Dataset rows:", nrow(trials), "| Rows used:", nobs(m0),
+    "| Silently dropped:", nrow(trials) - nobs(m0), "\n\n")
 
 broom::tidy(m0) |>
   filter(term == "transparency") |>
-  mutate(model = "m0: pooled OLS",
-         `True effect` = dgp$effect_transparency) |>
+  mutate(model = "m0: pooled OLS", `True effect` = dgp$effect_transparency) |>
   select(model, `True effect`, estimate, std.error, p.value) |>
-  knitr::kable(digits = 3, caption = "Naive pooled OLS — estimate is substantially below the true effect")
+  knitr::kable(digits = 3)
 ```
 
-```{r m0-diagnosis}
-tibble(
-  Problem = c("Silent row dropping", "Independence assumption",
-              "Treatment-risk imbalance", "Participant baselines in residual",
-              "Stimulus heterogeneity in residual", "Nonlinear covariates ignored",
-              "Trial-order fatigue ignored", "Informative missingness ignored"),
-  `What m0 does` = c(
-    "Drops missing rows without warning",
-    paste0("Treats ~", round(nobs(m0)/1000, 1), "k rows as independent"),
-    "Transparent trials have higher mean risk → transparency gets blamed for risk penalty",
-    "Person-to-person differences dilute within-person signal",
-    "Product attractiveness absorbed into residual; no generalization",
-    "Risk and EV assumed linear — misspecified functional form",
-    "No adjustment; transparent trials are later on average",
-    "Complete cases treated as a random subsample"
-  ),
-  `Direction of bias` = c(
-    "Unknown — depends on missingness structure",
-    "SE is wrong",
-    "Downward — transparency confounded with high-risk products",
-    "SE inflated",
-    "SE inflated; no generalization claim",
-    "Partial confound with transparency estimate",
-    "Downward — transparency confounded with late-trial position",
-    "Upward — missing transparent/high-risk/late trials excluded"
-  )
-) |>
-  knitr::kable(caption = "Why m0 is not credible — a problem inventory")
-```
+**Result:** The naive estimate is `r round(coef(m0)["transparency"], 2)` — `r round(dgp$effect_transparency - coef(m0)["transparency"], 2)` points below the true effect of `r dgp$effect_transparency`. It is significant, which is exactly what makes it dangerous.
 
-**Student question:** The estimate is significant. Why isn't it believable?
+**Why is the estimate too low?**
 
-**Advisor response:** Because we know exactly what this model confounds. Transparent trials in this dataset are disproportionately high-risk products (from the assignment audit) and disproportionately late in the trial sequence (from the trial-order plot). Both risk and lateness reduce adoption intent. The naive model attributes all of that to the transparency condition. The estimate reflects "what happened to be true in this particular realized sample" — not the causal effect of fee transparency.
+- **Treatment–risk imbalance:** transparent trials go to high-risk products; high risk reduces adoption → transparency is blamed for the risk penalty.
+- **Trial-order confound:** transparent trials occur later on average; late trials have lower ratings due to fatigue → transparency is also blamed for fatigue.
+- **Clustering ignored:** the same participants and products appear repeatedly, inflating apparent precision.
+- **Missingness ignored:** `r nrow(trials) - nobs(m0)` rows were dropped without comment; these are not a random subsample.
 
 ::: {.callout-important icon=false}
-## Open Threats After m0: 7 of 7
+## Threat Status After m0: 7 of 7 Open
 
-All seven threats are still active. m0 does not address any of them. The estimate is substantially below the true effect due to treatment-risk imbalance and fatigue confounding.
+All threats are active. The estimate is far from the true effect because structural, confounding, and missingness problems are all compounded.
 
-**Still open:** participant dependence, stimulus generalization, treatment–risk imbalance, nonlinear valuation/fatigue, differential missingness, post-treatment exclusions, effect heterogeneity.
+**Open:** participant dependence, stimulus heterogeneity, treatment–risk imbalance, nonlinear valuation/fatigue, differential missingness, post-treatment exclusions, effect heterogeneity.
 :::
 
 ---
 
-## 8. Add Participant Random Intercepts
+## 8. Participant Random Intercepts: Fix Repeated-Person Dependence
 
-**Student question:** Can I fix the bias by adding participant random intercepts? They should account for individual differences in adoption tendency.
+::: {.callout-note icon=false}
+## At a Glance
 
-**Advisor response:** Participant random intercepts improve the model in one specific way: they remove stable person-level adoption baselines from the residual, which sharpens the within-person estimate of transparency. But they do not fix the treatment-risk imbalance. That imbalance is at the *stimulus* level — transparent trials go to riskier products regardless of who the participant is. So the estimate barely moves; what changes is the SE.
+- **Open threat:** Participant dependence — same person appears 12 times.
+- **Evidence:** Each participant has a stable adoption tendency. Treating rows as independent ignores this.
+- **Model change:** Add `(1 | participant_id)`.
+- **What to watch:** The participant ICC and how the SE changes. The estimate should **not** move much — participant RI addresses dependence, not the stimulus-level risk confounding.
+:::
 
 ```{r m1}
 m1 <- lmer(adoption_intent_obs ~ transparency + (1 | participant_id), data = trials)
+```
 
-vc1 <- as.data.frame(VarCorr(m1))
-icc_part <- with(vc1, vcov[grp == "participant_id"] /
-                   (vcov[grp == "participant_id"] + vcov[grp == "Residual"]))
-cat("Participant ICC:", round(icc_part, 3), "— substantial person-level clustering\n")
+```{r m1-summary}
+vc1  <- as.data.frame(VarCorr(m1))
+icc1 <- vc1$vcov[vc1$grp == "participant_id"] / sum(vc1$vcov)
+cat("Participant ICC:", round(icc1, 3), "— strong clustering by person\n")
 
 broom.mixed::tidy(m1, effects = "fixed") |>
   filter(term == "transparency") |>
   mutate(model = "m1: + participant RI", `True effect` = dgp$effect_transparency) |>
   select(model, `True effect`, estimate, std.error, p.value) |>
-  knitr::kable(digits = 3, caption = "m1 — estimate unchanged, as expected: participant RI fixes dependence, not imbalance")
+  knitr::kable(digits = 3)
 ```
 
+**Result:** Estimate moved from `r round(coef(m0)["transparency"], 2)` to `r round(fixef(m1)["transparency"], 2)` (+`r round(fixef(m1)["transparency"] - coef(m0)["transparency"], 2)` pts). The estimate barely changed, as expected. The SE decreased because within-person baselines were removed from the residual.
+
+- **What this fixed:** person-to-person baseline differences are no longer in the residual.
+- **Why the estimate did not move:** the main bias is stimulus-level (transparent trials go to risky products). Participant RI does not adjust for that.
+- **What is still open:** product-level confounding is the main problem — that comes next.
+
 ::: {.callout-important icon=false}
-## Open Threats After m1: 6 of 7
+## Threat Status After m1: 6 of 7 Open
 
-**Reduced:** ~~Participant dependence (rows not independent)~~
+**Reduced:** ~~Participant dependence~~
 
-**Still open:** stimulus generalization, treatment–risk imbalance, nonlinear valuation/fatigue, differential missingness, post-treatment exclusions, effect heterogeneity.
+**Still open:** stimulus heterogeneity, treatment–risk imbalance, nonlinear valuation/fatigue, differential missingness, post-treatment exclusions, effect heterogeneity.
 
-The estimate did not move because participant RI does not address the treatment-risk imbalance. That will require covariate adjustment.
+**Current estimate: `r round(fixef(m1)["transparency"], 2)` — still far below truth (`r dgp$effect_transparency`).**
 :::
 
 ---
 
-## 9. Add Stimulus Random Intercepts
+## 9. Stimulus Random Intercepts: Generalize and Absorb Product Confounding
+
+::: {.callout-note icon=false}
+## At a Glance
+
+- **Open threat:** Stimulus heterogeneity and (partly) treatment–risk imbalance.
+- **Evidence:** Product-level variation is large; stimulus SD is expected to exceed the transparency effect.
+- **Model change:** Add `(1 | stimulus_id)`.
+- **What to watch:** Stimulus SD relative to the transparency effect. The **estimate is expected to jump** because risk is a stimulus-level variable, and the stimulus RI absorbs product-level attractiveness differences — including the risk-related part.
+:::
 
 ```{r m2}
 m2 <- lmer(adoption_intent_obs ~ transparency +
@@ -526,55 +460,63 @@ m2 <- lmer(adoption_intent_obs ~ transparency +
 ```
 
 ```{r m2-summary-and-plot, fig.width=7, fig.height=4}
-vc2 <- as.data.frame(VarCorr(m2))
-var_stim2 <- vc2$vcov[vc2$grp == "stimulus_id"]
-cat("Stimulus SD:", round(sqrt(var_stim2), 2),
-    "(true =", dgp$sd_stimulus, "; transparency effect is", dgp$effect_transparency, ")\n")
-cat("Stimulus SD > transparency effect: product attractiveness dominates responses.\n")
+vc2      <- as.data.frame(VarCorr(m2))
+stim_sd2 <- sqrt(vc2$vcov[vc2$grp == "stimulus_id"])
+cat("Stimulus SD:", round(stim_sd2, 2), "(true =", dgp$sd_stimulus, ")\n")
+cat("Transparency effect =", dgp$effect_transparency,
+    "— product variation exceeds the effect we want to estimate.\n")
 
 broom.mixed::tidy(m2, effects = "fixed") |>
   filter(term == "transparency") |>
   mutate(model = "m2: + stimulus RI", `True effect` = dgp$effect_transparency) |>
   select(model, `True effect`, estimate, std.error, p.value) |>
-  knitr::kable(digits = 3, caption = "m2 — generalization claim changed; estimate still biased")
+  knitr::kable(digits = 3)
 
-# Caterpillar plot
 ranef(m2)$stimulus_id |>
-  as.data.frame() |>
-  rownames_to_column("id") |>
-  rename(blup = `(Intercept)`) |>
+  as.data.frame() |> rownames_to_column("id") |> rename(blup = `(Intercept)`) |>
   ggplot(aes(x = reorder(id, blup), y = blup)) +
   geom_hline(yintercept = 0, linetype = "dashed", color = "#888888") +
   geom_segment(aes(xend = id, y = 0, yend = blup),
                color = "#1e3a5f", linewidth = 0.5, alpha = 0.7) +
-  geom_point(color = "#1e3a5f", size = 1.8) +
-  coord_flip() +
-  labs(title = paste0("Stimulus BLUPs: product-level SD ≈ ",
-                      round(sqrt(var_stim2), 1),
+  geom_point(color = "#1e3a5f", size = 1.8) + coord_flip() +
+  labs(title = paste0("Stimulus BLUPs: SD ≈ ", round(stim_sd2, 1),
                       " — larger than the transparency effect"),
-       subtitle = "Products vary enormously in baseline attractiveness. This must be modeled.",
        x = NULL, y = "Estimated baseline deviation (BLUP)") +
   theme_minimal(base_size = 10) +
   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank())
 ```
 
-**What changed:** Not the point estimate — still biased. What changed is the *generalization claim*. Before m2, the result was specific to these 36 products. After m2, it is a claim about the population of products like these. That is a meaningfully different scientific assertion.
+**Result:** Estimate jumped from `r round(fixef(m1)["transparency"], 2)` to `r round(fixef(m2)["transparency"], 2)` (+`r round(fixef(m2)["transparency"] - fixef(m1)["transparency"], 2)` pts). **This is the largest single movement in the chapter.**
 
-**What is still wrong:** Stimulus random intercepts tell us about product baseline variance, but they do not remove the treatment-risk imbalance. The transparency effect is still confounded with product risk.
+**Why the estimate jumped — two reasons:**
 
-::: {.callout-important icon=false}
-## Open Threats After m2: 5 of 7
+1. *Generalization.* Stimuli are now treated as a sample, not as fixed objects. The claim is about the population of products, not just these 36.
 
-**Reduced:** ~~Participant dependence~~, ~~Stimulus generalization~~
+2. *Product-level confounding absorbed.* This is the more important reason for the estimate jump. Risk level is a stimulus-level variable: each product has one risk value, and all participants who see that product see the same risk level. Because transparent trials disproportionately involved high-risk products, the stimulus random intercept — which gives each product its own baseline — automatically absorbs the product attractiveness differences that were confounding the transparency estimate. The estimate jumped not because we added risk as an explicit covariate, but because we gave every product its own intercept.
 
-**Still open:** treatment–risk imbalance, nonlinear valuation/fatigue, differential missingness, post-treatment exclusions, effect heterogeneity.
+**Why covariates are still needed:** The stimulus random intercept makes a flexible, non-parametric adjustment. Adding explicit risk covariates does three things the random intercept cannot: (1) makes the adjustment interpretable — "riskier products had lower adoption"; (2) extrapolates to products not in this sample using the estimated risk slope; (3) captures within-product nonlinear effects (a quadratic EV effect cannot be absorbed by a product-level intercept shift). These come in m4 and m4b.
 
-The estimate has not moved. The crossing of participants and stimuli is now correctly handled, but the confounding from risk imbalance is still in the transparency coefficient.
+::: {.callout-warning icon=false}
+## Open Threats After m2: 4 of 7
+
+**Reduced:** ~~Participant dependence~~, ~~Stimulus heterogeneity (and most product-level confounding)~~
+
+**Still open:** residual confounding (nonlinear risk, fatigue), differential missingness, post-treatment exclusions, effect heterogeneity.
+
+**Current estimate: `r round(fixef(m2)["transparency"], 2)` — major progress, not yet at truth.**
 :::
 
 ---
 
-## 10. Add Site Structure
+## 10. Site Structure: Separate Context From Treatment
+
+::: {.callout-note icon=false}
+## At a Glance
+
+- **Open threat:** Site-baseline confounding — site 2 has below-average adoption AND above-average transparency rate.
+- **Model change:** Add `(1 | site_id)`.
+- **What to watch:** Site-level means and transparency rates; small upward movement expected.
+:::
 
 ```{r m3}
 m3 <- lmer(adoption_intent_obs ~ transparency +
@@ -583,46 +525,46 @@ m3 <- lmer(adoption_intent_obs ~ transparency +
 ```
 
 ```{r m3-summary}
-vc3 <- as.data.frame(VarCorr(m3))
-cat("Site SD:", round(sqrt(vc3$vcov[vc3$grp == "site_id"]), 2),
-    "(true =", dgp$sd_site, ")\n")
-
 trials |>
   filter(!is.na(adoption_intent_obs)) |>
   group_by(site_id) |>
-  summarise(mean_adoption = round(mean(adoption_intent_obs, na.rm = TRUE), 1),
-            pct_transparent = round(100 * mean(transparency), 1),
-            n = n_distinct(participant_id)) |>
-  knitr::kable(caption = "Site-level summaries: site 2 has lower baseline AND higher transparency rate — a confound")
+  summarise(
+    mean_adoption   = round(mean(adoption_intent_obs, na.rm = TRUE), 1),
+    pct_transparent = round(100 * mean(transparency), 1),
+    n_part          = n_distinct(participant_id)
+  ) |>
+  knitr::kable(caption = "Site-level summary: site 2 has lower adoption AND higher transparency rate — a confound that site RI removes")
 
 broom.mixed::tidy(m3, effects = "fixed") |>
   filter(term == "transparency") |>
   mutate(model = "m3: + site RI", `True effect` = dgp$effect_transparency) |>
   select(model, `True effect`, estimate, std.error, p.value) |>
-  knitr::kable(digits = 3, caption = "m3 — small upward movement as site 2's confounding is partially removed")
+  knitr::kable(digits = 3)
 ```
 
-**Student question:** The estimate moved up a little. Is that from the site structure?
+**Result:** Estimate moved from `r round(fixef(m2)["transparency"], 2)` to `r round(fixef(m3)["transparency"], 2)` (+`r round(fixef(m3)["transparency"] - fixef(m2)["transparency"], 2)` pts). Site 2's below-average baseline was partially pulling the transparent-condition mean down; partitioning it out removes that confound.
 
-**Advisor response:** Yes. Site 2 has a below-average adoption baseline AND an above-average transparency rate (from the assignment imbalance). In m2, those site-level differences were in the residual, pulling the transparent-condition mean down. Adding a site random intercept partitions out that baseline difference, removing a small part of the downward bias. But the larger bias — from risk level being positively correlated with transparency assignment — is still entirely unaddressed. That requires adding risk as a covariate.
+::: {.callout-warning icon=false}
+## Open Threats After m3: 3 of 7
 
-::: {.callout-important icon=false}
-## Open Threats After m3: 4 of 7
+**Reduced:** ~~Participant dependence~~, ~~Stimulus heterogeneity/product confounding~~, ~~Site-baseline confounding~~
 
-**Reduced:** ~~Participant dependence~~, ~~Stimulus generalization~~, ~~Site confounding (partially)~~
+**Still open:** residual covariate misspecification (nonlinear risk, fatigue), differential missingness, post-treatment exclusions, effect heterogeneity.
 
-**Still open:** treatment–risk imbalance, nonlinear valuation/fatigue, differential missingness, post-treatment exclusions, effect heterogeneity.
-
-The estimate moved modestly. The main remaining bias is from treatment-risk imbalance.
+**Current estimate: `r round(fixef(m3)["transparency"], 2)`.** The estimate is relatively close to truth but not yet there — nonlinear risk threshold and trial-order fatigue are the remaining sources of bias.
 :::
 
 ---
 
-## 11. Add Pre-Treatment Covariates
+## 11. Product Covariates: Make the Adjustment Interpretable
 
-**Student question:** Now I add risk level, expected value, and financial literacy as covariates. Should I expect the estimate to change?
+::: {.callout-note icon=false}
+## At a Glance
 
-**Advisor response:** Yes — substantially. The assignment audit showed that risk level strongly predicts transparency (coefficient ~0.70). Risk level also reduces adoption intent. Covariate adjustment for risk should remove most of that downward bias. Watch the estimate move.
+- **Rationale:** The stimulus RI absorbed most product-level confounding at m2. What explicit risk/EV covariates add is *interpretability* and a basis for generalizing beyond this stimulus set.
+- **Model change:** Add `risk_level`, `expected_value_z`, `financial_literacy` as fixed effects.
+- **What to watch:** The estimate will **not move much** — the stimulus RI already did the heavy lifting. The value here is interpretability, not additional bias correction.
+:::
 
 ```{r m4}
 m4 <- lmer(adoption_intent_obs ~ transparency + risk_level + expected_value_z +
@@ -634,30 +576,43 @@ broom.mixed::tidy(m4, effects = "fixed") |>
   filter(term == "transparency") |>
   mutate(model = "m4: + linear risk/EV/literacy", `True effect` = dgp$effect_transparency) |>
   select(model, `True effect`, estimate, std.error, p.value) |>
-  knitr::kable(digits = 3, caption = "m4 — estimate jumps substantially upward after risk adjustment")
+  knitr::kable(digits = 3)
 ```
 
-**Student question:** The estimate moved up by more than a point. What happened?
+**Result:** Estimate moved from `r round(fixef(m3)["transparency"], 2)` to `r round(fixef(m4)["transparency"], 2)` (+`r round(fixef(m4)["transparency"] - fixef(m3)["transparency"], 2)` pts). **The movement is small** — as expected given the stimulus RI already absorbed most of the product-level confounding.
 
-**Advisor response:** Risk adjustment happened. Before, the model was comparing high-risk/transparent products to lower-risk/non-transparent products. Now it's comparing within risk level — transparent vs non-transparent for products at the same risk. The upward movement is the risk-imbalance bias being removed. The estimate is still not at 4.0 because: (a) we haven't adjusted for the nonlinear risk threshold (risk > 0.75 has an extra penalty the linear term doesn't capture), and (b) we haven't controlled for trial-order fatigue. Both of those continue to bias transparency downward.
+**What this model adds:**
 
-::: {.callout-warning icon=false}
-## Open Threats After m4: 3 of 7
+- *Interpretability:* Instead of "some products have lower baselines," we can now say "riskier products had lower adoption and were overrepresented in the transparent condition."
+- *Linear adjustment:* The product-level adjustment is now parametric (linear function of risk) rather than flexible (per-product BLUP).
+- *Within-stimulus comparison:* The linear EV effect captures how expected value predicts adoption across products, after accounting for product random baselines.
 
-**Reduced:** ~~Participant dependence~~, ~~Stimulus generalization~~, ~~Site confounding~~, ~~Linear risk/covariate imbalance~~
+::: {.callout-note icon=false}
+## Lesson: Random Intercepts and Covariates Are Not Alternatives
 
-**Still open:** nonlinear valuation/fatigue (estimate still below truth), differential missingness, post-treatment exclusions, effect heterogeneity.
+The stimulus RI (m2) and the risk covariate (m4) did different work. The RI absorbed product-level confounding non-parametrically. The explicit covariate names the source of that confounding and adds linear structure. Neither replaces the other:
 
-**This is the pedagogical moment:** The estimate moved substantially when risk was added, not before. Participant and stimulus random intercepts fixed the data structure. Covariate adjustment fixed the bias. These are different problems requiring different solutions.
+- Without the RI, the risk covariate would need to fully specify the product-level attractiveness function — it cannot.
+- Without the covariate, the RI cannot tell us *why* products differ in their baselines or how to generalize.
+
+The small estimate movement at m4 is not a failure. It is the expected pattern when a stimulus RI correctly absorbed the cluster-level confounding at m2.
 :::
 
 ---
 
-## 12. Functional-Form and Fatigue Check
+## 12. Functional Form and Fatigue: Fix the Remaining Bias
 
-We added a linear risk term. But the DGP includes a threshold penalty for high-risk products (risk_level > 0.75). A linear term partially adjusts for this, but it is misspecified. Residual plots should show this.
+::: {.callout-note icon=false}
+## At a Glance
+
+- **Open threat:** The estimate is still below the true effect. Where is the remaining bias?
+- **Evidence:** Residuals from m4 show a downward curve at high risk (threshold not captured by the linear term) and a downward trend across trial order (fatigue not controlled).
+- **Model change:** Add `risk_high`, `I(expected_value_z^2)`, `trial_order`.
+- **What to watch:** This should produce a **meaningful estimate movement** — the remaining bias is functional-form and fatigue confounding.
+:::
 
 ```{r functional-form-diag, fig.width=9, fig.height=3.5}
+#| code-summary: "Show residual diagnostic plots"
 resid_m4 <- tibble(
   residual    = residuals(m4),
   risk_level  = model.frame(m4)$risk_level,
@@ -669,26 +624,27 @@ p_r <- ggplot(resid_m4, aes(x = risk_level, y = residual)) +
   geom_point(alpha = 0.08, color = "#1e3a5f") +
   geom_smooth(method = "loess", se = FALSE, color = "#e63946", linewidth = 1) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  labs(title = "Residuals vs risk", subtitle = "Curve at high risk = threshold effect", x = "Risk level", y = "Residual") +
+  labs(title = "Residuals vs risk", subtitle = "Dip at high risk = threshold not captured",
+       x = "Risk level", y = "Residual") +
   theme_minimal(base_size = 10)
 
 p_e <- ggplot(resid_m4, aes(x = ev_z, y = residual)) +
   geom_point(alpha = 0.08, color = "#1e3a5f") +
   geom_smooth(method = "loess", se = FALSE, color = "#e63946", linewidth = 1) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  labs(title = "Residuals vs EV (std.)", subtitle = "Curve = diminishing returns", x = "Expected value (z)", y = "Residual") +
+  labs(title = "Residuals vs EV", subtitle = "Curve = diminishing returns",
+       x = "Expected value (z)", y = "Residual") +
   theme_minimal(base_size = 10)
 
 p_t <- ggplot(resid_m4, aes(x = trial_order, y = residual, group = trial_order)) +
   geom_boxplot(fill = "#1e3a5f", alpha = 0.5, outlier.size = 0.5) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  labs(title = "Residuals vs trial order", subtitle = "Downward trend = unmodeled fatigue", x = "Trial", y = "Residual") +
+  labs(title = "Residuals vs trial order", subtitle = "Downward trend = unmodeled fatigue",
+       x = "Trial", y = "Residual") +
   theme_minimal(base_size = 10)
 
 gridExtra::grid.arrange(p_r, p_e, p_t, ncol = 3)
 ```
-
-**What we see:** The loess curve over risk shows a downward dip at high risk that the linear term does not capture. The trial-order residual plot shows a downward trend — later trials have systematically negative residuals, meaning the model over-predicts their adoption intent. We need both a risk threshold indicator and a trial-order term.
 
 ```{r m4b}
 m4b <- lmer(adoption_intent_obs ~ transparency +
@@ -700,43 +656,44 @@ m4b <- lmer(adoption_intent_obs ~ transparency +
 
 bind_rows(
   broom.mixed::tidy(m4,  effects = "fixed") |> filter(term == "transparency") |>
-    mutate(model = "m4: linear risk/EV, no trial_order"),
+    mutate(model = "m4: linear risk/EV, no fatigue"),
   broom.mixed::tidy(m4b, effects = "fixed") |> filter(term == "transparency") |>
     mutate(model = "m4b: + risk_high + I(ev_z^2) + trial_order")
 ) |>
   mutate(`True effect` = dgp$effect_transparency) |>
   select(model, `True effect`, estimate, std.error, p.value) |>
   mutate(across(c(estimate, std.error, p.value), \(x) round(x, 3))) |>
-  knitr::kable(caption = paste0("m4b: estimate continues moving toward the true effect of ",
-    dgp$effect_transparency, " as the remaining confounds are removed"))
+  knitr::kable(caption = "m4b: nonlinear risk threshold and trial-order fatigue remove the remaining downward bias")
 ```
 
-**What happened:** Adding the risk threshold indicator removed the residual confounding from high-risk products getting transparent displays disproportionately. Adding trial order removed the fatigue confounding from transparent trials occurring later in the task. The estimate moved again — now close to the true effect.
+**Result:** Estimate moved from `r round(fixef(m4)["transparency"], 2)` to `r round(fixef(m4b)["transparency"], 2)` (+`r round(fixef(m4b)["transparency"] - fixef(m4)["transparency"], 2)` pts). **This is the second large movement.** The bias removed here came from two within-product sources the stimulus RI could not absorb: (1) the sharp extra penalty for very-high-risk products (the `risk_high` threshold), and (2) the trial-order fatigue that was correlated with transparency assignment.
 
-::: {.callout-warning icon=false}
-## Open Threats After m4b: 2 of 7 (plus 1 pending)
+::: {.callout-tip icon=false}
+## Open Threats After m4b: 2 of 7
 
-**Reduced:** ~~Participant dependence~~, ~~Stimulus generalization~~, ~~Site confounding~~, ~~Risk/covariate imbalance~~, ~~Nonlinear valuation/fatigue~~
+**Reduced:** ~~Participant dependence~~, ~~Stimulus heterogeneity/product confounding~~, ~~Site confounding~~, ~~Covariate imbalance (explicit)~~, ~~Nonlinear valuation/fatigue~~
 
-**Still open:** differential missingness, post-treatment exclusions (pending), effect heterogeneity.
+**Still open:** differential missingness, post-treatment exclusions, effect heterogeneity.
 
-We are now close to the truth, but the remaining concerns are about *which data were observed* (missingness) and *who the analysis is for* (attention exclusions, heterogeneity).
+**Current estimate: `r round(fixef(m4b)["transparency"], 2)` — close to truth (`r dgp$effect_transparency`).** Remaining uncertainty is about *which data were observed* and *for whom* the effect holds.
 :::
 
 ---
 
-## 13. Missingness Sensitivity
+## 13. Missingness Sensitivity: Ask Which Rows We Lost
 
-**Student question:** We've been running complete-case models. Is that OK?
+::: {.callout-note icon=false}
+## At a Glance
 
-**Advisor response:** The missingness audit showed that transparent trials are more likely to go missing (about `r round(100 * mean(trials$missing_y[trials$transparency == 1]), 0)`% vs `r round(100 * mean(trials$missing_y[trials$transparency == 0]), 0)`% for non-transparent). The m4b model already controls for most missingness predictors (risk, trial order, literacy) in the outcome model. But one predictor — `device_mobile` — is not yet in the model. Device is correlated with missingness (coefficient 0.35) AND with adoption intent (the true DGP has a -1.5 effect of mobile). Not adjusting for it means complete-case analysis excludes a non-random set of mobile/high-missingness trials.
-
-**Diagnostic move:** Compare the m4b estimate to a model that adds `device_mobile` and then to a model that uses only non-missing complete cases after filtering.
+- **Open threat:** Differential missingness — transparent trials are ~8 ppts more likely to be missing.
+- **Evidence:** Miss rate by condition table in §6.2.
+- **Model change:** Add `device_mobile` — the one missingness predictor not yet in the model.
+- **What to watch:** If the estimate shifts, device-related differential dropout was influencing results.
+:::
 
 ```{r m4c}
 m4c <- lmer(
-  adoption_intent_obs ~ transparency +
-    risk_level + risk_high +
+  adoption_intent_obs ~ transparency + risk_level + risk_high +
     expected_value_z + I(expected_value_z^2) +
     financial_literacy + trial_order + device_mobile +
     (1 | site_id) + (1 | participant_id) + (1 | stimulus_id),
@@ -744,69 +701,50 @@ m4c <- lmer(
 )
 
 bind_rows(
-  broom.mixed::tidy(m4b, effects = "fixed") |>
-    filter(term == "transparency") |>
-    mutate(model = "m4b: complete-case, without device_mobile",
-           n_obs = nobs(m4b)),
-  broom.mixed::tidy(m4c, effects = "fixed") |>
-    filter(term == "transparency") |>
-    mutate(model = "m4c: + device_mobile (missingness/DGP predictor)",
-           n_obs = nobs(m4c))
+  broom.mixed::tidy(m4b, effects = "fixed") |> filter(term == "transparency") |>
+    mutate(model = "m4b: without device_mobile", n_obs = nobs(m4b)),
+  broom.mixed::tidy(m4c, effects = "fixed") |> filter(term == "transparency") |>
+    mutate(model = "m4c: + device_mobile", n_obs = nobs(m4c))
 ) |>
   mutate(`True effect` = dgp$effect_transparency) |>
   select(model, `True effect`, n_obs, estimate, std.error, p.value) |>
   mutate(across(c(estimate, std.error, p.value), \(x) round(x, 3))) |>
-  knitr::kable(caption = paste0(
-    "Missingness sensitivity: the shift from adding device_mobile tells us whether ",
-    "device-related differential dropout was influencing the estimate. ",
-    "True effect = ", dgp$effect_transparency))
+  knitr::kable(caption = "Missingness sensitivity: does adding the device predictor change the estimate?")
 ```
 
-```{r miss-sensitivity-commentary}
-est_m4b  <- round(fixef(m4b)["transparency"], 3)
-est_m4c  <- round(fixef(m4c)["transparency"], 3)
-est_diff <- round(abs(est_m4c - est_m4b), 3)
+```{r m4c-notes}
+est_diff_miss <- round(fixef(m4c)["transparency"] - fixef(m4b)["transparency"], 3)
 ```
 
-**What we learned:** The estimate shifted by `r est_diff` points when device was added. If the shift is small, the device-related missingness was not substantially biasing the complete-case estimate. If it is larger, device-correlated selection was influencing results.
+**Result:** The estimate shifted by `r est_diff_miss` points when device was added. The missingness audit showed large differential dropout (19.9% vs 11.6% by condition), which looked alarming. The observed-covariate sensitivity is `r ifelse(abs(est_diff_miss) < 0.1, "reassuring — after accounting for the predictors already in the model, device-related selection did not substantially move the estimate.", ifelse(abs(est_diff_miss) < 0.3, "modest — device-related selection was present but small relative to the main effect.", "meaningful — device-related selection influenced the estimate, and the adjusted version is more defensible."))` The remaining concern is MNAR: if latent adoption intent predicts dropout over and above all observed covariates, no covariate adjustment reaches it.
 
-::: {.callout-warning icon=false}
-## Limits of This Sensitivity Analysis
+::: {.callout-tip icon=false}
+## Open Threats After m4c: 1.5 of 7
 
-Adding observed missingness predictors adjusts for **MAR** (missing at random conditional on covariates). It does **not** address **MNAR** (missing not at random): if participants with low latent adoption intent are the ones most likely to skip transparent/high-risk trials — over and above what their literacy, trial order, and device predict — no covariate adjustment reaches it.
+**Reduced:** ~~Participant dependence~~, ~~Stimulus confounding~~, ~~Site confounding~~, ~~Covariate imbalance~~, ~~Nonlinear valuation/fatigue~~, ~~Observed differential missingness~~
 
-The honest framing: "After adding missingness-related covariates, the estimate changed by `r est_diff` points. The remaining concern is that missingness may depend on latent adoption intent — a bias direction we cannot test from the observed data."
-:::
+**Partially open:** MNAR (unobserved latent-outcome dependence in missingness), post-treatment exclusions, effect heterogeneity.
 
-::: {.callout-warning icon=false}
-## Open Threats After m4c: 1 of 7 (plus 1 pending)
-
-**Reduced:** ~~Participant dependence~~, ~~Stimulus generalization~~, ~~Site confounding~~, ~~Risk/covariate imbalance~~, ~~Nonlinear valuation/fatigue~~, ~~Observed differential missingness~~
-
-**Still open:** post-treatment exclusions (now we check), effect heterogeneity (m5, m6).
-
-The treatment estimate is now near the true DGP value. The remaining work is to check whether *who* we included in the analysis changes the claim.
+**Current estimate: `r round(fixef(m4c)["transparency"], 2)`.**
 :::
 
 ---
 
-## 14. Attention Exclusion Sensitivity
+## 14. Attention Exclusions: Data Quality or Post-Treatment Selection?
 
-**Student question:** Standard practice is to exclude participants who fail attention checks. Shouldn't I do that?
+::: {.callout-note icon=false}
+## At a Glance
 
-**Advisor response:** Not automatically. Look at the numbers. Attention failures are more common in the transparent condition (`r round(100 * mean(trials$attention_fail[trials$transparency == 1]), 1)`% vs `r round(100 * mean(trials$attention_fail[trials$transparency == 0]), 1)`% for non-transparent). If we exclude attention-fail trials, we are removing a set of transparent trials that was especially likely to fail — perhaps because the fee-transparency display was complex or cognitively demanding. Excluding them conditions on a post-treatment variable and narrows the sample to "trials where the participant processed the display without difficulty." That is a different population than "all participants assigned to the transparent display."
-
-The right move is to show *both* estimates and discuss what the difference means for the estimand.
+- **Open threat:** Attention failures are ~6.7 ppts higher in the transparent condition (post-treatment).
+- **Evidence:** Attention-failure-by-condition table in §6.2.
+- **Model change:** Exclude attention-failure rows; compare estimate to all-observed.
+- **What to watch:** The *direction* of the shift and the *estimand implication* — not whether the shift is large.
+:::
 
 ```{r m4d}
-# Model on all observed (non-missing) trials — our main analytic sample
-m_all_obs <- m4c  # already fitted above
-
-# Model excluding attention failures from observed trials
 trials_no_fail <- trials |> filter(attention_fail == 0)
 m4d <- lmer(
-  adoption_intent_obs ~ transparency +
-    risk_level + risk_high +
+  adoption_intent_obs ~ transparency + risk_level + risk_high +
     expected_value_z + I(expected_value_z^2) +
     financial_literacy + trial_order + device_mobile +
     (1 | site_id) + (1 | participant_id) + (1 | stimulus_id),
@@ -814,37 +752,41 @@ m4d <- lmer(
 )
 
 bind_rows(
-  broom.mixed::tidy(m_all_obs, effects = "fixed") |>
-    filter(term == "transparency") |>
-    mutate(model = "m4c: all observed rows (incl. attention failures)",
-           n_obs = nobs(m_all_obs)),
-  broom.mixed::tidy(m4d, effects = "fixed") |>
-    filter(term == "transparency") |>
+  broom.mixed::tidy(m4c, effects = "fixed") |> filter(term == "transparency") |>
+    mutate(model = "m4c: all observed (incl. attention failures)",
+           estimand = "All assigned — intention-to-treat", n_obs = nobs(m4c)),
+  broom.mixed::tidy(m4d, effects = "fixed") |> filter(term == "transparency") |>
     mutate(model = "m4d: excluding attention failures",
-           n_obs = nobs(m4d))
+           estimand = "Trials without processing failures", n_obs = nobs(m4d))
 ) |>
-  mutate(`True effect` = dgp$effect_transparency,
-         `Estimand change` = c("Intention-to-treat (all assigned)", "Complier-like (easy-to-process trials)")) |>
-  select(model, `Estimand change`, `True effect`, n_obs, estimate, std.error, p.value) |>
+  mutate(`True effect` = dgp$effect_transparency) |>
+  select(model, estimand, `True effect`, n_obs, estimate, std.error, p.value) |>
   mutate(across(c(estimate, std.error, p.value), \(x) round(x, 3))) |>
-  knitr::kable(caption = paste0(
-    "Attention exclusion sensitivity: does excluding post-treatment attention failures ",
-    "change the estimate or narrow the estimand? True effect = ", dgp$effect_transparency))
+  knitr::kable(caption = "Attention exclusion sensitivity: the estimand changes, not just the estimate")
 ```
 
-```{r attention-exclusion-notes}
-est_all  <- round(fixef(m_all_obs)["transparency"], 3)
-est_excl <- round(fixef(m4d)["transparency"], 3)
-diff_attn <- round(est_excl - est_all, 3)
+```{r m4d-notes}
+diff_attn <- round(fixef(m4d)["transparency"] - fixef(m4c)["transparency"], 3)
 ```
 
-**What we see:** Excluding attention failures `r ifelse(diff_attn > 0, "inflates", "deflates")` the transparency estimate by `r abs(diff_attn)` points. The direction is consistent with post-treatment selection: we removed trials where the transparent display was most likely to overwhelm the participant. Those trials disproportionately came from the transparent condition and may have had lower adoption intent. Removing them selects toward participants/trials where transparency was most easily processed — which may be exactly the population for whom it is most beneficial.
+**Result:** Excluding attention failures `r ifelse(diff_attn > 0, "inflated", "deflated")` the estimate by `r abs(diff_attn)` points. The direction is consistent with post-treatment selection: removing trials where the transparent display was hardest to process removes the trials most likely to have low adoption intent *and* high attention-check difficulty in the transparent condition.
 
-**Recommended practice:** Report m4c (all observed) as the primary estimate. Report m4d (excluding attention failures) as a sensitivity check and flag the estimand difference explicitly.
+The point is not the magnitude. The point is the estimand: m4c estimates "effect for all participants assigned to transparent displays." m4d estimates "effect for trials where participants successfully processed the display." These are different scientific claims with different policy implications.
+
+**Recommended practice:** Report m4c as the primary estimate. Report m4d as a sensitivity check with an explicit note that the estimand is narrower.
 
 ---
 
-## 15. Add the Theoretically Motivated Interaction
+## 15. Literacy Moderation: Change the Scientific Claim
+
+::: {.callout-note icon=false}
+## At a Glance
+
+- **Open threat:** Effect heterogeneity — the transparency effect likely differs by financial literacy.
+- **Evidence:** Theory; the DGP includes a -1.5 interaction.
+- **Model change:** Add `transparency × financial_literacy`.
+- **What to watch:** The interaction term; simple slopes at low/average/high literacy. The scientific *claim* changes.
+:::
 
 ```{r m5}
 m5 <- lmer(adoption_intent_obs ~ transparency * financial_literacy +
@@ -857,7 +799,7 @@ m5 <- lmer(adoption_intent_obs ~ transparency * financial_literacy +
 broom.mixed::tidy(m5, effects = "fixed") |>
   select(term, estimate, std.error, statistic, p.value) |>
   mutate(across(c(estimate, std.error, statistic, p.value), \(x) round(x, 3))) |>
-  knitr::kable(caption = "m5: transparency × financial literacy — the claim changes from 'average effect' to 'effect for whom'")
+  knitr::kable(caption = "m5: the transparency coefficient is now the effect at average literacy, not a universal constant")
 ```
 
 ```{r m5-simple-slopes}
@@ -865,15 +807,16 @@ b_tx  <- fixef(m5)["transparency"]
 b_int <- fixef(m5)["transparency:financial_literacy"]
 tibble(
   `Financial literacy` = c("Low (−1 SD)", "Average (0)", "High (+1 SD)"),
-  `Transparency effect` = round(c(b_tx + b_int * -1, b_tx, b_tx + b_int * 1), 2),
+  `Estimated effect`   = round(c(b_tx + b_int * -1, b_tx, b_tx + b_int * 1), 2),
   `True DGP`           = c(dgp$effect_transparency + dgp$interaction_tx_lit * -1,
                              dgp$effect_transparency,
                              dgp$effect_transparency + dgp$interaction_tx_lit * 1)
 ) |>
-  knitr::kable(caption = "Simple slopes: transparency effect at three literacy levels")
+  knitr::kable(caption = "Simple slopes: transparency benefits low-literacy participants most")
 ```
 
 ```{r m5-plot, fig.width=6.5, fig.height=4}
+#| code-summary: "Show interaction plot code"
 lit_vals <- seq(-2, 2, length.out = 100)
 pred_df  <- tibble(
   financial_literacy = rep(lit_vals, 2),
@@ -886,56 +829,43 @@ pred_df$predicted <- predict(m5, newdata = pred_df, re.form = NA)
 
 pred_df |>
   mutate(Condition = ifelse(transparency == 1, "Transparent", "Non-transparent")) |>
-  ggplot(aes(x = financial_literacy, y = predicted,
-             color = Condition, linetype = Condition)) +
+  ggplot(aes(x = financial_literacy, y = predicted, color = Condition, linetype = Condition)) +
   geom_line(linewidth = 1.2) +
   scale_color_manual(values = c("#cccccc", "#1e3a5f")) +
   labs(title = "Transparency effect moderated by financial literacy",
-       subtitle = "Larger benefit for lower-literacy participants",
        x = "Financial literacy (standardised)", y = "Predicted adoption intent",
        color = NULL, linetype = NULL) +
   theme_minimal(base_size = 11)
 ```
 
-::: {.callout-note icon=false}
-## m5 Changes the Substantive Claim
-
-Before m5, the analysis answered: "Is there a transparency effect, and is it credible?"
-
-m5 answers: "For whom does the effect hold?" After m5, the transparency coefficient is the effect at *average* financial literacy — not a universal constant. The chapter's headline claim changes from "transparency increases adoption by X points" to "transparency benefits lower-literacy participants more, with an average effect of X at average literacy."
-
-This is a different scientific claim. It should be stated explicitly in the Discussion and should inform policy targeting.
-:::
+**Result:** The interaction is confirmed. After m5, the transparency "main effect" is the effect at average financial literacy — not a universal constant. This changes what researchers should say and which populations policy-makers should target.
 
 ---
 
-## 16. Consider Random Slopes
+## 16. Random Slopes: Allow the Effect to Vary Across People
+
+::: {.callout-note icon=false}
+## At a Glance
+
+- **Open threat:** Treatment-effect heterogeneity beyond what the literacy interaction captures.
+- **Evidence:** The slope histogram shows wide spread in empirical per-person effects.
+- **Model change:** Add `(1 + transparency || participant_id)`.
+- **What to watch:** The slope SD; whether the model is singular; SE change on transparency.
+:::
 
 ```{r m6}
-m6 <- lmer(adoption_intent_obs ~ transparency * financial_literacy +
-             risk_level + risk_high +
-             expected_value_z + I(expected_value_z^2) +
-             trial_order + device_mobile +
-             (1 + transparency | participant_id) +
-             (1 | stimulus_id) + (1 | site_id),
-           data = trials,
-           control = lmerControl(optimizer = "bobyqa"))
-cat("Singular (correlated slope):", isSingular(m6), "\n")
-```
-
-```{r m6b}
 m6b <- lmer(adoption_intent_obs ~ transparency * financial_literacy +
               risk_level + risk_high +
               expected_value_z + I(expected_value_z^2) +
               trial_order + device_mobile +
               (1 + transparency || participant_id) +
               (1 | stimulus_id) + (1 | site_id),
-            data = trials,
-            control = lmerControl(optimizer = "bobyqa"))
-cat("Singular (uncorrelated slope):", isSingular(m6b), "\n")
+            data = trials, control = lmerControl(optimizer = "bobyqa"))
+cat("Singular (m6b uncorrelated slope):", isSingular(m6b), "\n")
 ```
 
 ```{r m6-slope-viz, fig.width=6.5, fig.height=3.5}
+#| code-summary: "Show slope distribution plot"
 emp_slopes <- trials |>
   filter(!is.na(adoption_intent_obs)) |>
   group_by(participant_id) |>
@@ -947,7 +877,7 @@ emp_slopes <- trials |>
   filter(n_tx > 0, n_ntx > 0) |>
   mutate(emp_effect = mean_tx - mean_ntx)
 
-vc6b <- as.data.frame(VarCorr(m6b))
+vc6b      <- as.data.frame(VarCorr(m6b))
 slope_row <- vc6b[!is.na(vc6b$var1) & vc6b$var1 == "transparency" & is.na(vc6b$var2), ]
 slope_sd_val <- if (nrow(slope_row) > 0) sqrt(slope_row$vcov[1]) else NA_real_
 
@@ -957,52 +887,38 @@ ggplot(emp_slopes, aes(x = emp_effect)) +
              color = "#e63946", linetype = "dashed", linewidth = 1) +
   labs(title = "Participant-level transparency effects: the spread is real",
        subtitle = paste0("Red = model average. Slope SD ≈ ",
-                         ifelse(is.na(slope_sd_val), "NA", round(slope_sd_val, 1)),
-                         " points. Some participants benefit much more than others."),
-       x = "Empirical transparency effect (transparent − non-transparent)", y = "Count") +
+                         ifelse(is.na(slope_sd_val), "NA", round(slope_sd_val, 1)), " pts."),
+       x = "Empirical transparency effect", y = "Count") +
   theme_minimal(base_size = 11)
 ```
 
 ```{r m6-comparison}
 bind_rows(
   broom.mixed::tidy(m5,  effects = "fixed") |>
-    filter(term %in% c("transparency", "transparency:financial_literacy")) |>
+    filter(term %in% c("transparency","transparency:financial_literacy")) |>
     mutate(model = "m5: fixed slope"),
   broom.mixed::tidy(m6b, effects = "fixed") |>
-    filter(term %in% c("transparency", "transparency:financial_literacy")) |>
-    mutate(model = "m6b: random slope (uncorrelated)")
+    filter(term %in% c("transparency","transparency:financial_literacy")) |>
+    mutate(model = "m6b: random slope")
 ) |>
   select(model, term, estimate, std.error) |>
   mutate(across(c(estimate, std.error), \(x) round(x, 3))) |>
-  knitr::kable(caption = "Does allowing slope heterogeneity change fixed-effect estimates?")
+  knitr::kable(caption = "Adding the random slope: SE widens; point estimate barely changes")
 ```
+
+**Result:** Random slopes are not here to fix bias — they make heterogeneity explicit and make uncertainty more honest. The SE on the transparency effect widens slightly because the model now accounts for the fact that participants differ in their responsiveness, not just in their baselines.
 
 ::: {.callout-warning icon=false}
 ## If the Random Slope Is Singular
 
-1. Remove the correlation parameter first (`||`). This resolves most boundary issues.
-2. If still singular, slope variance may be genuinely negligible: report the attempt and retain m5.
-3. Never silently drop the random slope without documenting the decision.
+1. Drop the correlation parameter first (`||`) — already done here.
+2. If still singular, slope variance may be negligible: retain m5 and report the simplification.
+3. Never silently drop the slope without documenting the decision path.
 :::
 
 ---
 
-## 17. Estimator and Inference Decisions
-
-::: {.callout-note icon=false}
-## Key Estimator Choices
-
-| Decision | Default | When to change |
-|---|---|---|
-| REML vs ML | REML for final model | ML (REML=FALSE) to compare fixed-effect structures |
-| df method | Satterthwaite (lmerTest) | Kenward-Roger for small/unbalanced samples |
-| Optimizer | nloptwrap (lme4 default) | `bobyqa` for convergence warnings |
-| LRT for random slopes | Boundary-aware one-sided test | Parametric bootstrap if LRT misbehaves |
-:::
-
----
-
-## 18. Select and Diagnose the Final Model
+## 17. Select the Final Model
 
 ```{r final-model-selection}
 slope_sd_check <- tryCatch({
@@ -1018,15 +934,14 @@ keep_slope <- isTRUE(!isSingular(m6b)) &&
 m_final <- if (keep_slope) m6b else m5
 
 cat("Slope SD:", if (is.na(slope_sd_check)) "NA" else round(slope_sd_check, 2), "\n")
-cat("Singular (m6b):", isSingular(m6b), "\n")
-cat("Final model selected:", if (keep_slope) "m6b (random slope)" else "m5 (no slope)", "\n")
+cat("Singular:", isSingular(m6b), "\n")
+cat("Final model:", if (keep_slope) "m6b (random slope)" else "m5 (no slope)", "\n")
 ```
 
 ```{r residual-diagnostics, fig.width=10, fig.height=3.5}
-# Align residuals to observed-only rows in trials
+#| code-summary: "Show residual diagnostic plots"
 trials_obs <- trials |> filter(!is.na(adoption_intent_obs))
-
-resid_df <- tibble(
+resid_df   <- tibble(
   fitted   = fitted(m_final),
   residual = residuals(m_final),
   site_id  = trials_obs$site_id,
@@ -1036,120 +951,25 @@ resid_df <- tibble(
 p_rv <- ggplot(resid_df, aes(x = fitted, y = residual)) +
   geom_point(alpha = 0.12, color = "#1e3a5f") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "#e63946") +
-  labs(title = "Residuals vs Fitted", x = "Fitted", y = "Residual") +
-  theme_minimal(base_size = 10)
+  labs(title = "Residuals vs Fitted", x = "Fitted", y = "Residual") + theme_minimal(base_size = 10)
 
 p_qq <- ggplot(resid_df, aes(sample = residual)) +
-  stat_qq(alpha = 0.15, color = "#1e3a5f") +
-  stat_qq_line(color = "#e63946") +
-  labs(title = "QQ Plot", x = "Theoretical", y = "Sample") +
-  theme_minimal(base_size = 10)
+  stat_qq(alpha = 0.15, color = "#1e3a5f") + stat_qq_line(color = "#e63946") +
+  labs(title = "QQ Plot", x = "Theoretical", y = "Sample") + theme_minimal(base_size = 10)
 
 p_risk <- ggplot(resid_df, aes(x = risk, y = residual)) +
   geom_point(alpha = 0.08, color = "#1e3a5f") +
   geom_smooth(method = "loess", se = FALSE, color = "#e63946", linewidth = 1) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  labs(title = "Residuals vs Risk (heteroskedasticity check)",
-       x = "Risk level", y = "Residual") +
+  labs(title = "Residuals vs Risk (heteroskedasticity)", x = "Risk level", y = "Residual") +
   theme_minimal(base_size = 10)
 
 gridExtra::grid.arrange(p_rv, p_qq, p_risk, ncol = 3)
 ```
 
-::: {.callout-note icon=false}
-## A Note on Heteroskedasticity
-
-The residual fan visible in the risk plot reflects genuine heteroskedasticity: the DGP has higher residual variance for high-risk products. The LMM assumes constant residual variance. For the transparency main effect, this is unlikely to substantially bias estimates, but it does mean confidence intervals may be too narrow for high-risk stimuli. A GLMM or heteroskedastic LMM (via glmmTMB) would address this if it is judged important.
-:::
-
 ---
 
-## 19. Model Comparison: What Moved and Why
-
-```{r movement-table}
-tibble(
-  Step         = c("m0 → m1", "m1 → m2", "m2 → m3", "m3 → m4",
-                   "m4 → m4b", "m4b → m4c", "m4c → m4d", "m4d → m5"),
-  `Threat addressed` = c(
-    "Participant dependence",
-    "Stimulus generalization",
-    "Site baseline confounding",
-    "Treatment–risk imbalance (linear risk/EV)",
-    "Nonlinear risk threshold + trial-order fatigue",
-    "Device-related differential missingness",
-    "Post-treatment attention exclusion check",
-    "Treatment-effect heterogeneity by literacy"
-  ),
-  `Expected estimate movement` = c(
-    "Little — dependence ≠ bias in within-person design",
-    "Little — stimulus RI changes generalization claim, not point estimate",
-    "Small upward — site 2 confound removed",
-    "**Large upward** — main source of downward bias",
-    "**Another upward movement** — residual confounds removed",
-    "Small — tests device-driven differential dropout",
-    "Can go either way — post-treatment selection",
-    "Changes interpretation, not just point estimate"
-  ),
-  `Teaching point` = c(
-    "RE fixes structure; covariate adjustment fixes bias",
-    "Generalization requires modeling sampling; estimates change later",
-    "Sites are contexts, not just noise; imbalanced transparency rates matter",
-    "This is the diagnostic payoff: the naive estimate was wrong because of this",
-    "Functional form matters when covariates are both nonlinear and imbalanced",
-    "Observed MAR sensitivity; MNAR caveat remains",
-    "Exclusions change the estimand; report both",
-    "Policy relevance: effect is not uniform across the literacy distribution"
-  )
-) |>
-  knitr::kable(caption = "What moved, why, and what each step teaches")
-```
-
-```{r robustness-table}
-extract_tx <- function(m, label, is_lm = FALSE) {
-  if (is_lm) {
-    broom::tidy(m) |> filter(term == "transparency") |>
-      select(estimate, std.error) |>
-      mutate(model = label, n_obs = nobs(m))
-  } else {
-    broom.mixed::tidy(m, effects = "fixed") |> filter(term == "transparency") |>
-      select(estimate, std.error) |>
-      mutate(model = label, n_obs = nobs(m))
-  }
-}
-
-bind_rows(
-  extract_tx(m0,        "m0: pooled OLS (biased baseline)",               is_lm = TRUE),
-  extract_tx(m2,        "m2: crossed RE (structure fixed, still biased)"),
-  extract_tx(m3,        "m3: + site RI (small site adjustment)"),
-  extract_tx(m4,        "m4: + linear risk/EV (large upward jump)"),
-  extract_tx(m4b,       "m4b: + nonlinear risk + trial_order (recovered)"),
-  extract_tx(m4c,       "m4c: + device_mobile (missingness sensitivity)"),
-  extract_tx(m4d,       "m4d: excluding attention failures (estimand check)"),
-  extract_tx(m5,        "m5: + literacy interaction (moderation)")
-) |>
-  mutate(
-    across(c(estimate, std.error), \(x) round(x, 3)),
-    `True effect` = dgp$effect_transparency,
-    `Remaining concerns` = c(
-      "All seven threats open",
-      "Risk imbalance, fatigue, missingness",
-      "Risk imbalance, fatigue, missingness",
-      "Nonlinear risk, fatigue, missingness",
-      "Missingness, attention exclusions, heterogeneity",
-      "MNAR; attention exclusions; heterogeneity",
-      "Narrower estimand; MNAR",
-      "MNAR; post-treatment selection; 4-site limit"
-    )
-  ) |>
-  select(model, `True effect`, n_obs, estimate, std.error, `Remaining concerns`) |>
-  knitr::kable(caption = paste0(
-    "Full robustness table: estimate movement traces the diagnostic sequence. ",
-    "True effect at average literacy = ", dgp$effect_transparency))
-```
-
----
-
-## 20. Final Interpretation
+## 18. Final Interpretation
 
 ```{r final-interp}
 fe_final <- broom.mixed::tidy(m_final, effects = "fixed") |>
@@ -1157,131 +977,186 @@ fe_final <- broom.mixed::tidy(m_final, effects = "fixed") |>
 knitr::kable(fe_final |> select(term, estimate, std.error, statistic, p.value),
              caption = "Final model: fixed effects")
 
-vc_final <- as.data.frame(VarCorr(m_final))
-knitr::kable(vc_final |> select(grp, var1, vcov) |>
-               mutate(SD = round(sqrt(vcov), 2), vcov = round(vcov, 2)),
-             caption = "Final model: variance components")
+knitr::kable(
+  as.data.frame(VarCorr(m_final)) |>
+    select(grp, var1, vcov) |>
+    mutate(SD = round(sqrt(vcov), 2), vcov = round(vcov, 2)),
+  caption = "Final model: variance components"
+)
 ```
 
-**Transparency effect at average literacy:** `r round(fixef(m_final)["transparency"], 1)` points (true DGP: `r dgp$effect_transparency`). The naive model gave approximately `r round(coef(m0)["transparency"], 1)` — a difference of `r round(fixef(m_final)["transparency"] - coef(m0)["transparency"], 1)` points. That gap was earned by diagnosing and removing three sources of downward bias: treatment-risk imbalance, nonlinear risk threshold effects, and trial-order fatigue.
+**Transparency effect at average literacy:** `r round(fixef(m_final)["transparency"], 2)` (true DGP: `r dgp$effect_transparency`). The naive estimate was `r round(coef(m0)["transparency"], 2)` — a difference of `r round(fixef(m_final)["transparency"] - coef(m0)["transparency"], 2)` points. That gap was earned through a diagnostic sequence, not through modeling choices made in advance.
+
+**Where the bias came from (in order of removal):**
+
+1. Product-level attractiveness confounding — absorbed by stimulus random intercepts (m2, the largest single correction)
+2. Nonlinear risk threshold and trial-order fatigue — removed by explicit nonlinear terms (m4b)
+3. Site-baseline confounding — removed by site random intercept (m3, small correction)
+
+**What the final model still depends on:**
+
+- Missingness is MAR conditional on observed covariates (MNAR cannot be tested)
+- Attention exclusions do not condition on the relevant subpopulation for the stated estimand
+- Four sites are enough to represent the population of deployment contexts
+- The stimulus sample is representative of the intended product type
 
 ---
 
-## 21. What We Fixed vs What We Did Not Fix
+## 19. Model Comparison: Actual Estimates and Movements
+
+```{r movement-table}
+#| code-summary: "Show estimate-movement computation"
+# Store all estimates in a named vector for the movement table
+est_seq <- c(
+  m0 = coef(m0)["transparency"],
+  m1 = fixef(m1)["transparency"],
+  m2 = fixef(m2)["transparency"],
+  m3 = fixef(m3)["transparency"],
+  m4 = fixef(m4)["transparency"],
+  m4b = fixef(m4b)["transparency"],
+  m4c = fixef(m4c)["transparency"],
+  m4d = fixef(m4d)["transparency"],
+  m5 = fixef(m5)["transparency"]
+)
+
+tibble(
+  Model = c("m0: pooled OLS", "m1: + participant RI", "m2: + stimulus RI",
+            "m3: + site RI", "m4: + linear risk/EV",
+            "m4b: + nonlinear risk + fatigue", "m4c: + device (miss. sensitivity)",
+            "m4d: excl. attention failures", "m5: + literacy interaction"),
+  `n obs` = c(nobs(m0), nobs(m1), nobs(m2), nobs(m3), nobs(m4), nobs(m4b), nobs(m4c), nobs(m4d), nobs(m5)),
+  `Estimate` = round(est_seq, 3),
+  `Change from previous` = round(c(NA, diff(est_seq)), 3),
+  `Threat addressed` = c(
+    "None — baseline",
+    "Participant dependence",
+    "Stimulus heterogeneity + product-level confounding",
+    "Site-baseline confounding",
+    "Product covariates (interpretability)",
+    "Nonlinear risk threshold + trial-order fatigue",
+    "Device-related missingness",
+    "Post-treatment exclusion (estimand check)",
+    "Literacy moderation"
+  ),
+  `Key lesson` = c(
+    "Estimate is substantially below truth — bias is real",
+    "SE changes; estimate barely moves — RI fixes dependence, not bias",
+    "**Largest jump** — product RI absorbed stimulus-level confounding",
+    "Small movement — site-baseline removed",
+    "Small movement — stimulus RI did most of this work at m2",
+    "**Second meaningful jump** — functional form was part of the bias",
+    "Small shift — observed MAR adjustment reassuring",
+    "Estimate shifts direction — estimand narrows",
+    "Claim changes to conditional effect"
+  )
+) |>
+  knitr::kable(caption = paste0(
+    "Estimate movement table: actual before/after values at each step. ",
+    "True effect at average literacy = ", dgp$effect_transparency, "."))
+```
+
+---
+
+## 20. What We Fixed vs What We Did Not Fix
 
 ### What the analysis substantially reduced
 
-- **Row dependence** — participant and stimulus random intercepts correctly separate within-person/within-product estimates from between-unit baselines.
-- **Treatment-risk imbalance** — adding risk level (linear + threshold) removed the largest source of bias. The naive estimate was ~`r round(dgp$effect_transparency - coef(m0)["transparency"], 1)` points too low.
-- **Nonlinear product valuation** — the quadratic EV term and risk_high indicator removed residual misfit from functional-form assumptions.
-- **Trial-order fatigue** — adding trial_order as a fixed effect removed the downward confounding from transparent trials occurring later in the task.
-- **Observed differential missingness** — adding device_mobile adjusted for one source of differential dropout.
-- **Post-treatment exclusion ambiguity** — we reported both the intent-to-treat and the attention-excluded estimates and described the estimand difference.
+- **Row dependence** — participant and stimulus random intercepts correctly handle clustering.
+- **Product-level assignment imbalance** — stimulus random intercepts absorbed the largest part of the product-risk confounding at m2; explicit covariates made it interpretable at m4.
+- **Functional-form misspecification** — nonlinear risk and EV terms corrected the remaining bias from the risk threshold and diminishing returns.
+- **Trial-order fatigue** — adding trial order removed confounding from transparent trials occurring later.
+- **Observed differential missingness** — the device covariate adjusted for an additional missingness predictor.
 
 ### What the analysis did not fully solve
 
-- **MNAR** — if participants with low latent adoption intent are disproportionately the ones skipping transparent high-risk late-trial observations, no covariate adjustment addresses it. The sensitivity test is informative but not conclusive.
-- **Post-treatment selection** — excluding attention failures restricts the sample to trials processed without difficulty. That restriction is not neutral, and the "correct" choice depends on the intended estimand, not on data quality alone.
-- **Limited site generalization** — with four sites, the site random intercept is estimated from very little information. Site heterogeneity in the transparency effect cannot be reliably detected at this design.
-- **Heteroskedasticity** — the LMM's constant-variance assumption is violated for high-risk stimuli. For policy claims targeted at high-risk products, confidence intervals may be too narrow.
-- **Unobserved product features** — risk level and expected value capture some product characteristics, but other attractiveness dimensions (brand familiarity, temporal framing, product complexity) are absorbed into the stimulus random effect and may not be adequately controlled.
+- **MNAR** — if latent adoption intent predicts dropout beyond all observed covariates, no adjustment in this chapter addresses it. The sensitivity was reassuring; the assumption is still an assumption.
+- **Post-treatment selection** — the attention-exclusion sensitivity showed that excluding failures narrows the estimand. The primary model does not exclude; the sensitivity model does. Neither is definitively correct.
+- **Limited site generalization** — with four sites, the site random intercept is estimated with minimal precision. Treatment effect heterogeneity across sites cannot be reliably detected.
+- **Heteroskedasticity** — residuals fan with risk level, violating the LMM assumption of constant variance. For high-risk stimuli, confidence intervals may be too narrow.
 
 ### The honest final claim
 
-> After diagnosing and removing the main observed threats to inference — treatment-risk imbalance, fatigue confounding, nonlinear covariate effects, and partial missingness adjustment — fee transparency appears to increase adoption intent by approximately `r round(fixef(m_final)["transparency"], 1)` points at average financial literacy (true DGP: `r dgp$effect_transparency`). The effect is larger for lower-literacy participants. This estimate is meaningfully more credible than the naive result, but it still depends on assumptions about whether missingness is MAR conditional on observed covariates, whether attention exclusions are neutral for the estimand, and whether the four-site sample represents the intended population of deployment contexts.
+> After diagnosing and removing the major observed threats — product-level assignment imbalance, nonlinear covariate effects, and trial-order fatigue — fee transparency appears to increase adoption intent by approximately `r round(fixef(m_final)["transparency"], 1)` points at average financial literacy (true DGP: `r dgp$effect_transparency`), with larger benefits for lower-literacy participants. This estimate is meaningfully more defensible than the naive result of `r round(coef(m0)["transparency"], 1)`, but it still depends on assumptions about missingness, post-treatment exclusions, and the representativeness of stimuli and sites.
 
 ---
 
-## 22. What a Reviewer Would Ask
+## 21. What a Reviewer Would Ask
 
-**1. "The naive estimate was substantially below the true effect. Was the assignment actually randomized?"**
+**1. "The transparency coefficient predicting assignment is 0.74 in your audit. Was this truly randomized?"**
 
-No — not in this dataset. The assignment audit showed that the fee-transparency display was more commonly served to high-risk products, later trial positions, and participants at site 2. This is a known implementation pattern in platform-based studies where display logic interacts with product metadata. The bias was removed by covariate adjustment, but a reviewer is right to ask this question.
-
----
-
-**2. "Your main models are complete-case. How do you handle missing outcomes?"**
-
-Missingness is non-trivial (~`r round(100 * mean(trials$missing_y), 0)`%) and differential: transparent trials have higher dropout. We documented this in the missingness audit and compared a complete-case model to one including the main missingness predictors. The shift was `r est_diff` points. The remaining concern is MNAR — if latent adoption intent predicts dropout over and above the observed covariates — which we cannot directly test.
+No — not perfectly. The transparency display was served more often to high-risk products and later trial positions. We documented this in the assignment audit and removed it by (a) stimulus random intercepts, which absorbed the product-level confounding, and (b) nonlinear risk and trial-order covariates, which captured the within-stimulus residual. The estimate moved substantially as a result.
 
 ---
 
-**3. "You excluded attention-check failures. That's a post-treatment variable."**
+**2. "You say stimulus random intercepts absorbed the product-level confounding. Isn't that circularity?"**
 
-We did not exclude them in the primary analysis. We ran both an all-observed estimate and an attention-excluded estimate and reported both. Attention failures were more common in the transparent condition, consistent with the display being more cognitively demanding. Excluding them increases the estimate, which is the expected direction if removed trials had lower adoption intent. We flag this as an estimand issue, not a data quality fix.
-
----
-
-**4. "Why is expected value quadratic? That seems arbitrary."**
-
-Diminishing sensitivity to expected value is psychologically motivated: people are not linearly sensitive to financial value at all magnitudes. We confirmed this choice with a residual diagnostic — the loess curve over expected value showed visible nonlinearity after the linear adjustment. Forcing linearity leaves systematic residual misfit.
+No. Risk level predicts both transparency assignment and adoption intent. The stimulus random intercept gives each product a flexible baseline — whatever predicts the product-level attractiveness, including risk, is absorbed. We then added explicit risk covariates to make that adjustment interpretable and to handle within-product nonlinear effects. The combination is more informative than either alone: the RI handles flexible product baselines; the covariates name the mechanism.
 
 ---
 
-**5. "Trial order is in your model. How do you know it's a fatigue effect and not a learning effect?"**
+**3. "Your m4 estimate barely moved from m3. Why call it a useful step?"**
 
-The residual plot after m4 shows that later trials have lower adoption intent on average, which is more consistent with fatigue than learning (learning would increase ratings over time). The fatigue interpretation is also supported by the DGP — but in a real dataset, we cannot distinguish cleanly. We would recommend noting this ambiguity and checking whether the trial-order effect differs by condition.
-
----
-
-**6. "The literacy interaction is theoretically motivated. Did you pre-register it?"**
-
-This worked example is a tutorial, not a report. In a real study, the interaction between financial literacy and fee transparency is a plausible and theoretically grounded moderation hypothesis. Pre-registration is the appropriate way to control family-wise error for exploratory moderation tests.
+Because it serves a different purpose. The product-level adjustment was already handled by the stimulus RI at m2. m4's contribution is interpretability — we now know that riskier products drove most of the product-level attractiveness differences, and we have an estimate of the linear risk slope. That matters for generalizing beyond this sample of 36 products. A model with only a stimulus RI cannot extrapolate; a model with explicit risk covariates can.
 
 ---
 
-**7. "Four sites is a small sample for a random effect."**
+**4. "16% of outcomes are missing. Your sensitivity analysis moved the estimate by only 0.02. Did missingness really not matter?"**
 
-Correct. With four sites, the site random-effect variance is estimated from very few data points. The site RI is still the right specification — it correctly represents that sites are a sample from a population of contexts — but the variance estimate is unreliable. A sensitivity analysis treating site as fixed (using `factor(site_id)`) would show whether site-level differences substantially change the transparency estimate.
-
----
-
-**8. "What is the estimand?"**
-
-The average total effect of *assigned* fee transparency on willingness to adopt, averaged over the population of participants, product offers, and contexts similar to those sampled — at average financial literacy. The moderated effect at specific literacy levels is a secondary estimand. Comprehension and perceived transparency are excluded from the model because they are mechanisms, not confounders.
+Missingness looked alarming in the audit. The diagnostic sensitivity (adding `device_mobile`) was small, suggesting that the missingness predictors already in the model (risk, trial order, literacy) accounted for most of the differential dropout. The remaining concern is MNAR: if latent adoption intent predicts dropout above and beyond all observed predictors, no covariate adjustment reaches it. We flag this as a caveat and note that the small observed-sensitivity shift is reassuring but not conclusive.
 
 ---
 
-**9. "Why does heteroskedasticity not concern you more?"**
+**5. "Why not exclude attention failures? They indicate low data quality."**
 
-It concerns us, but not for the transparency point estimate. The transparency effect is a within-person contrast that is robust to mean-independent variance heterogeneity in most cases. Where it matters: confidence intervals for subgroup estimates in high-risk stimuli may be too narrow. We flag this as a caveat.
-
----
-
-**10. "Can you say the model 'recovered' the true effect?"**
-
-In this simulation we know the truth, so yes — we know the final estimate is close to the true effect. In a real dataset, we cannot verify recovery. What we can say is that the estimate is now more defensible: the major observed threats have been addressed, the modeling sequence has been documented, and the remaining assumptions have been stated explicitly.
+Attention failures are 2.5× more common in the transparent condition (12.1% vs 5.4%). If we exclude them, we are preferentially removing trials where the transparent display was most cognitively demanding — which may be the exact trials where the treatment effect is most muted. Exclusion conditions on a post-treatment variable and produces a different estimand: "effect for trials participants processed without difficulty" rather than "effect of being assigned a transparent display." Both estimands are defensible, but they should not be conflated.
 
 ---
 
-## 23. Reporting Template
+**6. "The stimulus SD is about `r round(sqrt(as.data.frame(VarCorr(m2))$vcov[as.data.frame(VarCorr(m2))$grp == "stimulus_id"]), 1)` — larger than the transparency effect. Does your generalization claim hold?"**
+
+Yes, and this is exactly why the stimulus random intercept is essential. If we had treated stimuli as fixed, the SE on the transparency effect would be too small (product-level variance absorbed into the residual inflates false precision). The random intercept correctly partitions product variance from the within-product treatment effect. The large product SD does mean that the specific stimulus sample matters — a very different set of 36 products could give a different average effect. That is an honest limitation of any single-study result.
+
+---
+
+**7. "What is your estimand?"**
+
+The average total effect of *assigned* fee transparency on willingness to adopt, averaged over the population of participants, product offers, and contexts similar to those sampled, at average financial literacy. At other literacy levels, the simple-slope table gives the conditional estimate. This is an ITT estimand — comprehension and perceived transparency are mechanisms, not adjustments.
+
+---
+
+**8. "For whom does the effect hold?"**
+
+The literacy interaction (m5) shows that transparency benefits lower-literacy participants more. The random slope (m6b) shows that there is also heterogeneity across participants beyond what literacy captures. With four sites and 36 stimuli, the boundaries of generalization are modest: similar populations, similar financial product types, similar deployment contexts.
+
+---
+
+## 22. Reporting Template
 
 > We analyzed adoption-intent ratings (0–100) using linear mixed-effects models (lme4; Bates et al., 2015) with Satterthwaite degrees of freedom (lmerTest).
 >
-> **Assignment audit.** Pre-analysis diagnostics revealed implementation imbalance: the transparent-display condition was more common for higher-risk products and later trial positions. We verified this with a logistic regression predicting transparency from pre-treatment variables (risk level, expected value, financial literacy, site, trial order). All subsequent models include these variables as covariates to remove the realized imbalance.
+> **Assignment audit.** Pre-analysis diagnostics revealed implementation imbalance: the transparent-display condition was substantially more common for higher-risk products (logistic coefficient = [X]) and later trial positions (coefficient = [X]). All subsequent models address this imbalance through stimulus random intercepts and explicit risk/fatigue covariates.
 >
-> **Observed data.** Of [N] intended trials, [X]% had missing outcomes. Missingness was higher in the transparent condition ([X]% vs [X]%) and later trials. We used complete-case analysis and checked sensitivity by adding the main missingness predictor (device platform); the estimate shifted by [amount]. We additionally report estimates with and without attention-flagged trials and describe the estimand difference.
+> **Data retention.** Of [N] intended observations, [X]% had missing outcomes. Missingness was higher in the transparent condition ([X]% vs [X]%). We used complete-case analysis and checked sensitivity by adding the main device-based missingness predictor; the estimate shifted by [X] points. Results with and without attention-check exclusions are reported separately with explicit estimand notes.
 >
-> **Model specification.** Fixed effects: transparency, financial literacy, their interaction, risk level, high-risk indicator, standardised expected value (linear + quadratic), trial order, and device platform. Random intercepts for participants, stimuli, and sites. By-participant random slope for transparency ([correlated / uncorrelated / dropped] after singularity check).
+> **Model specification.** Fixed effects: transparency, financial literacy, their interaction, risk level, high-risk indicator, standardised expected value (linear + quadratic), trial order, device platform. Random intercepts for participants, stimuli, and sites. By-participant random slope for transparency ([retained / dropped after singularity check]).
 >
-> **Results.** After adjusting for the implementation imbalance, fee transparency increased adoption intent by *b* = [X] (95% CI [X, X]), *t*([df]) = [X], *p* = [.X] at average financial literacy. Financial literacy moderated the effect (*b* = [X]), with larger benefits for lower-literacy participants.
+> **Results.** Fee transparency increased adoption intent by *b* = [X] (95% CI [X, X]) at average financial literacy, down from a naive estimate of [X] that was confounded with product-risk and trial-order imbalance. Financial literacy moderated the effect (*b* = [X]).
 >
-> **Limitations.** Three inference threats were not fully resolved: (1) missingness may depend on unobserved latent adoption intent (MNAR); (2) attention-failure exclusions condition on a post-treatment variable, changing the estimand; (3) with four sites, site-level heterogeneity in the transparency effect cannot be reliably detected.
+> **Limitations.** Missingness may depend on unobserved latent adoption intent (MNAR). Attention-failure exclusions condition on a post-treatment variable and narrow the estimand. With four sites and 36 stimuli, stimulus and site generalization is bounded.
 
 ::: {.callout-tip icon=false}
-## Minimum Reproducible Model Report Checklist
+## Minimum Reproducible Model Report
 
-- [ ] Assignment audit: was treatment balanced on pre-treatment variables?
-- [ ] Data flow table: rows intended vs observed vs dropped vs excluded
-- [ ] Missingness audit: rate by condition, site, trial order
-- [ ] Post-treatment timing audit: which variables are excluded and why
-- [ ] Model formula (verbatim)
-- [ ] Optimizer and convergence status; isSingular() result
-- [ ] All fixed-effect estimates with SEs and CIs
-- [ ] All random-effect variance components (SDs)
-- [ ] Functional-form diagnostics (residuals vs covariates)
+- [ ] Assignment audit: treatment balanced on pre-treatment variables?
+- [ ] Data flow: intended → observed → dropped → excluded
+- [ ] Missingness by condition, site, trial order
+- [ ] Post-treatment timing audit: which variables excluded and why
+- [ ] Model formula (verbatim) with optimizer and convergence status
+- [ ] Fixed-effect estimates with SEs and CIs
+- [ ] Random-effect variance components (SDs)
+- [ ] Functional-form residual diagnostics
 - [ ] Missingness sensitivity comparison
-- [ ] Exclusion sensitivity comparison with estimand note
+- [ ] Exclusion sensitivity with estimand note
 - [ ] Explicit estimand statement
 - [ ] "What we fixed vs what we did not fix" summary
 :::
@@ -1290,11 +1165,10 @@ In this simulation we know the truth, so yes — we know the final estimate is c
 
 ## Appendix: Stress Tests
 
-These tests exaggerate each threat to show what happens when problems are severe — and to confirm that the fixes in the main analysis work as expected.
-
-### Stress Test A: Severe Risk Imbalance (Double the Coefficient)
+### Stress Test A: Severe Risk Imbalance
 
 ```{r stress-a}
+#| code-summary: "Show stress test A code"
 set.seed(101)
 trials_stress_a <- trials |>
   left_join(stimuli  |> select(stimulus_id, u0_stimulus),  by = "stimulus_id") |>
@@ -1302,21 +1176,16 @@ trials_stress_a <- trials |>
   left_join(site_effects, by = "site_id") |>
   mutate(
     trial_order_z_a = (trial_order - 6.5) / 3.452,
-    # Much stronger imbalance
     p_tx_imb = plogis(1.40 * risk_level + 0.60 * trial_order_z_a + 0.80 * as.integer(site_id == 2)),
     tx_imb   = rbinom(n(), 1, p_tx_imb),
     mu_imb   = dgp$intercept +
                dgp$effect_transparency * tx_imb +
-               dgp$effect_risk         * risk_level +
-               dgp$effect_risk_high    * risk_high +
-               dgp$effect_ev_linear    * expected_value_z +
-               dgp$effect_ev_quad      * expected_value_z^2 +
-               dgp$effect_literacy     * financial_literacy +
-               dgp$interaction_tx_lit  * tx_imb * financial_literacy +
-               dgp$effect_fatigue      * trial_order +
-               dgp$effect_fatigue_late * as.integer(trial_order > 9) +
-               u0_participant + u1_participant * tx_imb +
-               u0_stimulus + u0_site,
+               dgp$effect_risk * risk_level + dgp$effect_risk_high * risk_high +
+               dgp$effect_ev_linear * expected_value_z + dgp$effect_ev_quad * expected_value_z^2 +
+               dgp$effect_literacy * financial_literacy +
+               dgp$interaction_tx_lit * tx_imb * financial_literacy +
+               dgp$effect_fatigue * trial_order + dgp$effect_fatigue_late * as.integer(trial_order > 9) +
+               u0_participant + u1_participant * tx_imb + u0_stimulus + u0_site,
     y_imb = pmin(100, pmax(0, rnorm(n(), mu_imb, dgp$sd_residual)))
   )
 
@@ -1325,64 +1194,58 @@ m_imb_adj <- lmer(y_imb ~ tx_imb + risk_level + risk_high + expected_value_z + t
                     (1 | participant_id) + (1 | stimulus_id), data = trials_stress_a)
 
 bind_rows(
-  broom.mixed::tidy(m_imb_raw, effects = "fixed") |> filter(term == "tx_imb") |> mutate(model = "Unadjusted"),
-  broom.mixed::tidy(m_imb_adj, effects = "fixed") |> filter(term == "tx_imb") |> mutate(model = "Covariate-adjusted")
+  broom.mixed::tidy(m_imb_raw, effects = "fixed") |> filter(term == "tx_imb") |>
+    mutate(model = "Stimulus RI only (no covariates)"),
+  broom.mixed::tidy(m_imb_adj, effects = "fixed") |> filter(term == "tx_imb") |>
+    mutate(model = "Stimulus RI + risk covariates")
 ) |>
   mutate(`True effect` = dgp$effect_transparency) |>
   select(model, `True effect`, estimate, std.error) |>
   mutate(across(c(estimate, std.error), \(x) round(x, 3))) |>
-  knitr::kable(caption = "Stress test A: severe imbalance. Unadjusted is badly biased; covariate adjustment recovers the effect.")
+  knitr::kable(caption = "Stress A: with imbalance coefficient doubled, stimulus RI alone leaves residual bias; covariates complete the correction")
 ```
 
 ### Stress Test B: Site-Level Treatment Heterogeneity
 
 ```{r stress-b}
+#| code-summary: "Show stress test B code"
 set.seed(102)
 site_effects_b <- site_effects |> mutate(u1_site = c(1.5, -1.0, 0.5, -1.0))
-
 trials_stress_b <- trials |>
   left_join(stimuli  |> select(stimulus_id, u0_stimulus),  by = "stimulus_id") |>
   left_join(participants |> select(participant_id, u0_participant, u1_participant), by = "participant_id") |>
   left_join(site_effects_b, by = "site_id") |>
   mutate(
-    mu_b = dgp$intercept +
-           (dgp$effect_transparency + u1_site) * transparency +
-           dgp$effect_risk      * risk_level + dgp$effect_risk_high * risk_high +
+    mu_b = dgp$intercept + (dgp$effect_transparency + u1_site) * transparency +
+           dgp$effect_risk * risk_level + dgp$effect_risk_high * risk_high +
            dgp$effect_ev_linear * expected_value_z + dgp$effect_ev_quad * expected_value_z^2 +
-           dgp$effect_literacy  * financial_literacy +
-           dgp$effect_fatigue   * trial_order + dgp$effect_fatigue_late * as.integer(trial_order > 9) +
+           dgp$effect_literacy * financial_literacy +
+           dgp$effect_fatigue * trial_order + dgp$effect_fatigue_late * as.integer(trial_order > 9) +
            u0_participant + u1_participant * transparency + u0_stimulus + u0_site,
     y_b = pmin(100, pmax(0, rnorm(n(), mu_b, dgp$sd_residual)))
   )
 
-m_site_ix <- lmer(y_b ~ transparency * factor(site_id) + risk_level + risk_high +
-                    expected_value_z + trial_order +
-                    (1 | participant_id) + (1 | stimulus_id),
-                  data = trials_stress_b)
-
-broom.mixed::tidy(m_site_ix, effects = "fixed") |>
+broom.mixed::tidy(
+  lmer(y_b ~ transparency * factor(site_id) + risk_level + risk_high + expected_value_z + trial_order +
+         (1 | participant_id) + (1 | stimulus_id), data = trials_stress_b),
+  effects = "fixed"
+) |>
   filter(str_detect(term, "transparency")) |>
   select(term, estimate, std.error) |>
   mutate(across(c(estimate, std.error), \(x) round(x, 3))) |>
-  knitr::kable(caption = "Stress test B: transparency effect varies across sites. A site RI alone would hide this.")
+  knitr::kable(caption = "Stress B: transparency effect varies by ±1.5 pts across sites. A site RI hides this; site interaction reveals it.")
 ```
 
 ### Stress Test C: Sparse Within-Person Data
 
 ```{r stress-c}
 set.seed(103)
-trials_sparse <- trials |>
-  group_by(participant_id) |>
-  slice_sample(n = 4) |>
-  ungroup()
-
+trials_sparse <- trials |> group_by(participant_id) |> slice_sample(n = 4) |> ungroup()
 m_sparse <- lmer(adoption_intent_obs ~ transparency * financial_literacy +
                    risk_level + expected_value_z +
                    (1 + transparency | participant_id) +
                    (1 | stimulus_id) + (1 | site_id),
-                 data  = trials_sparse,
-                 control = lmerControl(optimizer = "bobyqa"))
-
+                 data = trials_sparse, control = lmerControl(optimizer = "bobyqa"))
 cat("Singular (4 trials per person):", isSingular(m_sparse), "\n")
-cat("Teaching point: design justifies the slope; data cannot support it at n=4.\n")
+cat("The design justifies the slope; 4 trials per person cannot estimate it reliably.\n")
 ```
